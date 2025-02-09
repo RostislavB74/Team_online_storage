@@ -46,6 +46,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('article', 'sku', 'name', 'category', 'material', 'weight_material', 'ean_13')
     list_filter = ('category', 'material', 'coating', 'gold_plates')
     search_fields = ('name', 'sku', 'ean_13')
+    # readonly_fields = ('color_gemstone_main',)
     inlines = [ProductImageInline, ProductCertificateInline]
 
     def get_images(self, obj):
