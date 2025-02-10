@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
 from .models import Product, ProductImage, ProductCertificate
 from .serializers import ProductSerializer, ProductImageSerializer, ProductCertificateSerializer
 from rest_framework.viewsets import ModelViewSet
@@ -17,6 +19,16 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
+
+class ProductAPIList(generics.ListCreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+
+class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (IsAuthenticated, )
 
 class RingSizeLookup(APIView):
     def get(self, request, *args, **kwargs):
