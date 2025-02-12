@@ -2,7 +2,7 @@ from django.utils.html import format_html
 from django.contrib import admin
 from .models import (
     Category, Material,  Gemstone, Product, 
-    ProductImage, ProductCertificate, RingSizeConversion
+    ProductImage, ProductCertificate, RingSizeConversion, Occasion
 )
 
 @admin.register(RingSizeConversion)
@@ -46,6 +46,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('article', 'sku', 'name', 'category', 'material', 'weight_material', 'ean_13')
     list_filter = ('category', 'material', 'coating', 'gold_plates')
     search_fields = ('name', 'sku', 'ean_13')
+    filter_horizontal = ('occasions',)
     # readonly_fields = ('color_gemstone_main',)
     inlines = [ProductImageInline, ProductCertificateInline]
 
@@ -57,7 +58,7 @@ class ProductAdmin(admin.ModelAdmin):
         return "Немає зображень"
 
     get_images.short_description = "Зображення"
-
+admin.site.register(Occasion)
 # Окремий адмін для зображень товару
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
