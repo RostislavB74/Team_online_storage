@@ -95,9 +95,30 @@ class Gemstone(models.Model):
         verbose_name_plural = 'Ювелірне каміння'
     def __str__(self):
         return self.name
+class Occasion(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    class Meta:
+        verbose_name = 'Привід'
+        verbose_name_plural = 'Приводи'
+    def __str__(self):
+        return self.name
 
+class Gender(models.Model):
+    GENDER_CHOICES = [
+        ('female', 'Жіноче'),
+        ('male', 'Чоловіче'),
+        ('children', 'Дитяче'),
+        ('unisex', 'Унісекс'),
+    ]
+    name = models.CharField(choices=GENDER_CHOICES, max_length=20)
+    class Meta:
+        verbose_name = 'Для кого'    
+        verbose_name_plural = 'Для кого'
+    def __str__(self):
+        return self.name
 #Product
 class Product(models.Model):
+    
     article = models.CharField(max_length=50, unique=True, blank=True, null=True)  # Артикул
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
@@ -129,6 +150,8 @@ class Product(models.Model):
     gold_plates = models.BooleanField(default=False)
     design_product = models.CharField(max_length=255, null=True, blank=True)
     style = models.CharField(max_length=255, null=True, blank=True)
+    gender = models.CharField('Gender', max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
+    occasions = models.ManyToManyField(Occasion, null=True, blank=True)
     collection = models.CharField(max_length=255, null=True, blank=True)
     year_collection = models.IntegerField(null=True, blank=True)  # Рік колекції, якщо є відповідне поле в формі
     country_of_origin = models.CharField(max_length=255, null=True, blank=True)
