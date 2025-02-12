@@ -112,6 +112,7 @@ class Gender(models.Model):
     ]
     name = models.CharField(choices=GENDER_CHOICES, max_length=20)
     class Meta:
+        ordering = ['name']
         verbose_name = 'Для кого'    
         verbose_name_plural = 'Для кого'
     def __str__(self):

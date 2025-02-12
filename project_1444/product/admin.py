@@ -58,8 +58,13 @@ class ProductAdmin(admin.ModelAdmin):
         return "Немає зображень"
 
     get_images.short_description = "Зображення"
-admin.site.register(Occasion)
-# Окремий адмін для зображень товару
+
+class OccasionAdmin(admin.ModelAdmin):
+    ordering = ['name']  
+
+
+admin.site.register(Occasion,OccasionAdmin)
+
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = ('product', 'product_article', 'product_name', 'preview')
