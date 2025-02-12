@@ -152,7 +152,7 @@ class Product(models.Model):
     design_product = models.CharField(max_length=255, null=True, blank=True)
     style = models.CharField(max_length=255, null=True, blank=True)
     gender = models.CharField('Gender', max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
-    occasions = models.ManyToManyField(Occasion, null=True, blank=True)
+    occasions = models.ManyToManyField(Occasion, blank=True)
     collection = models.CharField(max_length=255, null=True, blank=True)
     year_collection = models.IntegerField(null=True, blank=True)  # Рік колекції, якщо є відповідне поле в формі
     country_of_origin = models.CharField(max_length=255, null=True, blank=True)
