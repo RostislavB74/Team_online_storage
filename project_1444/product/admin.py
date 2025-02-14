@@ -5,6 +5,7 @@ from .models import (
     ProductImage, ProductCertificate, RingSizeConversion, Occasion
 )
 
+
 @admin.register(RingSizeConversion)
 class RingSizeAdmin(admin.ModelAdmin):
     list_display = ('circumference_mm', 'diameter_mm', 'size_ua', 'size_us', 'size_eu', 'size_uk', 'size_asia', 'size_other_eu')
@@ -47,6 +48,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ('category', 'material', 'coating', 'gold_plates')
     search_fields = ('name', 'sku', 'ean_13')
     filter_horizontal = ('occasions',)
+    
     # readonly_fields = ('color_gemstone_main',)
     inlines = [ProductImageInline, ProductCertificateInline]
 
