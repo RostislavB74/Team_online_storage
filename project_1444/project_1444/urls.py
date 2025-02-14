@@ -32,6 +32,7 @@ from product.views import RingSizeLookup
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/users/', include('users.urls')),
     path('api/v1/auth/', include('rest_framework.urls')),
     path('api/v1/product/', ProductAPIList.as_view()),
      path('api/v1/product/<int:pk>/', ProductAPIUpdate.as_view()),

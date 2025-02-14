@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.core.files.base import ContentFile
 from django.dispatch import receiver
+from users.models import User
 #Category items
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -159,7 +160,8 @@ class Product(models.Model):
     description_product = models.TextField(null=True, blank=True)
     qr_code = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  # QR-код
     product_sertificate = models.ManyToManyField('ProductCertificate', related_name='product_certificates', blank=True)
-    created_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    # created_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def save(self, *args, **kwargs):
