@@ -29,3 +29,7 @@ class CartItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.product.name} у кошику {self.cart.user.username}"
 
+    class Meta:
+        unique_together = ("cart", "product")
+        verbose_name = "Товар у кошику"
+        verbose_name_plural = "Товари у кошику"
