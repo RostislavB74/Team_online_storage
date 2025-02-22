@@ -7,13 +7,23 @@ from django.db.models.signals import pre_save
 from django.core.files.base import ContentFile
 from django.dispatch import receiver
 from users.models import User
-#Category items
-class Category(models.Model):
+class Categories(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subcategories')
+    slug=models.SlugField(max_length=255, unique=True, null=True, blank=True, verbose_name='URL')
+
+    # parent = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True, related_name='subcategories')
     class Meta:
         verbose_name = 'Категорія виробу'
         verbose_name_plural = 'Категорії виробів'
+    def __str__(self):
+        return self.name
+class SubCategories(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    slug=models.SlugField(max_length=255, unique=True, null=True, blank=True, verbose_name='URL')
+    parent = models.ForeignKey('Categories', on_delete=models.PROTECT, null=True, blank=True, related_name='subcategories')
+    class Meta:
+        verbose_name = 'Підкатегорія виробу'
+        verbose_name_plural = 'Підкатегорії виробів'
     def __str__(self):
         return f"{self.parent.name} -> {self.name}" if self.parent else self.name
 #Material
@@ -124,8 +134,10 @@ class Product(models.Model):
     article = models.CharField(max_length=50, unique=True, blank=True, null=True)  # Артикул
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
-    name = models.CharField(max_length=255, null=True, blank=True)
-    category = models.ForeignKey('Category', on_delete=models.PROTECT, null=True, blank=True)
+    name = models.CharField(max_length=255,unique=True, null=True, blank=True)
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, verbose_name='URL')
+    category = models.ForeignKey('Categories', on_delete=models.PROTECT, null=True, blank=True)
+    subcategory = models.ForeignKey('SubCategories', on_delete=models.PROTECT, null=True, blank=True)
     material = models.ForeignKey('Material', on_delete=models.SET_NULL, null=True, blank=True)
     size = models.CharField(max_length=10, null=True, blank=True)
     circumference_mm = models.FloatField(null=True, blank=True)

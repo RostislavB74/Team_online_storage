@@ -30,10 +30,12 @@ from django.conf.urls.static import static
 from product.views import ProductAPIList, ProductAPIUpdate 
 from product.views import RingSizeLookup
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('order.urls')),
-    path('api/v1/cart/', include('cart.urls')),  # API для кошика
+    path('api/v1/cart/', include('cart.urls')),
+    # path('api/v1/orders/', include('order.urls')),  # API для кошика
     # path('api/v1/orders/', include('order.urls')),
     path('api/v1/users/', include('users.urls')),
     path('api/v1/auth/', include('rest_framework.urls')),
