@@ -1,0 +1,4 @@
+DATABASE_HOST='db.example.com'
+DATABASE_NAME='name_db'
+DATABASE_USER='user_db'
+DATABASE_PASSWORD='user_password_super_strong'
