@@ -34,7 +34,7 @@ DEBUG = env('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
-print(f"{ALLOWED_HOSTS=}")
+# print(f"{ALLOWED_HOSTS=}")
 
 
 # Application definition
@@ -170,8 +170,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 try:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = env('EMAIL_HOST')
-    EMAIL_PORT = 465
-    EMAIL_USE_SSL = True
+    EMAIL_PORT =  env('EMAIL_PORT', cast=int, default= 465)
+    EMAIL_USE_SSL = env('EMAIL_USE_SSL', cast=bool, default=True)
     EMAIL_HOST_USER = env('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 except (KeyError, environ.ImproperlyConfigured):
