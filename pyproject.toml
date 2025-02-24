@@ -29,6 +29,7 @@ django-ipware = "^7.0.1"
 djoser = "^2.3.1"
 psycopg = "^3.2.5"
 psycopg-binary = "^3.2.5"
+django-cors-headers = "^4.7.0"
 
 
 [tool.poetry.group.deploy.dependencies]
