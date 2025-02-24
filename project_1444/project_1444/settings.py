@@ -30,7 +30,7 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-i&eu1qndfw3ooc#3@01b8)0(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=["*"])
 
 # print(f"{ALLOWED_HOSTS=}")
 
@@ -257,12 +257,12 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
 CORS_ALLOWED_ORIGINS = env.list(
-  'CORS_ALLOWED_ORIGINS',default=None
+  'CORS_ALLOWED_ORIGINS',default=[]
 )
 CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
 
 CSRF_TRUSTED_ORIGINS = env.list(
-  'CSRF_TRUSTED_ORIGINS',default=None
+  'CSRF_TRUSTED_ORIGINS',default=[]
 )
 
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")
