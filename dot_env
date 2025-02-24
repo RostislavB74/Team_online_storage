@@ -1,9 +1,9 @@
 DATABASE_URL='postgresql://name_db_user:name_db_password@db.example.com/name_db'
 
-DATABASE_HOST='db.example.com'
-DATABASE_NAME='name_db'
-DATABASE_USER='name_db_user'
-DATABASE_PASSWORD='name_db_password'
+# DATABASE_HOST='db.example.com'
+# DATABASE_NAME='name_db'
+# DATABASE_USER='name_db_user'
+# DATABASE_PASSWORD='name_db_password'
 # DATABASE_PORT=5432
 
 EMAIL_HOST='smtp.example.com'
