@@ -35,6 +35,7 @@ djoser = "^2.3.1"
 psycopg = "^3.2.5"
 psycopg-binary = "^3.2.5"
 django-cors-headers = "^4.7.0"
+django-extensions = "^3.2.3"
 
 
 [tool.poetry.group.deploy.dependencies]
