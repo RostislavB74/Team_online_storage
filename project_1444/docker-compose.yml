@@ -1,0 +1,72 @@
+# environment:
+#   - DATABASE_URL=${DATABASE_URL}
+#   - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+#   - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_jewelry
+    restart: always
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 54321
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: redis_jewelry
+    restart: always
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    container_name: django_jewelry
+    restart: always
+    depends_on:
+      - redis
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres:54321@db:5432/mydatabase
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+
+  celery:
+    build: .
+    container_name: celery_jewelry
+    restart: always
+    depends_on:
+      - redis
+      - web
+    environment:
+      - DATABASE_URL=postgres://postgres:54321@db:5432/mydatabase
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: celery -A project_1444 worker --loglevel=info
+
+  celery-beat:
+    build: .
+    container_name: celery_beat_jewelry
+    restart: always
+    depends_on:
+      - redis
+      - web
+      - celery
+    environment:
+      - DATABASE_URL=postgres://postgres:54321@db:5432/mydatabase
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: celery -A project_1444 beat --loglevel=info
+
+volumes:
+  pgdata:
