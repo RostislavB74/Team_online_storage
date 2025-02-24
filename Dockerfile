@@ -7,11 +7,14 @@ ENV PYTHONUNBUFFERED 1
 # Робоча директорія в контейнері
 WORKDIR /app
 
-# Копіюємо всі файли проєкту в контейнер
-COPY . /app
-
 # Встановлюємо залежності
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /app
+RUN pip install -r requirements.txt
+# RUN pip install --no-cache-dir -r requirements.txt
+
+# Копіюємо всі файли проєкту в контейнер
+COPY project_1444 /app
 
 # Запускаємо сервер Django
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "project_1444.wsgi:application"]
+# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "project_1444.wsgi:application"]
+CMD ["bash", "-c", "./run.sh"]
