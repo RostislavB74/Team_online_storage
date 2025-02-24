@@ -1,6 +1,6 @@
 import pandas as pd
 from django.core.management.base import BaseCommand
-from product.models import Product, Category  # Імпортуємо моделі
+from product.models import Product, Categories  # Імпортуємо моделі
 
 class Command(BaseCommand):
     help = "Import products from Excel file"
@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
         for _, row in df.iterrows():
             # Отримуємо або створюємо категорію
-            category, _ = Category.objects.get_or_create(name=row["Category"])
+            category, _ = Categories.objects.get_or_create(name=row["Categories"])
 
             # Додаємо продукт у базу
             Product.objects.create(
