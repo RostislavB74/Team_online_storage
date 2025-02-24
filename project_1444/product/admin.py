@@ -1,7 +1,7 @@
 from django.utils.html import format_html
 from django.contrib import admin
 from .models import (
-    Category, Material,  Gemstone, Product, 
+    Categories, Material,  Gemstone, Product, SubCategories,
     ProductImage, ProductCertificate, RingSizeConversion, Occasion
 )
 
@@ -10,11 +10,20 @@ from .models import (
 class RingSizeAdmin(admin.ModelAdmin):
     list_display = ('circumference_mm', 'diameter_mm', 'size_ua', 'size_us', 'size_eu', 'size_uk', 'size_asia', 'size_other_eu')
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'parent',)
-    search_fields = ('name',)
+@admin.register(Categories)
+class CategoriesAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('name',)}
+    list_display = ('name', 'slug',)
+    list_per_page = 10
+    search_fields = ('name','parent__name',)
 
+@admin.register(SubCategories)
+class SubCategoriesAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('name',)}
+    list_editable = ('parent',)
+    list_display = ('name', 'slug','parent',)
+    
+    search_fields = ('name',)
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
     list_display = ('article','name','color', 'assay','type', )
@@ -44,9 +53,10 @@ class ProductCertificateInline(admin.TabularInline):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by')
-    list_display = ('article', 'sku', 'name', 'category', 'material', 'weight_material', 'ean_13')
+    list_display = ('article', 'sku', 'category', 'subcategory', 'name', 'slug',  'material', 'weight_material', 'ean_13')
+    prepopulated_fields = {'slug': ('name',)}
     list_filter = ('category', 'material', 'coating', 'gold_plates')
-    search_fields = ('name', 'sku', 'ean_13')
+    search_fields = ('name', 'sku', 'ean_13','category__name', 'material__name', 'coating', 'gold_plates')
     filter_horizontal = ('occasions',)
     
     # readonly_fields = ('color_gemstone_main',)

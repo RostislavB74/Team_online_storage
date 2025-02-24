@@ -16,7 +16,6 @@ from pathlib import Path
 import os
 import environ
 from datetime import timedelta
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -46,12 +45,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'product',
-    'users',
+    'django_celery_beat',
     'rest_framework',
     'drf_spectacular',
     'djoser',
     'rest_framework.authtoken',
+    'django_extensions',
+
+
+    'product',
+    'users',
+    'cart',
+    'order',
+    'warehouse',
+
 ]
 
 MIDDLEWARE = [
@@ -147,11 +154,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
+LANGUAGE_CODE = 'uk-ua'
 
+TIME_ZONE = 'Europe/Kiev'
+
+USE_I18N = True
+
+USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -241,6 +250,10 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"  # Redis як брокер повідомлень
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
 
 CORS_ALLOWED_ORIGINS = env.list(
   'CORS_ALLOWED_ORIGINS',default=None
