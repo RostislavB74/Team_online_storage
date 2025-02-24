@@ -2,3 +2,14 @@ DATABASE_HOST='db.example.com'
 DATABASE_NAME='name_db'
 DATABASE_USER='user_db'
 DATABASE_PASSWORD='user_password_super_strong'
+# DATABASE_PORT=5432
+
+EMAIL_HOST='smtp.example.com'
+EMAIL_PORT=587
+EMAIL_USE_SSL= True
+EMAIL_HOST_USER='your_email'
+EMAIL_HOST_PASSWORD='your_password'
+
+SECRET_KEY='your_secret_key
+ALLOWED_HOSTS='127.0.0.1,localhost'
+DEBUG=True
