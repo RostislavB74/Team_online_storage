@@ -20,7 +20,7 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-environ.Env.read_env(BASE_DIR / '.env')
+environ.Env.read_env(BASE_DIR.parent / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -32,6 +32,8 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-i&eu1qndfw3ooc#3@01b8)0(
 DEBUG = env('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
+
+print(f"{ALLOWED_HOSTS=}")
 
 
 # Application definition
