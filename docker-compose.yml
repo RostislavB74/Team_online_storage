@@ -11,13 +11,18 @@ services:
     container_name: postgres_jewelry
     restart: always
     environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 54321
+      POSTGRES_DB: ${POSTGRES_DB:-mydatabase}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-54321}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      retries: 5
+      timeout: 3s
 
   redis:
     image: redis:latest
@@ -28,21 +33,35 @@ services:
 
   web:
     build: .
+
     container_name: django_jewelry
     restart: always
     depends_on:
       - redis
       - db
+    volumes:
+      - static_volume:/app/static
     environment:
-      - DATABASE_URL=postgres://postgres:54321@db:5432/mydatabase
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-54321}@db:5432/${POSTGRES_DB:-mydatabase}}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      DEBUG: ${DEBUG:-False}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT:-465}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL:-True}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
 #    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
 
   celery:
     build: .
+    user: "celeryuser"
     container_name: celery_jewelry
     restart: always
     depends_on:
@@ -56,6 +75,7 @@ services:
 
   celery-beat:
     build: .
+    user: "celeryuser"
     container_name: celery_beat_jewelry
     restart: always
     depends_on:
@@ -68,5 +88,24 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     command: celery -A project_1444 beat --loglevel=info
 
+  nginx:
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    container_name: nginx_jewelry
+    ports:
+      - "8080:8080"  # Expose port 80 for web traffic
+    volumes:
+      - static_volume:/staticfiles:ro  # Use the named volume for static files in Nginx container
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Mount custom Nginx config
+    depends_on:
+      - web  # Ensure Nginx waits for the Django container
+    environment:
+      NGINX_HOST: localhost
+      NGINX_PORT: 8080
+      WEB_PORT: 8000
+
 volumes:
   pgdata:
+  static_volume:
+
