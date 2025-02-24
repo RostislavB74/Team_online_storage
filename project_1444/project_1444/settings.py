@@ -9,8 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
-
+import zoneinfo
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from pathlib import Path
 import os
@@ -156,11 +155,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'uk-ua'
 
-TIME_ZONE = 'Europe/Kiev'
+TIME_ZONE = 'Europe/Kyiv'
 
 USE_I18N = True
 
 USE_TZ = True
+
+# print([zone for zone in zoneinfo.available_timezones() if zone.startswith("Europe/K")])
 
 
 # Static files (CSS, JavaScript, Images)
