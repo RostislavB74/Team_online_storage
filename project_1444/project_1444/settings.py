@@ -15,6 +15,9 @@ from pathlib import Path
 import os
 import environ
 from datetime import timedelta
+
+from django.conf.global_settings import STATIC_ROOT
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,12 +28,17 @@ environ.Env.read_env(BASE_DIR.parent / '.env')
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-i&eu1qndfw3ooc#3@01b8)0(6z4yr(jfjh+=p1rk&@+j^o(m^i')
+SECRET_KEY = env('SECRET_KEY', default=None)
+if not SECRET_KEY or SECRET_KEY.isspace():
+    SECRET_KEY = 'django-insecure-i&eu1qndfw3ooc#3@01b8)0(6z4yr(jfjh+=p1rk&@+j^o(m^i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=["*"])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=None)
+
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['*']
 
 # print(f"{ALLOWED_HOSTS=}")
 
@@ -110,6 +118,8 @@ except environ.ImproperlyConfigured:
             'PORT': env('DATABASE_PORT', default=5432),
         }
     }
+
+# print(f"{DATABASES=}")
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -169,6 +179,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = BASE_DIR / "static"
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -184,6 +196,8 @@ try:
     EMAIL_USE_SSL = env('EMAIL_USE_SSL', cast=bool, default=True)
     EMAIL_HOST_USER = env('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+    if not EMAIL_HOST:
+        EMAIL_BACKEND = None
 except (KeyError, environ.ImproperlyConfigured):
     EMAIL_BACKEND = None
 
@@ -252,7 +266,14 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")  # Redis як брокер повідомлень
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=None)  # Redis як брокер повідомлень
+if not CELERY_BROKER_URL:
+    CELERY_BROKER_URL = "redis://localhost:6379/0"
+
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default=None)  # Redis як брокер повідомлень
+if not CELERY_RESULT_BACKEND:
+    CELERY_RESULT_BACKEND = CELERY_BROKER_URL or "redis://localhost:6379/0"
+
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
