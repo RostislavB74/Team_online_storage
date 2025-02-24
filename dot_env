@@ -16,5 +16,7 @@ SECRET_KEY='your_secret_key'
 ALLOWED_HOSTS='127.0.0.1,localhost'
 DEBUG=True
 
+CELERY_BROKER_URL='redis://localhost:6379/0'
+
 CORS_ALLOWED_ORIGINS='http://localhost:3000'
 CSRF_TRUSTED_ORIGINS='http://localhost:3000'
