@@ -1,83 +1,101 @@
 from django.utils.html import format_html
 from django.contrib import admin
 from .models import (
-    Categories, Material,  Gemstone, Product, SubCategories,
+    Categories, Material, Gemstone, Product, SubCategories,
     ProductImage, ProductCertificate, RingSizeConversion, Occasion
 )
+from parler.admin import TranslatableAdmin
 
 
 @admin.register(RingSizeConversion)
 class RingSizeAdmin(admin.ModelAdmin):
-    list_display = ('circumference_mm', 'diameter_mm', 'size_ua', 'size_us', 'size_eu', 'size_uk', 'size_asia', 'size_other_eu')
+    list_display = ('circumference_mm', 'diameter_mm', 
+                    'size_ua', 'size_us', 'size_eu', 
+                    'size_uk', 'size_asia', 'size_other_eu')
+
 
 @admin.register(Categories)
-class CategoriesAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'slug',)
-    list_per_page = 10
-    search_fields = ('name','parent__name',)
+class CategoriesAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+
+    
 
 @admin.register(SubCategories)
-class SubCategoriesAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('name',)}
-    list_editable = ('parent',)
-    list_display = ('name', 'slug','parent',)
-    
+class SubCategoriesAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug', )
     search_fields = ('name',)
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+
+
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('article','name','color', 'assay','type', )
-    list_filter = ('article','name','color', 'assay','type',)
-    search_fields = ('article','name','color', 'assay','type', )
-    list_display_links = ('article','name','color', 'assay','type', )
+    list_display = ('article', 'material', 'color', 'assay',)
+    search_fields = ('article', 'material','color', 'assay',)
+    list_display_links = ('material','color', 'assay',)
 
 
 @admin.register(Gemstone)
-class GemstoneAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'color','origin_stone')
-    list_filter = ('name', 'type', 'color',)
-    search_fields = ('name','color', 'type', )
-    list_display_links = ('name','color','type', )
+class GemstoneAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug', 'type', 'color', 'origin_stone')
+    search_fields = ('name', 'color', 'type',)
+    list_display_links = ('name', 'color', 'type',)
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
 
 
+# Інлайн для зображень товару
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
-    extra = 1  # Дозволяє додати 1 нове зображення вручну (не створюється автоматично)
+    extra = 1
 
-# Інлайн-клас для додавання сертифікатів безпосередньо в товар
+
+# Інлайн для сертифікатів товару
 class ProductCertificateInline(admin.TabularInline):
     model = ProductCertificate
     extra = 1
+
 
 # Налаштування для товару
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by')
-    list_display = ('article', 'sku', 'category', 'subcategory', 'name', 'slug',  'material', 'weight_material', 'ean_13')
-    prepopulated_fields = {'slug': ('name',)}
-    list_filter = ('category', 'material', 'coating', 'gold_plates')
-    search_fields = ('name', 'sku', 'ean_13','category__name', 'material__name', 'coating', 'gold_plates')
+    list_display = ('article', 'sku', 'name', 'slug',  'weight_material', 'ean_13', 'get_images', 'get_certificates')
+    search_fields = ('name', 'sku', 'ean_13', 'category__name', 'material__name', 'coating', 'gold_plates')
     filter_horizontal = ('occasions',)
-    
-    # readonly_fields = ('color_gemstone_main',)
     inlines = [ProductImageInline, ProductCertificateInline]
 
     def get_images(self, obj):
         """Показує перше зображення товару в списку товарів"""
         first_image = obj.images.first()
-        if first_image:
+        if first_image and first_image.image:
             return format_html('<img src="{}" width="50" height="50" />', first_image.image.url)
         return "Немає зображень"
 
     get_images.short_description = "Зображення"
 
-class OccasionAdmin(admin.ModelAdmin):
-    ordering = ['name']  
+    def get_certificates(self, obj):
+        """Показує посилання на перший сертифікат товару"""
+        first_certificate = obj.certificates.first()
+        if first_certificate and first_certificate.file:
+            return format_html('<a href="{}" target="_blank">Сертифікат</a>', first_certificate.file.url)
+        return "Немає сертифікатів"
+
+    get_certificates.short_description = "Сертифікати"
 
 
-admin.site.register(Occasion,OccasionAdmin)
+# Адмінка для подій (на які випадки можна дарувати товар)
+@admin.register(Occasion)
+class OccasionAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
 
-@admin.register(ProductImage)
+
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = ('product', 'product_article', 'product_name', 'preview')
     search_fields = ('product__article', 'product__name')
@@ -93,6 +111,7 @@ class ProductImageAdmin(admin.ModelAdmin):
     def preview(self, obj):
         return format_html('<img src="{}" width="50" height="50" />', obj.image.url) if obj.image else "Немає зображення"
     preview.short_description = "Зображення"
+
 
 # Окремий адмін для сертифікатів товару
 @admin.register(ProductCertificate)
@@ -111,5 +130,3 @@ class ProductCertificateAdmin(admin.ModelAdmin):
     def file_link(self, obj):
         return format_html('<a href="{}" target="_blank">Переглянути</a>', obj.file.url) if obj.file else "Немає сертифіката"
     file_link.short_description = "Сертифікат"
-
-    

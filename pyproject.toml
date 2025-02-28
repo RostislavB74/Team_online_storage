@@ -32,6 +32,7 @@ celery = "^5.4.0"
 redis = "^5.2.1"
 django-celery-beat = "^2.7.0"
 ipython = "^8.32.0"
+django-parler = "^2.3"
 
 
 [tool.poetry.group.deploy.dependencies]

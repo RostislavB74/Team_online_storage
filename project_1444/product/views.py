@@ -1,36 +1,40 @@
-from rest_framework import viewsets
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
-from .models import Product, ProductImage, ProductCertificate
-from .serializers import ProductSerializer, ProductImageSerializer, ProductCertificateSerializer
-from rest_framework.viewsets import ModelViewSet
-from .models import Product
-from rest_framework import serializers
-from .serializers import ProductSerializer
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .models import RingSizeConversion
-class ProductSerializer(serializers.ModelSerializer):
-    product_images = ProductImageSerializer(many=True, read_only=True)
-    product_certificates = ProductCertificateSerializer(many=True, read_only=True)
+from rest_framework import viewsets
+from .models import Product, ProductImage, ProductCertificate, RingSizeConversion
+from .serializers import ProductSerializer, ProductImageSerializer, ProductCertificateSerializer
 
-    class Meta:
-        model = Product
-        fields = '__all__'
-
-
-class ProductAPIList(generics.ListCreateAPIView):
+class ProductViewSet(viewsets.ModelViewSet):
+    """CRUD для продуктів"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
+class ProductAPIList(generics.ListCreateAPIView):
+    """Отримати список продуктів або створити новий"""
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+
+
+class ProductAPIDetail(generics.RetrieveAPIView):
+    """Отримати деталі продукту"""
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+
+
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
+    """Оновлення продукту"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (IsAuthenticated, )
 
+
 class RingSizeLookup(APIView):
+    """Переводить окружність пальця в розмір кільця"""
     def get(self, request, *args, **kwargs):
         circumference = request.query_params.get("circumference")
         if not circumference:
@@ -38,9 +42,7 @@ class RingSizeLookup(APIView):
 
         try:
             circumference = float(circumference)
-            size_obj = RingSizeConversion.objects.filter(
-                circumference_mm=circumference
-            ).first()
+            size_obj = RingSizeConversion.objects.filter(circumference_mm=circumference).first()
 
             if size_obj:
                 return Response({
@@ -57,3 +59,4 @@ class RingSizeLookup(APIView):
 
         except ValueError:
             return Response({"error": "Invalid circumference value"}, status=status.HTTP_400_BAD_REQUEST)
+
