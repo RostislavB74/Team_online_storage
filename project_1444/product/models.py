@@ -246,12 +246,8 @@ class ProductCertificate(models.Model):
 
 
 class Product(TranslatableModel):
-    article = models.CharField(max_length=50, unique=True, blank=True, null=True)  # Артикул
-    ean_13 = models.CharField(max_length=13, null=True, blank=True)
-    sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
     translations = TranslatedFields(
         name = models.CharField(max_length=255,unique=True, null=True, blank=True),
-    
         status = models.CharField(max_length=20, choices=ProductStatus.choices, default=ProductStatus.CLASSIC),
         gemstone_second = models.ForeignKey('Gemstone', on_delete=models.SET_NULL, null=True, blank=True, related_name='products_with_second_gem'),
         description_gemstone_second = models.CharField(max_length=255, null=True, blank=True),
@@ -259,6 +255,9 @@ class Product(TranslatableModel):
         description_product = models.TextField(null=True, blank=True),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
     )
+    article = models.CharField(max_length=50, unique=True, blank=True, null=True)  # Артикул
+    ean_13 = models.CharField(max_length=13, null=True, blank=True)
+    sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
     

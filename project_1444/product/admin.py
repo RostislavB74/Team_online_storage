@@ -61,13 +61,49 @@ class ProductCertificateInline(admin.TabularInline):
 
 # Налаштування для товару
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by')
-    list_display = ('article', 'sku', 'name', 'slug',  'weight_material', 'ean_13', 'get_images', 'get_certificates')
+class ProductAdmin(TranslatableAdmin):
+    list_display = ('article', 'sku', 'name', 'slug',  'weight_material', 'ean_13', 'get_images','display_qr_code', 'get_certificates')
     search_fields = ('name', 'sku', 'ean_13', 'category__name', 'material__name', 'coating', 'gold_plates')
+    readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by')
     filter_horizontal = ('occasions',)
     inlines = [ProductImageInline, ProductCertificateInline]
+    fieldsets = (
+        ("Основна інформація", {
+            "fields": ("name", "article", "ean_13", "sku", "status", "slug")
+        }),
+        ("Ціна та знижки", {
+            "fields": ("price", "discount_percentage", "new_price", "old_price"),
+            "classes": ("collapse",),  # Згортає блок
+        }),
+        ("Розміри та характеристики", {
+            "fields": ("size", "circumference_mm", "dimensions", "width_mm", "length_mm", "weight_material"),
+        }),
+        ("Камені", {
+            "fields": ("main_set_included", "weight_gemstone_main", "set_included", "weight_gemstone_second", "gemstone_second", "description_gemstone_second"),
+            "classes": ("collapse",),
+        }),
+        ("Додаткові параметри", {
+            "fields": ("collection", "year_collection", "country_of_origin", "occasions", "coating", "gold_plates"),
+        }),
+        ("Медіа", {
+            "fields": ("qr_code",),
+        }),
+        ("Системні поля", {
+            "fields": ("created_by", "created_at", "updated_at"),
+            "classes": ("collapse",),
+        }),
+    )
 
+    def display_qr_code(self, obj):
+        if obj.qr_code:
+            return format_html('<img src="{}" width="50" height="50" style="border-radius: 5px;" />', obj.qr_code.url)
+        return "Немає зображення"
+
+    display_qr_code.short_description = "QR-код"
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+    
+    
     def get_images(self, obj):
         """Показує перше зображення товару в списку товарів"""
         first_image = obj.images.first()
@@ -86,7 +122,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     get_certificates.short_description = "Сертифікати"
 
-
+    
 # Адмінка для подій (на які випадки можна дарувати товар)
 @admin.register(Occasion)
 class OccasionAdmin(TranslatableAdmin):
