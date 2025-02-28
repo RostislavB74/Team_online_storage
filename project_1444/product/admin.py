@@ -62,14 +62,14 @@ class ProductCertificateInline(admin.TabularInline):
 # Налаштування для товару
 @admin.register(Product)
 class ProductAdmin(TranslatableAdmin):
-    list_display = ('article', 'sku', 'name', 'slug',  'weight_material', 'ean_13', 'get_images','display_qr_code', 'get_certificates')
+    list_display = ('article', 'sku', 'category','name', 'slug',  'weight_material', 'ean_13', 'get_images','display_qr_code', 'get_certificates')
     search_fields = ('name', 'sku', 'ean_13', 'category__name', 'material__name', 'coating', 'gold_plates')
     readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by')
     filter_horizontal = ('occasions',)
     inlines = [ProductImageInline, ProductCertificateInline]
     fieldsets = (
         ("Основна інформація", {
-            "fields": ("name", "article", "ean_13", "sku", "status", "slug")
+            "fields": ("category","name", "article", "ean_13", "sku", "status", "slug")
         }),
         ("Ціна та знижки", {
             "fields": ("price", "discount_percentage", "new_price", "old_price"),
