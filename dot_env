@@ -1,4 +1,22 @@
-DATABASE_HOST='db.example.com'
-DATABASE_NAME='name_db'
-DATABASE_USER='user_db'
-DATABASE_PASSWORD='user_password_super_strong'
+DATABASE_URL='postgresql://name_db_user:name_db_password@db.example.com/name_db'
+
+# DATABASE_HOST='db.example.com'
+# DATABASE_NAME='name_db'
+# DATABASE_USER='name_db_user'
+# DATABASE_PASSWORD='name_db_password'
+# DATABASE_PORT=5432
+
+EMAIL_HOST='smtp.example.com'
+EMAIL_PORT=587
+EMAIL_USE_SSL= True
+EMAIL_HOST_USER='your_email'
+EMAIL_HOST_PASSWORD='your_password'
+
+SECRET_KEY='your_secret_key'
+ALLOWED_HOSTS='127.0.0.1,localhost'
+DEBUG=True
+
+CELERY_BROKER_URL='redis://localhost:6379/0'
+
+CORS_ALLOWED_ORIGINS='http://localhost:3000'
+CSRF_TRUSTED_ORIGINS='http://localhost:3000'

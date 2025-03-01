@@ -9,29 +9,38 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
-
+import zoneinfo
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from pathlib import Path
 import os
 import environ
 from datetime import timedelta
+
+from django.conf.global_settings import STATIC_ROOT
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-environ.Env.read_env(BASE_DIR / '.env')
+environ.Env.read_env(BASE_DIR.parent / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i&eu1qndfw3ooc#3@01b8)0(6z4yr(jfjh+=p1rk&@+j^o(m^i'
+SECRET_KEY = env('SECRET_KEY', default=None)
+if not SECRET_KEY or SECRET_KEY.isspace():
+    SECRET_KEY = 'django-insecure-i&eu1qndfw3ooc#3@01b8)0(6z4yr(jfjh+=p1rk&@+j^o(m^i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=None)
+
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['*']
+
+# print(f"{ALLOWED_HOSTS=}")
 
 
 # Application definition
@@ -49,19 +58,20 @@ INSTALLED_APPS = [
     'djoser',
     'rest_framework.authtoken',
     'django_extensions',
-    
-    
+
+
     'product',
     'users',
     'cart',
     'order',
     'warehouse',
-    
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -92,16 +102,24 @@ WSGI_APPLICATION = 'project_1444.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DATABASE_NAME'),
-        'USER': env('DATABASE_USER'),
-        'PASSWORD': env('DATABASE_PASSWORD'),
-        'HOST': env('DATABASE_HOST'),
-        'PORT': env('DATABASE_PORT', default=5432),
+
+try:
+    DATABASES = {
+         'default': env.db()
     }
-}
+except environ.ImproperlyConfigured:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('DATABASE_NAME'),
+            'USER': env('DATABASE_USER'),
+            'PASSWORD': env('DATABASE_PASSWORD'),
+            'HOST': env('DATABASE_HOST'),
+            'PORT': env('DATABASE_PORT', default=5432),
+        }
+    }
+
+# print(f"{DATABASES=}")
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -147,11 +165,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'uk-ua'
 
-TIME_ZONE = 'Europe/Kiev'
+TIME_ZONE = 'Europe/Kyiv'
 
 USE_I18N = True
 
 USE_TZ = True
+
+# print([zone for zone in zoneinfo.available_timezones() if zone.startswith("Europe/K")])
 
 
 # Static files (CSS, JavaScript, Images)
@@ -159,20 +179,27 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = BASE_DIR / "static"
+
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST')  
-EMAIL_PORT = 465
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  
+try:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = env('EMAIL_HOST')
+    EMAIL_PORT =  env('EMAIL_PORT', cast=int, default= 465)
+    EMAIL_USE_SSL = env('EMAIL_USE_SSL', cast=bool, default=True)
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+    if not EMAIL_HOST:
+        EMAIL_BACKEND = None
+except (KeyError, environ.ImproperlyConfigured):
+    EMAIL_BACKEND = None
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = env('EMAIL_HOST')
@@ -239,6 +266,24 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"  # Redis як брокер повідомлень
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=None)  # Redis як брокер повідомлень
+if not CELERY_BROKER_URL:
+    CELERY_BROKER_URL = "redis://localhost:6379/0"
+
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default=None)  # Redis як брокер повідомлень
+if not CELERY_RESULT_BACKEND:
+    CELERY_RESULT_BACKEND = CELERY_BROKER_URL or "redis://localhost:6379/0"
+
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
+
+CORS_ALLOWED_ORIGINS = env.list(
+  'CORS_ALLOWED_ORIGINS',default=[]
+)
+CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
+
+CSRF_TRUSTED_ORIGINS = env.list(
+  'CSRF_TRUSTED_ORIGINS',default=[]
+)
+
+# print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")
