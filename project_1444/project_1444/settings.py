@@ -58,25 +58,15 @@ INSTALLED_APPS = [
     'djoser',
     'rest_framework.authtoken',
     'django_extensions',
-<<<<<<< HEAD
-
-
-=======
     'parler',
-    
-    
->>>>>>> dev1_rost
     'product',
     'users',
     'cart',
     'order',
     'warehouse',
-<<<<<<< HEAD
 
-=======
     'discounts',
     
->>>>>>> dev1_rost
 ]
 PARLER_LANGUAGES = {
     None: (
@@ -123,7 +113,6 @@ WSGI_APPLICATION = 'project_1444.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-<<<<<<< HEAD
 
 try:
     DATABASES = {
@@ -142,8 +131,6 @@ except environ.ImproperlyConfigured:
     }
 
 # print(f"{DATABASES=}")
-=======
->>>>>>> dev1_rost
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -154,19 +141,7 @@ except environ.ImproperlyConfigured:
 #         'PORT': env('DATABASE_PORT', default=5432),
 #     }
 # }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '54321',
-        'HOST': 'localhost',
-        'PORT': '5432',
-        'OPTIONS': {
-            'options': '-c client_encoding=UTF8'
-        },
-    }
-}
+
 
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
@@ -214,7 +189,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 # STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, '/project_1444/static'),
 ]
 
 STATIC_ROOT = BASE_DIR / "static"
