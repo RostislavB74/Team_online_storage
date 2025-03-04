@@ -1,18 +1,19 @@
 import uuid
 import qrcode
-from io import BytesIO
 from datetime import datetime
+from io import BytesIO
 from django.db import models
 from django.db.models.signals import pre_save
-from django.conf import settings
 from django.core.files.base import ContentFile
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.dispatch import receiver
 from users.models import User
 from parler.models import TranslatableModel, TranslatedFields
 from django.utils.text import slugify
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.text import slugify
+from django.conf import settings
+from parler.models import TranslatableModel, TranslatedFields
 from django.utils.translation import gettext_lazy as _
-
 from .utils import save_with_translation
 # Категорії
 class Categories(TranslatableModel):
@@ -205,14 +206,6 @@ class ProductAttributes(TranslatableModel):
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
 
-class ProductTag(TranslatableModel):
-    translations = TranslatedFields(
-        name=models.CharField(max_length=255),
-        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
-    )
-    def save(self, *args, **kwargs):
-        save_with_translation(self, *args, **kwargs)
-    
 class ProductStatus(models.TextChoices):
     BESTSELLER = "bestseller", _("Bestseller")
     NEW = "new", _("New")
@@ -290,6 +283,7 @@ class Product(TranslatableModel):
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
+    # gender= models.CharField(max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
     size = models.CharField(max_length=10, null=True, blank=True)
     circumference_mm = models.FloatField(null=True, blank=True)
     price = models.FloatField(null=True, blank=True)
@@ -332,13 +326,11 @@ class Product(TranslatableModel):
         verbose_name = 'Товар'
         verbose_name_plural = 'Товари'
     
-
     def get_material_info(self):
         materials = self.materials.all()
         return ", ".join([f"{m.material.article} | {m.material.name} | {m.material.metal} | {m.material.assay} | {m.material.color}" for m in materials]) if materials else "Матеріал не вибрано"
 
-    def __str__(self):
-        return self.name 
+
 # Функція для генерації `sku`
 def generate_sku():
     return f"SKU-{uuid.uuid4().hex[:8].upper()}"

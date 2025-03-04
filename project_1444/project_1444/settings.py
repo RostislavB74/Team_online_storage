@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'cart',
     'order',
     'warehouse',
+    'discounts',
     
 ]
 PARLER_LANGUAGES = {

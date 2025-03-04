@@ -2,9 +2,14 @@ from django.utils.html import format_html
 from django.contrib import admin
 from .models import (
     Categories, Material, Gemstone, Product, SubCategories,
-    ProductImage, ProductCertificate, RingSizeConversion, Occasion
+    ProductImage, ProductCertificate, RingSizeConversion, Occasion, RingSizeConversion,Colors,
+    ProductGemstone, ProductMaterial, ProductStatus, ProductAttributes,  Collections
 )
 from parler.admin import TranslatableAdmin
+from django.contrib import admin
+from django.utils.html import format_html
+from parler.admin import TranslatableAdmin, TranslatableTabularInline
+from django.utils.html import format_html
 
 
 @admin.register(RingSizeConversion)
@@ -21,8 +26,18 @@ class CategoriesAdmin(TranslatableAdmin):
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
 
+@admin.register(Colors)
+class ColorsAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
     
-
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+@admin.register(Collections)
+class CollectionsAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
 @admin.register(SubCategories)
 class SubCategoriesAdmin(TranslatableAdmin):
     list_display = ('name', 'slug', )
@@ -57,43 +72,59 @@ class ProductImageInline(admin.TabularInline):
 class ProductCertificateInline(admin.TabularInline):
     model = ProductCertificate
     extra = 1
+class ProductAttributesInline(TranslatableTabularInline):
+    model = ProductAttributes
+    extra = 1  
+    fields = ("gender", "color_coating","clasp_type", "coating_material", "description_coating", "design_product", "style",)
+    verbose_name = "Характеристики"
+    verbose_name_plural = "Характеристики"
 
 
 # Налаштування для товару
 @admin.register(Product)
 class ProductAdmin(TranslatableAdmin):
-    list_display = ('article', 'sku', 'category','name', 'slug',  'weight_material', 'ean_13', 'get_images','display_qr_code', 'get_certificates')
-    search_fields = ('name', 'sku', 'ean_13', 'category__name', 'material__name', 'coating', 'gold_plates')
-    readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by')
+    list_display = ('article', 'sku', 'category','name', 'slug',"display_attributes", 'weight_material', 'ean_13', 'get_images','display_qr_code', 'get_certificates',)
+    search_fields = ('name', 'sku', 'ean_13', 'category__name', 'material__name', 'coating', 'gold_plates',)
+    readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by',)
     filter_horizontal = ('occasions',)
-    inlines = [ProductImageInline, ProductCertificateInline]
+    inlines = [ProductImageInline, ProductCertificateInline, ProductAttributesInline ]
     fieldsets = (
         ("Основна інформація", {
-            "fields": ("category","name", "article", "ean_13", "sku", "status", "slug")
+            "fields": ("category","subcategory","name", "article", "ean_13", "sku", "status", "slug"),
+            "classes": ("collapse",),
         }),
+        
         ("Ціна та знижки", {
             "fields": ("price", "discount_percentage", "new_price", "old_price"),
             "classes": ("collapse",),  # Згортає блок
         }),
         ("Розміри та характеристики", {
-            "fields": ("size", "circumference_mm", "dimensions", "width_mm", "length_mm", "weight_material"),
+            "fields": ("size", "circumference_mm", "dimensions", "width_mm", "length_mm", "weight_material",),
+            "classes": ("collapse",),
         }),
         ("Камені", {
-            "fields": ("main_set_included", "weight_gemstone_main", "set_included", "weight_gemstone_second", "gemstone_second", "description_gemstone_second"),
+            "fields": ("main_set_included", "gemstone_first","weight_gemstone_main", "set_included", "weight_gemstone_second", "gemstone_second", "description_gemstone_second"),
             "classes": ("collapse",),
         }),
         ("Додаткові параметри", {
             "fields": ("collection", "year_collection", "country_of_origin", "occasions", "coating", "gold_plates"),
+            "classes": ("collapse",),
         }),
         ("Медіа", {
             "fields": ("qr_code",),
+            "classes": ("collapse",),
         }),
         ("Системні поля", {
             "fields": ("created_by", "created_at", "updated_at"),
             "classes": ("collapse",),
         }),
     )
+    def display_attributes(self, obj):
+       
+        attributes = obj.attributes.all()  
+        return format_html("<br>".join([f"{attr.attribute_name}: {attr.value}" for attr in attributes]))
 
+    display_attributes.short_description = "Додаткові характеристики"
     def display_qr_code(self, obj):
         if obj.qr_code:
             return format_html('<img src="{}" width="50" height="50" style="border-radius: 5px;" />', obj.qr_code.url)
@@ -121,6 +152,7 @@ class ProductAdmin(TranslatableAdmin):
         return "Немає сертифікатів"
 
     get_certificates.short_description = "Сертифікати"
+    
 
     
 # Адмінка для подій (на які випадки можна дарувати товар)
