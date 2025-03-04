@@ -31,11 +31,15 @@ celery = "^5.4.0"
 redis = "^5.2.1"
 django-celery-beat = "^2.7.0"
 ipython = "^8.32.0"
+<<<<<<< HEAD
 djoser = "^2.3.1"
 psycopg = "^3.2.5"
 psycopg-binary = "^3.2.5"
 django-cors-headers = "^4.7.0"
 django-extensions = "^3.2.3"
+=======
+django-parler = "^2.3"
+>>>>>>> dev1_rost
 
 
 [tool.poetry.group.deploy.dependencies]

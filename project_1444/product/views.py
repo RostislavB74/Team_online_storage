@@ -1,36 +1,71 @@
-from rest_framework import viewsets
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
-from .models import Product, ProductImage, ProductCertificate
-from .serializers import ProductSerializer, ProductImageSerializer, ProductCertificateSerializer
-from rest_framework.viewsets import ModelViewSet
-from .models import Product
-from rest_framework import serializers
-from .serializers import ProductSerializer
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .models import RingSizeConversion
-class ProductSerializer(serializers.ModelSerializer):
-    product_images = ProductImageSerializer(many=True, read_only=True)
-    product_certificates = ProductCertificateSerializer(many=True, read_only=True)
+from rest_framework import viewsets
+from .models import Product, ProductImage, ProductCertificate, RingSizeConversion
+from .serializers import ProductSerializer, ProductImageSerializer, ProductCertificateSerializer
+from django.shortcuts import get_object_or_404
 
-    class Meta:
-        model = Product
-        fields = '__all__'
 
+class ProductViewSet(viewsets.ModelViewSet):
+    """CRUD для продуктів"""
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        """Фільтрація товарів за мовою"""
+        lang = self.request.GET.get("lang", "uk")
+        if lang == "uk":
+            return Product.objects.filter(translations__language_code="uk")
+        return Product.objects.filter(translations__language_code="en")
+
+    def retrieve(self, request, *args, **kwargs):
+        """Отримання продукту за slug з урахуванням мови"""
+        lang = request.GET.get("lang", "uk")
+        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
+        product = get_object_or_404(Product, **{field: kwargs["pk"], "translations__language_code": lang})
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)
+# class ProductViewSet(viewsets.ModelViewSet):
+#     def retrieve(self, request, slug=None, *args, **kwargs):
+#         lang = request.GET.get("lang", "uk")
+#         field = "slug_uk" if lang == "uk" else "slug_en"
+#         product = get_object_or_404(Product, **{field: slug})
+#         serializer = self.get_serializer(product)
+#         return Response(serializer.data)
+
+
+# class ProductViewSet(viewsets.ModelViewSet):
+#     """CRUD для продуктів"""
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = (IsAuthenticatedOrReadOnly, )
 
 class ProductAPIList(generics.ListCreateAPIView):
+    """Отримати список продуктів або створити новий"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
+
+class ProductAPIDetail(generics.RetrieveAPIView):
+    """Отримати деталі продукту"""
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+
+
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
+    """Оновлення продукту"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (IsAuthenticated, )
 
+
 class RingSizeLookup(APIView):
+    """Переводить окружність пальця в розмір кільця"""
     def get(self, request, *args, **kwargs):
         circumference = request.query_params.get("circumference")
         if not circumference:
@@ -38,9 +73,7 @@ class RingSizeLookup(APIView):
 
         try:
             circumference = float(circumference)
-            size_obj = RingSizeConversion.objects.filter(
-                circumference_mm=circumference
-            ).first()
+            size_obj = RingSizeConversion.objects.filter(circumference_mm=circumference).first()
 
             if size_obj:
                 return Response({
@@ -57,3 +90,4 @@ class RingSizeLookup(APIView):
 
         except ValueError:
             return Response({"error": "Invalid circumference value"}, status=status.HTTP_400_BAD_REQUEST)
+
