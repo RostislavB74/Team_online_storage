@@ -142,19 +142,6 @@ except environ.ImproperlyConfigured:
 #         'PORT': env('DATABASE_PORT', default=5432),
 #     }
 # }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '54321',
-        'HOST': 'localhost',
-        'PORT': '5432',
-        'OPTIONS': {
-            'options': '-c client_encoding=UTF8'
-        },
-    }
-}
 
 
     # 'default': {
