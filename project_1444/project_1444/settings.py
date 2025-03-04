@@ -115,21 +115,27 @@ WSGI_APPLICATION = 'project_1444.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# try:
-#     DATABASES = {
-#          'default': env.db()
-#     }
-# except environ.ImproperlyConfigured:
-DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': env('DATABASE_NAME'),
-            'USER': env('DATABASE_USER'),
-            'PASSWORD': env('DATABASE_PASSWORD'),
-            'HOST': env('DATABASE_HOST'),
-            'PORT': env('DATABASE_PORT', default=5432),
-        }
+try:
+    if not env('DATABASE_URL', default=None):
+        raise environ.ImproperlyConfigured
+    DATABASES = {
+         'default': env.db()
     }
+except environ.ImproperlyConfigured:
+    try:
+        DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.postgresql',
+                    'NAME': env('DATABASE_NAME'),
+                    'USER': env('DATABASE_USER'),
+                    'PASSWORD': env('DATABASE_PASSWORD'),
+                    'HOST': env('DATABASE_HOST'),
+                    'PORT': env('DATABASE_PORT', default=5432),
+                }
+            }
+    except environ.ImproperlyConfigured as e:
+        print("Database .env setting must have DATABASE_URL or set of DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD:", e)
+        raise ValueError(e)
 
 # print(f"{DATABASES=}")
 # DATABASES = {
@@ -188,10 +194,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-# STATIC_URL = 'static/'
-STATICFILES_DIRS = [ BASE_DIR / 'static' ]
-print(f"static_dir: {STATICFILES_DIRS}")
-# STATIC_ROOT = BASE_DIR / "static"
+# for manage.py collect static
+STATIC_ROOT = BASE_DIR / "static"
+# for additional static files outside static_root
+# STATICFILES_DIRS = [ BASE_DIR / 'static' ]
+# print(f"static_dir: {STATICFILES_DIRS}")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
