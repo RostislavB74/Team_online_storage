@@ -114,7 +114,6 @@ WSGI_APPLICATION = 'project_1444.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-<<<<<<< HEAD
 
 try:
     DATABASES = {
@@ -133,8 +132,6 @@ except environ.ImproperlyConfigured:
     }
 
 # print(f"{DATABASES=}")
-=======
->>>>>>> dev2_rost
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -206,15 +203,10 @@ USE_TZ = True
 STATIC_URL = 'static/'
 # STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-<<<<<<< HEAD
     os.path.join(BASE_DIR, '/project_1444/static'),
 ]
 
 STATIC_ROOT = BASE_DIR / "static"
-=======
-    os.path.join(BASE_DIR, 'static'),
-]
->>>>>>> dev2_rost
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
