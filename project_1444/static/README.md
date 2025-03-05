@@ -1,0 +1,1 @@
+place for static files
