@@ -135,6 +135,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=True, blank=True)
     phone = models.CharField(max_length=20, unique=True, blank=True, null=True, validators=[phone_validator])
     telegram = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    bithday = models.DateField(null=True, blank=True)
+    country = models.CharField(max_length=2, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

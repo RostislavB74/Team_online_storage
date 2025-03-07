@@ -4,12 +4,12 @@ from django.contrib.auth.models import Group
 from .models import User
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('name', 'email', 'phone', 'telegram', 'is_staff', 'is_active', 'is_superuser', "display_groups")
-    search_fields = ('name', 'email', 'phone', 'telegram')
-    list_filter = ('is_staff', 'is_active', 'is_superuser', 'groups')
+    list_display = ('name', 'email', 'phone', 'telegram', 'bithday', 'country','is_staff', 'is_active', 'is_superuser', "display_groups")
+    search_fields = ('name', 'email', 'phone', 'telegram', 'country', 'bithday')
+    list_filter = ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions', 'country', 'bithday')
 
     fieldsets = (
-        (None, {'fields': ('name', 'email', 'phone', 'telegram', 'password')}),
+        (None, {'fields': ('name', 'email', 'phone', 'telegram', 'password', 'bithday', 'country')}),
         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
     )
 
