@@ -33,4 +33,6 @@ jobs:
       run: |
         cd project_1444
         export PYTHONPATH=.
+        export DATABASE_URL=sqlite:///db.sqlite
+        python manage.py migrate
         python manage.py test
