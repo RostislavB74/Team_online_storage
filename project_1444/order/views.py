@@ -14,9 +14,9 @@ from .serializers import OrderSerializer, OrderItemSerializer
 from cart.models import Cart, CartItem
 from product.models import Product
 
-
-
-
+class HealthCheckView(APIView):
+    def get(self, request):
+        return Response({"status": "ok"})
 
 class CreateOrderFromCartView(APIView):
     def post(self, request):
