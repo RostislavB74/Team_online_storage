@@ -26,4 +26,10 @@ jobs:
         env:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          curl "$deploy_url"
+          if [ -n "$deploy_url" ]; then
+            echo "Deploying to $deploy_url"
+            curl "$deploy_url"
+          else
+            echo "No deploy url found"
+          fi
+
