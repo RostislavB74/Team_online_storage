@@ -17,7 +17,7 @@ export PYTHONPATH=.
 python manage.py collectstatic --no-input
 
 # Apply any outstanding database migrations
-#python manage.py migrate
+python manage.py migrate
 
 # Used env DJANGO_SUPERUSER_PASSWORD
 #python manage.py createsuperuser --username admin --email admin@localhost --no-input
