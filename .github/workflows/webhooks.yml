@@ -14,7 +14,7 @@ permissions:
 on:
   pull_request:
   push:
-    branches: [ dev ]
+    branches: [ "dev", "dev-lexxai-deploy" ]
 
 jobs:
   ci:
