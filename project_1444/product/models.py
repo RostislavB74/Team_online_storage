@@ -80,7 +80,7 @@ class Collections(TranslatableModel):
     def __str__(self):
         return self.safe_translation_getter('name', default='Без назви')  # Бере name із перекладу
 # Матеріали
-class Material(models.Model):
+class Material(TranslatableModel):
 
     PROBE_CHOICES = [
         ('0', '0'),
@@ -106,11 +106,14 @@ class Material(models.Model):
         ('steel', 'Сталь'),
 
     ]
-    
     material = models.CharField(max_length=50,choices=METAL_CHOICES,null=True, blank=True)
     assay = models.CharField(max_length=20, choices=PROBE_CHOICES, null=True, blank=True)
     color = models.CharField(max_length=50, choices=COLOR_CHOICES, null=True, blank=True)
     article = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    translations = TranslatedFields(
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),    
+    )
+    
     
     class Meta:
         verbose_name = 'Матеріал'
@@ -130,7 +133,11 @@ def generate_article(sender, instance, **kwargs):
         next_number = f"{(last_material.id + 1) if last_material else 1:03d}"  # Генерація номера
         instance.article = f"{metal_code}{assay_code}{color_code}{next_number}"
 
-
+class ProductStatus(models.TextChoices):
+    BESTSELLER = "bestseller", _("Bestseller")
+    NEW = "new", _("New")
+    CLASSIC = "classic", _("Classic")
+    STOCK = "stock", _("Stock")
 #Gemstone
 class Gemstone(TranslatableModel):
     TYPE_CHOICES = [
@@ -150,7 +157,7 @@ class Gemstone(TranslatableModel):
     
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     origin_stone = models.CharField(max_length=20, choices=ORIGIN_CHOICES)
-    level = models.IntegerField(choices=LEVEL_CHOICES)
+    level = models.IntegerField(choices=LEVEL_CHOICES, null=True, blank=True)
     color=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
     translations = TranslatedFields(
         name = models.CharField(max_length=255),
@@ -200,10 +207,11 @@ class ProductAttributes(TranslatableModel):
         coating_material = models.CharField(max_length=255, blank=True, null=True),
         description_coating = models.CharField(max_length=255, blank=True, null=True),
         design_product = models.CharField(max_length=255, blank=True, null=True),
-        style = models.CharField(max_length=255, blank=True, null=True)
+        style = models.CharField(max_length=255, blank=True, null=True),
+        status = models.CharField(max_length=20, choices=ProductStatus.choices, default=ProductStatus.CLASSIC),
     )
-    def save(self, *args, **kwargs):
-        save_with_translation(self, *args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     save_with_translation(self, *args, **kwargs)
 
 class ProductTag(TranslatableModel):
     translations = TranslatedFields(
@@ -213,25 +221,33 @@ class ProductTag(TranslatableModel):
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
     
-class ProductStatus(models.TextChoices):
-    BESTSELLER = "bestseller", _("Bestseller")
-    NEW = "new", _("New")
-    CLASSIC = "classic", _("Classic")
-    STOCK = "stock", _("Stock")
 
-class ProductMaterial(TranslatableModel):
+
+class ProductMaterial(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="materials")
-    material = models.ForeignKey('Material', on_delete=models.CASCADE)
     is_primary = models.BooleanField(default=False)  # Чи основний матеріал
-
+    material = models.ForeignKey('Material', on_delete=models.CASCADE)
+    
     class Meta:
         unique_together = ('product', 'material')  # Уникнення дублювань
+
+    # def save(self, *args, **kwargs):
+    #     save_with_translation(self, *args, **kwargs)
+    
+
 class ProductGemstone(TranslatableModel):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="gemstones")
-    gemstone = models.ForeignKey(Gemstone, on_delete=models.CASCADE)
+    gemstone = models.ForeignKey('Gemstone', on_delete=models.CASCADE)
     is_main = models.BooleanField(default=False)  # Основний камінь
     color=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
+    weight_gemstone_main = models.FloatField(null=True, blank=True)
+    set_included = models.BooleanField(default=False)
+    weight_gemstone_second = models.FloatField(null=True, blank=True)
     translations = TranslatedFields(
+        gemstone_first = models.ForeignKey('Gemstone', on_delete=models.SET_NULL, null=True, blank=True, related_name='products_with_gem'),
+        description_gemstone_first = models.CharField(max_length=255, null=True, blank=True),
+        gemstone_second = models.ForeignKey('Gemstone', on_delete=models.SET_NULL, null=True, blank=True, related_name='products_with_second_gem'),
+        description_gemstone_second = models.CharField(max_length=255, null=True, blank=True),
         description=models.CharField(max_length=255, blank=True, null=True),
     )
 
@@ -277,11 +293,6 @@ class Product(TranslatableModel):
     occasions = models.ManyToManyField('Occasion', blank=True)
     translations = TranslatedFields(
         name = models.CharField(max_length=255,unique=True, null=True, blank=True),
-        status = models.CharField(max_length=20, choices=ProductStatus.choices, default=ProductStatus.CLASSIC),
-        gemstone_first = models.ForeignKey('Gemstone', on_delete=models.SET_NULL, null=True, blank=True, related_name='products_with_gem'),
-        description_gemstone_first = models.CharField(max_length=255, null=True, blank=True),
-        gemstone_second = models.ForeignKey('Gemstone', on_delete=models.SET_NULL, null=True, blank=True, related_name='products_with_second_gem'),
-        description_gemstone_second = models.CharField(max_length=255, null=True, blank=True),
         description_product = models.TextField(null=True, blank=True),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
     )
@@ -298,9 +309,7 @@ class Product(TranslatableModel):
     old_price = models.FloatField(null=True, blank=True)
     weight_material = models.FloatField(null=True, blank=True)  # В грамах
     main_set_included = models.BooleanField(default=False)
-    weight_gemstone_main = models.FloatField(null=True, blank=True)
-    set_included = models.BooleanField(default=False)
-    weight_gemstone_second = models.FloatField(null=True, blank=True)
+    
     dimensions = models.BooleanField(default=False) # Розміри
     width_mm = models.CharField(max_length=255, null=True, blank=True)
     length_mm = models.FloatField(null=True, blank=True)  # Розміри
