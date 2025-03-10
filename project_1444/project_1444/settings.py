@@ -15,6 +15,8 @@ from pathlib import Path
 import os
 import environ
 from datetime import timedelta
+from . import __version__
+# from django.utils.translation import gettext_lazy as _
 
 from django.conf.global_settings import STATIC_ROOT
 
@@ -306,5 +308,8 @@ CSRF_TRUSTED_ORIGINS = env.list(
   'CSRF_TRUSTED_ORIGINS',default=[]
 )
 
-GIT_VERSION = env('GIT_VERSION', default="None")
+GIT_VERSION = env('GIT_VERSION', default="Version is unknown")
+VERSION = env('VERSION', default=__version__)
+
+
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")
