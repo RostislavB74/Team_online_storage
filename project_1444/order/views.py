@@ -1,4 +1,4 @@
-
+from django.conf import settings
 from rest_framework import generics, permissions
 from rest_framework import viewsets, status
 
@@ -17,6 +17,10 @@ from product.models import Product
 class HealthCheckView(APIView):
     def get(self, request):
         return Response({"status": "ok"})
+
+class VersionView(APIView):
+    def get(self, request):
+        return Response({"git_version": settings.GIT_VERSION, "version": settings.VERSION})
 
 class CreateOrderFromCartView(APIView):
     def post(self, request):
