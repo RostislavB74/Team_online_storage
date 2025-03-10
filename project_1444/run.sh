@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export GIT_VERSION=$(git branch --show-current)-$(git rev-parse --short HEAD)
+export GIT_VERSION=$(git rev-parse --abbrev-ref HEAD)-$(git rev-parse --short HEAD)
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 cd "${script_dir}"
