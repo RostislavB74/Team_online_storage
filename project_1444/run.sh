@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-export GIT_VERSION=$(git rev-parse --abbrev-ref HEAD)-$(git rev-parse --short HEAD)
+BRANCH_NAME=${BRANCH_NAME:-$(git branch --show-current)}
+BRANCH_NAME=${BRANCH_NAME:-$(git branch -r --contains HEAD | grep -v 'HEAD' | head -n 1 | awk '{print $1}')}
+BRANCH_NAME=${BRANCH_NAME:-"deploy_safe"}
+
+export GIT_VERSION="${BRANCH_NAME}-$(git rev-parse --short HEAD)"
+
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 cd "${script_dir}"
