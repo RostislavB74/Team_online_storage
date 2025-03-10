@@ -10,6 +10,8 @@ pip install gunicorn -q --no-input
 #poetry install -n
 #poetry install --with deploy -n
 
+export GIT_VERSION=$(git branch --show-current)-$(git rev-parse --short HEAD)
+
 # Convert static asset files
 pushd project_1444
 export PYTHONPATH=.
