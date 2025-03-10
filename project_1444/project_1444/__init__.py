@@ -1,6 +1,3 @@
-import pathlib
-import tomllib
-
 from .celery import app as celery_app
 
 __all__ = ("celery_app",)
@@ -10,6 +7,9 @@ from importlib.metadata import version, PackageNotFoundError
 try:
     __version__ = version("teamchallenge-1444")
 except PackageNotFoundError:  # pragma: no cover
+    import pathlib
+    import tomllib
+
     default_version = "0.0.1.dev"
     try:
         with pathlib.Path(__file__).parent.parent.parent.joinpath('pyproject.toml').open(mode='rb') as pyproject:
