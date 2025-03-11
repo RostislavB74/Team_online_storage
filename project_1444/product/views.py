@@ -48,7 +48,7 @@ class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, AllowAny, )
 
 class ProductViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
