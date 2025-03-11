@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets
 from .models import Product, ProductImage, ProductCertificate, RingSizeConversion, Categories
-from .serializers import ProductSerializer, ProductImageSerializer, ProductCertificateSerializer, CategoriesSerializer
+from .serializers import ProductSerializer, ProductImageSerializer, ProductCertificateSerializer, CategoriesSerializer, RingSizeSerializer
 from django.shortcuts import get_object_or_404
 
 
@@ -110,7 +110,7 @@ class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
 
 class RingSizeLookup(APIView):
     """Переводить окружність пальця в розмір кільця, знаходячи найближче значення"""
-    
+    serializer_class = RingSizeSerializer
     def get(self, request, *args, **kwargs):
         circumference = request.query_params.get("circumference")
 

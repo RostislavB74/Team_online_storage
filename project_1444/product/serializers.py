@@ -39,7 +39,8 @@ class ProductSerializer(serializers.ModelSerializer):
                 circumference_mm=obj.circumference_mm
             ).first()
             return size_obj.size_ua if size_obj else None
-        return None
+      
 
-
-
+class RingSizeSerializer(serializers.Serializer):
+    finger_circumference = serializers.FloatField(help_text="Обхват пальця в мм")
+    ring_size = serializers.FloatField(help_text="Розмір кільця за стандартом")
