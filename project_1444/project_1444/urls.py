@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-from product.views import ProductAPIList, ProductAPIUpdate , CategoriesAPIList, CategoriesAPIUpdate, ProductAPIDetail
+from product.views import ProductAPIList, ProductAPIUpdate , CategoriesAPIList, CategoriesAPIDetail, ProductAPIDetail
 from product.views import RingSizeLookup
 
 
@@ -32,7 +32,7 @@ urlpatterns = [
     path('api/v1/product/', ProductAPIList.as_view()),
     path('api/v1/product/<int:pk>/', ProductAPIDetail.as_view()),
     path('api/v1/categories/', CategoriesAPIList.as_view()),
-    path('api/v1/categories/<int:pk>/', CategoriesAPIUpdate.as_view()),
+    path('api/v1/categories/<int:pk>/', CategoriesAPIDetail.as_view()),
     path("api/v1/ring-size/", RingSizeLookup.as_view(), name="ring-size-lookup"),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),  # JSON схема API
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),  # Swagger UI
