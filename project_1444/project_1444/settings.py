@@ -15,6 +15,8 @@ from pathlib import Path
 import os
 import environ
 from datetime import timedelta
+from . import __version__
+# from django.utils.translation import gettext_lazy as _
 
 from django.conf.global_settings import STATIC_ROOT
 
@@ -55,6 +57,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework',
     'drf_spectacular',
+     
     'djoser',
     'rest_framework.authtoken',
     'django_extensions',
@@ -194,7 +197,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = env('STATIC_URL', default='/static/')  # 'static/'
+
 # for manage.py collect static
 STATIC_ROOT = BASE_DIR / "static"
 # for additional static files outside static_root
@@ -231,6 +235,8 @@ except (KeyError, environ.ImproperlyConfigured):
 # EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
@@ -305,5 +311,9 @@ CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
 CSRF_TRUSTED_ORIGINS = env.list(
   'CSRF_TRUSTED_ORIGINS',default=[]
 )
+
+GIT_VERSION = env('GIT_VERSION', default="Version is unknown")
+VERSION = env('VERSION', default=__version__)
+
 
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")
