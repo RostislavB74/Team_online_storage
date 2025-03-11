@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework',
     'drf_spectacular',
+     
     'djoser',
     'rest_framework.authtoken',
     'django_extensions',
@@ -234,6 +235,8 @@ except (KeyError, environ.ImproperlyConfigured):
 # EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',

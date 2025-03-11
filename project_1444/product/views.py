@@ -1,3 +1,6 @@
+from django.db.models import F, FloatField
+from django.db.models.functions import Abs
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 from rest_framework.views import APIView
@@ -29,7 +32,13 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(result)
         return Response(serializer.data)
 
-
+    @extend_schema(
+        summary="Get example data",
+        description="Returns an example response with some data.",
+        responses={200: dict},
+    )
+    def get(self, request):
+        return Response({"message": "Hello, API!"})
 class CategoriesAPIList(generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
     queryset = Categories.objects.all()
@@ -70,7 +79,13 @@ class ProductViewSet(viewsets.ModelViewSet):
         product = get_object_or_404(Product, **{field: kwargs["pk"], "translations__language_code": lang})
         serializer = self.get_serializer(product)
         return Response(serializer.data)
-
+    @extend_schema(
+        summary="Get example data",
+        description="Returns an example response with some data.",
+        responses={200: dict},
+    )
+    def get(self, request):
+        return Response({"message": "Hello, API!"})
 
 class ProductAPIList(generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
@@ -94,29 +109,73 @@ class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
 
 
 class RingSizeLookup(APIView):
-    """Переводить окружність пальця в розмір кільця"""
+    """Переводить окружність пальця в розмір кільця, знаходячи найближче значення"""
+    
     def get(self, request, *args, **kwargs):
         circumference = request.query_params.get("circumference")
+
         if not circumference:
             return Response({"error": "Circumference is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             circumference = float(circumference)
+            
+            # Шукаємо точний розмір
             size_obj = RingSizeConversion.objects.filter(circumference_mm=circumference).first()
-
             if size_obj:
-                return Response({
-                    "circumference_mm": size_obj.circumference_mm,
-                    "size_ua": size_obj.size_ua,
-                    "size_us": size_obj.size_us,
-                    "size_eu": size_obj.size_eu,
-                    "size_uk": size_obj.size_uk,
-                    "size_asia": size_obj.size_asia,
-                    "size_other_eu": size_obj.size_other_eu,
-                })
+                return Response(self.serialize_size(size_obj))
+
+            # Якщо точного значення немає, шукаємо найближчий розмір
+            nearest_size = (
+                RingSizeConversion.objects
+                .annotate(diff=Abs(F("circumference_mm") - circumference))  # Абсолютна різниця
+                .order_by("diff")  # Найменша різниця буде першою
+                .first()
+            )
+
+            if nearest_size:
+                return Response(self.serialize_size(nearest_size))
             else:
-                return Response({"error": "Size not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"error": "No sizes available"}, status=status.HTTP_404_NOT_FOUND)
 
         except ValueError:
             return Response({"error": "Invalid circumference value"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def serialize_size(self, size_obj):
+        """Серіалізуємо відповідь для зручного відображення"""
+        return {
+            "circumference_mm": size_obj.circumference_mm,
+            "size_ua": size_obj.size_ua,
+            "size_us": size_obj.size_us,
+            "size_eu": size_obj.size_eu,
+            "size_uk": size_obj.size_uk,
+            "size_asia": size_obj.size_asia,
+            "size_other_eu": size_obj.size_other_eu,
+        }
+# class RingSizeLookup(APIView):
+#     """Переводить окружність пальця в розмір кільця"""
+#     def get(self, request, *args, **kwargs):
+#         circumference = request.query_params.get("circumference")
+#         if not circumference:
+#             return Response({"error": "Circumference is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+#         try:
+#             circumference = float(circumference)
+#             size_obj = RingSizeConversion.objects.filter(circumference_mm=circumference).first()
+
+#             if size_obj:
+#                 return Response({
+#                     "circumference_mm": size_obj.circumference_mm,
+#                     "size_ua": size_obj.size_ua,
+#                     "size_us": size_obj.size_us,
+#                     "size_eu": size_obj.size_eu,
+#                     "size_uk": size_obj.size_uk,
+#                     "size_asia": size_obj.size_asia,
+#                     "size_other_eu": size_obj.size_other_eu,
+#                 })
+#             else:
+#                 return Response({"error": "Size not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#         except ValueError:
+#             return Response({"error": "Invalid circumference value"}, status=status.HTTP_400_BAD_REQUEST)
 
