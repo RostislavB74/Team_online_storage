@@ -613,48 +613,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/Product'
           description: ''
-  paths:
   /api/v1/ring-size/:
     get:
-      summary: "Обчислення розміру кільця"
+      operationId: api_v1_ring_size_retrieve
+      description: Переводить окружність пальця в розмір кільця, знаходячи найближче
+        значення
       parameters:
-        - name: circumference
-          in: query
-          required: true
-          schema:
-            type: number
-            example: 60
+      - in: query
+        name: circumference
+        schema:
+          type: number
+          format: float
+        description: Окружність пальця в міліметрах (напр. 60)
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
       responses:
-        "200":
-          description: "Розмір кільця"
+        '200':
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ring_size:
-                    type: string
-                    example: "19.5"
-  # /api/v1/ring-size/:
-  #   get:
-  #     operationId: api_v1_ring_size_retrieve
-  #     description: Переводить окружність пальця в розмір кільця, знаходячи найближче
-  #       значення
-  #     tags:
-  #     - api
-  #     security:
-  #     - jwtAuth: []
-  #     - tokenAuth: []
-  #     - basicAuth: []
-  #     - cookieAuth: []
-  #     - {}
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/RingSize'
-  #         description: ''
+                $ref: '#/components/schemas/RingSize'
+          description: ''
   /api/v1/version/:
     get:
       operationId: api_v1_version_retrieve
