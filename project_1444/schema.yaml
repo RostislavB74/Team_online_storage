@@ -661,7 +661,7 @@ paths:
   /api/v1/product/{id}/:
     get:
       operationId: api_v1_product_retrieve
-      description: Оновлення продукту
+      description: Отримати деталі продукту
       parameters:
       - in: path
         name: id
@@ -675,74 +675,7 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-          description: ''
-    put:
-      operationId: api_v1_product_update
-      description: Оновлення продукту
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Product'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Product'
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-          description: ''
-    patch:
-      operationId: api_v1_product_partial_update
-      description: Оновлення продукту
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedProduct'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedProduct'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedProduct'
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -893,11 +826,13 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
         status:
           $ref: '#/components/schemas/StatusEnum'
         call_me:
           type: boolean
       required:
+      - discount
       - id
       - items
     OrderItem:
@@ -962,69 +897,11 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
         status:
           $ref: '#/components/schemas/StatusEnum'
         call_me:
           type: boolean
-    PatchedProduct:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        category:
-          type: integer
-          nullable: true
-        subcategory:
-          type: integer
-          nullable: true
-        name:
-          type: string
-          readOnly: true
-        slug:
-          type: string
-          readOnly: true
-        ean_13:
-          type: string
-          nullable: true
-          maxLength: 13
-        sku:
-          type: string
-          nullable: true
-          maxLength: 50
-        article:
-          type: string
-          nullable: true
-          maxLength: 50
-        price:
-          type: number
-          format: double
-          nullable: true
-        collection:
-          type: integer
-          nullable: true
-        occasions:
-          type: array
-          items:
-            type: integer
-        status_display:
-          type: string
-          readOnly: true
-        circumference_mm:
-          type: number
-          format: double
-          nullable: true
-        size:
-          type: string
-          readOnly: true
-        images:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductImage'
-        certificates:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductCertificate'
     PaymentMethodEnum:
       enum:
       - cash
