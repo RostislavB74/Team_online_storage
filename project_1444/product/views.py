@@ -1,5 +1,5 @@
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets
@@ -12,7 +12,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny)
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
@@ -33,14 +33,14 @@ class ProductAPIList(generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
 
 
 class ProductAPIDetail(generics.RetrieveAPIView):
     """Отримати деталі продукту"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
 
 
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
@@ -52,28 +52,41 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
 
     def get_queryset(self):
-        """Фільтрація товарів за мовою"""
+        """Фільтрація категорій за мовою"""
         lang = self.request.GET.get("lang", "uk")
         if lang == "uk":
             return Categories.objects.filter(translations__language_code="uk")
         return Categories.objects.filter(translations__language_code="en")
 
     def retrieve(self, request, *args, **kwargs):
-        """Отримання продукту за slug з урахуванням мови"""
+        """Отримання категорії за slug з урахуванням мови"""
         lang = request.GET.get("lang", "uk")
         field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        product = get_object_or_404(Categories, **{field: kwargs["pk"], "translations__language_code": lang})
-        serializer = self.get_serializer(product)
+        result = get_object_or_404(Categories, **{field: kwargs["pk"], "translations__language_code": lang})
+        serializer = self.get_serializer(result)
         return Response(serializer.data)
     
 class CategoriesAPIList(generics.ListCreateAPIView):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes=(IsAuthenticatedOrReadOnly, )
+    permission_classes=(IsAuthenticatedOrReadOnly,  AllowAny,)
 
+
+class CategoriesAPIDetail(generics.RetrieveAPIView):
+    """Отримати деталі продукту"""
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
+
+
+class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
+    """Оновлення продукту"""
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    permission_classes = (IsAuthenticated, )
 class RingSizeLookup(APIView):
     """Переводить окружність пальця в розмір кільця"""
     def get(self, request, *args, **kwargs):

@@ -27,7 +27,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from product.views import ProductAPIList, ProductAPIUpdate 
+from product.views import ProductAPIList, ProductAPIUpdate, CategoriesAPIList, CategoriesAPIUpdate
 from product.views import RingSizeLookup
 
 
@@ -40,7 +40,10 @@ urlpatterns = [
     # path('api/v1/users/', include('users.urls')),
     path('api/v1/auth/', include('rest_framework.urls')),
     path('api/v1/product/', ProductAPIList.as_view()),
-     path('api/v1/product/<int:pk>/', ProductAPIUpdate.as_view()),
+    path('api/v1/product/<int:pk>/', ProductAPIUpdate.as_view()),
+    path('api/v1/categories/', CategoriesAPIList.as_view()),
+    path('api/v1/categories/<int:pk>/', CategoriesAPIUpdate.as_view()),
+    
     # path('api/', include('product.urls')),
     path('api/v1/ringsize/', RingSizeLookup.as_view(), name='product-list'),
 ]
