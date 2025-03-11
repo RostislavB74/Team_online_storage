@@ -281,7 +281,7 @@ paths:
   /api/v1/categories/{id}/:
     get:
       operationId: api_v1_categories_retrieve
-      description: Оновлення продукту
+      description: Отримати деталі продукту
       parameters:
       - in: path
         name: id
@@ -290,76 +290,6 @@ paths:
         required: true
       tags:
       - api
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Categories'
-          description: ''
-    put:
-      operationId: api_v1_categories_update
-      description: Оновлення продукту
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Categories'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Categories'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Categories'
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Categories'
-          description: ''
-    patch:
-      operationId: api_v1_categories_partial_update
-      description: Оновлення продукту
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedCategories'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedCategories'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedCategories'
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -856,18 +786,6 @@ components:
       - product
       - product_price
       - total_price
-    PatchedCategories:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-        slug:
-          type: string
-          readOnly: true
     PatchedOrder:
       type: object
       properties:
