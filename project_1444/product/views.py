@@ -15,7 +15,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
@@ -43,27 +43,27 @@ class CategoriesAPIList(generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
+    permission_classes = (AllowAny,)
 
 
 class CategoriesAPIDetail(generics.RetrieveAPIView):
     """Отримати деталі продукту"""
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
+    permission_classes = (AllowAny,)
 
 
 class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (IsAuthenticated, AllowAny, )
+    permission_classes = (AllowAny, )
 
 class ProductViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
+    permission_classes = ( AllowAny,)
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
@@ -91,14 +91,14 @@ class ProductAPIList(generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
+    permission_classes = (AllowAny,)
 
 
 class ProductAPIDetail(generics.RetrieveAPIView):
     """Отримати деталі продукту"""
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
+    permission_classes = (AllowAny,)
 
 
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):

@@ -15,7 +15,9 @@ from .views import ProductViewSet, RingSizeLookup, CategoriesViewSet
 
 router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='products')
+
 router.register(r'categories', CategoriesViewSet, basename='categories')
+
 urlpatterns = [
     path('', include(router.urls)),
     path('ring-size/', RingSizeLookup.as_view(), name='ring-size-lookup'),  # Додаємо окремо
