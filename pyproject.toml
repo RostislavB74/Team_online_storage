@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "teamchallenge-1444"
-version = "0.1.0"
-description = ""
+version = "0.2.0"
+description = "teamchallenge.io Project 1444"
 authors = ["Your Name <you@example.com>"]
 license = "MIT"
 readme = "README.md"
@@ -37,6 +37,8 @@ psycopg-binary = "^3.2.5"
 django-cors-headers = "^4.7.0"
 django-extensions = "^3.2.3"
 django-parler = "^2.3"
+cloudinary = "^1.42.2"
+django-storages = "^1.14.5"
 
 
 [tool.poetry.group.deploy.dependencies]

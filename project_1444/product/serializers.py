@@ -1,6 +1,15 @@
 from rest_framework import serializers
 from .models import *
 
+class CategoriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categories
+        fields = ['id', 'name', 'slug']
+
+class SubCategoriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categories
+        fields = ['id', 'name', 'slug']
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
@@ -20,7 +29,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'id', 'name',  'status', 'status_display', 'circumference_mm',
+            'id','category','subcategory', 'name', 'slug', 'ean_13', 'sku', 'article',  'price', 'collection', 'occasions' , 'status_display', 'circumference_mm',
             'size', 'images', 'certificates'
         ]
 
@@ -30,7 +39,8 @@ class ProductSerializer(serializers.ModelSerializer):
                 circumference_mm=obj.circumference_mm
             ).first()
             return size_obj.size_ua if size_obj else None
-        return None
+      
 
-
-
+class RingSizeSerializer(serializers.Serializer):
+    finger_circumference = serializers.FloatField(help_text="Обхват пальця в мм")
+    ring_size = serializers.FloatField(help_text="Розмір кільця за стандартом")

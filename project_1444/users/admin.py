@@ -1,39 +1,40 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import Group
-from .models import User
 
-class CustomUserAdmin(UserAdmin):
-    list_display = ('name', 'email', 'phone', 'telegram', 'is_staff', 'is_active', 'is_superuser', "display_groups")
-    search_fields = ('name', 'email', 'phone', 'telegram')
-    list_filter = ('is_staff', 'is_active', 'is_superuser', 'groups')
+# from django.contrib.auth.admin import UserAdmin
+# from django.contrib.auth.models import Group
+# from .models import User
 
-    fieldsets = (
-        (None, {'fields': ('name', 'email', 'phone', 'telegram', 'password')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
-    )
+# class CustomUserAdmin(UserAdmin):
+#     list_display = ('name', 'email', 'phone', 'telegram', 'bithday', 'country','is_staff', 'is_active', 'is_superuser', "display_groups")
+#     search_fields = ('name', 'email', 'phone', 'telegram', 'country', 'bithday')
+#     list_filter = ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions', 'country', 'bithday')
 
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('name', 'email', 'phone', 'telegram', 'password1', 'password2', 'is_staff', 'is_active', 'is_superuser', 'groups'),
-        }),
-    )
+#     fieldsets = (
+#         (None, {'fields': ('name', 'email', 'phone', 'telegram', 'password', 'bithday', 'country')}),
+#         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
+#     )
 
-    ordering = ('name', 'email',)
-    filter_horizontal = ('groups', 'user_permissions')
+#     add_fieldsets = (
+#         (None, {
+#             'classes': ('wide',),
+#             'fields': ('name', 'email', 'phone', 'telegram', 'password1', 'password2', 'is_staff', 'is_active', 'is_superuser', 'groups'),
+#         }),
+#     )
 
-    def display_groups(self, obj):
-        return ", ".join([group.name for group in obj.groups.all()]) if obj.groups.exists() else "Без групи"
-    display_groups.short_description = "Groups"
+#     ordering = ('name', 'email',)
+#     filter_horizontal = ('groups', 'user_permissions')
 
-# **Видаляємо попередню реєстрацію, якщо була**
-try:
-    admin.site.unregister(User)
-except admin.sites.NotRegistered:
-    pass
+#     def display_groups(self, obj):
+#         return ", ".join([group.name for group in obj.groups.all()]) if obj.groups.exists() else "Без групи"
+#     display_groups.short_description = "Groups"
 
-admin.site.register(User, CustomUserAdmin)
+# # **Видаляємо попередню реєстрацію, якщо була**
+# try:
+#     admin.site.unregister(User)
+# except admin.sites.NotRegistered:
+#     pass
+
+# admin.site.register(User, CustomUserAdmin)
 
 # from django.contrib import admin
 # from django.contrib.auth.admin import UserAdmin

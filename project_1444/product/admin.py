@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import (
     Categories, Material, Gemstone, Product, SubCategories,
     ProductImage, ProductCertificate, RingSizeConversion, Occasion, RingSizeConversion,Colors,
-    ProductGemstone, ProductMaterial, ProductStatus, ProductAttributes,  Collections
+    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial
 )
 from parler.admin import TranslatableAdmin
 from django.contrib import admin
@@ -75,22 +75,33 @@ class ProductCertificateInline(admin.TabularInline):
 class ProductAttributesInline(TranslatableTabularInline):
     model = ProductAttributes
     extra = 1  
-    fields = ("gender", "color_coating","clasp_type", "coating_material", "description_coating", "design_product", "style",)
+    fields = ("gender", "color_coating","clasp_type", "coating_material", "description_coating", "design_product", "style", "status")
     verbose_name = "Характеристики"
     verbose_name_plural = "Характеристики"
 
-
+class ProductGemstoneInline(admin.TabularInline):
+    model = ProductGemstone
+    extra = 1
+    fields=("gemstone", "is_main", "color")
+    verbose_name = "Камінь"
+    verbose_name_plural = "Камені"
+class ProductMaterialInline(admin.TabularInline):
+    model = ProductMaterial
+    extra = 1
+    fields=("material", "is_primary")
+    verbose_name = "Матеріал"
+    verbose_name_plural = "Матеріали"
 # Налаштування для товару
 @admin.register(Product)
 class ProductAdmin(TranslatableAdmin):
-    list_display = ('article', 'sku', 'category','name', 'slug',"display_attributes", 'weight_material', 'ean_13', 'get_images','display_qr_code', 'get_certificates',)
-    search_fields = ('name', 'sku', 'ean_13', 'category__name', 'material__name', 'coating', 'gold_plates',)
+    list_display = ('article', 'sku', 'category','name',  'slug', "display_attributes", 'weight_material', 'ean_13', 'get_images','display_qr_code', 'get_certificates',)
+    search_fields = ('name', 'sku', 'ean_13', 'category__name', 'material__name', 'gemstone__name','coating', 'gold_plates',)
     readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by',)
     filter_horizontal = ('occasions',)
-    inlines = [ProductImageInline, ProductCertificateInline, ProductAttributesInline ]
+    inlines = [ProductMaterialInline, ProductImageInline, ProductCertificateInline, ProductAttributesInline, ProductGemstoneInline]
     fieldsets = (
         ("Основна інформація", {
-            "fields": ("category","subcategory","name", "article", "ean_13", "sku", "status", "slug"),
+            "fields": ("category","subcategory","name","article", "ean_13", "sku", "slug"),
             "classes": ("collapse",),
         }),
         
@@ -102,10 +113,10 @@ class ProductAdmin(TranslatableAdmin):
             "fields": ("size", "circumference_mm", "dimensions", "width_mm", "length_mm", "weight_material",),
             "classes": ("collapse",),
         }),
-        ("Камені", {
-            "fields": ("main_set_included", "gemstone_first","weight_gemstone_main", "set_included", "weight_gemstone_second", "gemstone_second", "description_gemstone_second"),
-            "classes": ("collapse",),
-        }),
+        # ("Камені", {
+        #     "fields": ("main_set_included", ),
+        #     "classes": ("collapse",),
+        # }),
         ("Додаткові параметри", {
             "fields": ("collection", "year_collection", "country_of_origin", "occasions", "coating", "gold_plates"),
             "classes": ("collapse",),
@@ -121,8 +132,23 @@ class ProductAdmin(TranslatableAdmin):
     )
     def display_attributes(self, obj):
        
-        attributes = obj.attributes.all()  
-        return format_html("<br>".join([f"{attr.attribute_name}: {attr.value}" for attr in attributes]))
+        if hasattr(obj, "attributes"):  # Перевіряємо, чи є у товару атрибути
+            attr = obj.attributes  # Отримуємо єдиний об'єкт атрибутів
+            attributes_list = [
+                f"Стать: {attr.get_gender_display()}",
+                f"Колір покриття: {attr.color_coating}" if attr.color_coating else "",
+                f"Тип застібки: {attr.clasp_type}" if attr.clasp_type else "",
+                f"Матеріал покриття: {attr.coating_material}" if attr.coating_material else "",
+                f"Опис покриття: {attr.description_coating}" if attr.description_coating else "",
+                f"Дизайн: {attr.design_product}" if attr.design_product else "",
+                f"Стиль: {attr.style}" if attr.style else "",
+                f"Статус: {attr.status}" if attr.status else "",
+            ]
+            return format_html("<br>".join([a for a in attributes_list if a]))  # Видаляємо порожні значення
+
+        return "Немає характеристик"
+        # attributes = obj.attributes  
+        # return format_html("<br>".join([f"{attr.attribute_name}: {attr.value}" for attr in attributes]))
 
     display_attributes.short_description = "Додаткові характеристики"
     def display_qr_code(self, obj):

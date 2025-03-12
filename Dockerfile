@@ -25,6 +25,7 @@ RUN pip install -r requirements.txt
 COPY project_1444 /app
 
 RUN chown -R celeryuser:celerygroup /app
+RUN chmod +x *.sh
 
 USER celeryuser
 
