@@ -14,6 +14,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from .utils import save_with_translation
+from cloudinary.models import CloudinaryField
 # Категорії
 class Categories(TranslatableModel):
     translations = TranslatedFields(
@@ -267,7 +268,7 @@ class ProductGemstone(TranslatableModel):
 
 class ProductImage(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='product_images/')
+    image = CloudinaryField("image")
     uploaded_at = models.DateTimeField(auto_now_add=True)
     class Meta:
         verbose_name = 'Фото продукції'

@@ -19,6 +19,13 @@ from . import __version__
 # from django.utils.translation import gettext_lazy as _
 
 from django.conf.global_settings import STATIC_ROOT
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+from cloudinary.utils import cloudinary_url
+import os
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +33,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 environ.Env.read_env(BASE_DIR.parent / '.env')
 
+load_dotenv()  # Завантажує змінні з .env
+
+CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+MEDIA_URL = f"https://res.cloudinary.com/{env('CLOUD_NAME')}/image/upload/"
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -63,7 +76,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'parler',
     
-    
+    'cloudinary',
+
     'product',
     'users',
     'cart',
@@ -140,23 +154,6 @@ except environ.ImproperlyConfigured:
         print("Database .env setting must have DATABASE_URL or set of DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD:", e)
         raise ValueError(e)
 
-# print(f"{DATABASES=}")
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': env('DATABASE_NAME'),
-#         'USER': env('DATABASE_USER'),
-#         'PASSWORD': env('DATABASE_PASSWORD'),
-#         'HOST': env('DATABASE_HOST'),
-#         'PORT': env('DATABASE_PORT', default=5432),
-#     }
-# }
-
-
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
 
 
 
@@ -205,8 +202,18 @@ STATIC_ROOT = BASE_DIR / "static"
 # STATICFILES_DIRS = [ BASE_DIR / 'static' ]
 # print(f"static_dir: {STATICFILES_DIRS}")
 
-MEDIA_URL = "/media/"
+# MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": env("CLOUD_NAME"),
+    "API_KEY": env("CLOUD_API_KEY"),
+    "API_SECRET": env("CLOUD_API_SECRET"),
+    "SECURE": True,  # Додає https
+}
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+# MEDIA_URL = env("CLOUDINARY_URL")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -225,15 +232,7 @@ try:
 except (KeyError, environ.ImproperlyConfigured):
     EMAIL_BACKEND = None
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = env('EMAIL_HOST')
-# EMAIL_PORT = env('EMAIL_PORT')
-# EMAIL_STARTTLS = False
-# EMAIL_USE_SSL = True
-# EMAIL_USE_TLS = False
-# EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     
