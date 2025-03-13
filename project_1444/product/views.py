@@ -1,4 +1,3 @@
-from drf_spectacular.utils import extend_schema
 from rest_framework import generics
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -9,11 +8,41 @@ from rest_framework import viewsets
 from utils.language_code import get_language_code
 from .models import (
     Product,
+import datetime
+import hashlib
+
+from django.db.models import F, FloatField
+from django.db.models.functions import Abs
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.utils.http import http_date
+from django.views.decorators.http import condition
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
+from rest_framework import generics, status
+from rest_framework.permissions import (
+    IsAuthenticatedOrReadOnly,
+    IsAuthenticated,
+    AllowAny,
+)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import viewsets
+
+from utils.cache_headers import MixinCacheHeaders
+from .models import (
+    Product,
+    ProductImage,
+    ProductCertificate,
+    RingSizeConversion,
     Categories,
 )
 from .serializers import (
     ProductSerializer,
     CategoriesSerializer,
+    ProductImageSerializer,
+    ProductCertificateSerializer,
+    CategoriesSerializer,
+    RingSizeSerializer,
 )
 from django.shortcuts import get_object_or_404
 
@@ -21,7 +50,7 @@ from django.shortcuts import get_object_or_404
 class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
 
-    # queryset = Categories.objects.all()
+    queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
 
@@ -51,23 +80,34 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         return Response({"message": "Hello, API!"})
 
 
-class CategoriesAPIList(generics.ListCreateAPIView):
+# class CategoriesAPIList(generics.ListCreateAPIView):
+#     """Отримати список продуктів або створити новий"""
+
+#     # queryset = Categories.objects.all()
+#     serializer_class = CategoriesSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):
+#         """Фільтрація за мовою"""
+#         lang = get_language_code(self.request)
+#         result = Categories.objects.language(lang).all()
+#         return result
+class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
-
-    # queryset = Categories.objects.all()
+    queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
 
-    def get_queryset(self):
-        """Фільтрація за мовою"""
-        lang = get_language_code(self.request)
-        result = Categories.objects.language(lang).all()
-        return result
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        return self.add_cache_headers(response)
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return self.add_cache_headers(response)
 
-class CategoriesAPIDetail(generics.RetrieveAPIView):
+class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
     """Отримати деталі продукту"""
-
     # queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
@@ -77,7 +117,13 @@ class CategoriesAPIDetail(generics.RetrieveAPIView):
         lang = get_language_code(self.request)
         result = Categories.objects.language(lang).all()
         return result
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    permission_classes = (AllowAny,)
 
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        return self.add_cache_headers(response)
 
 class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
@@ -87,7 +133,8 @@ class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     permission_classes = (AllowAny,)
 
 
-class ProductViewSet(viewsets.ModelViewSet):
+
+class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
     """CRUD для продуктів"""
 
     queryset = Product.objects.all()
@@ -118,22 +165,37 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response({"message": "Hello, API!"})
 
 
-class ProductAPIList(generics.ListCreateAPIView):
+
+# class ProductAPIList(generics.ListCreateAPIView):
+#     """Отримати список продуктів або створити новий"""
+
+#     # queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):
+#         """Фільтрація товарів за мовою"""
+#         lang = get_language_code(self.request)
+#         return Product.objects.language(lang).all()
+
+ class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
 
-    # queryset = Product.objects.all()
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
 
-    def get_queryset(self):
-        """Фільтрація товарів за мовою"""
-        lang = get_language_code(self.request)
-        return Product.objects.language(lang).all()
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        return self.add_cache_headers(response)
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return self.add_cache_headers(response)
 
 
-class ProductAPIDetail(generics.RetrieveAPIView):
+class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
     """Отримати деталі продукту"""
-
     # queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
@@ -142,6 +204,13 @@ class ProductAPIDetail(generics.RetrieveAPIView):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
         return Product.objects.language(lang).all()
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (AllowAny,)
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        return self.add_cache_headers(response)
 
 
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
