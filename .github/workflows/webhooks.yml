@@ -3,7 +3,7 @@ name: DEPLOY
 
 permissions:
   contents: read
-  pull-requests: write
+#  pull-requests: write
 
 # on:
 #   workflow_run:
@@ -12,9 +12,8 @@ permissions:
 #       - completed
 
 on:
-  pull_request:
   push:
-    branches: [ "deploy", "dev-lexxai-deploy" ]
+    branches: [ "deploy" ]
 
 jobs:
   ci:
