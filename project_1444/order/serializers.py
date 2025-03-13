@@ -11,10 +11,6 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ['product', 'quantity', 'product_price', 'total_price']
 
-class OrderItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = ['product', 'quantity', 'product_price', 'total_price']
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     user = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=False)
@@ -52,4 +48,3 @@ class OrderSerializer(serializers.ModelSerializer):
         """Перевірка купона та розрахунок знижки"""
         if coupon_code == "DISCOUNT2024":  # Тут має бути нормальна перевірка
             return total_price * 0.1  # 10% знижки
-        return 0

@@ -10,6 +10,12 @@ class SubCategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
         fields = ['id', 'name', 'slug']
+class SubCategoriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategories
+        fields = ['id', 'name', 'slug']
+
+
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage

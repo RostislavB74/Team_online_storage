@@ -26,6 +26,11 @@ from rest_framework.permissions import (
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets
+from rest_framework import status
+from django.db.models import F
+from django.db.models.functions import Abs
+from .models import RingSizeConversion  # Імпортуйте свою модель
+from .serializers import RingSizeSerializer  # Імпортуйте серіалізатор
 
 from utils.cache_headers import MixinCacheHeaders
 from .models import (
@@ -79,18 +84,6 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         return Response({"message": "Hello, API!"})
 
 
-# class CategoriesAPIList(generics.ListCreateAPIView):
-#     """Отримати список продуктів або створити новий"""
-
-#     # queryset = Categories.objects.all()
-#     serializer_class = CategoriesSerializer
-#     permission_classes = (AllowAny,)
-
-#     def get_queryset(self):
-#         """Фільтрація за мовою"""
-#         lang = get_language_code(self.request)
-#         result = Categories.objects.language(lang).all()
-#         return result
 class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
     queryset = Categories.objects.all()
@@ -126,11 +119,9 @@ class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
 
 class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
-
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (AllowAny,)
-
+    permission_classes = (IsAuthenticated, )
 
 
 class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
@@ -163,19 +154,6 @@ class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
     def get(self, request):
         return Response({"message": "Hello, API!"})
 
-
-
-# class ProductAPIList(generics.ListCreateAPIView):
-#     """Отримати список продуктів або створити новий"""
-
-#     # queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#     permission_classes = (AllowAny,)
-
-#     def get_queryset(self):
-#         """Фільтрація товарів за мовою"""
-#         lang = get_language_code(self.request)
-#         return Product.objects.language(lang).all()
 
 class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
@@ -217,17 +195,32 @@ class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, )
+class CategoriesViewSet(viewsets.ModelViewSet):
+    """CRUD для продуктів"""
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
 
+    def get_queryset(self):
+        """Фільтрація категорій за мовою"""
+        lang = self.request.GET.get("lang", "uk")
+        if lang == "uk":
+            return Categories.objects.filter(translations__language_code="uk")
+        return Categories.objects.filter(translations__language_code="en")
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.db.models import F
-from django.db.models.functions import Abs
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
-from .models import RingSizeConversion  # Імпортуйте свою модель
-from .serializers import RingSizeSerializer  # Імпортуйте серіалізатор
+    def retrieve(self, request, *args, **kwargs):
+        """Отримання категорії за slug з урахуванням мови"""
+        lang = request.GET.get("lang", "uk")
+        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
+        result = get_object_or_404(Categories, **{field: kwargs["pk"], "translations__language_code": lang})
+        serializer = self.get_serializer(result)
+        return Response(serializer.data)
+    
+class CategoriesAPIList(generics.ListCreateAPIView):
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    permission_classes=(IsAuthenticatedOrReadOnly,  AllowAny,)
 
 
 class RingSizeLookup(APIView):
