@@ -6,8 +6,7 @@ from rest_framework.permissions import (
 from rest_framework import viewsets
 
 from utils.language_code import get_language_code
-from .models import (
-    Product,
+
 import datetime
 import hashlib
 
@@ -178,7 +177,7 @@ class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
 #         lang = get_language_code(self.request)
 #         return Product.objects.language(lang).all()
 
- class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
+class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
 
     queryset = Product.objects.all()
