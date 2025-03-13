@@ -325,6 +325,7 @@ CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 GIT_VERSION = env("GIT_VERSION", default="Version is unknown")
 VERSION = env("VERSION", default=__version__)
-CACHE_HEADERS_ENABLE = env("CACHE_HEADERS_ENABLE", default=False, cast=bool)
+CACHE_HEADERS_ENABLED = env("CACHE_HEADERS_ENABLED", default=False, cast=bool)
+
 
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")

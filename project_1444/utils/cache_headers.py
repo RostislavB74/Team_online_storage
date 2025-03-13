@@ -10,6 +10,8 @@ from rest_framework.response import Response
 
 
 class MixinCacheHeaders:
+    _CACHE_HEADERS_LAST_MODIFIED_ENABLED = False
+    _CACHE_CONTROL = "max-age=10, stale-while-revalidate=5"
 
     def get_etag(self, last_modified: str = None) -> str:
         """Generate ETag based on query params and language"""
@@ -28,7 +30,10 @@ class MixinCacheHeaders:
             etag_source += f"|{last_modified}"
         return hashlib.sha1(etag_source.encode()).hexdigest()
 
-    def get_cache_data(self) -> dict[str, str]:
+    def get_cache_data(
+        self,
+        last_modified_tag_enabled: bool = True,
+    ) -> dict[str, str]:
         """Отримати останній оновлений об'єкт і створити кеш-значення"""
         try:
             latest_object = self.get_queryset().order_by("-updated_at").first()
@@ -42,19 +47,27 @@ class MixinCacheHeaders:
         }
 
     def add_cache_headers(
-        self, response: Response, enabled: bool = settings.CACHE_HEADERS_ENABLED
+        self,
+        response: Response,
+        cache_data: dict[str, str] | None = None,
+        enabled: bool = settings.CACHE_HEADERS_ENABLED,
     ):
         if not enabled:
             return response
         """Attach cache headers to the response"""
-        cache_data = self.get_cache_data()
-        response["Last-Modified"] = cache_data.get("Last-Modified")
-        response["ETag"] = cache_data.get("ETag")
-        response["Cache-Control"] = "max-age=3600, public"
+        if cache_data is None:
+            cache_data = self.get_cache_data()
+        if self._CACHE_HEADERS_LAST_MODIFIED_ENABLED:
+            response["Last-Modified"] = cache_data.get("Last-Modified")
+        else:
+            response["ETag"] = cache_data.get("ETag")
+        response["Cache-Control"] = self._CACHE_CONTROL
         return response
 
-    def check_cache_headers(self, request) -> HttpResponse | dict[str, str] | None:
-        if not settings.CACHE_HEADERS_ENABLED:
+    def check_cache_headers(
+        self, request, enabled: bool = settings.CACHE_HEADERS_ENABLED
+    ) -> HttpResponse | dict[str, str] | None:
+        if not enabled:
             return None
 
         cache_data = self.get_cache_data()
@@ -67,7 +80,7 @@ class MixinCacheHeaders:
         if if_none_match and if_none_match == etag:
             return HttpResponseNotModified()
 
-        if if_modified_since:
+        if self._CACHE_HEADERS_LAST_MODIFIED_ENABLED and if_modified_since:
             try:
                 if_modified_since_time = datetime.fromtimestamp(
                     parse_http_date(if_modified_since), UTC
