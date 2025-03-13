@@ -1,12 +1,28 @@
 import hashlib
 
+from django.conf import settings
 from django.core.exceptions import FieldError
 from django.utils import timezone
-from django.utils.http import http_date
+from django.utils.http import http_date, urlencode
 from rest_framework.response import Response
 
 
 class MixinCacheHeaders:
+
+    def get_etag(self):
+        """Generate ETag based on query params and language"""
+        query_params = self.request.query_params  # Convert to dictionary
+        lang: str = (
+            self.request.headers.get("Accept-Language", settings.LANGUAGE_CODE)
+            .split(",")[0]
+            .strip()[:6]
+        )
+        # Sort query params to ensure consistent hashing
+        sorted_query = urlencode(sorted(query_params.items()), doseq=True)
+
+        # Create a hash from query params + language
+        etag_source = f"{sorted_query}|{lang}"
+        return hashlib.sha1(etag_source.encode()).hexdigest()
 
     def get_cache_data(self):
         """Отримати останній оновлений об'єкт і створити кеш-значення"""
@@ -14,15 +30,8 @@ class MixinCacheHeaders:
             latest_object = self.get_queryset().order_by("-updated_at").first()
         except FieldError:
             latest_object = None
-
-        if latest_object:
-            last_modified = latest_object.updated_at
-            etag = hashlib.md5(str(last_modified).encode()).hexdigest()
-        else:
-            last_modified = timezone.now()
-            etag = None  # або можна задати дефолтне значення
-
-        return last_modified, etag
+        last_modified = latest_object.updated_at if latest_object else timezone.now()
+        return last_modified, self.get_etag()
 
     def add_cache_headers(self, response: Response):
         """Attach cache headers to the response"""
