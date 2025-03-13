@@ -4,18 +4,9 @@ from rest_framework.permissions import (
     AllowAny,
 )
 from rest_framework import viewsets
-
-from utils.language_code import get_language_code
-
-import datetime
-import hashlib
-
 from django.db.models import F, FloatField
 from django.db.models.functions import Abs
-from django.utils import timezone
-from django.utils.decorators import method_decorator
-from django.utils.http import http_date
-from django.views.decorators.http import condition
+from django.http import HttpResponse
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 from rest_framework import generics, status
 from rest_framework.permissions import (
@@ -29,10 +20,11 @@ from rest_framework import viewsets
 from rest_framework import status
 from django.db.models import F
 from django.db.models.functions import Abs
+from django.shortcuts import get_object_or_404
+
 from .models import RingSizeConversion  # Імпортуйте свою модель
 from .serializers import RingSizeSerializer  # Імпортуйте серіалізатор
 
-from utils.cache_headers import MixinCacheHeaders
 from .models import (
     Product,
     ProductImage,
@@ -48,58 +40,15 @@ from .serializers import (
     CategoriesSerializer,
     RingSizeSerializer,
 )
-from django.shortcuts import get_object_or_404
 
 
-class CategoriesViewSet(viewsets.ModelViewSet):
-    """CRUD для продуктів"""
-
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        """Фільтрація товарів за мовою"""
-        lang = self.request.GET.get("lang", "uk")
-        if lang == "uk":
-            return Categories.objects.filter(translations__language_code="uk")
-        return Categories.objects.filter(translations__language_code="en")
-
-    def retrieve(self, request, *args, **kwargs):
-        """Отримання продукту за slug з урахуванням мови"""
-        lang = request.GET.get("lang", "uk")
-        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        result = get_object_or_404(
-            Categories, **{field: kwargs["pk"], "translations__language_code": lang}
-        )
-        serializer = self.get_serializer(result)
-        return Response(serializer.data)
-
-    @extend_schema(
-        summary="Get example data",
-        description="Returns an example response with some data.",
-        responses={200: dict},
-    )
-    def get(self, request):
-        return Response({"message": "Hello, API!"})
+from utils.language_code import get_language_code
+from utils.cache_headers import MixinCacheHeaders
 
 
 class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
-    permission_classes = (AllowAny,)
 
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-        return self.add_cache_headers(response)
-
-    def list(self, request, *args, **kwargs):
-        response = super().list(request, *args, **kwargs)
-        return self.add_cache_headers(response)
-
-class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
-    """Отримати деталі продукту"""
     # queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
@@ -109,50 +58,52 @@ class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         lang = get_language_code(self.request)
         result = Categories.objects.language(lang).all()
         return result
-    queryset = Categories.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        # Перевірка на наявність кешування
+        cache_data = self.check_cache_headers(request)
+        if isinstance(cache_data, HttpResponse):
+            return cache_data
+        response = super().get(request, *args, **kwargs)
+        return self.add_cache_headers(response, cache_data)
+
+    def list(self, request, *args, **kwargs):
+        # Перевірка на наявність кешування
+        cache_data = self.check_cache_headers(request)
+        if isinstance(cache_data, HttpResponse):
+            return cache_data
+        response = super().list(request, *args, **kwargs)
+        return self.add_cache_headers(response, cache_data)
+
+
+class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
+    """Отримати деталі продукту"""
+
+    # queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (AllowAny,)
-
-    def retrieve(self, request, *args, **kwargs):
-        response = super().retrieve(request, *args, **kwargs)
-        return self.add_cache_headers(response)
-
-class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
-    """Оновлення продукту"""
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
-    permission_classes = (IsAuthenticated, )
-
-
-class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
-    """CRUD для продуктів"""
-
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
-        """Фільтрація товарів за мовою"""
+        """Фільтрація за мовою"""
         lang = get_language_code(self.request)
-        return Product.objects.language(lang).all()
+        result = Categories.objects.language(lang).all()
+        return result
 
     def retrieve(self, request, *args, **kwargs):
-        """Отримання продукту за slug з урахуванням мови"""
-        lang = request.GET.get("lang", "uk")
-        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        product = get_object_or_404(
-            Product, **{field: kwargs["pk"], "translations__language_code": lang}
-        )
-        serializer = self.get_serializer(product)
-        return Response(serializer.data)
+        # Перевірка на наявність кешування
+        cache_data = self.check_cache_headers(request)
+        if isinstance(cache_data, HttpResponse):
+            return cache_data
+        response = super().retrieve(request, *args, **kwargs)
+        return self.add_cache_headers(response, cache_data)
 
-    @extend_schema(
-        summary="Get example data",
-        description="Returns an example response with some data.",
-        responses={200: dict},
-    )
-    def get(self, request):
-        return Response({"message": "Hello, API!"})
+
+class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
+    """Оновлення продукту"""
+
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
@@ -162,17 +113,31 @@ class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
 
+    def get_queryset(self):
+        """Фільтрація товарів за мовою"""
+        lang = get_language_code(self.request)
+        return Product.objects.language(lang).all()
+
     def get(self, request, *args, **kwargs):
+        # Перевірка на наявність кешування
+        cache_data = self.check_cache_headers(request)
+        if isinstance(cache_data, HttpResponse):
+            return cache_data
         response = super().get(request, *args, **kwargs)
-        return self.add_cache_headers(response)
+        return self.add_cache_headers(response, cache_data)
 
     def list(self, request, *args, **kwargs):
+        # Перевірка на наявність кешування
+        cache_data = self.check_cache_headers(request)
+        if isinstance(cache_data, HttpResponse):
+            return cache_data
         response = super().list(request, *args, **kwargs)
-        return self.add_cache_headers(response)
+        return self.add_cache_headers(response, cache_data)
 
 
 class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
     """Отримати деталі продукту"""
+
     # queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
@@ -181,13 +146,14 @@ class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
         return Product.objects.language(lang).all()
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = (AllowAny,)
 
     def retrieve(self, request, *args, **kwargs):
+        # Перевірка на наявність кешування
+        cache_data = self.check_cache_headers(request)
+        if isinstance(cache_data, HttpResponse):
+            return cache_data
         response = super().retrieve(request, *args, **kwargs)
-        return self.add_cache_headers(response)
+        return self.add_cache_headers(response, cache_data)
 
 
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
@@ -195,32 +161,7 @@ class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticated, )
-class CategoriesViewSet(viewsets.ModelViewSet):
-    """CRUD для продуктів"""
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, AllowAny,)
-
-    def get_queryset(self):
-        """Фільтрація категорій за мовою"""
-        lang = self.request.GET.get("lang", "uk")
-        if lang == "uk":
-            return Categories.objects.filter(translations__language_code="uk")
-        return Categories.objects.filter(translations__language_code="en")
-
-    def retrieve(self, request, *args, **kwargs):
-        """Отримання категорії за slug з урахуванням мови"""
-        lang = request.GET.get("lang", "uk")
-        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        result = get_object_or_404(Categories, **{field: kwargs["pk"], "translations__language_code": lang})
-        serializer = self.get_serializer(result)
-        return Response(serializer.data)
-    
-class CategoriesAPIList(generics.ListCreateAPIView):
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
-    permission_classes=(IsAuthenticatedOrReadOnly,  AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
 
 class RingSizeLookup(APIView):
@@ -292,6 +233,72 @@ class RingSizeLookup(APIView):
             "size_asia": size_obj.size_asia,
             "size_other_eu": size_obj.size_other_eu,
         }
+
+
+# NOT USED
+class CategoriesViewSet(viewsets.ModelViewSet):
+    """CRUD для продуктів"""
+
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        """Фільтрація товарів за мовою"""
+        lang = self.request.GET.get("lang", "uk")
+        if lang == "uk":
+            return Categories.objects.filter(translations__language_code="uk")
+        return Categories.objects.filter(translations__language_code="en")
+
+    def retrieve(self, request, *args, **kwargs):
+        """Отримання продукту за slug з урахуванням мови"""
+        lang = request.GET.get("lang", "uk")
+        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
+        result = get_object_or_404(
+            Categories, **{field: kwargs["pk"], "translations__language_code": lang}
+        )
+        serializer = self.get_serializer(result)
+        return Response(serializer.data)
+
+    @extend_schema(
+        summary="Get example data",
+        description="Returns an example response with some data.",
+        responses={200: dict},
+    )
+    def get(self, request):
+        return Response({"message": "Hello, API!"})
+
+
+# NOT USED
+class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
+    """CRUD для продуктів"""
+
+    # queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        """Фільтрація товарів за мовою"""
+        lang = get_language_code(self.request)
+        return Product.objects.language(lang).all()
+
+    def retrieve(self, request, *args, **kwargs):
+        """Отримання продукту за slug з урахуванням мови"""
+        lang = request.GET.get("lang", "uk")
+        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
+        product = get_object_or_404(
+            Product, **{field: kwargs["pk"], "translations__language_code": lang}
+        )
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)
+
+    @extend_schema(
+        summary="Get example data",
+        description="Returns an example response with some data.",
+        responses={200: dict},
+    )
+    def get(self, request):
+        return Response({"message": "Hello, API!"})
 
 
 # class RingSizeLookup(APIView):
