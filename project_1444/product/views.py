@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import generics
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -59,6 +60,17 @@ class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         result = Categories.objects.language(lang).all()
         return result
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            ),
+        ]
+    )
     def get(self, request, *args, **kwargs):
         # Перевірка на наявність кешування
         cache_data = self.check_cache_headers(request)
@@ -67,6 +79,17 @@ class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         response = super().get(request, *args, **kwargs)
         return self.add_cache_headers(response, cache_data)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            ),
+        ]
+    )
     def list(self, request, *args, **kwargs):
         # Перевірка на наявність кешування
         cache_data = self.check_cache_headers(request)
@@ -89,6 +112,17 @@ class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         result = Categories.objects.language(lang).all()
         return result
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            ),
+        ]
+    )
     def retrieve(self, request, *args, **kwargs):
         # Перевірка на наявність кешування
         cache_data = self.check_cache_headers(request)
@@ -118,6 +152,17 @@ class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         lang = get_language_code(self.request)
         return Product.objects.language(lang).all()
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            ),
+        ]
+    )
     def get(self, request, *args, **kwargs):
         # Перевірка на наявність кешування
         cache_data = self.check_cache_headers(request)
@@ -126,6 +171,17 @@ class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         response = super().get(request, *args, **kwargs)
         return self.add_cache_headers(response, cache_data)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            ),
+        ]
+    )
     def list(self, request, *args, **kwargs):
         # Перевірка на наявність кешування
         cache_data = self.check_cache_headers(request)
@@ -147,6 +203,17 @@ class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         lang = get_language_code(self.request)
         return Product.objects.language(lang).all()
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            ),
+        ]
+    )
     def retrieve(self, request, *args, **kwargs):
         # Перевірка на наявність кешування
         cache_data = self.check_cache_headers(request)
