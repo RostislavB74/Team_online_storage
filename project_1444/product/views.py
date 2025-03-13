@@ -1,18 +1,44 @@
+import datetime
+import hashlib
+
 from django.db.models import F, FloatField
 from django.db.models.functions import Abs
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.utils.http import http_date
+from django.views.decorators.http import condition
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
+from rest_framework.permissions import (
+    IsAuthenticatedOrReadOnly,
+    IsAuthenticated,
+    AllowAny,
+)
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets
-from .models import Product, ProductImage, ProductCertificate, RingSizeConversion, Categories
-from .serializers import ProductSerializer, ProductImageSerializer, ProductCertificateSerializer, CategoriesSerializer, RingSizeSerializer
+
+from utils.cache_headers import MixinCacheHeaders
+from .models import (
+    Product,
+    ProductImage,
+    ProductCertificate,
+    RingSizeConversion,
+    Categories,
+)
+from .serializers import (
+    ProductSerializer,
+    ProductImageSerializer,
+    ProductCertificateSerializer,
+    CategoriesSerializer,
+    RingSizeSerializer,
+)
 from django.shortcuts import get_object_or_404
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
+
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
@@ -28,7 +54,9 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         """Отримання продукту за slug з урахуванням мови"""
         lang = request.GET.get("lang", "uk")
         field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        result = get_object_or_404(Categories, **{field: kwargs["pk"], "translations__language_code": lang})
+        result = get_object_or_404(
+            Categories, **{field: kwargs["pk"], "translations__language_code": lang}
+        )
         serializer = self.get_serializer(result)
         return Response(serializer.data)
 
@@ -39,31 +67,50 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     )
     def get(self, request):
         return Response({"message": "Hello, API!"})
-class CategoriesAPIList(generics.ListCreateAPIView):
+
+
+class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
+
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
 
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        return self.add_cache_headers(response)
 
-class CategoriesAPIDetail(generics.RetrieveAPIView):
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return self.add_cache_headers(response)
+
+
+class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
     """Отримати деталі продукту"""
+
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        return self.add_cache_headers(response)
 
 
 class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
+
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (AllowAny,)
 
-class ProductViewSet(viewsets.ModelViewSet):
+
+class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
     """CRUD для продуктів"""
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = ( AllowAny,)
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
@@ -76,9 +123,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         """Отримання продукту за slug з урахуванням мови"""
         lang = request.GET.get("lang", "uk")
         field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        product = get_object_or_404(Product, **{field: kwargs["pk"], "translations__language_code": lang})
+        product = get_object_or_404(
+            Product, **{field: kwargs["pk"], "translations__language_code": lang}
+        )
         serializer = self.get_serializer(product)
         return Response(serializer.data)
+
     @extend_schema(
         summary="Get example data",
         description="Returns an example response with some data.",
@@ -87,25 +137,42 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get(self, request):
         return Response({"message": "Hello, API!"})
 
-class ProductAPIList(generics.ListCreateAPIView):
+
+class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
 
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        return self.add_cache_headers(response)
 
-class ProductAPIDetail(generics.RetrieveAPIView):
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return self.add_cache_headers(response)
+
+
+class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
     """Отримати деталі продукту"""
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        return self.add_cache_headers(response)
 
 
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
+
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -116,8 +183,10 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 from .models import RingSizeConversion  # Імпортуйте свою модель
 from .serializers import RingSizeSerializer  # Імпортуйте серіалізатор
 
+
 class RingSizeLookup(APIView):
     """Переводить окружність пальця в розмір кільця, знаходячи найближче значення"""
+
     serializer_class = RingSizeSerializer
 
     @extend_schema(
@@ -130,26 +199,32 @@ class RingSizeLookup(APIView):
                 location=OpenApiParameter.QUERY,
             )
         ],
-        responses={200: RingSizeSerializer}
+        responses={200: RingSizeSerializer},
     )
     def get(self, request, *args, **kwargs):
         circumference = request.query_params.get("circumference")
 
         if not circumference:
-            return Response({"error": "Circumference is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Circumference is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             circumference = float(circumference)
-            
+
             # Шукаємо точний розмір
-            size_obj = RingSizeConversion.objects.filter(circumference_mm=circumference).first()
+            size_obj = RingSizeConversion.objects.filter(
+                circumference_mm=circumference
+            ).first()
             if size_obj:
                 return Response(self.serialize_size(size_obj))
 
             # Якщо точного значення немає, шукаємо найближчий розмір
             nearest_size = (
-                RingSizeConversion.objects
-                .annotate(diff=Abs(F("circumference_mm") - circumference))
+                RingSizeConversion.objects.annotate(
+                    diff=Abs(F("circumference_mm") - circumference)
+                )
                 .order_by("diff")
                 .first()
             )
@@ -157,10 +232,15 @@ class RingSizeLookup(APIView):
             if nearest_size:
                 return Response(self.serialize_size(nearest_size))
             else:
-                return Response({"error": "No sizes available"}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "No sizes available"}, status=status.HTTP_404_NOT_FOUND
+                )
 
         except ValueError:
-            return Response({"error": "Invalid circumference value"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid circumference value"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     def serialize_size(self, size_obj):
         """Серіалізуємо відповідь для зручного відображення"""
@@ -174,6 +254,7 @@ class RingSizeLookup(APIView):
             "size_other_eu": size_obj.size_other_eu,
         }
 
+
 # class RingSizeLookup(APIView):
 #     """Переводить окружність пальця в розмір кільця, знаходячи найближче значення"""
 #     serializer_class = RingSizeSerializer
@@ -185,7 +266,7 @@ class RingSizeLookup(APIView):
 
 #         try:
 #             circumference = float(circumference)
-            
+
 #             # Шукаємо точний розмір
 #             size_obj = RingSizeConversion.objects.filter(circumference_mm=circumference).first()
 #             if size_obj:
@@ -244,4 +325,3 @@ class RingSizeLookup(APIView):
 
 # #         except ValueError:
 # #             return Response({"error": "Invalid circumference value"}, status=status.HTTP_400_BAD_REQUEST)
-
