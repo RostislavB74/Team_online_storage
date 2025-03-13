@@ -1,34 +1,38 @@
-name: DEPLOY
+name: Django CI
 
 permissions:
   contents: read
+  pull-requests: write
 
 on:
-  workflow_run:
-    workflows: ["Django CI"]
-    types:
-      - completed
+  push:
+    branches: [ "dev", "deploy" ]
+  pull_request:
+    branches: [ "dev", "deploy" ]
 
 jobs:
-  ci:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # Run only if Django CI is successful
+  build:
+
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.11, 3.12, 3.13]
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
-        env:
-          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-          deploy_static_url: ${{ secrets.RENDER_DEPLOY_HOOK_STATIC_URL }}
-        run: |
-          if [ -n "$deploy_url" ]; then
-            echo "Deploying to $deploy_url"
-            curl "$deploy_url"
-          else
-            echo "No deploy url found"
-          fi
-          if [ -n "$deploy_static_url" ]; then
-            echo "Deploying to deploy_static_url"
-            curl "$deploy_static_url"
-          else
-            echo "No deploy static url found"
-          fi
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run Tests
+      run: |
+        cd project_1444
+        export PYTHONPATH=.
+        export DATABASE_URL=sqlite:///db.sqlite
+        python manage.py migrate
+        python manage.py test
