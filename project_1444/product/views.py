@@ -22,6 +22,7 @@ from rest_framework import status
 from django.db.models import F
 from django.db.models.functions import Abs
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 from .models import RingSizeConversion  # Імпортуйте свою модель
 from .serializers import RingSizeSerializer  # Імпортуйте серіалізатор
@@ -64,7 +65,9 @@ class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         parameters=[
             OpenApiParameter(
                 name="Accept-Language",
-                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
                 required=False,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.HEADER,
@@ -83,7 +86,9 @@ class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         parameters=[
             OpenApiParameter(
                 name="Accept-Language",
-                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
                 required=False,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.HEADER,
@@ -116,7 +121,9 @@ class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         parameters=[
             OpenApiParameter(
                 name="Accept-Language",
-                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
                 required=False,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.HEADER,
@@ -156,7 +163,9 @@ class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         parameters=[
             OpenApiParameter(
                 name="Accept-Language",
-                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
                 required=False,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.HEADER,
@@ -175,7 +184,9 @@ class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         parameters=[
             OpenApiParameter(
                 name="Accept-Language",
-                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
                 required=False,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.HEADER,
@@ -207,7 +218,9 @@ class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         parameters=[
             OpenApiParameter(
                 name="Accept-Language",
-                description=f"Preferred language for the response. Allowed values: {', '.join(settings.PARLER_LANGUAGES_LIST)}.",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
                 required=False,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.HEADER,
