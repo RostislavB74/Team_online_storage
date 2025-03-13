@@ -34,9 +34,10 @@ class MixinCacheHeaders:
         return last_modified, self.get_etag()
 
     def add_cache_headers(self, response: Response):
-        """Attach cache headers to the response"""
-        last_modified, etag = self.get_cache_data()
-        response["Last-Modified"] = http_date(last_modified.timestamp())
-        if etag:
-            response["ETag"] = etag
         return response
+        # """Attach cache headers to the response"""
+        # last_modified, etag = self.get_cache_data()
+        # response["Last-Modified"] = http_date(last_modified.timestamp())
+        # if etag:
+        #     response["ETag"] = etag
+        # return response
