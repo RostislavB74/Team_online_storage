@@ -1,22 +1,12 @@
-from django.http import HttpResponse
 from rest_framework import generics
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
 )
 from rest_framework import viewsets
-
-from utils.language_code import get_language_code
-
-import datetime
-import hashlib
-
 from django.db.models import F, FloatField
 from django.db.models.functions import Abs
-from django.utils import timezone
-from django.utils.decorators import method_decorator
-from django.utils.http import http_date
-from django.views.decorators.http import condition
+from django.http import HttpResponse
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 from rest_framework import generics, status
 from rest_framework.permissions import (
@@ -30,10 +20,11 @@ from rest_framework import viewsets
 from rest_framework import status
 from django.db.models import F
 from django.db.models.functions import Abs
+from django.shortcuts import get_object_or_404
+
 from .models import RingSizeConversion  # Імпортуйте свою модель
 from .serializers import RingSizeSerializer  # Імпортуйте серіалізатор
 
-from utils.cache_headers import MixinCacheHeaders
 from .models import (
     Product,
     ProductImage,
@@ -49,7 +40,10 @@ from .serializers import (
     CategoriesSerializer,
     RingSizeSerializer,
 )
-from django.shortcuts import get_object_or_404
+
+
+from utils.language_code import get_language_code
+from utils.cache_headers import MixinCacheHeaders
 
 
 class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
