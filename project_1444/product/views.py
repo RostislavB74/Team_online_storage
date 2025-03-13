@@ -1,3 +1,13 @@
+from rest_framework import generics
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny,
+)
+from rest_framework import viewsets
+
+from utils.language_code import get_language_code
+from .models import (
+    Product,
 import datetime
 import hashlib
 
@@ -28,6 +38,7 @@ from .models import (
 )
 from .serializers import (
     ProductSerializer,
+    CategoriesSerializer,
     ProductImageSerializer,
     ProductCertificateSerializer,
     CategoriesSerializer,
@@ -69,9 +80,20 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         return Response({"message": "Hello, API!"})
 
 
+# class CategoriesAPIList(generics.ListCreateAPIView):
+#     """Отримати список продуктів або створити новий"""
+
+#     # queryset = Categories.objects.all()
+#     serializer_class = CategoriesSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):
+#         """Фільтрація за мовою"""
+#         lang = get_language_code(self.request)
+#         result = Categories.objects.language(lang).all()
+#         return result
 class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
-
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
@@ -84,10 +106,17 @@ class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         response = super().list(request, *args, **kwargs)
         return self.add_cache_headers(response)
 
-
 class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
     """Отримати деталі продукту"""
+    # queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    permission_classes = (AllowAny,)
 
+    def get_queryset(self):
+        """Фільтрація за мовою"""
+        lang = get_language_code(self.request)
+        result = Categories.objects.language(lang).all()
+        return result
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
@@ -96,13 +125,13 @@ class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         response = super().retrieve(request, *args, **kwargs)
         return self.add_cache_headers(response)
 
-
 class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
 
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
+
 
 
 class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
@@ -114,10 +143,8 @@ class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
-        lang = self.request.GET.get("lang", "uk")
-        if lang == "uk":
-            return Product.objects.filter(translations__language_code="uk")
-        return Product.objects.filter(translations__language_code="en")
+        lang = get_language_code(self.request)
+        return Product.objects.language(lang).all()
 
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за slug з урахуванням мови"""
@@ -138,7 +165,20 @@ class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
         return Response({"message": "Hello, API!"})
 
 
-class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
+
+# class ProductAPIList(generics.ListCreateAPIView):
+#     """Отримати список продуктів або створити новий"""
+
+#     # queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):
+#         """Фільтрація товарів за мовою"""
+#         lang = get_language_code(self.request)
+#         return Product.objects.language(lang).all()
+
+ class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
 
     queryset = Product.objects.all()
@@ -156,7 +196,14 @@ class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
 
 class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
     """Отримати деталі продукту"""
+    # queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (AllowAny,)
 
+    def get_queryset(self):
+        """Фільтрація товарів за мовою"""
+        lang = get_language_code(self.request)
+        return Product.objects.language(lang).all()
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
