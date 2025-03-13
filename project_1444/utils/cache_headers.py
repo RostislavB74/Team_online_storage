@@ -2,9 +2,7 @@ import hashlib
 
 from django.core.exceptions import FieldError
 from django.utils import timezone
-from django.utils.decorators import method_decorator
 from django.utils.http import http_date
-from django.views.decorators.http import condition
 from rest_framework.response import Response
 
 
