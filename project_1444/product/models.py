@@ -21,7 +21,7 @@ class Categories(TranslatableModel):
         name=models.CharField(max_length=255, unique=True, verbose_name='Categories'),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
     )
-
+    updated_at = models.DateTimeField(auto_now=True)
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
 
@@ -39,7 +39,7 @@ class SubCategories(TranslatableModel):
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
     )
     parent = models.ForeignKey(Categories, on_delete=models.PROTECT, null=True, blank=True, related_name='subcategories')
-
+    updated_at = models.DateTimeField(auto_now=True)
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
 
@@ -139,38 +139,106 @@ class ProductStatus(models.TextChoices):
     NEW = "new", _("New")
     CLASSIC = "classic", _("Classic")
     STOCK = "stock", _("Stock")
+
 #Gemstone
+class TypeGemstones(models.TextChoices):
+    """Тип каменів: коштовні та напівкоштовні"""
+    PRECIOUS = "precious", _("Precious")
+    SEMIPRECIOUS = "semi-precious", _("Semi-Precious")
+
+class Origin(models.TextChoices):
+    """Походження каменю"""
+    NATURAL = "natural", _("Natural")
+    SYNTHETIC = "synthetic", _("Synthetic")
+
 class Gemstone(TranslatableModel):
-    TYPE_CHOICES = [
-        ('precious', 'Коштовний'),
-        ('semi-precious', 'Напівкоштовний')
-    ]
-    ORIGIN_CHOICES = [
-        ('natural', 'Природній'),
-        ('synthetic', 'Синтетичний')
-    ]
+    """Модель для зберігання каменів"""
+
     LEVEL_CHOICES = [
-        (1, '1st'),
-        (2, '2nd'),
-        (3, '3rd'),
-        (4, '4th')
+        (1, "1st"),
+        (2, "2nd"),
+        (3, "3rd"),
+        (4, "4th"),
     ]
-    
-    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
-    origin_stone = models.CharField(max_length=20, choices=ORIGIN_CHOICES)
+
+    name = models.CharField(max_length=255, unique=True)
+    type = models.CharField(max_length=20, choices=TypeGemstones.choices)
+    origin = models.CharField(max_length=20, choices=Origin.choices, null=True, blank=True)
     level = models.IntegerField(choices=LEVEL_CHOICES, null=True, blank=True)
-    color=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
+    color = models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
+
     translations = TranslatedFields(
-        name = models.CharField(max_length=255),
-        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+        name=models.CharField(max_length=255),
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
     )
-    def save(self, *args, **kwargs):
-        save_with_translation(self, *args, **kwargs)
+
     class Meta:
-        verbose_name = 'Ювеліриний камінь'
-        verbose_name_plural = 'Ювелірне каміння'
+        verbose_name = _("Ювелірне каміння")
+        verbose_name_plural = _("Ювелірне каміння")
+
+    def save(self, *args, **kwargs):
+        """Перевіряє рівень залежно від типу каменю"""
+        if self.type == TypeGemstones.PRECIOUS and self.level not in [1, 2, 3, 4]:
+            raise ValueError(_("Precious gemstones must have a level from 1 to 4."))
+        elif self.type == TypeGemstones.SEMIPRECIOUS and self.level not in [1, 2]:
+            raise ValueError(_("Semi-precious gemstones must have a level of 1 or 2."))
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return self.safe_translation_getter('name', default='Без назви')  
+        return self.safe_translation_getter("name", default=_("Unnamed"))
+
+
+class GemstoneCertificate(models.Model):
+    """Зберігає сертифікати (наприклад, GIA)"""
+
+    class CertificateType(models.TextChoices):
+        GIA = "GIA", _("GIA")
+        IGI = "IGI", _("IGI")
+        HRD = "HRD", _("HRD")
+
+    gemstone = models.OneToOneField(Gemstone, on_delete=models.CASCADE, related_name="certificate")
+    certificate_type = models.CharField(max_length=10, choices=CertificateType.choices)
+    certificate_number = models.CharField(max_length=50, unique=True)
+    issued_date = models.DateField()
+    file = models.FileField(upload_to="certificates/", null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("Gemstone Certificate")
+        verbose_name_plural = _("Gemstone Certificates")
+
+    def __str__(self):
+        return f"{self.get_certificate_type_display()} - {self.certificate_number}"
+# class TypeGemstones(models.TextChoices):
+#     PRECICIOUS = "precious", _("Precious")
+#     SEMIPRECIOUS = "semi-precious", _("Semi-Precious")
+
+# class Origin(models.TextChoices):
+#     NATURAL = "natural", _("Natural")
+#     SYNTHETIC = "synthetic", _("Synthetic")
+# class Gemstone(TranslatableModel):
+   
+#     LEVEL_CHOICES = [
+#         (1, '1st'),
+#         (2, '2nd'),
+#         (3, '3rd'),
+#         (4, '4th')
+#     ]
+    
+#     type = models.ForeignKey('TypeGemstones', on_delete=models.SET_NULL, null=True, blank=True)
+#     origin_stone = models.ForeignKey('Origin', on_delete=models.SET_NULL, null=True, blank=True)
+#     level = models.IntegerField(choices=LEVEL_CHOICES, null=True, blank=True)
+#     color=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
+#     translations = TranslatedFields(
+#         name = models.CharField(max_length=255),
+#         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+#     )
+#     def save(self, *args, **kwargs):
+#         save_with_translation(self, *args, **kwargs)
+#     class Meta:
+#         verbose_name = 'Ювеліриний камінь'
+#         verbose_name_plural = 'Ювелірне каміння'
+#     def __str__(self):
+#         return self.safe_translation_getter('name', default='Без назви')  
 class Occasion(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True),
@@ -347,8 +415,15 @@ class Product(TranslatableModel):
         materials = self.materials.all()
         return ", ".join([f"{m.material.article} | {m.material.name} | {m.material.metal} | {m.material.assay} | {m.material.color}" for m in materials]) if materials else "Матеріал не вибрано"
 
+    # def __str__(self):
+    #     translation = self.translations.first()  # перший переклад
+    #     return translation.name if translation and translation.name else f"Product {self.id}"
     def __str__(self):
-        return self.name 
+        translation = self.safe_translation_getter('name', any_language=True)
+        return translation if translation else f"Product {self.id}"
+
+
+
 # Функція для генерації `sku`
 def generate_sku():
     return f"SKU-{uuid.uuid4().hex[:8].upper()}"
