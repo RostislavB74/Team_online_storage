@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import generics
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -7,7 +8,12 @@ from rest_framework import viewsets
 from django.db.models import F, FloatField
 from django.db.models.functions import Abs
 from django.http import HttpResponse
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiTypes,
+    extend_schema_view,
+)
 from rest_framework import generics, status
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
@@ -21,6 +27,7 @@ from rest_framework import status
 from django.db.models import F
 from django.db.models.functions import Abs
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 from .models import RingSizeConversion  # Імпортуйте свою модель
 from .serializers import RingSizeSerializer  # Імпортуйте серіалізатор
@@ -46,6 +53,35 @@ from utils.language_code import get_language_code
 from utils.cache_headers import MixinCacheHeaders
 
 
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            )
+        ],
+    ),
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            )
+        ],
+    ),
+)
+@extend_schema(tags=["Category API"])
 class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
 
@@ -76,6 +112,22 @@ class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         return self.add_cache_headers(response, cache_data)
 
 
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            )
+        ],
+    ),
+)
+@extend_schema(tags=["Category API"])
 class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
     """Отримати деталі продукту"""
 
@@ -98,6 +150,7 @@ class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         return self.add_cache_headers(response, cache_data)
 
 
+@extend_schema(tags=["Category API"])
 class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
 
@@ -106,6 +159,35 @@ class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
 
 
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            )
+        ],
+    ),
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            )
+        ],
+    ),
+)
+@extend_schema(tags=["Product API"])
 class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
 
@@ -135,6 +217,22 @@ class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         return self.add_cache_headers(response, cache_data)
 
 
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="Accept-Language",
+                description=_(
+                    "Preferred language for the response. Allowed values: {languages_list}."
+                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.HEADER,
+            )
+        ],
+    ),
+)
+@extend_schema(tags=["Product API"])
 class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
     """Отримати деталі продукту"""
 
@@ -156,6 +254,7 @@ class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         return self.add_cache_headers(response, cache_data)
 
 
+@extend_schema(tags=["Product API"])
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
 
@@ -164,6 +263,7 @@ class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
 
 
+@extend_schema(tags=["Tools API"])
 class RingSizeLookup(APIView):
     """Переводить окружність пальця в розмір кільця, знаходячи найближче значення"""
 

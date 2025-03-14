@@ -1,0 +1,126 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-14 01:35+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+#: .\discounts\models.py:16
+msgid "Промокод"
+msgstr ""
+
+#: .\discounts\models.py:17 .\discounts\models.py:47 .\discounts\models.py:139
+msgid "Знижка, %"
+msgstr ""
+
+#: .\discounts\models.py:18 .\discounts\models.py:48 .\discounts\models.py:120
+#: .\discounts\models.py:140
+msgid "Початок дії"
+msgstr ""
+
+#: .\discounts\models.py:19 .\discounts\models.py:49 .\discounts\models.py:121
+#: .\discounts\models.py:141
+msgid "Кінець дії"
+msgstr ""
+
+#: .\discounts\models.py:20 .\discounts\models.py:50 .\discounts\models.py:122
+#: .\discounts\models.py:142
+msgid "Активний"
+msgstr ""
+
+#: .\discounts\models.py:21
+msgid "Ліміт використання"
+msgstr ""
+
+#: .\discounts\models.py:22
+msgid "Використано"
+msgstr ""
+
+#: .\discounts\models.py:23 .\discounts\models.py:123
+msgid "Застосовується до товарів"
+msgstr ""
+
+#: .\discounts\models.py:24 .\discounts\models.py:124
+msgid "Застосовується до категорій"
+msgstr ""
+
+#: .\discounts\models.py:46 .\discounts\models.py:85 .\discounts\models.py:117
+msgid "Користувач"
+msgstr ""
+
+#: .\discounts\models.py:63 .\discounts\models.py:138
+msgid "Товар"
+msgstr ""
+
+#: .\discounts\models.py:64
+msgid "Стара ціна"
+msgstr ""
+
+#: .\discounts\models.py:65
+msgid "Нова ціна"
+msgstr ""
+
+#: .\discounts\models.py:66
+msgid "Застосована знижка"
+msgstr ""
+
+#: .\discounts\models.py:67
+msgid "Дата зміни"
+msgstr ""
+
+#: .\discounts\models.py:86
+msgid "Знижка на день народження, %"
+msgstr ""
+
+#: .\discounts\models.py:87
+msgid "Дійсна кількість днів"
+msgstr ""
+
+#: .\discounts\models.py:118
+msgid "Призначив"
+msgstr ""
+
+#: .\discounts\models.py:119
+msgid "Персональна знижка, %"
+msgstr ""
+
+#: .\discounts\models.py:125
+msgid "Групи користувачів"
+msgstr ""
+
+#: .\product\models.py:138
+msgid "Bestseller"
+msgstr ""
+
+#: .\product\models.py:139
+msgid "New"
+msgstr ""
+
+#: .\product\models.py:140
+msgid "Classic"
+msgstr ""
+
+#: .\product\models.py:141
+msgid "Stock"
+msgstr ""
+
+#: .\product\views.py:69 .\product\views.py:90 .\product\views.py:125
+#: .\product\views.py:167 .\product\views.py:188 .\product\views.py:222
+#, python-brace-format
+msgid "Preferred language for the response. Allowed values: {languages_list}."
+msgstr "Обрана мова для відповіді. Дозволені значення: {languages_list}."

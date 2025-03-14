@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 
 
+@extend_schema(tags=["Cart API"])
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
@@ -18,13 +19,16 @@ class CartViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Фільтрує кошик лише для поточного користувача"""
         return Cart.objects.filter(user=self.request.user)
+
     @action(detail=False, methods=["post"])
     def create_order(self, request):
         """Створює передзамовлення на основі кошика"""
         cart = get_object_or_404(Cart, user=request.user)
 
         if not cart.items.exists():
-            return Response({"error": "Кошик порожній"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Кошик порожній"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Передаємо `user` як об'єкт і загальну вартість
         data = {"user": request.user, "total_price": cart.total_price}
@@ -35,7 +39,7 @@ class CartViewSet(viewsets.ModelViewSet):
             return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     @extend_schema(
         summary="Get example data",
         description="Returns an example response with some data.",
@@ -43,9 +47,8 @@ class CartViewSet(viewsets.ModelViewSet):
     )
     def get(self, request):
         return Response({"message": "Hello, API!"})
-        
- 
-    @action(detail=True, methods=['post'])
+
+    @action(detail=True, methods=["post"])
     def add_item(self, request, pk=None):
         """Додає товар у кошик"""
         cart = self.get_object()
@@ -53,13 +56,19 @@ class CartViewSet(viewsets.ModelViewSet):
         quantity = request.data.get("quantity", 1)
 
         if not product_id:
-            return Response({"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
-            item, created = CartItem.objects.get_or_create(cart=cart, product_id=product_id)
+            item, created = CartItem.objects.get_or_create(
+                cart=cart, product_id=product_id
+            )
             if not created:
                 item.quantity += int(quantity)
                 item.save()
-            return Response(CartItemSerializer(item).data, status=status.HTTP_201_CREATED)
+            return Response(
+                CartItemSerializer(item).data, status=status.HTTP_201_CREATED
+            )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
