@@ -16,13 +16,13 @@ from cart.models import Cart, CartItem
 from product.models import Product
 
 
-@extend_schema(tags=["Deploy API"])
+@extend_schema(tags=["api"])
 class HealthCheckView(APIView):
     def get(self, request):
         return Response({"status": "ok"})
 
 
-@extend_schema(tags=["Deploy API"])
+@extend_schema(tags=["api"])
 class VersionView(APIView):
     def get(self, request):
         return Response(
