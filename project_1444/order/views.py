@@ -1,4 +1,5 @@
 from django.conf import settings
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions
 from rest_framework import viewsets, status
 
@@ -14,31 +15,44 @@ from .serializers import OrderSerializer, OrderItemSerializer
 from cart.models import Cart, CartItem
 from product.models import Product
 
+
+@extend_schema(tags=["Deploy API"])
 class HealthCheckView(APIView):
     def get(self, request):
         return Response({"status": "ok"})
 
+
+@extend_schema(tags=["Deploy API"])
 class VersionView(APIView):
     def get(self, request):
-        return Response({"git_version": settings.GIT_VERSION, "version": settings.VERSION})
+        return Response(
+            {"git_version": settings.GIT_VERSION, "version": settings.VERSION}
+        )
 
+
+@extend_schema(tags=["Order API"])
 class CreateOrderFromCartView(APIView):
     serializer_class = OrderSerializer  # Додай serializer_class
 
-    
     def post(self, request):
         user = request.user
         try:
             cart = Cart.objects.get(user=user)
             cart_items = CartItem.objects.filter(cart=cart)
-            
 
             # Підготовка даних для нового замовлення
             order_data = {
-                'user': user.id,
+                "user": user.id,
                 # Додайте інші поля, які мають бути заповнені або мають значення за замовчуванням
-                'items': [{'product': item.product_id, 'quantity': item.quantity, 'total_price': item.total_price} for item in cart_items]
-         # Початкова ціна без урахування знижок
+                "items": [
+                    {
+                        "product": item.product_id,
+                        "quantity": item.quantity,
+                        "total_price": item.total_price,
+                    }
+                    for item in cart_items
+                ],
+                # Початкова ціна без урахування знижок
             }
 
             # Додаткові дані можуть бути передані в запиті
@@ -47,25 +61,28 @@ class CreateOrderFromCartView(APIView):
             serializer = OrderSerializer(data=order_data)
             if serializer.is_valid():
                 order = serializer.save()
-                
+
                 # Очистити корзину після створення замовлення
                 cart_items.delete()
-                
+
                 # Резервування товарів на складах (псевдокод)
                 # for item in order.items.all():
                 #     item.product.reserve_stock(item.quantity)
-                
+
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Cart.DoesNotExist:
-            return Response({'error': 'Cart not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
 
-
+@extend_schema(tags=["Order API"])
 class CreateOrderView(generics.CreateAPIView):
     serializer_class = OrderSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Тільки авторизовані користувачі
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]  # Тільки авторизовані користувачі
 
     def create(self, request, *args, **kwargs):
         user = request.user
@@ -99,13 +116,15 @@ class CreateOrderView(generics.CreateAPIView):
                 order=order,
                 product=cart_item.product,
                 quantity=cart_item.quantity,
-                price=cart_item.product.price
+                price=cart_item.product.price,
             )
             total_price += order_item.price * order_item.quantity
 
         # Застосовуємо купон, якщо є
         if coupon_code:
-            discount_amount = self.apply_coupon(coupon_code, total_price)  # Функція для застосування купону
+            discount_amount = self.apply_coupon(
+                coupon_code, total_price
+            )  # Функція для застосування купону
             total_price -= discount_amount
 
         # Оновлюємо загальну суму та зберігаємо замовлення
@@ -120,11 +139,13 @@ class CreateOrderView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def apply_coupon(self, coupon_code, total_price):
-        """ Перевіряємо купон і застосовуємо знижку """
+        """Перевіряємо купон і застосовуємо знижку"""
         if coupon_code == "DISCOUNT2024":  # Тут має бути логіка перевірки купонів
             return total_price * 0.1  # Наприклад, 10% знижки
         return 0
 
+
+@extend_schema(tags=["Order API"])
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -135,7 +156,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         cart = Cart.objects.get(user=user) if user else None
 
         if not cart or not cart.items.exists():
-            return Response({"error": "Корзина порожня"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Корзина порожня"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Створюємо замовлення
         order = Order.objects.create(
@@ -144,7 +167,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             delivery_method=request.data.get("delivery_method"),
             coupon=request.data.get("coupon"),
             discount=request.data.get("discount", 0),
-            call_me=request.data.get("call_me", False)
+            call_me=request.data.get("call_me", False),
         )
 
         # Копіюємо товари з Cart → OrderItem
@@ -154,7 +177,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 product=cart_item.product,
                 quantity=cart_item.quantity,
                 product_price=cart_item.product_price,
-                total_price=cart_item.total_price
+                total_price=cart_item.total_price,
             )
 
         # Оновлюємо фінальну суму
