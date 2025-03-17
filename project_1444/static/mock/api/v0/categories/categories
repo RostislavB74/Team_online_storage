@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "name": "Каблучки",
+    "slug": "kabluchki"
+  },
+  {
+    "id": 2,
+    "name": "Браслети",
+    "slug": "brasleti"
+  },
+  {
+    "id": 3,
+    "name": "Брелоки",
+    "slug": "breloki"
+  }
+]
