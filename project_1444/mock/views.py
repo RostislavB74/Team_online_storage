@@ -14,9 +14,9 @@ class MockViewApiV0(View):
         try:
             if request.path.endswith("/"):
                 request_path = Path(request.path.lstrip("/"))
-                request_path = request_path / request_path.name
+                request_path = request_path / (request_path.name + ".json")
             else:
-                request_path = Path(request.path.lstrip("/"))
+                request_path = Path(request.path.lstrip("/") + ".json")
 
             # Security check. Check if inside, if wrong then exception
             context_path = (self.mock_path / request_path).resolve()  # resolve path
