@@ -173,14 +173,15 @@ cython_debug/
 poetry.lock
 
 
-project_1444/static/
-!project_1444/static/mock/
-!project_1444/static/README.md
+#static/
+!static/mock/api/v0/
+!static/README.md
+!static/mock/**/*.json
 
 # /project_1444/media/
 
 
-#/project_1444/static/admin/
-#/project_1444/static/django_extensions/
-#/project_1444/static/parler/
-#/project_1444/static/rest_framework/
+/project_1444/static/admin/
+/project_1444/static/django_extensions/
+/project_1444/static/parler/
+/project_1444/static/rest_framework/
