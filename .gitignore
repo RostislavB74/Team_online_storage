@@ -171,8 +171,8 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 poetry.lock
-/project_1444/static/
-!/project_1444/static/mock/
+project_1444/static/
+!project_1444/static/mock/
 # /project_1444/media/
 
 
