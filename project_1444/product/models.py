@@ -12,16 +12,21 @@ from users.models import User
 from parler.models import TranslatableModel, TranslatedFields
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-
+from django.core.exceptions import ValidationError
 from .utils import save_with_translation
 from cloudinary.models import CloudinaryField
 # Категорії
 class Categories(TranslatableModel):
+    size_type = models.ForeignKey('SizeType', on_delete=models.SET_NULL, null=True, blank=True)
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, verbose_name='Categories'),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
     )
     updated_at = models.DateTimeField(auto_now=True)
+    has_length = models.BooleanField(default=False, verbose_name="Має довжину (см)")
+    has_width = models.BooleanField(default=False, verbose_name="Має ширину (см)")
+    has_diameter = models.BooleanField(default=False, verbose_name="Має діаметр (мм)")
+    has_weight = models.BooleanField(default=True, verbose_name="Має вагу (г)")
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
 
@@ -134,111 +139,63 @@ def generate_article(sender, instance, **kwargs):
         next_number = f"{(last_material.id + 1) if last_material else 1:03d}"  # Генерація номера
         instance.article = f"{metal_code}{assay_code}{color_code}{next_number}"
 
-class ProductStatus(models.TextChoices):
-    BESTSELLER = "bestseller", _("Bestseller")
-    NEW = "new", _("New")
-    CLASSIC = "classic", _("Classic")
-    STOCK = "stock", _("Stock")
-
 #Gemstone
 class TypeGemstones(models.TextChoices):
-    """Тип каменів: коштовні та напівкоштовні"""
     PRECIOUS = "precious", _("Precious")
     SEMIPRECIOUS = "semi-precious", _("Semi-Precious")
+    NONPRECIOUS = "nonprecious", _("NonPrecious")
 
 class Origin(models.TextChoices):
-    """Походження каменю"""
     NATURAL = "natural", _("Natural")
     SYNTHETIC = "synthetic", _("Synthetic")
 
+class OrderLevel(models.TextChoices):
+    PRECIOUS_I = "precious_1", _("Precious I Order")      
+    PRECIOUS_II = "precious_2", _("Precious II Order")    
+    PRECIOUS_III = "precious_3", _("Precious III Order")  
+    PRECIOUS_IV = "precious_4", _("Precious IV Order")    
+
+    SEMI_PRECIOUS_I = "semi_precious_1", _("Semi-Precious I Order")  
+    SEMI_PRECIOUS_II = "semi_precious_2", _("Semi-Precious II Order") 
+
 class Gemstone(TranslatableModel):
-    """Модель для зберігання каменів"""
-
-    LEVEL_CHOICES = [
-        (1, "1st"),
-        (2, "2nd"),
-        (3, "3rd"),
-        (4, "4th"),
-    ]
-
-    name = models.CharField(max_length=255, unique=True)
-    type = models.CharField(max_length=20, choices=TypeGemstones.choices)
-    origin = models.CharField(max_length=20, choices=Origin.choices, null=True, blank=True)
-    level = models.IntegerField(choices=LEVEL_CHOICES, null=True, blank=True)
-    color = models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
-
     translations = TranslatedFields(
         name=models.CharField(max_length=255),
-        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
-    )
+        slug = models.SlugField(unique=True),
+   )
+    
+    type = models.CharField(max_length=20, choices=TypeGemstones.choices, null=True, blank=True)
+    origin_stone = models.CharField(max_length=20, choices=Origin.choices,  null=True, blank=True)
+    level = models.CharField(max_length=20, choices=OrderLevel.choices, null=True, blank=True )
+    # color = models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
-        verbose_name = _("Ювелірне каміння")
-        verbose_name_plural = _("Ювелірне каміння")
+        verbose_name = 'Ювелірний камінь'
+        verbose_name_plural = 'Ювелірне каміння'
+
+    def __str__(self):
+        return self.safe_translation_getter('name', default='Без назви')
+
+    def clean(self):
+        """ Валідація категорій каменів """
+        if self.origin_stone == Origin.SYNTHETIC and self.level:
+            raise ValidationError({'level': _('Синтетичні камені не мають порядку.')})
+
+        if self.type == TypeGemstones.PRECIOUS and self.level not in [
+            OrderLevel.PRECIOUS_I, OrderLevel.PRECIOUS_II,
+            OrderLevel.PRECIOUS_III, OrderLevel.PRECIOUS_IV
+        ]:
+            raise ValidationError({'level': _('Дорогоцінні камені мають рівні I-IV порядку.')})
+
+        if self.type == TypeGemstones.SEMIPRECIOUS and self.level not in [
+            OrderLevel.SEMI_PRECIOUS_I, OrderLevel.SEMI_PRECIOUS_II
+        ]:
+            raise ValidationError({'level': _('Напівкоштовні камені мають рівні I-II порядку.')})
 
     def save(self, *args, **kwargs):
-        """Перевіряє рівень залежно від типу каменю"""
-        if self.type == TypeGemstones.PRECIOUS and self.level not in [1, 2, 3, 4]:
-            raise ValueError(_("Precious gemstones must have a level from 1 to 4."))
-        elif self.type == TypeGemstones.SEMIPRECIOUS and self.level not in [1, 2]:
-            raise ValueError(_("Semi-precious gemstones must have a level of 1 or 2."))
+        self.clean()
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.safe_translation_getter("name", default=_("Unnamed"))
-
-
-class GemstoneCertificate(models.Model):
-    """Зберігає сертифікати (наприклад, GIA)"""
-
-    class CertificateType(models.TextChoices):
-        GIA = "GIA", _("GIA")
-        IGI = "IGI", _("IGI")
-        HRD = "HRD", _("HRD")
-
-    gemstone = models.OneToOneField(Gemstone, on_delete=models.CASCADE, related_name="certificate")
-    certificate_type = models.CharField(max_length=10, choices=CertificateType.choices)
-    certificate_number = models.CharField(max_length=50, unique=True)
-    issued_date = models.DateField()
-    file = models.FileField(upload_to="certificates/", null=True, blank=True)
-
-    class Meta:
-        verbose_name = _("Gemstone Certificate")
-        verbose_name_plural = _("Gemstone Certificates")
-
-    def __str__(self):
-        return f"{self.get_certificate_type_display()} - {self.certificate_number}"
-# class TypeGemstones(models.TextChoices):
-#     PRECICIOUS = "precious", _("Precious")
-#     SEMIPRECIOUS = "semi-precious", _("Semi-Precious")
-
-# class Origin(models.TextChoices):
-#     NATURAL = "natural", _("Natural")
-#     SYNTHETIC = "synthetic", _("Synthetic")
-# class Gemstone(TranslatableModel):
-   
-#     LEVEL_CHOICES = [
-#         (1, '1st'),
-#         (2, '2nd'),
-#         (3, '3rd'),
-#         (4, '4th')
-#     ]
-    
-#     type = models.ForeignKey('TypeGemstones', on_delete=models.SET_NULL, null=True, blank=True)
-#     origin_stone = models.ForeignKey('Origin', on_delete=models.SET_NULL, null=True, blank=True)
-#     level = models.IntegerField(choices=LEVEL_CHOICES, null=True, blank=True)
-#     color=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
-#     translations = TranslatedFields(
-#         name = models.CharField(max_length=255),
-#         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
-#     )
-#     def save(self, *args, **kwargs):
-#         save_with_translation(self, *args, **kwargs)
-#     class Meta:
-#         verbose_name = 'Ювеліриний камінь'
-#         verbose_name_plural = 'Ювелірне каміння'
-#     def __str__(self):
-#         return self.safe_translation_getter('name', default='Без назви')  
 class Occasion(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True),
@@ -252,6 +209,18 @@ class Occasion(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
     def __str__(self):
         return self.safe_translation_getter('name', default='Без назви')  # Бере name із перекладу
+
+
+class SizeType(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    has_length = models.BooleanField(default=False)
+    has_width = models.BooleanField(default=False)
+    has_diameter = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+
 class Gender(models.Model):
     GENDER_CHOICES = [
         ('female', 'Жіноче'),
@@ -266,23 +235,80 @@ class Gender(models.Model):
         verbose_name_plural = 'Для кого'
     def __str__(self):
         return self.name
+
+class SubProducts(TranslatableModel):
+    parent_product = models.ForeignKey(
+        'Product', on_delete=models.CASCADE, related_name="products"
+        )
+    translations = TranslatedFields(
+            name=models.CharField(max_length=255, unique=True,blank=True),
+            slug=models.SlugField(max_length=50, unique=True, blank=True),
+        )
+    article = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    ean_13 = models.CharField(max_length=13, null=True, blank=True)
+    sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
+    price = models.FloatField(null=True, blank=True)
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, default=0, validators=[MinValueValidator(0), MaxValueValidator(100)])  
+    new_price = models.FloatField(null=True, blank=True)
+    old_price = models.FloatField(null=True, blank=True)
+    qr_code = models.ImageField(upload_to='qrcodes/', blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    length = models.FloatField(null=True, blank=True, verbose_name="Довжина (см)")
+    width = models.FloatField(null=True, blank=True, verbose_name="Ширина (см)")
+    size = models.FloatField(null=True, blank=True, verbose_name="Діаметр (мм)")
+    weight = models.FloatField(null=True, blank=True, verbose_name="Вага (г)")
+    def clean(self):
+        """Перед збереженням перевіряємо, які поля потрібні"""
+        if not self.category.has_length:
+            self.length = None
+        if not self.category.has_width:
+            self.width = None
+        if not self.category.has_diameter:
+            self.diameter = None
+        if not self.category.has_weight:
+            self.weight = None
+
+    
+    def save(self, *args, **kwargs):
+        save_with_translation(self, *args, **kwargs)
+    def __str__(self):
+        return f"{self.parent_product.article} - {self.size} ({self.weight}g)"
+def generate_subarticle(product):
+    last_product = SubProducts.objects.order_by('-id').first()
+    if last_product:
+        # Припустимо, що перші два символи - це префікс
+        last_article_number = int(last_product.article[4:])
+        new_article = f"SBPR{last_article_number + 1:05d}"  # Формат: PR00001, PR00002, ...
+    else:
+        new_article = "SBPR00001"  # Початковий SKU
+    return new_article
+    
+@receiver(pre_save, sender=SubProducts)
+def subproduct_pre_save(sender, instance, **kwargs):
+    if not instance.sku:
+        instance.sku = generate_sku()
+    if not instance.article:
+        instance.article = generate_subarticle(instance)
+    if not instance.qr_code:
+        instance.qr_code = generate_qr_code(instance)
+
+
 class ProductAttributes(TranslatableModel):
-    product = models.OneToOneField('Product', on_delete=models.CASCADE, related_name="attributes")
+    product = models.OneToOneField('SubProducts', on_delete=models.CASCADE, related_name="attributes")
     gender = models.CharField('Gender', max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
     color_coating=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
-    
+    statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="products")
     translations = TranslatedFields(
         clasp_type = models.CharField(max_length=255, blank=True, null=True),
         coating_material = models.CharField(max_length=255, blank=True, null=True),
         description_coating = models.CharField(max_length=255, blank=True, null=True),
         design_product = models.CharField(max_length=255, blank=True, null=True),
         style = models.CharField(max_length=255, blank=True, null=True),
-        status = models.CharField(max_length=20, choices=ProductStatus.choices, default=ProductStatus.CLASSIC),
     )
-    # def save(self, *args, **kwargs):
-    #     save_with_translation(self, *args, **kwargs)
-
-class ProductTag(TranslatableModel):
+   
+class ProductStatus(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
@@ -293,46 +319,46 @@ class ProductTag(TranslatableModel):
 
 
 class ProductMaterial(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="materials")
+    product = models.ForeignKey('SubProducts', on_delete=models.CASCADE, related_name='materials')
+    material = models.ForeignKey('Material', on_delete=models.SET_NULL, null=True, blank=True)
     is_primary = models.BooleanField(default=False)  # Чи основний матеріал
-    material = models.ForeignKey('Material', on_delete=models.CASCADE)
+    set_included = models.BooleanField(default=False) 
     
     class Meta:
         unique_together = ('product', 'material')  # Уникнення дублювань
 
-    # def save(self, *args, **kwargs):
-    #     save_with_translation(self, *args, **kwargs)
-    
+    def __str__(self):
+        return f"{self.product} - {self.material}"
+
 
 class ProductGemstone(TranslatableModel):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="gemstones")
+    product = models.ForeignKey('SubProducts', on_delete=models.CASCADE, related_name="gemstones")
     gemstone = models.ForeignKey('Gemstone', on_delete=models.CASCADE)
+    color = models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)  # Колір каменю
+    weight = models.FloatField(null=True, blank=True)  # Вага каменю
     is_main = models.BooleanField(default=False)  # Основний камінь
-    color=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
-    weight_gemstone_main = models.FloatField(null=True, blank=True)
-    set_included = models.BooleanField(default=False)
-    weight_gemstone_second = models.FloatField(null=True, blank=True)
+    set_included = models.BooleanField(default=False)  # Камінь в комплекті
+
     translations = TranslatedFields(
-        gemstone_first = models.ForeignKey('Gemstone', on_delete=models.SET_NULL, null=True, blank=True, related_name='products_with_gem'),
-        description_gemstone_first = models.CharField(max_length=255, null=True, blank=True),
-        gemstone_second = models.ForeignKey('Gemstone', on_delete=models.SET_NULL, null=True, blank=True, related_name='products_with_second_gem'),
-        description_gemstone_second = models.CharField(max_length=255, null=True, blank=True),
-        description=models.CharField(max_length=255, blank=True, null=True),
+        description = models.CharField(max_length=255, blank=True, null=True),
     )
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # Спочатку зберігаємо, щоб отримати ID
-
-        if self.is_main and self.gemstone:
-            for lang in self.gemstone.get_available_languages():
-                with self.translate(lang):
-                    self.color = self.gemstone.safe_translation_getter('color', default="", language_code=lang)
-            super().save(update_fields=["color"])  # Оновлюємо тільки поле color
-
     class Meta:
-        unique_together = ('product', 'gemstone')
+        unique_together = ('product', 'gemstone', 'color')  # Один і той самий камінь може бути різного кольору
 
+    def clean(self):
+        """ Забезпечуємо, що тільки один камінь у виробі є основним. """
+        if self.is_main:
+            existing_main = ProductGemstone.objects.filter(product=self.product, is_main=True).exclude(pk=self.pk)
+            if existing_main.exists():
+                raise ValidationError("У виробі вже є основний камінь!")
 
+    def save(self, *args, **kwargs):
+        self.clean()  # Викликаємо перевірку перед збереженням
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.product} - {self.gemstone} ({self.color}, {self.weight}g, {'Основний' if self.is_main else 'Додатковий'})"
 
 class ProductImage(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='images')
@@ -354,73 +380,33 @@ class ProductCertificate(models.Model):
     def __str__(self):
         return f"{self.product.article} - Certificate"
 
-
 class Product(TranslatableModel):
+    size_type = models.ForeignKey(SizeType, on_delete=models.SET_NULL, null=True)
+    subproducts = models.ManyToManyField("SubProducts", related_name="subproducts", blank=True)
+    translations = TranslatedFields(
+        name=models.CharField(max_length=255, unique=True, null=True, blank=True),
+        description_product=models.TextField(null=True, blank=True),
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
+    )
     category = models.ForeignKey('Categories', on_delete=models.SET_NULL, null=True, blank=True)
     subcategory=models.ForeignKey('SubCategories', on_delete=models.SET_NULL, null=True, blank=True)
-    collection=models.ForeignKey('Collections', on_delete=models.SET_NULL, null=True, blank=True)
+    collection = models.ForeignKey('Collections', on_delete=models.SET_NULL, null=True, blank=True)
     occasions = models.ManyToManyField('Occasion', blank=True)
-    translations = TranslatedFields(
-        name = models.CharField(max_length=255,unique=True, null=True, blank=True),
-        description_product = models.TextField(null=True, blank=True),
-        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
-    )
-    article = models.CharField(max_length=50, unique=True, blank=True, null=True)  # Артикул
+    article = models.CharField(max_length=50, unique=True, blank=True, null=True)
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
-    def save(self, *args, **kwargs):
-        save_with_translation(self, *args, **kwargs)
-    size = models.CharField(max_length=10, null=True, blank=True)
-    circumference_mm = models.FloatField(null=True, blank=True)
-    price = models.FloatField(null=True, blank=True)
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, default=0, validators=[MinValueValidator(0), MaxValueValidator(100)])  
-    new_price = models.FloatField(null=True, blank=True)
-    old_price = models.FloatField(null=True, blank=True)
-    weight_material = models.FloatField(null=True, blank=True)  # В грамах
-    main_set_included = models.BooleanField(default=False)
-    
-    dimensions = models.BooleanField(default=False) # Розміри
-    width_mm = models.CharField(max_length=255, null=True, blank=True)
-    length_mm = models.FloatField(null=True, blank=True)  # Розміри
-    coating = models.BooleanField(default=False)
-    gold_plates = models.BooleanField(default=False)
-    year_collection = models.IntegerField(null=True, blank=True)  # Рік колекції, якщо є відповідне поле в формі
+    year_collection = models.IntegerField(null=True, blank=True)
     country_of_origin = models.CharField(max_length=255, null=True, blank=True)
-    qr_code = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  # QR-код
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-    def get_occasion_name(self, lang='uk'):
-        occasion_names = [occasion.translations.filter(language=lang).first().name if occasion.translations.filter(language=lang).first() else "Без назви" for occasion in self.occasions.all()]
-        return ", ".join(occasion_names) if occasion_names else "Без назви"
-    
-    def discounted_price(self):
-        if self.discount_percentage:
-            discount_amount = self.price * (self.discount_percentage / 100)
-            new_price = self.price - discount_amount
-            old_price = self.price
-            return new_price, old_price
 
-        return self.price
-
-    
-     # Зберігаємо товар
-    class Meta:
-        verbose_name = 'Товар'
-        verbose_name_plural = 'Товари'
-    
-
-    def get_material_info(self):
-        materials = self.materials.all()
-        return ", ".join([f"{m.material.article} | {m.material.name} | {m.material.metal} | {m.material.assay} | {m.material.color}" for m in materials]) if materials else "Матеріал не вибрано"
-
-    # def __str__(self):
-    #     translation = self.translations.first()  # перший переклад
-    #     return translation.name if translation and translation.name else f"Product {self.id}"
+   
     def __str__(self):
         translation = self.safe_translation_getter('name', any_language=True)
         return translation if translation else f"Product {self.id}"
+
+
 
 
 
@@ -453,7 +439,6 @@ def generate_qr_code(product):
     qr_file = ContentFile(qr_io.getvalue(), name=f'qr_{product.sku}.png')
     return qr_file
 
-
 # Сигнал `pre_save` для автоматичного заповнення SKU, артикулу та QR-коду
 @receiver(pre_save, sender=Product)
 def product_pre_save(sender, instance, **kwargs):
@@ -461,10 +446,6 @@ def product_pre_save(sender, instance, **kwargs):
         instance.sku = generate_sku()
     if not instance.article:
         instance.article = generate_article(instance)
-    if not instance.qr_code:
-        instance.qr_code = generate_qr_code(instance)
-
-
 
 
 class RingSizeConversion(models.Model):

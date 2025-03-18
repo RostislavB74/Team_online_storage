@@ -4,16 +4,30 @@ from .models import *
 class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'uploaded_at']
 
-class SubCategoriesSerializer(serializers.ModelSerializer):
+
+class SubProductsSizesSerializer(serializers.ModelSerializer):
+    size = serializers.SerializerMethodField()
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
     class Meta:
-        model = Categories
-        fields = ['id', 'name', 'slug']
+        model = SubProducts
+        fields = [
+            'id','name', 'slug', 'ean_13', 'sku', 'article','weight' , 'price',  'status_display',
+            'size','lenght','width'
+        ]
+
+    def get_size(self, obj):
+        if obj.category and obj.category.name.lower() == "каблучки" and obj.circumference_mm:
+            size_obj = RingSizeConversion.objects.filter(
+                circumference_mm=obj.circumference_mm
+            ).first()
+            return size_obj.size_ua if size_obj else None
 class SubCategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategories
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'category','uploaded_at']
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -29,22 +43,22 @@ class ProductCertificateSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, required=False)
     certificates = ProductCertificateSerializer(many=True, required=False)
-    size = serializers.SerializerMethodField()
+    
     status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = Product
         fields = [
-            'id','category','subcategory', 'name', 'slug', 'ean_13', 'sku', 'article',  'price', 'collection', 'occasions' , 'status_display', 'circumference_mm',
-            'size', 'images', 'certificates'
+            'id','category','subcategory', 'name', 'slug', 'ean_13', 'sku', 'article',  'collection', 'occasions' , 'status_display','subproducts',
+            
         ]
 
-    def get_size(self, obj):
-        if obj.category and obj.category.name.lower() == "каблучки" and obj.circumference_mm:
-            size_obj = RingSizeConversion.objects.filter(
-                circumference_mm=obj.circumference_mm
-            ).first()
-            return size_obj.size_ua if size_obj else None
+    # def get_size(self, obj):
+    #     if obj.category and obj.category.name.lower() == "каблучки" and obj.circumference_mm:
+    #         size_obj = RingSizeConversion.objects.filter(
+    #             circumference_mm=obj.circumference_mm
+    #         ).first()
+    #         return size_obj.size_ua if size_obj else None
       
 
 class RingSizeSerializer(serializers.Serializer):
