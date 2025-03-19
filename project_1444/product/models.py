@@ -15,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from .utils import save_with_translation
 from cloudinary.models import CloudinaryField
+from django.utils import translation
 # Категорії
 class Categories(TranslatableModel):
     size_type = models.ForeignKey('SizeType', on_delete=models.SET_NULL, null=True, blank=True)
@@ -236,14 +237,9 @@ class Gender(models.Model):
     def __str__(self):
         return self.name
 
-class SubProducts(TranslatableModel):
-    parent_product = models.ForeignKey(
-        'Product', on_delete=models.CASCADE, related_name="products"
-        )
-    translations = TranslatedFields(
-            name=models.CharField(max_length=255, unique=True,blank=True),
-            slug=models.SlugField(max_length=50, unique=True, blank=True),
-        )
+class SubProducts(models.Model):
+    parent_product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="products")
+    position = models.IntegerField(null=True, blank=True)
     article = models.CharField(max_length=50, unique=True, blank=True, null=True)
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
@@ -259,22 +255,28 @@ class SubProducts(TranslatableModel):
     width = models.FloatField(null=True, blank=True, verbose_name="Ширина (см)")
     size = models.FloatField(null=True, blank=True, verbose_name="Діаметр (мм)")
     weight = models.FloatField(null=True, blank=True, verbose_name="Вага (г)")
-    def clean(self):
-        """Перед збереженням перевіряємо, які поля потрібні"""
-        if not self.category.has_length:
-            self.length = None
-        if not self.category.has_width:
-            self.width = None
-        if not self.category.has_diameter:
-            self.diameter = None
-        if not self.category.has_weight:
-            self.weight = None
+    # def clean(self):
+    #     """Перед збереженням перевіряємо, які поля потрібні"""
+    #     if not self.category.has_length:
+    #         self.length = None
+    #     if not self.category.has_width:
+    #         self.width = None
+    #     if not self.category.has_diameter:
+    #         self.diameter = None
+    #     if not self.category.has_weight:
+    #         self.weight = None
 
-    
     def save(self, *args, **kwargs):
-        save_with_translation(self, *args, **kwargs)
+        """Автоматично встановлює порядковий номер для кожного продукту."""
+        if not self.pk:  # Якщо створюється новий запис
+            last_subproduct = SubProducts.objects.filter(parent_product=self.parent_product).order_by("position").last()
+            self.position = (last_subproduct.position + 1) if last_subproduct else 1
+
+        super().save(*args, **kwargs)
+    
     def __str__(self):
-        return f"{self.parent_product.article} - {self.size} ({self.weight}g)"
+        return f"{self.parent_product.name} - {self.position} - {self.parent_product.article} - {self.size} ({self.weight}g)"
+    
 def generate_subarticle(product):
     last_product = SubProducts.objects.order_by('-id').first()
     if last_product:
@@ -296,7 +298,7 @@ def subproduct_pre_save(sender, instance, **kwargs):
 
 
 class ProductAttributes(TranslatableModel):
-    product = models.OneToOneField('SubProducts', on_delete=models.CASCADE, related_name="attributes")
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="attributes")
     gender = models.CharField('Gender', max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
     color_coating=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
     statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="products")
@@ -319,7 +321,7 @@ class ProductStatus(TranslatableModel):
 
 
 class ProductMaterial(models.Model):
-    product = models.ForeignKey('SubProducts', on_delete=models.CASCADE, related_name='materials')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='materials')
     material = models.ForeignKey('Material', on_delete=models.SET_NULL, null=True, blank=True)
     is_primary = models.BooleanField(default=False)  # Чи основний матеріал
     set_included = models.BooleanField(default=False) 
@@ -332,7 +334,7 @@ class ProductMaterial(models.Model):
 
 
 class ProductGemstone(TranslatableModel):
-    product = models.ForeignKey('SubProducts', on_delete=models.CASCADE, related_name="gemstones")
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="gemstones")
     gemstone = models.ForeignKey('Gemstone', on_delete=models.CASCADE)
     color = models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)  # Колір каменю
     weight = models.FloatField(null=True, blank=True)  # Вага каменю

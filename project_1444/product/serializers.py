@@ -14,7 +14,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubProducts
         fields = [
-            'id','name', 'slug', 'ean_13', 'sku', 'article','weight' , 'price',  'status_display',
+            'id','position', 'ean_13', 'sku', 'article','weight' , 'price',  'status_display',
             'size','lenght','width'
         ]
 

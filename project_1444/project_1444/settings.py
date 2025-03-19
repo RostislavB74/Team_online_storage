@@ -96,6 +96,7 @@ PARLER_LANGUAGES = {
 PARLER_LANGUAGES_LIST = [lang.get("code") for lang in PARLER_LANGUAGES.get(None, [])]
 
 MIDDLEWARE = [
+    'django.middleware.locale.LocaleMiddleware', 
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -186,17 +187,14 @@ LANGUAGES = [
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
-
+LANGUAGE_CODE = "uk"
 USE_I18N = True
 USE_L10N = True
-
-LANGUAGE_CODE = "uk"
-
+USE_TZ = True
 TIME_ZONE = "Europe/Kyiv"
 
-USE_I18N = True
 
-USE_TZ = True
+
 
 # print([zone for zone in zoneinfo.available_timezones() if zone.startswith("Europe/K")])
 

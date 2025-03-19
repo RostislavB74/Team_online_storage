@@ -1,4 +1,6 @@
 from django.utils.html import format_html
+from django.utils.translation import get_language
+from django.shortcuts import get_object_or_404
 from django.contrib import admin
 from .models import (
     Categories, Material, Gemstone, Product, SubCategories,TypeGemstones, Origin,
@@ -26,19 +28,10 @@ from django.shortcuts import redirect
 from django.utils.html import format_html
 from .models import Product
 
+from django.utils import translation
 
+from django.utils.text import slugify
 
-
-
-
-# @admin.register(ProductsGroup)
-# class ProductsGroupAdmin(TranslatableAdmin):
-#     list_display = ("name", "slug", )
-#     filter_horizontal = ("products",)  # Додає зручний інтерфейс для додавання/видалення товарів
-#     def get_prepopulated_fields(self, request, obj=None):
-#         return {'slug': ('name',)}
-
-    
 
 @admin.register(SizeType)
 class SizeTypeAdmin(admin.ModelAdmin):
@@ -174,60 +167,28 @@ class ProductMaterialInline(admin.TabularInline):
     verbose_name_plural = "Матеріали"
 # Налаштування для товару
 @admin.register(SubProducts)
-class SubProductsAdmin(TranslatableAdmin):
-    list_display = ('article', 'sku', 'name', 'clone_link', 'slug', "display_attributes", 'ean_13', 'get_images','display_qr_code', 'get_certificates','size','weight', 'length', 'width', 'size', 'price','discount_percentage', 'new_price', 'old_price', 'display_qr_code', 'created_by', 'created_at', 'updated_at')
-    search_fields = ('name', 'sku', 'ean_13', 'material__name', 'gemstone__name',)
-    readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by',)
-    
-    inlines = [ProductMaterialInline, ProductAttributesInline, ProductGemstoneInline,]
+class SubProductsAdmin(admin.ModelAdmin):
+    list_display = ('article', 'sku', 'position', 'parent_product',"display_attributes", 'ean_13', 'display_qr_code', 'size','weight', 'length', 'width', 'size', 'price','discount_percentage', 'new_price', 'old_price', 'display_qr_code', 'created_by', 'created_at', 'updated_at')
+    search_fields = ('position', 'sku', 'ean_13', 'material__name', 'gemstone__name',)
+    readonly_fields = ('sku', 'article', 'qr_code','position', 'created_at', 'updated_at', 'created_by',)
+
+    # inlines = [ProductMaterialInline, ProductGemstoneInline]
     actions = ['mark_as_bestseller', 'remove_bestseller', 'mark_as_discount', 'remove_discount']
+
     fieldsets = (
         ("Основна інформація", {
-            "fields": ("article" , "ean_13", "sku", "name","slug"),
-            "classes": ("collapse",),
+            "fields": ("article" , "ean_13", "sku",'parent_product' , "position",'size', 'weight',"price",  ),
         }),
         
         ("Ціна та знижки", {
-            "fields": ("price", "discount_percentage", "new_price", "old_price"),
-            "classes": ("collapse",),  # Згортає блок
+            "fields": ("discount_percentage", "new_price", "old_price"),
         }),
         
-      
-        ("Медіа", {
-            "fields": ("qr_code",),
-            "classes": ("collapse",),
-        }),
         ("Системні поля", {
             "fields": ("created_by", "created_at", "updated_at"),
             "classes": ("collapse",),
         }),
     )
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path("<int:product_id>/clone/", self.clone_product, name="clone_product"),
-        ]
-        return custom_urls + urls
-
-    def clone_product(self, request, product_id):
-        """Функція для клонування товару"""
-        original = SubProducts.objects.get(pk=product_id)
-        new_product = SubProducts.objects.create(
-            name=f"{original.name} (копія)",
-            price=original.price,
-            category=original.category,
-            size=None,  # Очистимо розмір, щоб ввести новий
-            weight=None,  # Очистимо вагу, щоб ввести нову
-            description_product=original.description_product,
-        )
-        return redirect(f"/admin/product/product/{new_product.id}/change/")  # Відкриваємо сторінку редагування нового товару
-
-    def clone_link(self, obj):
-        """Додаємо кнопку 'Клонувати' біля кожного товару"""
-        return format_html('<a class="button" href="{}">Клонувати</a>', f"{obj.id}/clone/")
-    
-    clone_link.short_description = "Дії"
-    clone_link.allow_tags = True
 
     @admin.action(description="Позначити як знижка")
     def mark_as_discount(self, request, queryset):
@@ -270,10 +231,36 @@ class SubProductsAdmin(TranslatableAdmin):
         return "Немає зображення"
 
     display_qr_code.short_description = "QR-код"
+    
+@admin.register(Occasion)
+class OccasionAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
-    
-    
+
+@admin.register(Product)
+class ProductAdmin(TranslatableAdmin):
+    list_display = ('article', 'sku', 'category','subcategory','name', 'slug', 'ean_13','get_images', 'get_certificates', )
+    search_fields = ('name', 'sku', 'ean_13', 'category__name', 'subcategory__name')
+    readonly_fields = ('sku', 'article', 'created_at', 'updated_at', 'created_by',)
+    inlines = [ProductImageInline, ProductMaterialInline, ProductGemstoneInline, ProductCertificateInline,ProductAttributesInline]
+    actions = ['mark_as_bestseller', 'remove_bestseller', 'mark_as_discount', 'remove_discount']
+    filter_horizontal = ("subproducts",) 
+    fieldsets = (
+        ("Основна інформація", {
+            "fields": ("category","subcategory","name","article" , "ean_13", "sku", "slug","collection", "year_collection", "country_of_origin",),
+            "classes": ("collapse",),
+        }),
+       ("Типорозміри товару", {
+            "fields": ("subproducts",),
+            "classes": ("collapse",),
+        }),
+        ("Системні поля", {
+            "fields": ("created_by", "created_at", "updated_at"),
+            "classes": ("collapse",),
+        }),
+    )
     def get_images(self, obj):
         """Показує перше зображення товару в списку товарів"""
         first_image = obj.images.first()
@@ -291,57 +278,7 @@ class SubProductsAdmin(TranslatableAdmin):
         return "Немає сертифікатів"
 
     get_certificates.short_description = "Сертифікати"
-@admin.register(Occasion)
-class OccasionAdmin(TranslatableAdmin):
-    list_display = ('name', 'slug')
-    
-    def get_prepopulated_fields(self, request, obj=None):
-        return {'slug': ('name',)}
 
-@admin.register(Product)
-class ProductAdmin(TranslatableAdmin):
-    list_display = ('article', 'sku', 'category','subcategory','name', 'clone_link', 'slug', 'ean_13' )
-    search_fields = ('name', 'sku', 'ean_13', 'category__name', 'subcategory__name')
-    readonly_fields = ('sku', 'article', 'created_at', 'updated_at', 'created_by',)
-    actions = ['mark_as_bestseller', 'remove_bestseller', 'mark_as_discount', 'remove_discount']
-    fieldsets = (
-        ("Основна інформація", {
-            "fields": ("category","subcategory","name","article" , "ean_13", "sku", "slug","collection", "year_collection", "country_of_origin",),
-            "classes": ("collapse",),
-        }),
-       
-        ("Системні поля", {
-            "fields": ("created_by", "created_at", "updated_at"),
-            "classes": ("collapse",),
-        }),
-    )
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path("<int:product_id>/clone/", self.clone_product, name="clone_product"),
-        ]
-        return custom_urls + urls
-
-    def clone_product(self, request, product_id):
-        """Функція для клонування товару"""
-        original = Product.objects.get(pk=product_id)
-        new_product = Product.objects.create(
-            name=f"{original.name} (копія)",
-            price=original.price,
-            category=original.category,
-            size=None,  # Очистимо розмір, щоб ввести новий
-            weight=None,  # Очистимо вагу, щоб ввести нову
-            description_product=original.description_product,
-        )
-        return redirect(f"/admin/product/product/{new_product.id}/change/")  # Відкриваємо сторінку редагування нового товару
-
-    def clone_link(self, obj):
-        """Додаємо кнопку 'Клонувати' біля кожного товару"""
-        return format_html('<a class="button" href="{}">Клонувати</a>', f"{obj.id}/clone/")
-    
-    clone_link.short_description = "Дії"
-    clone_link.allow_tags = True
-   
     @admin.action(description="Позначити як знижка")
     def mark_as_discount(self, request, queryset):
         discount_status, _ = ProductStatus.objects.get_or_create(name="discount")
@@ -397,129 +334,3 @@ class ProductCertificateAdmin(admin.ModelAdmin):
     def file_link(self, obj):
         return format_html('<a href="{}" target="_blank">Переглянути</a>', obj.file.url) if obj.file else "Немає сертифіката"
     file_link.short_description = "Сертифікат"
-
-
-
-# class ProductAdmin(TranslatableAdmin):
-#     list_display = ('article', 'sku', 'category','name', 'clone_link', 'slug', "display_attributes", 'ean_13', 'get_images','display_qr_code', 'get_certificates', )
-#     search_fields = ('name', 'sku', 'ean_13', 'category__name', 'material__name', 'gemstone__name','coating', 'gold_plates',)
-#     readonly_fields = ('sku', 'article', 'qr_code', 'created_at', 'updated_at', 'created_by',)
-#     filter_horizontal = ('occasions',)
-    
-#     inlines = [ProductMaterialInline, ProductImageInline, ProductCertificateInline, ProductAttributesInline, ProductGemstoneInline,]
-#     actions = ['mark_as_bestseller', 'remove_bestseller', 'mark_as_discount', 'remove_discount']
-#     fieldsets = (
-#         ("Основна інформація", {
-#             "fields": ("category","subcategory","name","article" , "ean_13", "sku", "slug"),
-#             "classes": ("collapse",),
-#         }),
-        
-#         # ("Ціна та знижки", {
-#         #     "fields": ("price", "discount_percentage", "new_price", "old_price"),
-#         #     "classes": ("collapse",),  # Згортає блок
-#         # }),
-        
-      
-#         ("Додаткові параметри", {
-#             "fields": ("collection", "year_collection", "country_of_origin", "occasions"),
-#             "classes": ("collapse",),
-#         }),
-#         ("Медіа", {
-#             "fields": ("qr_code",),
-#             "classes": ("collapse",),
-#         }),
-#         ("Системні поля", {
-#             "fields": ("created_by", "created_at", "updated_at"),
-#             "classes": ("collapse",),
-#         }),
-#     )
-#     def get_urls(self):
-#         urls = super().get_urls()
-#         custom_urls = [
-#             path("<int:product_id>/clone/", self.clone_product, name="clone_product"),
-#         ]
-#         return custom_urls + urls
-
-#     def clone_product(self, request, product_id):
-#         """Функція для клонування товару"""
-#         original = Product.objects.get(pk=product_id)
-#         new_product = Product.objects.create(
-#             name=f"{original.name} (копія)",
-#             price=original.price,
-#             category=original.category,
-#             size=None,  # Очистимо розмір, щоб ввести новий
-#             weight=None,  # Очистимо вагу, щоб ввести нову
-#             description_product=original.description_product,
-#         )
-#         return redirect(f"/admin/product/product/{new_product.id}/change/")  # Відкриваємо сторінку редагування нового товару
-
-#     def clone_link(self, obj):
-#         """Додаємо кнопку 'Клонувати' біля кожного товару"""
-#         return format_html('<a class="button" href="{}">Клонувати</a>', f"{obj.id}/clone/")
-    
-#     clone_link.short_description = "Дії"
-#     clone_link.allow_tags = True
-
-#     @admin.action(description="Позначити як знижка")
-#     def mark_as_discount(self, request, queryset):
-#         discount_status, _ = ProductStatus.objects.get_or_create(name="discount")
-#         for product in queryset:
-#             product.statuses.add(discount_status)
-#         self.message_user(request, "Вибрані товари отримали статус 'discount'.")
-
-#     @admin.action(description="Прибрати статус знижки")
-#     def remove_discount(self, request, queryset):
-#         discount_status = ProductStatus.objects.filter(name="discount").first()
-#         if discount_status:
-#             for product in queryset:
-#                 product.statuses.remove(discount_status)
-#         self.message_user(request, "Статус 'discount' видалено у вибраних товарів.")
-#     def display_attributes(self, obj):
-       
-#         if hasattr(obj, "attributes"):  # Перевіряємо, чи є у товару атрибути
-#             attr = obj.attributes  # Отримуємо єдиний об'єкт атрибутів
-#             attributes_list = [
-#                 f"Стать: {attr.get_gender_display()}",
-#                 f"Колір покриття: {attr.color_coating}" if attr.color_coating else "",
-#                 f"Тип застібки: {attr.clasp_type}" if attr.clasp_type else "",
-#                 f"Матеріал покриття: {attr.coating_material}" if attr.coating_material else "",
-#                 f"Опис покриття: {attr.description_coating}" if attr.description_coating else "",
-#                 f"Дизайн: {attr.design_product}" if attr.design_product else "",
-#                 f"Стиль: {attr.style}" if attr.style else "",
-#                 f"Статус: {attr.statuses}" if attr.statuses else "",
-#             ]
-#             return format_html("<br>".join([a for a in attributes_list if a]))  # Видаляємо порожні значення
-
-#         return "Немає характеристик"
-#         # attributes = obj.attributes  
-#         # return format_html("<br>".join([f"{attr.attribute_name}: {attr.value}" for attr in attributes]))
-
-#     display_attributes.short_description = "Додаткові характеристики"
-#     def display_qr_code(self, obj):
-#         if obj.qr_code:
-#             return format_html('<img src="{}" width="50" height="50" style="border-radius: 5px;" />', obj.qr_code.url)
-#         return "Немає зображення"
-
-#     display_qr_code.short_description = "QR-код"
-#     def get_prepopulated_fields(self, request, obj=None):
-#         return {'slug': ('name',)}
-    
-    
-#     def get_images(self, obj):
-#         """Показує перше зображення товару в списку товарів"""
-#         first_image = obj.images.first()
-#         if first_image and first_image.image:
-#             return format_html('<img src="{}" width="50" height="50" />', first_image.image.url)
-#         return "Немає зображень"
-
-#     get_images.short_description = "Зображення"
-
-#     def get_certificates(self, obj):
-#         """Показує посилання на перший сертифікат товару"""
-#         first_certificate = obj.certificates.first()
-#         if first_certificate and first_certificate.file:
-#             return format_html('<a href="{}" target="_blank">Сертифікат</a>', first_certificate.file.url)
-#         return "Немає сертифікатів"
-
-#     get_certificates.short_description = "Сертифікати"
-    
