@@ -31,6 +31,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 from cloudinary.utils import cloudinary_url
+from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -95,6 +96,12 @@ PARLER_LANGUAGES = {
 }
 PARLER_LANGUAGES_LIST = [lang.get("code") for lang in PARLER_LANGUAGES.get(None, [])]
 
+LANGUAGES = []
+for lang in GLOBAL_LANGUAGES:
+    if lang[0] in PARLER_LANGUAGES_LIST:
+        LANGUAGES.append(lang)
+
+
 MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware', 
     "django.middleware.security.SecurityMiddleware",
@@ -102,6 +109,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -212,6 +220,15 @@ STATIC_ROOT = BASE_DIR / "static"
 
 # MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
+for lang in PARLER_LANGUAGES_LIST:
+    for locale in LOCALE_PATHS:
+        lang_locale = locale / lang
+        if not lang_locale.exists():
+            lang_locale.mkdir(parents=True)
+
 
 try:
     try:
@@ -337,6 +354,7 @@ CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 GIT_VERSION = env("GIT_VERSION", default="Version is unknown")
 VERSION = env("VERSION", default=__version__)
+CACHE_HEADERS_ENABLED = env("CACHE_HEADERS_ENABLED", default=False, cast=bool)
 
 
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")

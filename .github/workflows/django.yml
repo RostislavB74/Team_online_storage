@@ -6,9 +6,9 @@ permissions:
 
 on:
   push:
-    branches: [ "dev", "deploy", "dev-lexxai" ]
+    branches: [ "dev", "deploy" ]
   pull_request:
-    branches: [ "dev", "deploy", "dev-lexxai" ]
+    branches: [ "dev", "deploy" ]
 
 jobs:
   build:
