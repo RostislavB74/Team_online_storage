@@ -18,7 +18,6 @@ from cloudinary.models import CloudinaryField
 from django.utils import translation
 # Категорії
 class Categories(TranslatableModel):
-    size_type = models.ForeignKey('SizeType', on_delete=models.SET_NULL, null=True, blank=True)
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, verbose_name='Categories'),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
@@ -212,15 +211,6 @@ class Occasion(TranslatableModel):
         return self.safe_translation_getter('name', default='Без назви')  # Бере name із перекладу
 
 
-class SizeType(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    has_length = models.BooleanField(default=False)
-    has_width = models.BooleanField(default=False)
-    has_diameter = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
-
 
 class Gender(models.Model):
     GENDER_CHOICES = [
@@ -255,16 +245,19 @@ class SubProducts(models.Model):
     width = models.FloatField(null=True, blank=True, verbose_name="Ширина (см)")
     size = models.FloatField(null=True, blank=True, verbose_name="Діаметр (мм)")
     weight = models.FloatField(null=True, blank=True, verbose_name="Вага (г)")
-    # def clean(self):
-    #     """Перед збереженням перевіряємо, які поля потрібні"""
-    #     if not self.category.has_length:
-    #         self.length = None
-    #     if not self.category.has_width:
-    #         self.width = None
-    #     if not self.category.has_diameter:
-    #         self.diameter = None
-    #     if not self.category.has_weight:
-    #         self.weight = None
+    def clean(self):
+        if self.parent_product and self.parent_product.category:
+            self.category = self.parent_product.category
+
+        """Перед збереженням перевіряємо, які поля потрібні"""
+        if not self.category.has_length:
+            self.length = None
+        if not self.category.has_width:
+            self.width = None
+        if not self.category.has_diameter:
+            self.diameter = None
+        if not self.category.has_weight:
+            self.weight = None
 
     def save(self, *args, **kwargs):
         """Автоматично встановлює порядковий номер для кожного продукту."""
@@ -275,8 +268,7 @@ class SubProducts(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.parent_product.name} - {self.position} - {self.parent_product.article} - {self.size} ({self.weight}g)"
-    
+        return f"{self.parent_product} - {self.length or ''}x{self.width or ''}x{self.size or ''} мм, {self.weight} г"
 def generate_subarticle(product):
     last_product = SubProducts.objects.order_by('-id').first()
     if last_product:
@@ -383,7 +375,8 @@ class ProductCertificate(models.Model):
         return f"{self.product.article} - Certificate"
 
 class Product(TranslatableModel):
-    size_type = models.ForeignKey(SizeType, on_delete=models.SET_NULL, null=True)
+    
+    category = models.ForeignKey('Categories', on_delete=models.SET_NULL, null=True, blank=True)
     subproducts = models.ManyToManyField("SubProducts", related_name="subproducts", blank=True)
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, null=True, blank=True),

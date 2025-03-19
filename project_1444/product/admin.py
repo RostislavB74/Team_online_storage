@@ -5,7 +5,7 @@ from django.contrib import admin
 from .models import (
     Categories, Material, Gemstone, Product, SubCategories,TypeGemstones, Origin,
     ProductImage, ProductCertificate, RingSizeConversion, Occasion, RingSizeConversion,Colors,
-    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts, SizeType,
+    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts
 )
 from parler.admin import TranslatableAdmin
 from django.contrib import admin
@@ -33,11 +33,11 @@ from django.utils import translation
 from django.utils.text import slugify
 
 
-@admin.register(SizeType)
-class SizeTypeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',) 
-    list_display_links = ('name',)
+# @admin.register(SizeType)
+# class SizeTypeAdmin(admin.ModelAdmin):
+#     list_display = ('name',)
+#     search_fields = ('name',) 
+#     list_display_links = ('name',)
 
     
 @admin.register(Gemstone)
@@ -177,7 +177,7 @@ class SubProductsAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("Основна інформація", {
-            "fields": ("article" , "ean_13", "sku",'parent_product' , "position",'size', 'weight',"price",  ),
+            "fields": ("article" , "ean_13", "sku",'parent_product' , "position",'size', 'length', 'width', 'weight',"price",  ),
         }),
         
         ("Ціна та знижки", {
