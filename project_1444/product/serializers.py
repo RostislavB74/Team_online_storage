@@ -8,7 +8,6 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
 
 class SubProductsSizesSerializer(serializers.ModelSerializer):
-    size = serializers.SerializerMethodField()
     status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
