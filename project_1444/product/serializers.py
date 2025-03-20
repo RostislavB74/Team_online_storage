@@ -15,7 +15,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
         model = SubProducts
         fields = [
             'id','parent_product','position', 'ean_13', 'sku', 'article','weight' , 'price',  'status_display',
-            'size','lenght','width'
+            'size','length','width'
         ]
     
 class SubCategoriesSerializer(serializers.ModelSerializer):
