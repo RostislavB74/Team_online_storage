@@ -4,7 +4,7 @@ from .models import *
 class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
-        fields = ['id', 'name', 'slug', 'uploaded_at']
+        fields = ['id', 'name', 'slug', 'updated_at']
 
 
 class SubProductsSizesSerializer(serializers.ModelSerializer):
@@ -14,7 +14,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubProducts
         fields = [
-            'id','position', 'ean_13', 'sku', 'article','weight' , 'price',  'status_display',
+            'id','parent_product','position', 'ean_13', 'sku', 'article','weight' , 'price',  'status_display',
             'size','lenght','width'
         ]
 
@@ -49,7 +49,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'id','category','subcategory', 'name', 'slug', 'ean_13', 'sku', 'article',  'collection', 'occasions' , 'status_display','subproducts',
+            'id','category','subcategory', 'name', 'slug', 'ean_13', 'sku', 'article',  'collection', 'year_collection','occasions' , 'status_display','subproducts', 'images', 'certificates',
             
         ]
 
