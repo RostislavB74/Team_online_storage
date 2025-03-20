@@ -55,6 +55,11 @@ from .serializers import (
 from utils.language_code import get_language_code
 from utils.cache_headers import MixinCacheHeaders
 
+from rest_framework.viewsets import ReadOnlyModelViewSet
+from .models import Product
+from .serializers import TotalProductsSerializer
+
+
 
 @extend_schema_view(
     get=extend_schema(
@@ -410,8 +415,28 @@ class SubProductsSizesViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
     serializer_class = SubProductsSizesSerializer
     permission_classes = (AllowAny,)
         
+class TotalProductsViewSet(ReadOnlyModelViewSet):
+    queryset = Product.objects.prefetch_related("subproducts").all()
+    serializer_class = TotalProductsSerializer
+    permission_classes = (AllowAny,)
 
+    def get_queryset(self):
+        """Фільтрація товарів за мовою"""
+        lang = get_language_code(self.request)
+        return Product.objects.language(lang).all()
 
+    def retrieve(self, request, *args, **kwargs):
+        """Отримання продукту за ID разом із його підпродуктами"""
+        product = get_object_or_404(Product, id=kwargs["pk"])
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)
+    @extend_schema(
+        summary="Get example data",
+        description="Returns an example response with some data.",
+        responses={200: dict},
+    )
+    def get(self, request):
+        return Response({"message": "Hello, API!"})
 # class RingSizeLookup(APIView):
 #     """Переводить окружність пальця в розмір кільця, знаходячи найближче значення"""
 #     serializer_class = RingSizeSerializer

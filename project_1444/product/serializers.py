@@ -53,7 +53,15 @@ class ProductSerializer(serializers.ModelSerializer):
     #         ).first()
     #         return size_obj.size_ua if size_obj else None
       
+class TotalProductsSerializer(serializers.ModelSerializer):
+    subproducts = SubProductsSizesSerializer(many=True, read_only=True)
 
+    class Meta:
+        model = Product
+        fields = [
+            "id", "category", "subcategory", "name", "slug", "ean_13", "sku",
+            "article", "collection", "occasions", "subproducts", "images", "certificates"
+        ]
 class RingSizeSerializer(serializers.Serializer):
     finger_circumference = serializers.FloatField(help_text="Обхват пальця в мм")
     ring_size = serializers.FloatField(help_text="Розмір кільця за стандартом")
