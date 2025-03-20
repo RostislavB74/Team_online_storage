@@ -31,6 +31,7 @@ from product.views import (
     CategoriesAPIDetail,
     ProductAPIDetail,
     SubProductsSizesViewSet,
+    TotalProductsViewSet
 )
 from product.views import RingSizeLookup
 
@@ -43,6 +44,7 @@ urlpatterns = [
     path("api/v1/auth/", include("rest_framework.urls")),
     path("api/v1/product/", ProductAPIList.as_view()),
     path("api/v1/product/<int:pk>/", ProductAPIDetail.as_view()),
+    path("api/v1/all-products/<int:pk>/", TotalProductsViewSet.as_view({"get":"retrieve"})),
     path("api/v1/categories/", CategoriesAPIList.as_view()),
     path("api/v1/categories/<int:pk>/", CategoriesAPIDetail.as_view()),
     path("api/v1/subproducts/", SubProductsSizesViewSet.as_view({"get": "list"})),
