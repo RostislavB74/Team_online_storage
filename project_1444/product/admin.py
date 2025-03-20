@@ -102,11 +102,11 @@ class SubCategoriesAdmin(TranslatableAdmin):
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
 
-
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('article', 'material', 'color', 'assay',)
+    list_display = ('id','article', 'material', 'color', 'assay',)
     search_fields = ('article', 'material','color', 'assay',)
+    readonly_fields=('article',)
     list_display_links = ('material','color', 'assay',)
 
 
@@ -168,16 +168,15 @@ class ProductMaterialInline(admin.TabularInline):
 # Налаштування для товару
 @admin.register(SubProducts)
 class SubProductsAdmin(admin.ModelAdmin):
-    list_display = ('article', 'sku', 'position', 'parent_product',"display_attributes", 'ean_13', 'display_qr_code', 'size','weight', 'length', 'width', 'size', 'price','discount_percentage', 'new_price', 'old_price', 'display_qr_code', 'created_by', 'created_at', 'updated_at')
-    search_fields = ('position', 'sku', 'ean_13', 'material__name', 'gemstone__name',)
+    list_display = ('article', 'sku', 'position', 'parent_product', 'ean_13', 'size','weight', 'length', 'width', 'size', 'price','discount_percentage', 'new_price', 'old_price', 'created_by', 'created_at', 'updated_at')
+    search_fields = ('position', 'sku', 'ean_13',)
     readonly_fields = ('sku', 'article', 'qr_code','position', 'created_at', 'updated_at', 'created_by',)
-
     # inlines = [ProductMaterialInline, ProductGemstoneInline]
     actions = ['mark_as_bestseller', 'remove_bestseller', 'mark_as_discount', 'remove_discount']
 
     fieldsets = (
         ("Основна інформація", {
-            "fields": ("article" , "ean_13", "sku",'parent_product' , "position",'size', 'length', 'width', 'weight',"price",  ),
+            "fields": ("article" , "ean_13", "sku",'parent_product' , "position",'size', 'length', 'width', 'weight',"price",),
         }),
         
         ("Ціна та знижки", {
@@ -204,33 +203,33 @@ class SubProductsAdmin(admin.ModelAdmin):
             for product in queryset:
                 product.statuses.remove(discount_status)
         self.message_user(request, "Статус 'discount' видалено у вибраних товарів.")
-    def display_attributes(self, obj):
+    # def display_attributes(self, obj):
        
-        if hasattr(obj, "attributes"):  # Перевіряємо, чи є у товару атрибути
-            attr = obj.attributes  # Отримуємо єдиний об'єкт атрибутів
-            attributes_list = [
-                f"Стать: {attr.get_gender_display()}",
-                f"Колір покриття: {attr.color_coating}" if attr.color_coating else "",
-                f"Тип застібки: {attr.clasp_type}" if attr.clasp_type else "",
-                f"Матеріал покриття: {attr.coating_material}" if attr.coating_material else "",
-                f"Опис покриття: {attr.description_coating}" if attr.description_coating else "",
-                f"Дизайн: {attr.design_product}" if attr.design_product else "",
-                f"Стиль: {attr.style}" if attr.style else "",
-                f"Статус: {attr.statuses}" if attr.statuses else "",
-            ]
-            return format_html("<br>".join([a for a in attributes_list if a]))  # Видаляємо порожні значення
+    #     if hasattr(obj, "attributes"):  # Перевіряємо, чи є у товару атрибути
+    #         attr = obj.attributes  # Отримуємо єдиний об'єкт атрибутів
+    #         attributes_list = [
+    #             f"Стать: {attr.get_gender_display()}",
+    #             f"Колір покриття: {attr.color_coating}" if attr.color_coating else "",
+    #             f"Тип застібки: {attr.clasp_type}" if attr.clasp_type else "",
+    #             f"Матеріал покриття: {attr.coating_material}" if attr.coating_material else "",
+    #             f"Опис покриття: {attr.description_coating}" if attr.description_coating else "",
+    #             f"Дизайн: {attr.design_product}" if attr.design_product else "",
+    #             f"Стиль: {attr.style}" if attr.style else "",
+    #             f"Статус: {attr.statuses}" if attr.statuses else "",
+    #         ]
+    #         return format_html("<br>".join([a for a in attributes_list if a]))  # Видаляємо порожні значення
 
-        return "Немає характеристик"
-        # attributes = obj.attributes  
-        # return format_html("<br>".join([f"{attr.attribute_name}: {attr.value}" for attr in attributes]))
+    #     return "Немає характеристик"
+    #     # attributes = obj.attributes  
+    #     # return format_html("<br>".join([f"{attr.attribute_name}: {attr.value}" for attr in attributes]))
 
-    display_attributes.short_description = "Додаткові характеристики"
-    def display_qr_code(self, obj):
-        if obj.qr_code:
-            return format_html('<img src="{}" width="50" height="50" style="border-radius: 5px;" />', obj.qr_code.url)
-        return "Немає зображення"
+    # display_attributes.short_description = "Додаткові характеристики"
+    # def display_qr_code(self, obj):
+    #     if obj.qr_code:
+    #         return format_html('<img src="{}" width="50" height="50" style="border-radius: 5px;" />', obj.qr_code.url)
+    #     return "Немає зображення"
 
-    display_qr_code.short_description = "QR-код"
+    # display_qr_code.short_description = "QR-код"
     
 @admin.register(Occasion)
 class OccasionAdmin(TranslatableAdmin):

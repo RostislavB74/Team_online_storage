@@ -228,7 +228,7 @@ class Gender(models.Model):
         return self.name
 
 class SubProducts(models.Model):
-    parent_product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="products")
+    parent_product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="products", verbose_name=_("Продукт"))
     position = models.IntegerField(null=True, blank=True)
     article = models.CharField(max_length=50, unique=True, blank=True, null=True)
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
@@ -243,7 +243,7 @@ class SubProducts(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     length = models.FloatField(null=True, blank=True, verbose_name="Довжина (см)")
     width = models.FloatField(null=True, blank=True, verbose_name="Ширина (см)")
-    size = models.FloatField(null=True, blank=True, verbose_name="Діаметр (мм)")
+    size = models.FloatField(null=True, blank=True, verbose_name="Розмір(мм) ")
     weight = models.FloatField(null=True, blank=True, verbose_name="Вага (г)")
     def clean(self):
         if self.parent_product and self.parent_product.category:
