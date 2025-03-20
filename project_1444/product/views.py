@@ -38,6 +38,8 @@ from .models import (
     ProductCertificate,
     RingSizeConversion,
     Categories,
+    SubProducts,
+    
 )
 from .serializers import (
     ProductSerializer,
@@ -46,6 +48,7 @@ from .serializers import (
     ProductCertificateSerializer,
     CategoriesSerializer,
     RingSizeSerializer,
+    SubProductsSizesSerializer,    
 )
 
 
@@ -399,6 +402,14 @@ class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
     )
     def get(self, request):
         return Response({"message": "Hello, API!"})
+
+
+class SubProductsSizesViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
+    """CRUD для типорозмірів"""
+    queryset=SubProducts.objects.all()
+    serializer_class = SubProductsSizesSerializer
+    permission_classes = (AllowAny,)
+        
 
 
 # class RingSizeLookup(APIView):

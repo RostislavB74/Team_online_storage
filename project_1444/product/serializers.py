@@ -14,16 +14,10 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubProducts
         fields = [
-            'id','position', 'ean_13', 'sku', 'article','weight' , 'price',  'status_display',
-            'size','lenght','width'
+            'id','position', 'ean_13', 'sku', 'article', 'weight' , 'price',  'status_display',
+            'size','length','width'
         ]
-
-    def get_size(self, obj):
-        if obj.category and obj.category.name.lower() == "каблучки" and obj.circumference_mm:
-            size_obj = RingSizeConversion.objects.filter(
-                circumference_mm=obj.circumference_mm
-            ).first()
-            return size_obj.size_ua if size_obj else None
+    
 class SubCategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategories
