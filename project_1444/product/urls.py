@@ -10,6 +10,6 @@ router.register(r'categories', CategoriesViewSet, basename='categories')
 
 urlpatterns = [
     path('', include(router.urls)),
-    # path('categories/', CategoriesViewSet.as_view(), name='categories'),
+    # path('sizetype/', CategoriesViewSet.as_view(), name='categories'),
     path('ring-size/', RingSizeLookup.as_view(), name='ring-size-lookup'),  # Додаємо окремо
 ]

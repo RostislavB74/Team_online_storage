@@ -13,7 +13,6 @@
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 
-
 def save_with_translation(instance, *args, **kwargs):
     """Зберігає об'єкт і створює переклад, якщо його немає."""
     is_new = instance.pk is None  # Перевіряємо, чи новий об'єкт
@@ -35,3 +34,4 @@ def save_with_translation(instance, *args, **kwargs):
         translation.slug = slugify(translation.name)
         translation.save()  # Зберігаємо переклад окремо
     return instance
+

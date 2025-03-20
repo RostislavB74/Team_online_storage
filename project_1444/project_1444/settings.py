@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+from django.utils.translation import gettext_lazy as _
 import zoneinfo
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -103,6 +103,7 @@ for lang in GLOBAL_LANGUAGES:
 
 
 MIDDLEWARE = [
+    'django.middleware.locale.LocaleMiddleware', 
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -184,13 +185,24 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "uk"
 
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('uk', _('Ukrainian')),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+LANGUAGE_CODE = "uk"
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
 TIME_ZONE = "Europe/Kyiv"
 
-USE_I18N = True
 
-USE_TZ = True
+
 
 # print([zone for zone in zoneinfo.available_timezones() if zone.startswith("Europe/K")])
 
