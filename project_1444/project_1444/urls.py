@@ -30,6 +30,7 @@ from product.views import (
     CategoriesAPIList,
     CategoriesAPIDetail,
     ProductAPIDetail,
+    SubProductsSizesViewSet,
 )
 from product.views import RingSizeLookup
 
@@ -44,7 +45,9 @@ urlpatterns = [
     path("api/v1/product/<int:pk>/", ProductAPIDetail.as_view()),
     path("api/v1/categories/", CategoriesAPIList.as_view()),
     path("api/v1/categories/<int:pk>/", CategoriesAPIDetail.as_view()),
+    path("api/v1/subproducts/", SubProductsSizesViewSet.as_view({"get": "list"})),
     path("api/v1/ring-size/", RingSizeLookup.as_view(), name="ring-size-lookup"),
+
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),  # JSON схема API
     path(
         "api/docs/",
