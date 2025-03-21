@@ -268,7 +268,22 @@ class SubProducts(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.parent_product} - {self.length or ''}x{self.width or ''}x{self.size or ''} мм, {self.weight} г"
+        details = []
+        if self.length:
+            details.append(f"Довжина: {self.length} см")
+        if self.width:
+            details.append(f"Ширина: {self.width} см")
+        if self.size:
+            details.append(f"Розмір: {self.size} мм")
+        if self.weight:
+            details.append(f"Вага: {self.weight} г")
+
+        details_str = ", ".join(details) if details else "Без характеристик"
+        return f"{self.parent_product.name} ({details_str})"
+    
+    # def __str__(self):
+    #     result=f"{self.parent_product} - {self.length or ''} {self.width or ''} {self.size or ''} мм, {self.weight} г"
+    #     return result
 def generate_subarticle(product):
     last_product = SubProducts.objects.order_by('-id').first()
     if last_product:

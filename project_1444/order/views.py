@@ -12,7 +12,7 @@ from .models import Order, OrderItem
 from .serializers import OrderSerializer, OrderItemSerializer
 
 
-from cart.models import Cart, CartItem
+from cart.models import Cart
 from product.models import Product
 
 

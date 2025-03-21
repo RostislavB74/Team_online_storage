@@ -4,15 +4,12 @@ from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from .models import OTP, User
 from .serializers import OTPRequestSerializer, OTPVerifySerializer
-from .utils import send_otp_via_email
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.core.exceptions import ObjectDoesNotExist
-from .models import OTP, User
-from .serializers import OTPRequestSerializer, OTPVerifySerializer
 from .utils import send_otp_via_email, send_otp_via_sms, send_otp_via_telegram
+from rest_framework import generics, permissions
+from django.contrib.auth import get_user_model
+from .serializers import UserProfileSerializer
+
+User = get_user_model()
 
 class OTPRequestView(APIView):
     def post(self, request):
@@ -46,6 +43,13 @@ class OTPRequestView(APIView):
             return Response({"message": "OTP відправлено!"})
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserProfileView(generics.RetrieveAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 # class OTPRequestView(APIView):
 #     def post(self, request):
