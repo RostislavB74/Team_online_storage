@@ -12,18 +12,14 @@
 # from django.template.loader import render_to_string
 # from django.urls import reverse
 # from cart.utils import get_user_carts
-
-# from product.models import SubProducts
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 from .models import Cart
 from .serializers import CartSerializer
-from product.models import SubProducts
 
 class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Доступ лише авторизованим користувачам
 
     def get_queryset(self):
         user = self.request.user
@@ -33,34 +29,61 @@ class CartViewSet(viewsets.ModelViewSet):
             session_key = self.request.session.session_key
             return Cart.objects.filter(session_key=session_key)
 
-    def create(self, request, *args, **kwargs):
-        """Додає товар у корзину або збільшує кількість, якщо він уже там є"""
-        user = request.user if request.user.is_authenticated else None
-        session_key = request.session.session_key or request.session.create()
+    @action(detail=False, methods=["get"])
+    def total_price(self, request):
+        """Отримати загальну суму всіх товарів у корзині"""
+        cart_items = self.get_queryset()
+        total_price = cart_items.total_price()
+        return Response({"total_price": total_price})
 
-        product_id = request.data.get("product")
-        quantity = int(request.data.get("quantity", 1))
-        product = get_object_or_404(SubProducts, id=product_id)
+# from product.models import SubProducts
+# from rest_framework import viewsets, permissions
+# from rest_framework.response import Response
+# from django.shortcuts import get_object_or_404
+# from .models import Cart
+# from .serializers import CartSerializer
+# from product.models import SubProducts
 
-        cart_item, created = Cart.objects.get_or_create(
-            user=user,
-            session_key=session_key if user is None else None,
-            product=product,
-            defaults={"quantity": quantity},
-        )
+# class CartViewSet(viewsets.ModelViewSet):
+#     serializer_class = CartSerializer
+#     permission_classes = [permissions.IsAuthenticated]  # Доступ лише авторизованим користувачам
 
-        if not created:
-            cart_item.quantity += quantity
-            cart_item.save()
+#     def get_queryset(self):
+#         user = self.request.user
+#         if user.is_authenticated:
+#             return Cart.objects.filter(user=user)
+#         else:
+#             session_key = self.request.session.session_key
+#             return Cart.objects.filter(session_key=session_key)
 
-        serializer = self.get_serializer(cart_item)
-        return Response(serializer.data)
+#     def create(self, request, *args, **kwargs):
+#         """Додає товар у корзину або збільшує кількість, якщо він уже там є"""
+#         user = request.user if request.user.is_authenticated else None
+#         session_key = request.session.session_key or request.session.create()
 
-    def destroy(self, request, *args, **kwargs):
-        """Видалення товару з корзини"""
-        cart_item = self.get_object()
-        cart_item.delete()
-        return Response({"message": "Товар видалено з корзини"}, status=204)
+#         product_id = request.data.get("product")
+#         quantity = int(request.data.get("quantity", 1))
+#         product = get_object_or_404(SubProducts, id=product_id)
+
+#         cart_item, created = Cart.objects.get_or_create(
+#             user=user,
+#             session_key=session_key if user is None else None,
+#             product=product,
+#             defaults={"quantity": quantity},
+#         )
+
+#         if not created:
+#             cart_item.quantity += quantity
+#             cart_item.save()
+
+#         serializer = self.get_serializer(cart_item)
+#         return Response(serializer.data)
+
+#     def destroy(self, request, *args, **kwargs):
+#         """Видалення товару з корзини"""
+#         cart_item = self.get_object()
+#         cart_item.delete()
+#         return Response({"message": "Товар видалено з корзини"}, status=204)
 
 
 # def cart_add(request):

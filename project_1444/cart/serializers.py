@@ -6,23 +6,37 @@ from warehouse.models import WarehouseStock
 from django.db.models import Sum
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from product.models import SubProducts
+
+# class CartSerializer(serializers.ModelSerializer):
+#     product_name = serializers.CharField(source="sub_products.parent_product.name", read_only=True)
+#     product_details = serializers.SerializerMethodField()
+#     total_price = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Cart
+#         fields = ["id", "user", "product", "product_name", "product_details", "quantity", "total_price", "created_timestamp"]
+
+#     def get_product_details(self, obj):
+#         """Об'єднуємо характеристики в один рядок"""
+#         return f"{obj.product.length or ''} x {obj.product.width or ''} мм, {obj.product.size or ''} мм,{obj.product.weight} г"
+
+#     def get_total_price(self, obj):
+#         return obj.products_price()
+from rest_framework import serializers
 from .models import Cart
 from product.models import SubProducts
 
 class CartSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(source="product.parent_product.name", read_only=True)
-    product_details = serializers.SerializerMethodField()
-    total_price = serializers.SerializerMethodField()
+    product_name = serializers.CharField(source=SubProducts.parent_product, read_only=True)
+    total_price = serializers.SerializerMethodField()  # Додаємо поле для ціни
 
     class Meta:
         model = Cart
-        fields = ["id", "user", "product", "product_name", "product_details", "quantity", "total_price", "created_timestamp"]
-
-    def get_product_details(self, obj):
-        """Об'єднуємо характеристики в один рядок"""
-        return f"{obj.product.length or ''} x {obj.product.width or ''} мм, {obj.product.weight} г"
+        fields = ["id", "user", "product", "product_name", "quantity", "total_price", "created_timestamp"]
 
     def get_total_price(self, obj):
+        """Обчислює загальну ціну для одного товару в корзині"""
         return obj.products_price()
 
 # class CartItemSerializer(serializers.ModelSerializer):

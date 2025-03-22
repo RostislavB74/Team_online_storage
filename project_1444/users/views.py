@@ -2,54 +2,54 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
-from .models import OTP, User
+from .models import User
 from .serializers import OTPRequestSerializer, OTPVerifySerializer
 from .utils import send_otp_via_email, send_otp_via_sms, send_otp_via_telegram
 from rest_framework import generics, permissions
 from django.contrib.auth import get_user_model
-from .serializers import UserProfileSerializer
+# from .serializers import UserProfileSerializer
 
-User = get_user_model()
+# User = get_user_model()
 
-class OTPRequestView(APIView):
-    def post(self, request):
-        serializer = OTPRequestSerializer(data=request.data)
-        if serializer.is_valid():
-            contact = serializer.validated_data['contact']
-            user, created = User.objects.get_or_create(
-                email=contact if '@' in contact else None,
-                phone=contact if contact.isdigit() else None,
-                telegram=contact if contact.startswith('@') else None
-                    )
+# class OTPRequestView(APIView):
+#     def post(self, request):
+#         serializer = OTPRequestSerializer(data=request.data)
+#         if serializer.is_valid():
+#             contact = serializer.validated_data['contact']
+#             user, created = User.objects.get_or_create(
+#                 email=contact if '@' in contact else None,
+#                 phone=contact if contact.isdigit() else None,
+#                 telegram=contact if contact.startswith('@') else None
+#                     )
 
-            if created:
-                # Наприклад, логувати створення нового користувача
-                print(f"Створено нового користувача: {user}")
-            # user, created = User.objects.get_or_create(
-            #     email=contact if '@' in contact else None,
-            #     phone=contact if contact.isdigit() else None,
-            #     telegram=contact if contact.startswith('@') else None
-            # )
-            otp = OTP.objects.create(user=user)
+#             if created:
+#                 # Наприклад, логувати створення нового користувача
+#                 print(f"Створено нового користувача: {user}")
+#             # user, created = User.objects.get_or_create(
+#             #     email=contact if '@' in contact else None,
+#             #     phone=contact if contact.isdigit() else None,
+#             #     telegram=contact if contact.startswith('@') else None
+#             # )
+#             otp = OTP.objects.create(user=user)
 
-            # Визначаємо спосіб відправки OTP
-            if user.email:
-                send_otp_via_email(user.email, otp.code)
-            elif user.phone:
-                send_otp_via_sms(user.phone, otp.code)
-            elif user.telegram:
-                send_otp_via_telegram(user.telegram, otp.code)
+#             # Визначаємо спосіб відправки OTP
+#             if user.email:
+#                 send_otp_via_email(user.email, otp.code)
+#             elif user.phone:
+#                 send_otp_via_sms(user.phone, otp.code)
+#             elif user.telegram:
+#                 send_otp_via_telegram(user.telegram, otp.code)
 
-            return Response({"message": "OTP відправлено!"})
+#             return Response({"message": "OTP відправлено!"})
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserProfileView(generics.RetrieveAPIView):
-    serializer_class = UserProfileSerializer
-    permission_classes = [permissions.IsAuthenticated]
+# class UserProfileView(generics.RetrieveAPIView):
+#     serializer_class = UserProfileSerializer
+#     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
-        return self.request.user
+#     def get_object(self):
+#         return self.request.user
 
 # class OTPRequestView(APIView):
 #     def post(self, request):
