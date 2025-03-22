@@ -32,7 +32,7 @@ class Cart(models.Model):
     objects = CartQueryset().as_manager()
 
     def products_price(self):
-        return round(self.product.price() * self.quantity, 2)
+        return round(self.product.price * self.quantity, 2)
 
 
     def __str__(self):
