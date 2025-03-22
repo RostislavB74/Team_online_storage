@@ -11,22 +11,16 @@ from parler.admin import TranslatableAdmin
 from django.contrib import admin
 from django.utils.html import format_html
 from parler.admin import TranslatableAdmin, TranslatableTabularInline
-from django.utils.html import format_html
 
 from django.utils.translation import gettext_lazy as _
-from django.contrib import admin
 from parler.admin import TranslatableAdmin
-from .models import Gemstone
 
-from django.contrib import admin
 from django import forms
-from .models import Product
 
-from django.contrib import admin
+
 from django.urls import path
 from django.shortcuts import redirect
 from django.utils.html import format_html
-from .models import Product
 
 from django.utils import translation
 
