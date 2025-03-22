@@ -53,15 +53,33 @@ class ProductSerializer(serializers.ModelSerializer):
     #         ).first()
     #         return size_obj.size_ua if size_obj else None
       
-class TotalProductsSerializer(serializers.ModelSerializer):
-    subproducts = SubProductsSizesSerializer(many=True, read_only=True)
+# class TotalProductsSerializer(serializers.ModelSerializer):
+#     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
 
-    class Meta:
-        model = Product
-        fields = [
-            "id", "category", "subcategory", "name", "slug", "ean_13", "sku",
-            "article", "collection", "occasions", "subproducts", "images", "certificates"
-        ]
+#     class Meta:
+#         model = Product
+#         fields = [
+#             "id", "category", "subcategory", "name", "slug", "ean_13", "sku",
+#             "article", "collection", "occasions", "subproducts", "images", "certificates"
+#         ]
 class RingSizeSerializer(serializers.Serializer):
     finger_circumference = serializers.FloatField(help_text="Обхват пальця в мм")
     ring_size = serializers.FloatField(help_text="Розмір кільця за стандартом")
+class TotalProductsSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+    certificates = serializers.SerializerMethodField()
+    subproducts = SubProductsSizesSerializer(many=True, read_only=True)
+    class Meta:
+        model = Product
+        fields = [
+            "id", "category", "subcategory", "name", "slug", "ean_13", "sku", "article",
+            "collection", "occasions", "subproducts", "images", "certificates"
+        ]
+
+    def get_images(self, obj):
+        request = self.context.get('request')  # Отримуємо request для побудови повного URL
+        return [request.build_absolute_uri(img.image.url) for img in obj.images.all()] if request else [img.image.url for img in obj.images.all()]
+
+    def get_certificates(self, obj):
+        request = self.context.get('request')
+        return [request.build_absolute_uri(cert.file.url) for cert in obj.certificates.all()] if request else [cert.file.url for cert in obj.certificates.all()]
