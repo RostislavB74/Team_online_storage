@@ -8,5 +8,6 @@ router.register(r"cart", CartViewSet, basename="cart")
 
 urlpatterns = [
     path("", include(router.urls)),
+    # path("total-price/", CartViewSet.as_view({"get": "total_price"}), name="total-price"),
     
 ]

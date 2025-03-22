@@ -233,7 +233,7 @@ class SubProducts(models.Model):
     article = models.CharField(max_length=50, unique=True, blank=True, null=True)
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
-    price = models.FloatField(null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Ціна")
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, default=0, validators=[MinValueValidator(0), MaxValueValidator(100)])  
     new_price = models.FloatField(null=True, blank=True)
     old_price = models.FloatField(null=True, blank=True)
@@ -281,9 +281,7 @@ class SubProducts(models.Model):
         details_str = ", ".join(details) if details else "Без характеристик"
         return f"{self.parent_product.name} ({details_str})"
     
-    # def __str__(self):
-    #     result=f"{self.parent_product} - {self.length or ''} {self.width or ''} {self.size or ''} мм, {self.weight} г"
-    #     return result
+    
 def generate_subarticle(product):
     last_product = SubProducts.objects.order_by('-id').first()
     if last_product:
