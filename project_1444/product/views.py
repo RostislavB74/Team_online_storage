@@ -1,5 +1,5 @@
 from django.conf import settings
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
@@ -14,7 +14,6 @@ from drf_spectacular.utils import (
     OpenApiTypes,
     extend_schema_view,
 )
-from rest_framework import generics, status
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     IsAuthenticated,
@@ -25,7 +24,6 @@ from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework import status
 from django.db.models import F
-from django.db.models.functions import Abs
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
