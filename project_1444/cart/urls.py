@@ -1,13 +1,12 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from .views import CartViewSet
+# from users.views import UserProfileView
 
-
-
+router = DefaultRouter()
+router.register(r"cart", CartViewSet, basename="cart")
 
 urlpatterns = [
-    path("", CartViewSet.as_view({"get": "list"}), name="cart-detail"),
-    path("add/", CartViewSet.as_view({"post": "add_item"}), name="cart-add"),
-    # path("remove/<int:pk>/", CartViewSet.as_view({"delete": "remove_item"}), name="cart-remove"),
-    # path("clear/", CartViewSet.as_view({"post": "clear_cart"}), name="cart-clear"),
-    path("create/", CartViewSet.as_view({"post": "create_order"}), name="create-order"),
+    path("", include(router.urls)),
+    
 ]
