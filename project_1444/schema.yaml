@@ -806,7 +806,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Product'
           description: ''
-  /api/v1/products/{id}/:
+  /api/v1/product/{id}/:
     get:
       operationId: api_v1_products_retrieve
       description: Отримання продукту за slug з урахуванням мови
