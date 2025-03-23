@@ -6,6 +6,10 @@ class CategoriesSerializer(serializers.ModelSerializer):
         model = Categories
         fields = ['id', 'name', 'slug', 'updated_at']
 
+class ProductStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductStatus
+        fields = ['id', 'name', 'slug']
 
 class SubProductsSizesSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
@@ -42,26 +46,10 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'id','category','subcategory', 'name', 'slug', 'ean_13', 'sku', 'article',  'collection', 'year_collection','occasions' , 'status_display','subproducts', 'images', 'certificates',
+            'id','category','subcategory', 'name', 'slug', 'ean_13', 'sku', 'article',  'collection', 'statuses','year_collection','occasions' , 'status_display','subproducts', 'images', 'certificates',
             
         ]
 
-    # def get_size(self, obj):
-    #     if obj.category and obj.category.name.lower() == "каблучки" and obj.circumference_mm:
-    #         size_obj = RingSizeConversion.objects.filter(
-    #             circumference_mm=obj.circumference_mm
-    #         ).first()
-    #         return size_obj.size_ua if size_obj else None
-      
-# class TotalProductsSerializer(serializers.ModelSerializer):
-#     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
-
-#     class Meta:
-#         model = Product
-#         fields = [
-#             "id", "category", "subcategory", "name", "slug", "ean_13", "sku",
-#             "article", "collection", "occasions", "subproducts", "images", "certificates"
-#         ]
 class RingSizeSerializer(serializers.Serializer):
     finger_circumference = serializers.FloatField(help_text="Обхват пальця в мм")
     ring_size = serializers.FloatField(help_text="Розмір кільця за стандартом")
@@ -72,7 +60,7 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            "id", "category", "subcategory", "name", "slug", "ean_13", "sku", "article",
+            "id", "category", "subcategory", "name", "slug", "ean_13", "sku", "article", "statuses",
             "collection", "occasions", "subproducts", "images", "certificates"
         ]
 

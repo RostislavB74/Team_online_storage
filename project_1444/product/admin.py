@@ -56,6 +56,12 @@ class GemstoneAdmin(TranslatableAdmin):
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
 
+@admin.register(ProductStatus)
+class ProductStatusAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
 
 @admin.register(RingSizeConversion)
 class RingSizeAdmin(admin.ModelAdmin):
@@ -111,35 +117,11 @@ class ProductCertificateInline(admin.TabularInline):
 class ProductAttributesInline(TranslatableTabularInline):
     model = ProductAttributes
     extra = 1  
-    fields = ("gender", "color_coating","clasp_type", "coating_material", "description_coating", "design_product", "style", "statuses")
+    fields = ("gender", "color_coating","clasp_type", "coating_material", "description_coating", "design_product", "style",)
     
     verbose_name = "Характеристики"
     verbose_name_plural = "Характеристики"
-    @admin.action(description="Позначити товари як бестселери")
-    def set_bestseller(self, request, queryset):
-        queryset.update(is_bestseller=True)
-
-    @admin.action(description="Зняти статус бестселера")
-    def clear_bestseller(self, request, queryset):
-        queryset.update(is_bestseller=False)
-    def get_statuses(self, obj):
-        return ", ".join([status.name for status in obj.status.all()])
-    get_statuses.short_description = "Статуси"
-
-    @admin.action(description="Позначити як бестселер")
-    def mark_as_bestseller(self, request, queryset):
-        bestseller_status, _ = ProductStatus.objects.get_or_create(name="bestseller")
-        for product in queryset:
-            product.statuses.add(bestseller_status)
-        self.message_user(request, "Вибрані товари отримали статус 'bestseller'.")
-
-    @admin.action(description="Прибрати статус бестселера")
-    def remove_bestseller(self, request, queryset):
-        bestseller_status = ProductStatus.objects.filter(name="bestseller").first()
-        if bestseller_status:
-            for product in queryset:
-                product.statuses.remove(bestseller_status)
-        self.message_user(request, "Статус 'bestseller' видалено у вибраних товарів.")
+   
 
 class ProductGemstoneInline(admin.TabularInline):
     model = ProductGemstone
@@ -205,10 +187,14 @@ class ProductAdmin(TranslatableAdmin):
     readonly_fields = ('sku', 'article', 'created_at', 'updated_at', 'created_by',)
     inlines = [ProductImageInline, ProductMaterialInline, ProductGemstoneInline, ProductCertificateInline,ProductAttributesInline]
     actions = ['mark_as_bestseller', 'remove_bestseller', 'mark_as_discount', 'remove_discount']
-    filter_horizontal = ("subproducts",) 
+    filter_horizontal = ("subproducts", "statuses",) 
     fieldsets = (
         ("Основна інформація", {
             "fields": ("category","subcategory","name","article" , "ean_13", "sku", "slug","collection", "year_collection", "country_of_origin",),
+            "classes": ("collapse",),
+        }),
+        ("Статуси", {
+            "fields": ("statuses",),
             "classes": ("collapse",),
         }),
        ("Типорозміри товару", {
@@ -237,21 +223,45 @@ class ProductAdmin(TranslatableAdmin):
         return "Немає сертифікатів"
 
     get_certificates.short_description = "Сертифікати"
+    @admin.action(description="Позначити товари як бестселери")
+    def set_bestseller(self, request, queryset):
+        queryset.update(is_bestseller=True)
 
-    @admin.action(description="Позначити як знижка")
-    def mark_as_discount(self, request, queryset):
-        discount_status, _ = ProductStatus.objects.get_or_create(name="discount")
+    @admin.action(description="Зняти статус бестселера")
+    def clear_bestseller(self, request, queryset):
+        queryset.update(is_bestseller=False)
+    def get_statuses(self, obj):
+        return ", ".join([status.name for status in obj.status.all()])
+    get_statuses.short_description = "Статуси"
+
+    @admin.action(description="Позначити як бестселер")
+    def mark_as_bestseller(self, request, queryset):
+        bestseller_status, _ = ProductStatus.objects.get_or_create(name="bestseller")
         for product in queryset:
-            product.statuses.add(discount_status)
-        self.message_user(request, "Вибрані товари отримали статус 'discount'.")
+            product.statuses.add(bestseller_status)
+        self.message_user(request, "Вибрані товари отримали статус 'bestseller'.")
 
-    @admin.action(description="Прибрати статус знижки")
-    def remove_discount(self, request, queryset):
-        discount_status = ProductStatus.objects.filter(name="discount").first()
-        if discount_status:
+    @admin.action(description="Прибрати статус бестселера")
+    def remove_bestseller(self, request, queryset):
+        bestseller_status = ProductStatus.objects.filter(name="bestseller").first()
+        if bestseller_status:
             for product in queryset:
-                product.statuses.remove(discount_status)
-        self.message_user(request, "Статус 'discount' видалено у вибраних товарів.")
+                product.statuses.remove(bestseller_status)
+        self.message_user(request, "Статус 'bestseller' видалено у вибраних товарів.")
+    # @admin.action(description="Позначити як знижка")
+    # def mark_as_discount(self, request, queryset):
+    #     discount_status, _ = ProductStatus.objects.get_or_create(name="discount")
+    #     for product in queryset:
+    #         product.statuses.add(discount_status)
+    #     self.message_user(request, "Вибрані товари отримали статус 'discount'.")
+
+    # @admin.action(description="Прибрати статус знижки")
+    # def remove_discount(self, request, queryset):
+    #     discount_status = ProductStatus.objects.filter(name="discount").first()
+    #     if discount_status:
+    #         for product in queryset:
+    #             product.statuses.remove(discount_status)
+    #     self.message_user(request, "Статус 'discount' видалено у вибраних товарів.")
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
 
