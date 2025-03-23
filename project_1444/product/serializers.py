@@ -13,6 +13,7 @@ class ProductStatusSerializer(serializers.ModelSerializer):
 
 class SubProductsSizesSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    parent_product = serializers.CharField(source='parent_product.name', read_only=True)
 
     class Meta:
         model = SubProducts
@@ -40,6 +41,19 @@ class ProductCertificateSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, required=False)
     certificates = ProductCertificateSerializer(many=True, required=False)
+    statuses = serializers.SlugRelatedField(
+        many=True, queryset=ProductStatus.objects.all(), slug_field="name")
+    category = serializers.SlugRelatedField(
+        many=False, queryset=Categories.objects.all(), slug_field="name"
+    )
+    subcategory = serializers.SlugRelatedField(
+        many=False, queryset=SubCategories.objects.all(), slug_field="name"
+    )
+    subproducts = SubProductsSizesSerializer(many=True, read_only=True)
+    collection = serializers.SlugRelatedField(
+        many=False, queryset=Collections.objects.all(), slug_field="name"
+    )
+    
     
     status_display = serializers.CharField(source='get_status_display', read_only=True)
 
@@ -56,6 +70,14 @@ class RingSizeSerializer(serializers.Serializer):
 class TotalProductsSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     certificates = serializers.SerializerMethodField()
+    statuses = serializers.SlugRelatedField(
+        many=True, queryset=ProductStatus.objects.all(), slug_field="name")
+    category = serializers.SlugRelatedField(
+        many=False, queryset=Categories.objects.all(), slug_field="name"
+    )
+    subcategory = serializers.SlugRelatedField(
+        many=False, queryset=SubCategories.objects.all(), slug_field="name"
+    )
     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
     class Meta:
         model = Product
