@@ -24,105 +24,8 @@ paths:
         schema:
           type: string
           enum:
-          - af
-          - ar
-          - ar-dz
-          - ast
-          - az
-          - be
-          - bg
-          - bn
-          - br
-          - bs
-          - ca
-          - ckb
-          - cs
-          - cy
-          - da
-          - de
-          - dsb
-          - el
           - en
-          - en-au
-          - en-gb
-          - eo
-          - es
-          - es-ar
-          - es-co
-          - es-mx
-          - es-ni
-          - es-ve
-          - et
-          - eu
-          - fa
-          - fi
-          - fr
-          - fy
-          - ga
-          - gd
-          - gl
-          - he
-          - hi
-          - hr
-          - hsb
-          - hu
-          - hy
-          - ia
-          - id
-          - ig
-          - io
-          - is
-          - it
-          - ja
-          - ka
-          - kab
-          - kk
-          - km
-          - kn
-          - ko
-          - ky
-          - lb
-          - lt
-          - lv
-          - mk
-          - ml
-          - mn
-          - mr
-          - ms
-          - my
-          - nb
-          - ne
-          - nl
-          - nn
-          - os
-          - pa
-          - pl
-          - pt
-          - pt-br
-          - ro
-          - ru
-          - sk
-          - sl
-          - sq
-          - sr
-          - sr-latn
-          - sv
-          - sw
-          - ta
-          - te
-          - tg
-          - th
-          - tk
-          - tr
-          - tt
-          - udm
-          - ug
           - uk
-          - ur
-          - uz
-          - vi
-          - zh-hans
-          - zh-hant
       tags:
       - api
       security:
@@ -151,9 +54,9 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
-  /api/v1/cart/:
+  /api/v1/all-products/:
     get:
-      operationId: api_v1_cart_list
+      operationId: api_v1_all_products_list
       tags:
       - api
       security:
@@ -161,6 +64,54 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TotalProducts'
+          description: ''
+  /api/v1/all-products/{id}/:
+    get:
+      operationId: api_v1_all_products_retrieve
+      description: Отримання продукту за ID разом із його підпродуктами
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalProducts'
+          description: ''
+  /api/v1/cart/:
+    get:
+      operationId: api_v1_cart_list
+      description: Отримання списку корзин + загальної суми
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -170,10 +121,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Cart'
           description: ''
-  /api/v1/cart/add/:
     post:
-      operationId: api_v1_cart_add_create
-      description: Додає товар у кошик
+      operationId: api_v1_cart_create
       tags:
       - api
       requestBody:
@@ -187,11 +136,38 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Cart'
+        required: true
       security:
       - jwtAuth: []
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+  /api/v1/cart/{id}/:
+    get:
+      operationId: api_v1_cart_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Корзина.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -199,10 +175,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Cart'
           description: ''
-  /api/v1/cart/create/:
-    post:
-      operationId: api_v1_cart_create_create
-      description: Створює передзамовлення на основі кошика
+    put:
+      operationId: api_v1_cart_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Корзина.
+        required: true
       tags:
       - api
       requestBody:
@@ -216,11 +197,13 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Cart'
+        required: true
       security:
       - jwtAuth: []
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -228,10 +211,65 @@ paths:
               schema:
                 $ref: '#/components/schemas/Cart'
           description: ''
+    patch:
+      operationId: api_v1_cart_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Корзина.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCart'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCart'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCart'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+    delete:
+      operationId: api_v1_cart_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Корзина.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
   /api/v1/categories/:
     get:
       operationId: api_v1_categories_list
-      description: Отримати список продуктів або створити новий
+      description: CRUD для продуктів
       tags:
       - api
       security:
@@ -251,7 +289,7 @@ paths:
           description: ''
     post:
       operationId: api_v1_categories_create
-      description: Отримати список продуктів або створити новий
+      description: CRUD для продуктів
       tags:
       - api
       requestBody:
@@ -281,12 +319,13 @@ paths:
   /api/v1/categories/{id}/:
     get:
       operationId: api_v1_categories_retrieve
-      description: Отримати деталі продукту
+      description: Отримання продукту за slug з урахуванням мови
       parameters:
       - in: path
         name: id
         schema:
           type: integer
+        description: A unique integer value identifying this Категорія виробу.
         required: true
       tags:
       - api
@@ -303,11 +342,104 @@ paths:
               schema:
                 $ref: '#/components/schemas/Categories'
           description: ''
+    put:
+      operationId: api_v1_categories_update
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Категорія виробу.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Categories'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Categories'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Categories'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categories'
+          description: ''
+    patch:
+      operationId: api_v1_categories_partial_update
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Категорія виробу.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategories'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategories'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategories'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categories'
+          description: ''
+    delete:
+      operationId: api_v1_categories_destroy
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Категорія виробу.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
   /api/v1/create/:
     post:
       operationId: api_v1_create_create
       tags:
-      - api
+      - Order API
       requestBody:
         content:
           application/json:
@@ -350,7 +482,7 @@ paths:
     get:
       operationId: api_v1_orders_list
       tags:
-      - api
+      - Order API
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -369,7 +501,7 @@ paths:
     post:
       operationId: api_v1_orders_create
       tags:
-      - api
+      - Order API
       requestBody:
         content:
           application/json:
@@ -405,7 +537,7 @@ paths:
         description: A unique integer value identifying this order.
         required: true
       tags:
-      - api
+      - Order API
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -429,7 +561,7 @@ paths:
         description: A unique integer value identifying this order.
         required: true
       tags:
-      - api
+      - Order API
       requestBody:
         content:
           application/json:
@@ -464,7 +596,7 @@ paths:
         description: A unique integer value identifying this order.
         required: true
       tags:
-      - api
+      - Order API
       requestBody:
         content:
           application/json:
@@ -499,7 +631,7 @@ paths:
         description: A unique integer value identifying this order.
         required: true
       tags:
-      - api
+      - Order API
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -513,7 +645,7 @@ paths:
     post:
       operationId: api_v1_orders_create_order_create
       tags:
-      - api
+      - Order API
       requestBody:
         content:
           application/json:
@@ -541,7 +673,7 @@ paths:
   /api/v1/product/:
     get:
       operationId: api_v1_product_list
-      description: Отримати список продуктів або створити новий
+      description: CRUD для продуктів
       tags:
       - api
       security:
@@ -561,7 +693,7 @@ paths:
           description: ''
     post:
       operationId: api_v1_product_create
-      description: Отримати список продуктів або створити новий
+      description: CRUD для продуктів
       tags:
       - api
       requestBody:
@@ -591,12 +723,13 @@ paths:
   /api/v1/product/{id}/:
     get:
       operationId: api_v1_product_retrieve
-      description: Отримати деталі продукту
+      description: Отримання продукту за slug з урахуванням мови
       parameters:
       - in: path
         name: id
         schema:
           type: integer
+        description: A unique integer value identifying this product.
         required: true
       tags:
       - api
@@ -613,6 +746,99 @@ paths:
               schema:
                 $ref: '#/components/schemas/Product'
           description: ''
+    put:
+      operationId: api_v1_product_update
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    patch:
+      operationId: api_v1_product_partial_update
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    delete:
+      operationId: api_v1_product_destroy
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
   /api/v1/ring-size/:
     get:
       operationId: api_v1_ring_size_retrieve
@@ -627,7 +853,7 @@ paths:
         description: Окружність пальця в міліметрах (напр. 60)
         required: true
       tags:
-      - api
+      - Tools API
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -641,6 +867,177 @@ paths:
               schema:
                 $ref: '#/components/schemas/RingSize'
           description: ''
+  /api/v1/subproducts/:
+    get:
+      operationId: api_v1_subproducts_list
+      description: CRUD для типорозмірів
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubProductsSizes'
+          description: ''
+    post:
+      operationId: api_v1_subproducts_create
+      description: CRUD для типорозмірів
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubProductsSizes'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubProductsSizes'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubProductsSizes'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubProductsSizes'
+          description: ''
+  /api/v1/subproducts/{id}/:
+    get:
+      operationId: api_v1_subproducts_retrieve
+      description: CRUD для типорозмірів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this sub products.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubProductsSizes'
+          description: ''
+    put:
+      operationId: api_v1_subproducts_update
+      description: CRUD для типорозмірів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this sub products.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubProductsSizes'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubProductsSizes'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubProductsSizes'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubProductsSizes'
+          description: ''
+    patch:
+      operationId: api_v1_subproducts_partial_update
+      description: CRUD для типорозмірів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this sub products.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSubProductsSizes'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSubProductsSizes'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSubProductsSizes'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubProductsSizes'
+          description: ''
+    delete:
+      operationId: api_v1_subproducts_destroy
+      description: CRUD для типорозмірів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this sub products.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
   /api/v1/version/:
     get:
       operationId: api_v1_version_retrieve
@@ -666,48 +1063,31 @@ components:
         user:
           type: integer
           nullable: true
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CartItem'
-          readOnly: true
-        total_price:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          readOnly: true
-      required:
-      - id
-      - items
-      - total_price
-    CartItem:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
+          title: Користувач
         product:
           type: integer
+          title: Товар
         product_name:
           type: string
           readOnly: true
-        product_price:
-          type: number
-          format: double
-          nullable: true
-          readOnly: true
         quantity:
           type: integer
-          maximum: 2147483647
+          maximum: 32767
           minimum: 0
+          title: Кількість
         total_price:
           type: string
           readOnly: true
+        created_timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата додавання
       required:
+      - created_timestamp
       - id
       - product
       - product_name
-      - product_price
       - total_price
     Categories:
       type: object
@@ -721,10 +1101,15 @@ components:
         slug:
           type: string
           readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
       required:
       - id
       - name
       - slug
+      - updated_at
     DeliveryMethodEnum:
       enum:
       - pickup
@@ -794,6 +1179,51 @@ components:
       - product
       - product_price
       - total_price
+    PatchedCart:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          nullable: true
+          title: Користувач
+        product:
+          type: integer
+          title: Товар
+        product_name:
+          type: string
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Кількість
+        total_price:
+          type: string
+          readOnly: true
+        created_timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата додавання
+    PatchedCategories:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedOrder:
       type: object
       properties:
@@ -828,6 +1258,121 @@ components:
           $ref: '#/components/schemas/StatusEnum'
         call_me:
           type: boolean
+    PatchedProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: integer
+          nullable: true
+        subcategory:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        ean_13:
+          type: string
+          nullable: true
+          maxLength: 13
+        sku:
+          type: string
+          nullable: true
+          maxLength: 50
+        article:
+          type: string
+          nullable: true
+          maxLength: 50
+        collection:
+          type: integer
+          nullable: true
+        statuses:
+          type: array
+          items:
+            type: integer
+        year_collection:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        occasions:
+          type: array
+          items:
+            type: integer
+        status_display:
+          type: string
+          readOnly: true
+        subproducts:
+          type: array
+          items:
+            type: integer
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductImage'
+        certificates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductCertificate'
+    PatchedSubProductsSizes:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        parent_product:
+          type: integer
+          title: Продукт
+        position:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        ean_13:
+          type: string
+          nullable: true
+          maxLength: 13
+        sku:
+          type: string
+          nullable: true
+          maxLength: 50
+        article:
+          type: string
+          nullable: true
+          maxLength: 50
+        weight:
+          type: number
+          format: double
+          nullable: true
+          title: Вага (г)
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Ціна
+        status_display:
+          type: string
+          readOnly: true
+        size:
+          type: number
+          format: double
+          nullable: true
+          title: 'Розмір(мм) '
+        length:
+          type: number
+          format: double
+          nullable: true
+          title: Довжина (см)
+        width:
+          type: number
+          format: double
+          nullable: true
+          title: Ширина (см)
     PaymentMethodEnum:
       enum:
       - cash
@@ -868,12 +1413,17 @@ components:
           type: string
           nullable: true
           maxLength: 50
-        price:
-          type: number
-          format: double
-          nullable: true
         collection:
           type: integer
+          nullable: true
+        statuses:
+          type: array
+          items:
+            type: integer
+        year_collection:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
           nullable: true
         occasions:
           type: array
@@ -882,13 +1432,10 @@ components:
         status_display:
           type: string
           readOnly: true
-        circumference_mm:
-          type: number
-          format: double
-          nullable: true
-        size:
-          type: string
-          readOnly: true
+        subproducts:
+          type: array
+          items:
+            type: integer
         images:
           type: array
           items:
@@ -900,7 +1447,6 @@ components:
       required:
       - id
       - name
-      - size
       - slug
       - status_display
     ProductCertificate:
@@ -928,7 +1474,6 @@ components:
           readOnly: true
         image:
           type: string
-          format: uri
         uploaded_at:
           type: string
           format: date-time
@@ -963,6 +1508,124 @@ components:
         * `processing` - Обробка
         * `paid` - Оплачене
         * `shipped` - Відправлене
+    SubProductsSizes:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        parent_product:
+          type: integer
+          title: Продукт
+        position:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        ean_13:
+          type: string
+          nullable: true
+          maxLength: 13
+        sku:
+          type: string
+          nullable: true
+          maxLength: 50
+        article:
+          type: string
+          nullable: true
+          maxLength: 50
+        weight:
+          type: number
+          format: double
+          nullable: true
+          title: Вага (г)
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Ціна
+        status_display:
+          type: string
+          readOnly: true
+        size:
+          type: number
+          format: double
+          nullable: true
+          title: 'Розмір(мм) '
+        length:
+          type: number
+          format: double
+          nullable: true
+          title: Довжина (см)
+        width:
+          type: number
+          format: double
+          nullable: true
+          title: Ширина (см)
+      required:
+      - id
+      - parent_product
+      - price
+      - status_display
+    TotalProducts:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: integer
+          nullable: true
+        subcategory:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        ean_13:
+          type: string
+          nullable: true
+          maxLength: 13
+        sku:
+          type: string
+          nullable: true
+          maxLength: 50
+        article:
+          type: string
+          nullable: true
+          maxLength: 50
+        statuses:
+          type: array
+          items:
+            type: integer
+        collection:
+          type: integer
+          nullable: true
+        occasions:
+          type: array
+          items:
+            type: integer
+        subproducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubProductsSizes'
+          readOnly: true
+        images:
+          type: string
+          readOnly: true
+        certificates:
+          type: string
+          readOnly: true
+      required:
+      - certificates
+      - id
+      - images
+      - name
+      - slug
+      - subproducts
   securitySchemes:
     basicAuth:
       type: http
