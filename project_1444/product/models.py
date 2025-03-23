@@ -306,7 +306,7 @@ class ProductAttributes(TranslatableModel):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="attributes")
     gender = models.CharField('Gender', max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
     color_coating=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
-    statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="products")
+    # statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="status")
     translations = TranslatedFields(
         clasp_type = models.CharField(max_length=255, blank=True, null=True),
         coating_material = models.CharField(max_length=255, blank=True, null=True),
@@ -320,9 +320,12 @@ class ProductStatus(TranslatableModel):
         name=models.CharField(max_length=255),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
     )
+    
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
     
+    def __str__(self):
+        return self.name
 
 
 class ProductMaterial(models.Model):
@@ -398,8 +401,9 @@ class Product(TranslatableModel):
     )
     category = models.ForeignKey('Categories', on_delete=models.SET_NULL, null=True, blank=True)
     subcategory=models.ForeignKey('SubCategories', on_delete=models.SET_NULL, null=True, blank=True)
+    statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="status")
     collection = models.ForeignKey('Collections', on_delete=models.SET_NULL, null=True, blank=True)
-    occasions = models.ManyToManyField('Occasion', blank=True)
+    occasions = models.ManyToManyField('Occasion', blank=True, related_name="occasion")
     article = models.CharField(max_length=50, unique=True, blank=True, null=True)
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
