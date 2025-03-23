@@ -17,5 +17,5 @@ urlpatterns = [
     
     # path('sizetype/', CategoriesViewSet.as_view(), name='categories'),
     path('ring-size/', RingSizeLookup.as_view(), name='ring-size-lookup'),  # Додаємо окремо
-    path("api/v1/", include(router.urls)),
+    # path("", include(router.urls)),
 ]
