@@ -146,3 +146,18 @@ class ProductDiscount(models.Model):
 
     def __str__(self):
         return f"{self.product.name} | {self.discount_percentage}%"
+# class PersonalDiscount(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="discounts")
+#     discount_percent = models.DecimalField(max_digits=5, decimal_places=2)  # Наприклад, 10.00%
+#     valid_until = models.DateField(blank=True, null=True)  # Термін дії
+
+#     def __str__(self):
+#         return f"{self.user.username} - {self.discount_percent}%"
+
+class BonusAccount(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="bonus_account")
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.balance} бонусів"
+    
