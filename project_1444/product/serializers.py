@@ -53,6 +53,10 @@ class ProductSerializer(serializers.ModelSerializer):
     collection = serializers.SlugRelatedField(
         many=False, queryset=Collections.objects.all(), slug_field="name"
     )
+    design=serializers.SlugRelatedField(
+        many=False, queryset=Designs.objects.all(), slug_field="name"
+    )
+    
     
     
     status_display = serializers.CharField(source='get_status_display', read_only=True)
@@ -60,7 +64,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'id','category','subcategory', 'name', 'slug', 'ean_13', 'sku', 'article',  'collection', 'statuses','year_collection','occasions' , 'status_display','subproducts', 'images', 'certificates',
+            'id','category','subcategory', 'name', 'slug', 'ean_13', 'sku', 'article',  'collection', 'statuses','year_collection','occasions' , 'design', 'status_display','subproducts', 'images', 'certificates',
             
         ]
 

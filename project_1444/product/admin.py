@@ -5,7 +5,7 @@ from django.contrib import admin
 from .models import (
     Categories, Material, Gemstone, Product, SubCategories,TypeGemstones, Origin,
     ProductImage, ProductCertificate, RingSizeConversion, Occasion, RingSizeConversion,Colors,
-    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts
+    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts, Designs
 )
 from parler.admin import TranslatableAdmin
 from django.contrib import admin
@@ -79,6 +79,13 @@ class CategoriesAdmin(TranslatableAdmin):
 
 @admin.register(Colors)
 class ColorsAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+
+@admin.register(Designs)
+class DesignsAdmin(TranslatableAdmin):
     list_display = ('name', 'slug')
     
     def get_prepopulated_fields(self, request, obj=None):
@@ -190,7 +197,7 @@ class ProductAdmin(TranslatableAdmin):
     filter_horizontal = ("subproducts", "statuses",) 
     fieldsets = (
         ("Основна інформація", {
-            "fields": ("category","subcategory","name","article" , "ean_13", "sku", "slug","collection", "year_collection", "country_of_origin",),
+            "fields": ("category","subcategory","name","article" , "ean_13", "sku", "slug","collection", "year_collection", "design","country_of_origin",),
             "classes": ("collapse",),
         }),
         ("Статуси", {

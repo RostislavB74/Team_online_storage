@@ -83,6 +83,18 @@ class Collections(TranslatableModel):
         verbose_name = 'Колекція'
         verbose_name_plural = 'Колекції'
 
+class Designs(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(max_length=255, unique=True, verbose_name='Designs'),
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+    )
+
+    def save(self, *args, **kwargs):
+        save_with_translation(self, *args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Дизайн'
+        verbose_name_plural = 'Дизайни'
     def __str__(self):
         return self.safe_translation_getter('name', default='Без назви')  # Бере name із перекладу
 # Матеріали
@@ -311,7 +323,7 @@ class ProductAttributes(TranslatableModel):
         clasp_type = models.CharField(max_length=255, blank=True, null=True),
         coating_material = models.CharField(max_length=255, blank=True, null=True),
         description_coating = models.CharField(max_length=255, blank=True, null=True),
-        design_product = models.CharField(max_length=255, blank=True, null=True),
+       
         style = models.CharField(max_length=255, blank=True, null=True),
     )
    
@@ -403,6 +415,7 @@ class Product(TranslatableModel):
     subcategory=models.ForeignKey('SubCategories', on_delete=models.SET_NULL, null=True, blank=True)
     statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="status")
     collection = models.ForeignKey('Collections', on_delete=models.SET_NULL, null=True, blank=True)
+    design = models.ForeignKey('Designs', on_delete=models.SET_NULL, null=True, blank=True)
     occasions = models.ManyToManyField('Occasion', blank=True, related_name="occasion")
     article = models.CharField(max_length=50, unique=True, blank=True, null=True)
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
