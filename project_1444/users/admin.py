@@ -1,90 +1,15 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
+from .models import UserProfile
 
-from cart.admin import CartTabAdmin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
+User = get_user_model()
 
-# @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "phone", "birthday")
+    # exclude = ("user",)  # Ховаємо поле user
 
-    inlines =[CartTabAdmin] 
-    class Meta:
-        model = User
-
-
-
-
-
-
-
-
-
-
-
-# from django.contrib.auth.admin import UserAdmin
-# from django.contrib.auth.models import Group
-# from .models import User
-
-# class CustomUserAdmin(UserAdmin):
-#     list_display = ('name', 'email', 'phone', 'telegram', 'bithday', 'country','is_staff', 'is_active', 'is_superuser', "display_groups")
-#     search_fields = ('name', 'email', 'phone', 'telegram', 'country', 'bithday')
-#     list_filter = ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions', 'country', 'bithday')
-
-#     fieldsets = (
-#         (None, {'fields': ('name', 'email', 'phone', 'telegram', 'password', 'bithday', 'country')}),
-#         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
-#     )
-
-#     add_fieldsets = (
-#         (None, {
-#             'classes': ('wide',),
-#             'fields': ('name', 'email', 'phone', 'telegram', 'password1', 'password2', 'is_staff', 'is_active', 'is_superuser', 'groups'),
-#         }),
-#     )
-
-#     ordering = ('name', 'email',)
-#     filter_horizontal = ('groups', 'user_permissions')
-
-#     def display_groups(self, obj):
-#         return ", ".join([group.name for group in obj.groups.all()]) if obj.groups.exists() else "Без групи"
-#     display_groups.short_description = "Groups"
-
-# # **Видаляємо попередню реєстрацію, якщо була**
-# try:
-#     admin.site.unregister(User)
-# except admin.sites.NotRegistered:
-#     pass
-
-# admin.site.register(User, CustomUserAdmin)
-
-# from django.contrib import admin
-# from django.contrib.auth.admin import UserAdmin
-# from .models import User  # імпортуй свою модель
-# from django.contrib.auth.models import Group
-
-# # @admin.register(User)
-# class CustomUserAdmin(UserAdmin):
-#     list_display = ('name' ,'email', 'phone', 'telegram', 'is_staff', 'is_active', 'is_superuser', "display_groups")
-#     search_fields = ('name','email', 'phone', 'telegram')
-#     list_filter = ('is_staff', 'is_active', 'is_superuser')
-#     fieldsets = (
-#         (None, {'fields': ('email', 'phone', 'telegram', 'password')}),
-#         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser')}),
-#     )
-
-#     add_fieldsets = (
-#         (None, {
-#             'classes': ('wide',),    
-#             'fields': ('email', 'phone', 'telegram', 'password1', 'password2', 'is_staff', 'is_active', 'is_superuser'),
-#         }),
-#     )
-
-#     ordering = ('name','email',)
-#     filter_horizontal = ()
-#     def display_groups(self, obj):
-#         return ", ".join([group.name for group in obj.groups.all()]) if obj.groups.exists() else "Без групи"
-#     display_groups.short_description = "Groups"
-
-# admin.site.register(User, CustomUserAdmin)
-   
-   
+    def save_model(self, request, obj, form, change):
+        if not obj.user_id:
+            obj.user = User.objects.get(pk=request.user.pk)  # Отримуємо реальний User-об'єкт
+        super().save_model(request, obj, form, change)
