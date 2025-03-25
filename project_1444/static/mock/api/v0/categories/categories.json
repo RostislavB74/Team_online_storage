@@ -1,17 +1,14 @@
 [
-  {
-    "id": 1,
-    "name": "Каблучки",
-    "slug": "kabluchki"
-  },
-  {
-    "id": 2,
-    "name": "Браслети",
-    "slug": "brasleti"
-  },
-  {
-    "id": 3,
-    "name": "Брелоки",
-    "slug": "breloki"
-  }
+    {
+        "id": 1,
+        "name": "Каблучки",
+        "slug": "kabluchki",
+        "updated_at": "2025-03-19T10:13:11.260204+02:00"
+    },
+    {
+        "id": 2,
+        "name": "Ланцюжок",
+        "slug": "lancyuzhok",
+        "updated_at": "2025-03-19T13:38:39.338022+02:00"
+    }
 ]

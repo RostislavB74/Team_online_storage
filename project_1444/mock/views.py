@@ -1,4 +1,5 @@
 import json
+import urllib.parse
 from pathlib import Path
 
 from django.conf import settings
@@ -12,18 +13,28 @@ class MockViewApiV0(View):
 
     def get(self, request):
         try:
-            if request.path.endswith("/"):
-                request_path = Path(request.path.lstrip("/"))
+            if len(request.GET) == 0 and request.path.endswith("/"):
+                request_path = Path(request.path.strip("/"))
                 request_path = request_path / (request_path.name + ".json")
             else:
-                request_path = Path(request.path.lstrip("/") + ".json")
+                request_path = Path(request.path.strip("/"))
+                if request.GET:
+                    query_str = urllib.parse.quote(
+                        "&".join([f"{k}={v}" for k, v in request.GET.items()]), safe=""
+                    )
+                    request_path = str(Path(request_path) / f"%3F{query_str}")
+                request_path = Path(request_path).with_suffix(".json")
 
             # Security check. Check if inside, if wrong then exception
             context_path = (self.mock_path / request_path).resolve()  # resolve path
             context_path.relative_to(self.mock_path)
 
             if not context_path.exists():
-                return HttpResponseNotFound("Not found")
+                return HttpResponseNotFound(
+                    f"Not found: {str(request_path)}, {str(context_path)}"
+                    if settings.DEBUG
+                    else "Not found"
+                )
 
             last_modified_datetime = context_path.stat().st_mtime  # get last modified
             last_modified_datetime = http_date(last_modified_datetime)
