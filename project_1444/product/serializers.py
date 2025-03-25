@@ -91,7 +91,7 @@ class ProductSerializer(serializers.ModelSerializer):
         return obj.safe_translation_getter('slug', default=None)
     @extend_schema_field(str)
     def get_statuses(self, obj):
-        return obj.category.safe_translation_getter('name', default='Без назви') if obj.productstatus else None
+        return obj.category.safe_translation_getter('name', default='Без назви') if obj.statuses else None
     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
     def get_images(self, obj):
         request = self.context.get('request')
@@ -139,7 +139,7 @@ class TotalProductsSerializer(serializers.ModelSerializer):
         return obj.safe_translation_getter('slug', default=None)
     @extend_schema_field(str)
     def get_statuses(self, obj):
-        return obj.category.safe_translation_getter('name', default='Без назви') if obj.productstatus else None
+        return obj.category.safe_translation_getter('name', default='Без назви') if obj.statuses else None
 
     @extend_schema_field(str)
     def get_category(self, obj):
