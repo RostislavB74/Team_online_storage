@@ -46,7 +46,7 @@ urlpatterns = [
     path("api/v1/", include("cart.urls")),
     path("api/v1/", include("product.urls")),
     path("api/v1/auth/", include("rest_framework.urls")),
-    path("api/v1/product/", ProductAPIList.as_view()),
+    path("api/v1/products/", ProductAPIList.as_view()),
     path("api/v1/product/<int:pk>/", ProductAPIDetail.as_view()),
     path("api/v1/all-products/<int:pk>/", TotalProductsViewSet.as_view({"get":"retrieve"})),
     path("api/v1/categories/", CategoriesAPIList.as_view()),

@@ -376,10 +376,45 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
 
 # NOT USED
-class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
-    """CRUD для продуктів"""
+# class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
+#     """CRUD для продуктів"""
 
-    # queryset = Product.objects.all()
+#     # queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):
+#         """Фільтрація товарів за мовою"""
+#         lang = get_language_code(self.request)
+#         return Product.objects.language(lang).all()
+
+#     def retrieve(self, request, *args, **kwargs):
+#         """Отримання продукту за slug з урахуванням мови"""
+#         lang = request.GET.get("lang", "uk")
+#         field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
+#         product = get_object_or_404(
+#             Product, **{field: kwargs["pk"], "translations__language_code": lang}
+#         )
+#         serializer = self.get_serializer(product)
+#         return Response(serializer.data)
+
+#     @extend_schema(
+#         summary="Get example data",
+#         description="Returns an example response with some data.",
+#         responses={200: dict},
+#     )
+#     def get(self, request):
+#         return Response({"message": "Hello, API!"})
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from .models import Product
+from .serializers import ProductSerializer
+
+class ProductViewSet(viewsets.ModelViewSet):
+    """CRUD для продуктів"""
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
 
@@ -388,24 +423,41 @@ class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
         lang = get_language_code(self.request)
         return Product.objects.language(lang).all()
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="lookup",
+                type=str,
+                location=OpenApiParameter.PATH,
+                description="ID (integer) or slug of the product"
+            ),
+            OpenApiParameter(
+                name="lang",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Language code (e.g., 'uk', 'en')",
+                default="uk"
+            )
+        ],
+        description="Retrieve a product by ID or slug with language support"
+    )
     def retrieve(self, request, *args, **kwargs):
-        """Отримання продукту за slug з урахуванням мови"""
+        """Отримання продукту за id або slug з урахуванням мови"""
+        lookup_value = kwargs.get("pk")  # Отримуємо значення з URL
         lang = request.GET.get("lang", "uk")
-        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        product = get_object_or_404(
-            Product, **{field: kwargs["pk"], "translations__language_code": lang}
-        )
+        queryset = Product.objects.language(lang)
+
+        # Перевіряємо, чи є lookup_value числом (id) чи текстом (slug)
+        try:
+            # Якщо це число, шукаємо за id
+            lookup_int = int(lookup_value)
+            product = get_object_or_404(queryset, id=lookup_int)
+        except ValueError:
+            # Якщо не число, шукаємо за slug у перекладах
+            product = get_object_or_404(queryset, translations__slug=lookup_value)
+
         serializer = self.get_serializer(product)
         return Response(serializer.data)
-
-    @extend_schema(
-        summary="Get example data",
-        description="Returns an example response with some data.",
-        responses={200: dict},
-    )
-    def get(self, request):
-        return Response({"message": "Hello, API!"})
-
 
 class SubProductsSizesViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
     """CRUD для типорозмірів"""
