@@ -745,13 +745,25 @@ paths:
   /api/v1/product/{id}/:
     get:
       operationId: api_v1_product_retrieve
-      description: Отримання продукту за slug з урахуванням мови
+      description: Retrieve a product by ID or slug with language support
       parameters:
       - in: path
         name: id
         schema:
           type: integer
         description: A unique integer value identifying this product.
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          default: uk
+        description: Language code (e.g., 'uk', 'en')
+      - in: path
+        name: lookup
+        schema:
+          type: string
+        description: ID (integer) or slug of the product
         required: true
       tags:
       - api
@@ -861,6 +873,62 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/products/:
+    get:
+      operationId: api_v1_products_list
+      description: Отримати список продуктів або створити новий
+      parameters:
+      - in: header
+        name: Accept-Language
+        schema:
+          type: string
+        description: 'Обрана мова для відповіді. Дозволені значення: uk, en.'
+      tags:
+      - Product API
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+          description: ''
+    post:
+      operationId: api_v1_products_create
+      description: Отримати список продуктів або створити новий
+      tags:
+      - Product API
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
   /api/v1/ring-size/:
     get:
       operationId: api_v1_ring_size_retrieve
