@@ -3,6 +3,24 @@ info:
   title: ''
   version: 0.0.0
 paths:
+  /api/:
+    get:
+      operationId: api_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiSchema'
+          description: ''
   /api/schema/:
     get:
       operationId: api_schema_retrieve
@@ -477,7 +495,11 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+          description: ''
   /api/v1/orders/:
     get:
       operationId: api_v1_orders_list
@@ -673,15 +695,9 @@ paths:
   /api/v1/product/:
     get:
       operationId: api_v1_product_list
-      description: Отримати список продуктів або створити новий
-      parameters:
-      - in: header
-        name: Accept-Language
-        schema:
-          type: string
-        description: 'Обрана мова для відповіді. Дозволені значення: uk, en.'
+      description: CRUD для продуктів
       tags:
-      - Product API
+      - api
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -699,9 +715,9 @@ paths:
           description: ''
     post:
       operationId: api_v1_product_create
-      description: Отримати список продуктів або створити новий
+      description: CRUD для продуктів
       tags:
-      - Product API
+      - api
       requestBody:
         content:
           application/json:
@@ -729,86 +745,6 @@ paths:
   /api/v1/product/{id}/:
     get:
       operationId: api_v1_product_retrieve
-      description: Отримати деталі продукту
-      parameters:
-      - in: header
-        name: Accept-Language
-        schema:
-          type: string
-        description: 'Обрана мова для відповіді. Дозволені значення: uk, en.'
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - Product API
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-          description: ''
-  /api/v1/products/:
-    get:
-      operationId: api_v1_products_list
-      description: CRUD для продуктів
-      tags:
-      - api
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
-          description: ''
-    post:
-      operationId: api_v1_products_create
-      description: CRUD для продуктів
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Product'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Product'
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-          description: ''
-  /api/v1/product/{id}/:
-    get:
-      operationId: api_v1_products_retrieve
       description: Отримання продукту за slug з урахуванням мови
       parameters:
       - in: path
@@ -833,7 +769,7 @@ paths:
                 $ref: '#/components/schemas/Product'
           description: ''
     put:
-      operationId: api_v1_products_update
+      operationId: api_v1_product_update
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -869,7 +805,7 @@ paths:
                 $ref: '#/components/schemas/Product'
           description: ''
     patch:
-      operationId: api_v1_products_partial_update
+      operationId: api_v1_product_partial_update
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -905,7 +841,7 @@ paths:
                 $ref: '#/components/schemas/Product'
           description: ''
     delete:
-      operationId: api_v1_products_destroy
+      operationId: api_v1_product_destroy
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -1137,9 +1073,23 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+          description: ''
 components:
   schemas:
+    ApiSchema:
+      type: object
+      properties:
+        endpoints:
+          type: object
+          additionalProperties:
+            type: string
+            format: uri
+      required:
+      - endpoints
     Cart:
       type: object
       properties:
@@ -1148,8 +1098,9 @@ components:
           readOnly: true
         user:
           type: integer
-          nullable: true
-          title: Користувач
+        username:
+          type: string
+          readOnly: true
         product:
           type: integer
           title: Товар
@@ -1163,6 +1114,7 @@ components:
           title: Кількість
         total_price:
           type: string
+          description: Обчислює загальну ціну для одного товару в корзині
           readOnly: true
         created_timestamp:
           type: string
@@ -1175,6 +1127,7 @@ components:
       - product
       - product_name
       - total_price
+      - username
     Categories:
       type: object
       properties:
@@ -1206,6 +1159,14 @@ components:
         * `pickup` - Самовивіз
         * `courier` - Кур'єр
         * `nova_poshta` - Нова Пошта
+    HealthCheck:
+      type: object
+      properties:
+        status:
+          type: string
+          maxLength: 10
+      required:
+      - status
     Order:
       type: object
       properties:
@@ -1273,8 +1234,9 @@ components:
           readOnly: true
         user:
           type: integer
-          nullable: true
-          title: Користувач
+        username:
+          type: string
+          readOnly: true
         product:
           type: integer
           title: Товар
@@ -1288,6 +1250,7 @@ components:
           title: Кількість
         total_price:
           type: string
+          description: Обчислює загальну ціну для одного товару в корзині
           readOnly: true
         created_timestamp:
           type: string
@@ -1351,11 +1314,11 @@ components:
           type: integer
           readOnly: true
         category:
-          type: integer
-          nullable: true
+          type: string
+          readOnly: true
         subcategory:
-          type: integer
-          nullable: true
+          type: string
+          readOnly: true
         name:
           type: string
           readOnly: true
@@ -1375,12 +1338,11 @@ components:
           nullable: true
           maxLength: 50
         collection:
-          type: integer
-          nullable: true
+          type: string
+          readOnly: true
         statuses:
-          type: array
-          items:
-            type: integer
+          type: string
+          readOnly: true
         year_collection:
           type: integer
           maximum: 2147483647
@@ -1390,21 +1352,27 @@ components:
           type: array
           items:
             type: integer
+        design:
+          type: string
+          readOnly: true
         status_display:
           type: string
           readOnly: true
         subproducts:
           type: array
           items:
-            type: integer
+            $ref: '#/components/schemas/SubProductsSizes'
+          readOnly: true
         images:
           type: array
           items:
-            $ref: '#/components/schemas/ProductImage'
+            type: string
+          readOnly: true
         certificates:
           type: array
           items:
-            $ref: '#/components/schemas/ProductCertificate'
+            type: string
+          readOnly: true
     PatchedSubProductsSizes:
       type: object
       properties:
@@ -1412,8 +1380,8 @@ components:
           type: integer
           readOnly: true
         parent_product:
-          type: integer
-          title: Продукт
+          type: string
+          readOnly: true
         position:
           type: integer
           maximum: 2147483647
@@ -1476,11 +1444,11 @@ components:
           type: integer
           readOnly: true
         category:
-          type: integer
-          nullable: true
+          type: string
+          readOnly: true
         subcategory:
-          type: integer
-          nullable: true
+          type: string
+          readOnly: true
         name:
           type: string
           readOnly: true
@@ -1500,12 +1468,11 @@ components:
           nullable: true
           maxLength: 50
         collection:
-          type: integer
-          nullable: true
+          type: string
+          readOnly: true
         statuses:
-          type: array
-          items:
-            type: integer
+          type: string
+          readOnly: true
         year_collection:
           type: integer
           maximum: 2147483647
@@ -1515,59 +1482,40 @@ components:
           type: array
           items:
             type: integer
+        design:
+          type: string
+          readOnly: true
         status_display:
           type: string
           readOnly: true
         subproducts:
           type: array
           items:
-            type: integer
+            $ref: '#/components/schemas/SubProductsSizes'
+          readOnly: true
         images:
           type: array
           items:
-            $ref: '#/components/schemas/ProductImage'
+            type: string
+          readOnly: true
         certificates:
           type: array
           items:
-            $ref: '#/components/schemas/ProductCertificate'
+            type: string
+          readOnly: true
       required:
+      - category
+      - certificates
+      - collection
+      - design
       - id
+      - images
       - name
       - slug
       - status_display
-    ProductCertificate:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        file:
-          type: string
-          format: uri
-        uploaded_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - file
-      - id
-      - uploaded_at
-    ProductImage:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        image:
-          type: string
-        uploaded_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - id
-      - image
-      - uploaded_at
+      - statuses
+      - subcategory
+      - subproducts
     RingSize:
       type: object
       properties:
@@ -1601,8 +1549,8 @@ components:
           type: integer
           readOnly: true
         parent_product:
-          type: integer
-          title: Продукт
+          type: string
+          readOnly: true
         position:
           type: integer
           maximum: 2147483647
@@ -1660,11 +1608,11 @@ components:
           type: integer
           readOnly: true
         category:
-          type: integer
-          nullable: true
+          type: string
+          readOnly: true
         subcategory:
-          type: integer
-          nullable: true
+          type: string
+          readOnly: true
         name:
           type: string
           readOnly: true
@@ -1684,9 +1632,8 @@ components:
           nullable: true
           maxLength: 50
         statuses:
-          type: array
-          items:
-            type: integer
+          type: string
+          readOnly: true
         collection:
           type: integer
           nullable: true
@@ -1700,18 +1647,40 @@ components:
             $ref: '#/components/schemas/SubProductsSizes'
           readOnly: true
         images:
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         certificates:
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
+        design:
+          type: integer
+          nullable: true
       required:
+      - category
       - certificates
       - id
       - images
       - name
       - slug
+      - statuses
+      - subcategory
       - subproducts
+    Version:
+      type: object
+      properties:
+        git_version:
+          type: string
+          maxLength: 50
+        version:
+          type: string
+          maxLength: 50
+      required:
+      - git_version
+      - version
   securitySchemes:
     basicAuth:
       type: http

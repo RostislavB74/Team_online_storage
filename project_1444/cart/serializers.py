@@ -9,6 +9,7 @@ from rest_framework import serializers
 from product.models import SubProducts
 from .models import Cart
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema_field
 User = get_user_model()
 class CartSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.parent_product", read_only=True)
@@ -25,6 +26,7 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ["id", "user", "username", "product", "product_name", "quantity", "total_price", "created_timestamp"]
 
+    @extend_schema_field(str)
     def get_total_price(self, obj):
         """Обчислює загальну ціну для одного товару в корзині"""
         return obj.products_price()

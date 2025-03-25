@@ -425,8 +425,18 @@ class Product(TranslatableModel):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-   
+    
+    def save(self, *args, **kwargs):
+        save_with_translation(self, *args, **kwargs)
+    
+    @property
+    def name_property(self):
+        return self.safe_translation_getter('name', default='Без назви')
+    
+    @property
+    def slug_property(self):
+        return self.safe_translation_getter('slug', default='Без опису')
+    
     def __str__(self):
         translation = self.safe_translation_getter('name', any_language=True)
         return translation if translation else f"Product {self.id}"
