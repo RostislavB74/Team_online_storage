@@ -171,10 +171,10 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 poetry.lock
-<<<<<<< HEAD
-/project_1444/static/
+#
+#/project_1444/static/
 /project_1444/media/
-=======
+
 
 
 #static/
@@ -189,4 +189,4 @@ poetry.lock
 /project_1444/static/django_extensions/
 /project_1444/static/parler/
 /project_1444/static/rest_framework/
->>>>>>> d57e85cddc8ae90c0d9f3bb4e80be2ed4a0c84bc
+
