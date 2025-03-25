@@ -1,0 +1,47 @@
+{
+  "id": 12,
+  "category": "Каблучки",
+  "subcategory": "Печатка",
+  "name": "Золота печатка з грецьким орнаментом (арт. 180553)",
+  "slug": "zolota-pechatka-z-greckim-ornamentom-art-180553",
+  "ean_13": null,
+  "sku": "SKU-DFD313F0",
+  "article": "PR00002",
+  "collection": null,
+  "statuses": "Каблучки",
+  "year_collection": 2024,
+  "occasions": [],
+  "design": null,
+  "subproducts": [
+      {
+          "id": 10,
+          "parent_product": "Золота печатка з грецьким орнаментом (арт. 180553)",
+          "position": 1,
+          "ean_13": null,
+          "sku": "SKU-79BB239C",
+          "article": "SBPR00002",
+          "weight": 4.91,
+          "price": "48000.00",
+          "size": 18.5,
+          "length": null,
+          "width": null
+      },
+      {
+          "id": 11,
+          "parent_product": "Золота печатка з грецьким орнаментом (арт. 180553)",
+          "position": 2,
+          "ean_13": null,
+          "sku": "SKU-56ABF290",
+          "article": "SBPR00003",
+          "weight": 5.02,
+          "price": "37650.00",
+          "size": 22.0,
+          "length": null,
+          "width": null
+      }
+  ],
+  "images": [
+      "http://dtftiyeso-res.cloudinary.com/image/upload/v1742383771/i0sprs2ftyv5zmoyzbm6.png"
+  ],
+  "certificates": []
+}

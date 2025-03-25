@@ -1,0 +1,100 @@
+[
+    {
+        "id": 13,
+        "category": "Ланцюжок",
+        "subcategory": "Ланцюжок",
+        "name": "Ланцюжок з червоного золота Якірного плетіння (арт. ц306243)",
+        "slug": "lancyuzhok-z-chervonogo-zolota-yakirnogo-pletinnya-art-c306243",
+        "ean_13": null,
+        "sku": "SKU-581CE021",
+        "article": "PR00003",
+        "statuses": "Ланцюжок",
+        "collection": null,
+        "occasions": [],
+        "subproducts": [],
+        "images": [
+            "http://dtftiyeso-res.cloudinary.com/image/upload/v1742413274/xn5ajl0wkymjmog1mpxc.png"
+        ],
+        "certificates": [],
+        "design": null
+    },
+    {
+        "id": 12,
+        "category": "Каблучки",
+        "subcategory": "Печатка",
+        "name": "Золота печатка з грецьким орнаментом (арт. 180553)",
+        "slug": "zolota-pechatka-z-greckim-ornamentom-art-180553",
+        "ean_13": null,
+        "sku": "SKU-DFD313F0",
+        "article": "PR00002",
+        "statuses": "Каблучки",
+        "collection": null,
+        "occasions": [],
+        "subproducts": [
+            {
+                "id": 10,
+                "parent_product": "Золота печатка з грецьким орнаментом (арт. 180553)",
+                "position": 1,
+                "ean_13": null,
+                "sku": "SKU-79BB239C",
+                "article": "SBPR00002",
+                "weight": 4.91,
+                "price": "48000.00",
+                "size": 18.5,
+                "length": null,
+                "width": null
+            },
+            {
+                "id": 11,
+                "parent_product": "Золота печатка з грецьким орнаментом (арт. 180553)",
+                "position": 2,
+                "ean_13": null,
+                "sku": "SKU-56ABF290",
+                "article": "SBPR00003",
+                "weight": 5.02,
+                "price": "37650.00",
+                "size": 22.0,
+                "length": null,
+                "width": null
+            }
+        ],
+        "images": [
+            "http://dtftiyeso-res.cloudinary.com/image/upload/v1742383771/i0sprs2ftyv5zmoyzbm6.png"
+        ],
+        "certificates": [],
+        "design": null
+    },
+    {
+        "id": 8,
+        "category": "Каблучки",
+        "subcategory": "Каблучка",
+        "name": "Каблучка з червоного золота з діамантом (арт. К01109604036)",
+        "slug": "kabluchka-z-chervonogo-zolota-z-diamantom-art-k01109604036",
+        "ean_13": null,
+        "sku": "SKU-188C989D",
+        "article": "PR00001",
+        "statuses": "Каблучки",
+        "collection": 1,
+        "occasions": [],
+        "subproducts": [
+            {
+                "id": 9,
+                "parent_product": "Каблучка з червоного золота з діамантом (арт. К01109604036)",
+                "position": 1,
+                "ean_13": null,
+                "sku": "SKU-86311C87",
+                "article": "SBPR00001",
+                "weight": 2.71,
+                "price": "284000.00",
+                "size": 16.5,
+                "length": null,
+                "width": null
+            }
+        ],
+        "images": [
+            "http://dtftiyeso-res.cloudinary.com/image/upload/v1742382017/pfkw9mnwveen60m76yky.png"
+        ],
+        "certificates": [],
+        "design": null
+    }
+]

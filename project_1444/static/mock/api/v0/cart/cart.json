@@ -1,0 +1,45 @@
+{
+  "carts": [
+    {
+      "id": 9,
+      "user": 1,
+      "username": "admin",
+      "product": 11,
+      "product_name": "Золота печатка з грецьким орнаментом (арт. 180553)",
+      "quantity": 3,
+      "total_price": 112950,
+      "created_timestamp": "2025-03-21T15:50:48.096850+02:00"
+    },
+    {
+      "id": 10,
+      "user": 1,
+      "username": "admin",
+      "product": 9,
+      "product_name": "Каблучка з червоного золота з діамантом (арт. К01109604036)",
+      "quantity": 4,
+      "total_price": 1136000,
+      "created_timestamp": "2025-03-21T15:51:39.162488+02:00"
+    },
+    {
+      "id": 11,
+      "user": 1,
+      "username": "admin",
+      "product": 12,
+      "product_name": "Ланцюжок з червоного золота Якірного плетіння (арт. ц306243)",
+      "quantity": 2,
+      "total_price": 639150,
+      "created_timestamp": "2025-03-21T22:08:31.543968+02:00"
+    },
+    {
+      "id": 12,
+      "user": 1,
+      "username": "admin",
+      "product": 12,
+      "product_name": "Ланцюжок з червоного золота Якірного плетіння (арт. ц306243)",
+      "quantity": 10,
+      "total_price": 3195750,
+      "created_timestamp": "2025-03-22T15:49:44.460865+02:00"
+    }
+  ],
+  "total_sum_carts": 5083850
+}

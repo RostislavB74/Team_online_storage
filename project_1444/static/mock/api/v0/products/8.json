@@ -1,0 +1,34 @@
+{
+    "id": 8,
+    "category": "Каблучки",
+    "subcategory": "Каблучка",
+    "name": "Каблучка з червоного золота з діамантом (арт. К01109604036)",
+    "slug": "kabluchka-z-chervonogo-zolota-z-diamantom-art-k01109604036",
+    "ean_13": null,
+    "sku": "SKU-188C989D",
+    "article": "PR00001",
+    "collection": "Каблучка з червоного золота з діамантом (арт. К01109604036)",
+    "statuses": "Каблучки",
+    "year_collection": 2024,
+    "occasions": [],
+    "design": null,
+    "subproducts": [
+        {
+            "id": 9,
+            "parent_product": "Каблучка з червоного золота з діамантом (арт. К01109604036)",
+            "position": 1,
+            "ean_13": null,
+            "sku": "SKU-86311C87",
+            "article": "SBPR00001",
+            "weight": 2.71,
+            "price": "284000.00",
+            "size": 16.5,
+            "length": null,
+            "width": null
+        }
+    ],
+    "images": [
+        "http://dtftiyeso-res.cloudinary.com/image/upload/v1742382017/pfkw9mnwveen60m76yky.png"
+    ],
+    "certificates": []
+}

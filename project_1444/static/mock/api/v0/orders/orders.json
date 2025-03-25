@@ -1,0 +1,15 @@
+[
+    {
+        "id": 1,
+        "user": 1,
+        "items": [],
+        "payment_method": "cash",
+        "delivery_method": "pickup",
+        "recipient_name": null,
+        "recipient_phone": null,
+        "coupon": null,
+        "discount": "0.00",
+        "status": "new",
+        "call_me": false
+    }
+]
