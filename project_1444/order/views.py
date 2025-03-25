@@ -9,21 +9,29 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Order, OrderItem
-from .serializers import OrderSerializer, OrderItemSerializer
+from .serializers import OrderSerializer, OrderItemSerializer, HealthCheckSerializer, VersionSerializer
 
 
 from cart.models import Cart
 from product.models import Product
 
+from django.conf import settings
+from drf_spectacular.utils import extend_schema
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import HealthCheckSerializer, VersionSerializer
 
 @extend_schema(tags=["api"])
 class HealthCheckView(APIView):
+    serializer_class = HealthCheckSerializer  # Додаємо серіалізатор
+
     def get(self, request):
         return Response({"status": "ok"})
 
-
 @extend_schema(tags=["api"])
 class VersionView(APIView):
+    serializer_class = VersionSerializer  # Додаємо серіалізатор
+
     def get(self, request):
         return Response(
             {"git_version": settings.GIT_VERSION, "version": settings.VERSION}

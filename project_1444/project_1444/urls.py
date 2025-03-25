@@ -35,8 +35,11 @@ from product.views import (
 )
 from product.views import RingSizeLookup
 
+from .views import ApiRootView
+
 
 urlpatterns = [
+    path("api/", ApiRootView.as_view(), name="api-root"),
     path("admin/", admin.site.urls),
     path("api/v0/", include("mock.urls")),
     path("api/v1/", include("order.urls")),
