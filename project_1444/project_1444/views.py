@@ -1,11 +1,14 @@
 import requests
 from django.core.cache import cache
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from drf_spectacular.views import SpectacularAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import serializers
 from rest_framework.test import APIRequestFactory
+
 
 import logging
 
@@ -19,6 +22,7 @@ class ApiSchemaSerializer(serializers.Serializer):
 class ApiRootView(APIView):
     serializer_class = ApiSchemaSerializer
 
+    @method_decorator(cache_page(30 * 60, key_prefix="api_root"))  # 30 min
     def get(self, request, *args, **kwargs):
         factory = APIRequestFactory()
         try:
