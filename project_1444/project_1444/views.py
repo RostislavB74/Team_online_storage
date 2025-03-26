@@ -17,8 +17,8 @@ class ApiRootView(APIView):
 
     def get(self, request, *args, **kwargs):
         # schema_url = request.build_absolute_uri("/api/schema/?format=json")
-        # server_addr = request.META.get("SERVER_NAME", "127.0.0.1")
-        server_addr = "localhost"
+        server_addr = request.META.get("SERVER_NAME", "127.0.0.1")
+        # server_addr = "localhost"
         server_port = request.META.get("SERVER_PORT", "8000")
         schema_domain = f"http://{server_addr}:{server_port}"
         schema_url = f"{schema_domain}/api/schema/?format=json"
