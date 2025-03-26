@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
@@ -31,7 +32,7 @@ from product.views import (
     CategoriesAPIDetail,
     ProductAPIDetail,
     SubProductsSizesViewSet,
-    TotalProductsViewSet
+    TotalProductsViewSet,
 )
 from product.views import RingSizeLookup
 
@@ -48,12 +49,14 @@ urlpatterns = [
     path("api/v1/auth/", include("rest_framework.urls")),
     path("api/v1/products/", ProductAPIList.as_view()),
     path("api/v1/product/<int:pk>/", ProductAPIDetail.as_view()),
-    path("api/v1/all-products/<int:pk>/", TotalProductsViewSet.as_view({"get":"retrieve"})),
+    path(
+        "api/v1/all-products/<int:pk>/",
+        TotalProductsViewSet.as_view({"get": "retrieve"}),
+    ),
     path("api/v1/categories/", CategoriesAPIList.as_view()),
     path("api/v1/categories/<int:pk>/", CategoriesAPIDetail.as_view()),
     path("api/v1/subproducts/", SubProductsSizesViewSet.as_view({"get": "list"})),
     path("api/v1/ring-size/", RingSizeLookup.as_view(), name="ring-size-lookup"),
-
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),  # JSON схема API
     path(
         "api/docs/",
@@ -64,6 +67,24 @@ urlpatterns = [
         "api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
     ),  # ReDoc
 ]
+
+if settings.STATIC_URL:
+    # Redirect other static files (favicon.ico, robots.txt)
+    other_static_files = [
+        "favicon.ico",
+        "robots.txt",
+    ]
+    for file in other_static_files:
+        if settings.STATIC_ROOT.joinpath(file).exists():
+            urlpatterns.append(
+                path(
+                    file,
+                    RedirectView.as_view(
+                        url=f"{settings.STATIC_URL}{file}", permanent=True
+                    ),
+                )
+            )
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
