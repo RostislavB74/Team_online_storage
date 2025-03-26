@@ -356,5 +356,22 @@ GIT_VERSION = env("GIT_VERSION", default="Version is unknown")
 VERSION = env("VERSION", default=__version__)
 CACHE_HEADERS_ENABLED = env("CACHE_HEADERS_ENABLED", default=False, cast=bool)
 
+REDIS_URL = env("REDIS_URL", default=None)
+
+if REDIS_URL:
+    import redis
+
+    try:
+        r = redis.Redis.from_url(REDIS_URL)
+        r.ping()
+        CACHES = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": REDIS_URL,
+            }
+        }
+    except redis.ConnectionError as e:
+        print(f"Can't connect to Redis {REDIS_URL}, skip of use Redis: {e}")
+
 
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")
