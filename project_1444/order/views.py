@@ -10,12 +10,17 @@ from rest_framework.views import APIView
 
 from .models import Order, OrderItem
 from .serializers import OrderSerializer, OrderItemSerializer, HealthCheckSerializer, VersionSerializer
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.db import transaction
+from order.models import Order, OrderItem
+from .serializers import OrderSerializer
+from drf_spectacular.utils import extend_schema
 
 from cart.models import Cart
 from product.models import Product
 
-from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -38,51 +43,110 @@ class VersionView(APIView):
         )
 
 
+
+
 @extend_schema(tags=["Order API"])
 class CreateOrderFromCartView(APIView):
-    serializer_class = OrderSerializer  # Додай serializer_class
+    @extend_schema(
+        request=OrderSerializer,
+        responses={201: OrderSerializer},
+        description="Створити замовлення з корзини користувача"
+    )
+    def post(self, request, *args, **kwargs):
+        user = request.user if request.user.is_authenticated else None
+        session_key = request.session.session_key if not user else None
 
-    def post(self, request):
-        user = request.user
-        try:
-            cart = Cart.objects.get(user=user)
-            cart_items = CartItem.objects.filter(cart=cart)
+        # Отримуємо корзину
+        if user:
+            cart_items = Cart.objects.filter(user=user)
+        else:
+            if not session_key:
+                return Response({"error": "Сесія не знайдена"}, status=status.HTTP_400_BAD_REQUEST)
+            cart_items = Cart.objects.filter(session_key=session_key)
 
-            # Підготовка даних для нового замовлення
-            order_data = {
-                "user": user.id,
-                # Додайте інші поля, які мають бути заповнені або мають значення за замовчуванням
-                "items": [
-                    {
-                        "product": item.product_id,
-                        "quantity": item.quantity,
-                        "total_price": item.total_price,
-                    }
-                    for item in cart_items
-                ],
-                # Початкова ціна без урахування знижок
-            }
+        if not cart_items.exists():
+            return Response({"error": "Корзина порожня"}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Додаткові дані можуть бути передані в запиті
-            order_data.update(request.data)
+        # Дані для замовлення з POST-запиту
+        order_data = {
+            "user": user,
+            "payment_method": request.data.get("payment_method", "cash"),
+            "delivery_method": request.data.get("delivery_method", "pickup"),
+            "recipient_name": request.data.get("recipient_name"),
+            "recipient_phone": request.data.get("recipient_phone"),
+            "coupon": request.data.get("coupon"),
+            "call_me": request.data.get("call_me", False),
+        }
 
-            serializer = OrderSerializer(data=order_data)
-            if serializer.is_valid():
-                order = serializer.save()
+        # Створюємо замовлення в транзакції
+        with transaction.atomic():
+            order = Order.objects.create(**order_data)
 
-                # Очистити корзину після створення замовлення
-                cart_items.delete()
+            # Переносимо товари з корзини в OrderItem
+            for cart_item in cart_items:
+                product = cart_item.product.parent_product  # Отримуємо батьківський продукт
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=cart_item.quantity,
+                    product_price=cart_item.product.price,
+                    total_price=cart_item.products_price()  # Використовуємо обчислену ціну з Cart
+                )
 
-                # Резервування товарів на складах (псевдокод)
-                # for item in order.items.all():
-                #     item.product.reserve_stock(item.quantity)
+            # Оновлюємо total_price
+            order.calculate_total()
 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Cart.DoesNotExist:
-            return Response(
-                {"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            # Очищаємо корзину
+            cart_items.delete()
+
+        # Повертаємо серіалізоване замовлення
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+# @extend_schema(tags=["Order API"])
+# class CreateOrderFromCartView(APIView):
+#     serializer_class = OrderSerializer  # Додай serializer_class
+
+#     def post(self, request):
+#         user = request.user
+#         try:
+#             cart = Cart.objects.get(user=user)
+#             cart_items = CartItem.objects.filter(cart=cart)
+
+#             # Підготовка даних для нового замовлення
+#             order_data = {
+#                 "user": user.id,
+#                 # Додайте інші поля, які мають бути заповнені або мають значення за замовчуванням
+#                 "items": [
+#                     {
+#                         "product": item.product_id,
+#                         "quantity": item.quantity,
+#                         "total_price": item.total_price,
+#                     }
+#                     for item in cart_items
+#                 ],
+#                 # Початкова ціна без урахування знижок
+#             }
+
+#             # Додаткові дані можуть бути передані в запиті
+#             order_data.update(request.data)
+
+#             serializer = OrderSerializer(data=order_data)
+#             if serializer.is_valid():
+#                 order = serializer.save()
+
+#                 # Очистити корзину після створення замовлення
+#                 cart_items.delete()
+
+#                 # Резервування товарів на складах (псевдокод)
+#                 # for item in order.items.all():
+#                 #     item.product.reserve_stock(item.quantity)
+
+#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         except Cart.DoesNotExist:
+#             return Response(
+#                 {"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND
+#             )
 
 
 @extend_schema(tags=["Order API"])
