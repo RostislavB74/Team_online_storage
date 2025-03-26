@@ -28,7 +28,7 @@ phonenumbers = "^8.13.54"
 django-ipware = "^7.0.1"
 django-crontab = "^0.7.1"
 celery = "^5.4.0"
-redis = "^5.2.1"
+redis = {extras = ["hiredis"], version = "^5.2.1"}
 django-celery-beat = "^2.7.0"
 ipython = "^8.32.0"
 djoser = "^2.3.1"
