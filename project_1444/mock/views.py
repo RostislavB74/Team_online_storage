@@ -19,10 +19,8 @@ class MockViewApiV0(View):
             else:
                 request_path = Path(request.path.strip("/"))
                 if request.GET:
-                    query_str = urllib.parse.quote(
-                        "&".join([f"{k}={v}" for k, v in request.GET.items()]), safe=""
-                    )
-                    request_path = str(Path(request_path) / f"%3F{query_str}")
+                    query_str = "&".join([f"{k}={v}" for k, v in request.GET.items()])
+                    request_path = str(Path(request_path) / f"{query_str}")
                 request_path = Path(request_path).with_suffix(".json")
 
             # Security check. Check if inside, if wrong then exception
