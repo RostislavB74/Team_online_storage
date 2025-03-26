@@ -1,10 +1,12 @@
-import os
-
 import requests
 from django.core.cache import cache
+from django.urls import reverse
+from drf_spectacular.views import SpectacularAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import serializers
+from rest_framework.test import APIRequestFactory
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,31 +22,38 @@ class ApiRootView(APIView):
     def get(self, request, *args, **kwargs):
         # schema_url = request.build_absolute_uri("/api/schema/?format=json")
         # server_addr = request.META.get("SERVER_NAME", "127.0.0.1")
-        server_addr = os.environ.get(
-            "RENDER_DISCOVERY_SERVICE", request.get_host().split(":")[0]
-        )
-        # server_addr = request.get_host().split(":")[0]
-        server_port = request.META.get("SERVER_PORT", "8000")
-        schema_domain = f"http://{server_addr}:{server_port}"
-        schema_url = f"{schema_domain}/api/schema/?format=json"
+        # server_addr = os.environ.get(
+        #     "RENDER_DISCOVERY_SERVICE", request.get_host().split(":")[0]
+        # )
+        # # server_addr = request.get_host().split(":")[0]
+        # server_port = request.META.get("SERVER_PORT", "8000")
+        # schema_domain = f"http://{server_addr}:{server_port}"
+        # schema_url = f"{schema_domain}/api/schema/?format=json"
+        factory = APIRequestFactory()
         try:
-            schema_response = requests.get(schema_url, timeout=5)
-            schema_response.raise_for_status()
+            # schema_response = requests.get(schema_url, timeout=5)
+            # schema_response.raise_for_status()
+
+            request = factory.get(reverse("schema"))
+            view = SpectacularAPIView.as_view()
+            response = view(request)
+            response.render()
+            schema_response = response.content.decode("utf-8")
         except requests.RequestException as e:
             return Response(
                 {"error": f"Не вдалося отримати API-схему: {str(e)}"}, status=500
             )
 
-        if not schema_response.text.strip():
+        if not schema_response.strip():
             return Response(
-                {"error": "Схема порожня", "content": schema_response.text}, status=500
+                {"error": "Схема порожня", "content": schema_response}, status=500
             )
 
         try:
-            schema = schema_response.json()
+            schema = response.data
         except ValueError as e:
             return Response(
-                {"error": "Некоректна API-схема", "content": schema_response.text},
+                {"error": "Некоректна API-схема", "content": schema_response},
                 status=500,
             )
 

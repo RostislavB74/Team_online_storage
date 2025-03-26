@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+
 from django.utils.translation import gettext_lazy as _
 import zoneinfo
 
@@ -58,6 +59,8 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=None)
 if not ALLOWED_HOSTS:
     ALLOWED_HOSTS = ["*"]
 
+ALLOWED_HOSTS.append("testserver")
+
 print(f"{ALLOWED_HOSTS=}")
 
 
@@ -103,7 +106,7 @@ for lang in GLOBAL_LANGUAGES:
 
 
 MIDDLEWARE = [
-    'django.middleware.locale.LocaleMiddleware', 
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -186,22 +189,19 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 
-
 LANGUAGES = [
-    ('en', _('English')),
-    ('uk', _('Ukrainian')),
+    ("en", _("English")),
+    ("uk", _("Ukrainian")),
 ]
 
 LOCALE_PATHS = [
-    BASE_DIR / 'locale',
+    BASE_DIR / "locale",
 ]
 LANGUAGE_CODE = "uk"
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 TIME_ZONE = "Europe/Kyiv"
-
-
 
 
 # print([zone for zone in zoneinfo.available_timezones() if zone.startswith("Europe/K")])
