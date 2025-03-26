@@ -5,35 +5,51 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from drf_spectacular.utils import extend_schema_field
 
-class HealthCheckSerializer(serializers.Serializer):
-    status = serializers.CharField(max_length=10)
 
-class VersionSerializer(serializers.Serializer):
-    git_version = serializers.CharField(max_length=50)
-    version = serializers.CharField(max_length=50)
 from rest_framework import serializers
 from order.models import Order, OrderItem
 from product.models import Product
 from discounts.models import PriceHistory
 
+
 class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
-    
+
     class Meta:
         model = OrderItem
-        fields = ["id", "product", "product_name", "quantity", "product_price", "total_price"]
+        fields = [
+            "id",
+            "product",
+            "product_name",
+            "quantity",
+            "product_price",
+            "total_price",
+        ]
+
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
-    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    total_price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, read_only=True
+    )
 
     class Meta:
         model = Order
         fields = [
-            "id", "user", "created_at", "updated_at", "total_price",
-            "payment_method", "delivery_method", "recipient_name",
-            "recipient_phone", "coupon", "discount", "status", "call_me",
-            "items"
+            "id",
+            "user",
+            "created_at",
+            "updated_at",
+            "total_price",
+            "payment_method",
+            "delivery_method",
+            "recipient_name",
+            "recipient_phone",
+            "coupon",
+            "discount",
+            "status",
+            "call_me",
+            "items",
         ]
 
     def create(self, validated_data):
@@ -41,6 +57,8 @@ class OrderSerializer(serializers.ModelSerializer):
             order = Order.objects.create(**validated_data)
             # Тут потрібно додати логіку для створення OrderItem із Cart
             return order
+
+
 # class OrderItemSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = OrderItem

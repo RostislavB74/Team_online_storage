@@ -6,9 +6,16 @@ from drf_spectacular.utils import extend_schema
 from .models import Order, OrderItem
 from rest_framework.views import APIView
 from cart.models import Cart
-from .serializers import OrderSerializer, OrderItemSerializer, HealthCheckSerializer, VersionSerializer
+from .serializers import OrderSerializer, OrderItemSerializer
 
-from discounts.models import PromoCode, Coupon, BirthdayDiscount, PersonalDiscount, ProductDiscount, BonusAccount
+from discounts.models import (
+    PromoCode,
+    Coupon,
+    BirthdayDiscount,
+    PersonalDiscount,
+    ProductDiscount,
+    BonusAccount,
+)
 from django.db import transaction
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -19,7 +26,14 @@ from cart.models import Cart
 
 from product.models import Product, SubProducts
 from .serializers import OrderSerializer, OrderItemSerializer
-from discounts.models import PromoCode, Coupon, BirthdayDiscount, PersonalDiscount, ProductDiscount
+from discounts.models import (
+    PromoCode,
+    Coupon,
+    BirthdayDiscount,
+    PersonalDiscount,
+    ProductDiscount,
+)
+
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -28,9 +42,9 @@ class OrderViewSet(viewsets.ModelViewSet):
     @extend_schema(
         request=OrderSerializer,
         responses={201: OrderSerializer},
-        description="Створити замовлення з корзини користувача з урахуванням знижок"
+        description="Створити замовлення з корзини користувача з урахуванням знижок",
     )
-    @action(detail=False, methods=['post'], url_path='create-from-cart')
+    @action(detail=False, methods=["post"], url_path="create-from-cart")
     def create_from_cart(self, request):
         user = request.user if request.user.is_authenticated else None
         session_key = request.session.session_key if not user else None
@@ -39,11 +53,15 @@ class OrderViewSet(viewsets.ModelViewSet):
             cart_items = Cart.objects.filter(user=user)
         else:
             if not session_key:
-                return Response({"error": "Сесія не знайдена"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "Сесія не знайдена"}, status=status.HTTP_400_BAD_REQUEST
+                )
             cart_items = Cart.objects.filter(session_key=session_key)
 
         if not cart_items.exists():
-            return Response({"error": "Корзина порожня"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Корзина порожня"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         order_data = {
             "user": user,
@@ -56,7 +74,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         }
 
         if not order_data["recipient_name"] or not order_data["recipient_phone"]:
-            return Response({"error": "Ім’я та телефон отримувача обов’язкові"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Ім’я та телефон отримувача обов’язкові"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         with transaction.atomic():
             order = Order.objects.create(**order_data)
@@ -68,19 +89,23 @@ class OrderViewSet(viewsets.ModelViewSet):
                 item_price = cart_item.product.price
                 item_total = cart_item.products_price()
 
-                discount_percentage = self.get_applicable_discount(user, product, order_data["coupon"])
+                discount_percentage = self.get_applicable_discount(
+                    user, product, order_data["coupon"]
+                )
                 if discount_percentage > 0:
                     discount_amount = item_total * (discount_percentage / 100)
                     item_total -= discount_amount
                     total_discount += discount_amount
 
-                items_data.append(OrderItem(
-                    order=order,
-                    product=product,
-                    quantity=cart_item.quantity,
-                    product_price=cart_item.product.price,
-                    total_price=item_total
-                ))
+                items_data.append(
+                    OrderItem(
+                        order=order,
+                        product=product,
+                        quantity=cart_item.quantity,
+                        product_price=cart_item.product.price,
+                        total_price=item_total,
+                    )
+                )
 
             OrderItem.objects.bulk_create(items_data)
             order.discount = total_discount
@@ -93,9 +118,9 @@ class OrderViewSet(viewsets.ModelViewSet):
     @extend_schema(
         request=OrderSerializer,
         responses={201: OrderSerializer},
-        description="Створити замовлення вручну, вказавши товари"
+        description="Створити замовлення вручну, вказавши товари",
     )
-    @action(detail=False, methods=['post'], url_path='create-manual')
+    @action(detail=False, methods=["post"], url_path="create-manual")
     def create_manual(self, request):
         user = request.user if request.user.is_authenticated else None
 
@@ -105,7 +130,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         order_data = {
             "user": user,
             "payment_method": serializer.validated_data.get("payment_method", "cash"),
-            "delivery_method": serializer.validated_data.get("delivery_method", "pickup"),
+            "delivery_method": serializer.validated_data.get(
+                "delivery_method", "pickup"
+            ),
             "recipient_name": serializer.validated_data.get("recipient_name"),
             "recipient_phone": serializer.validated_data.get("recipient_phone"),
             "coupon": serializer.validated_data.get("coupon"),
@@ -113,11 +140,17 @@ class OrderViewSet(viewsets.ModelViewSet):
         }
 
         if not order_data["recipient_name"] or not order_data["recipient_phone"]:
-            return Response({"error": "Ім’я та телефон отримувача обов’язкові"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Ім’я та телефон отримувача обов’язкові"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         manual_items = serializer.validated_data.get("manual_items", [])
         if not manual_items:
-            return Response({"error": "Потрібно вказати товари для замовлення"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Потрібно вказати товари для замовлення"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         with transaction.atomic():
             order = Order.objects.create(**order_data)
@@ -130,24 +163,31 @@ class OrderViewSet(viewsets.ModelViewSet):
                 try:
                     product = Product.objects.get(id=product_id)
                 except Product.DoesNotExist:
-                    return Response({"error": f"Товар з ID {product_id} не знайдено"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {"error": f"Товар з ID {product_id} не знайдено"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
                 item_price = product.price  # Припускаємо, що у Product є поле price
                 item_total = item_price * quantity
 
-                discount_percentage = self.get_applicable_discount(user, product, order_data["coupon"])
+                discount_percentage = self.get_applicable_discount(
+                    user, product, order_data["coupon"]
+                )
                 if discount_percentage > 0:
                     discount_amount = item_total * (discount_percentage / 100)
                     item_total -= discount_amount
                     total_discount += discount_amount
 
-                items_data.append(OrderItem(
-                    order=order,
-                    product=product,
-                    quantity=quantity,
-                    product_price=item_price,
-                    total_price=item_total
-                ))
+                items_data.append(
+                    OrderItem(
+                        order=order,
+                        product=product,
+                        quantity=quantity,
+                        product_price=item_price,
+                        total_price=item_total,
+                    )
+                )
 
             OrderItem.objects.bulk_create(items_data)
             order.discount = total_discount
@@ -162,9 +202,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         if coupon_code:
             promo = PromoCode.objects.filter(code=coupon_code).first()
             if promo and promo.is_valid():
-                if (not promo.applicable_products.exists() and not promo.applicable_categories.exists()) or \
-                   (product in promo.applicable_products.all()) or \
-                   (product.category in promo.applicable_categories.all()):
+                if (
+                    (
+                        not promo.applicable_products.exists()
+                        and not promo.applicable_categories.exists()
+                    )
+                    or (product in promo.applicable_products.all())
+                    or (product.category in promo.applicable_categories.all())
+                ):
                     max_discount = max(max_discount, promo.discount_percentage)
                     promo.use()
 
@@ -177,18 +222,29 @@ class OrderViewSet(viewsets.ModelViewSet):
             if birthday_discount and birthday_discount.is_valid():
                 max_discount = max(max_discount, birthday_discount.discount_percentage)
 
-            personal = PersonalDiscount.objects.filter(user=user, is_active=True).first()
+            personal = PersonalDiscount.objects.filter(
+                user=user, is_active=True
+            ).first()
             if personal and personal.is_valid():
-                if (not personal.applicable_products.exists() and not personal.applicable_categories.exists()) or \
-                   (product in personal.applicable_products.all()) or \
-                   (product.category in personal.applicable_categories.all()):
+                if (
+                    (
+                        not personal.applicable_products.exists()
+                        and not personal.applicable_categories.exists()
+                    )
+                    or (product in personal.applicable_products.all())
+                    or (product.category in personal.applicable_categories.all())
+                ):
                     max_discount = max(max_discount, personal.discount_percentage)
 
-        product_discount = ProductDiscount.objects.filter(product=product, is_active=True).first()
+        product_discount = ProductDiscount.objects.filter(
+            product=product, is_active=True
+        ).first()
         if product_discount and product_discount.is_valid():
             max_discount = max(max_discount, product_discount.discount_percentage)
 
         return max_discount
+
+
 # class OrderViewSet(viewsets.ModelViewSet):
 #     queryset = Order.objects.all()
 #     serializer_class = OrderSerializer
@@ -319,18 +375,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 # from django.db import transaction
 # from .models import Order, OrderItem
 # from cart.models import Cart
-
-@extend_schema(tags=["api"])
-class HealthCheckView(APIView):
-    serializer_class = HealthCheckSerializer
-    def get(self, request):
-        return Response({"status": "ok"})
-
-@extend_schema(tags=["api"])
-class VersionView(APIView):
-    serializer_class = VersionSerializer
-    def get(self, request):
-        return Response({"git_version": settings.GIT_VERSION, "version": settings.VERSION})
 
 # @extend_schema(tags=["Order API"])
 # class OrderViewSet(viewsets.ModelViewSet):
