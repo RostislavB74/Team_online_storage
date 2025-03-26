@@ -124,7 +124,7 @@ class ProductCertificateInline(admin.TabularInline):
 class ProductAttributesInline(TranslatableTabularInline):
     model = ProductAttributes
     extra = 1  
-    fields = ("gender", "color_coating","clasp_type", "coating_material", "description_coating", "design_product", "style",)
+    fields = ("gender", "color_coating","clasp_type", "coating_material", "description_coating", "style",)
     
     verbose_name = "Характеристики"
     verbose_name_plural = "Характеристики"

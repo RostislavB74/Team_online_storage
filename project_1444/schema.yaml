@@ -118,6 +118,42 @@ paths:
               schema:
                 $ref: '#/components/schemas/TotalProducts'
           description: ''
+  /api/v1/api/v1/livez/:
+    get:
+      operationId: api_v1_api_v1_livez_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+          description: ''
+  /api/v1/api/v1/version/:
+    get:
+      operationId: api_v1_api_v1_version_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+          description: ''
   /api/v1/cart/:
     get:
       operationId: api_v1_cart_list
@@ -453,53 +489,6 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/v1/create/:
-    post:
-      operationId: api_v1_create_create
-      tags:
-      - Order API
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Order'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Order'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Order'
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-          description: ''
-  /api/v1/livez/:
-    get:
-      operationId: api_v1_livez_retrieve
-      tags:
-      - api
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthCheck'
-          description: ''
   /api/v1/orders/:
     get:
       operationId: api_v1_orders_list
@@ -663,9 +652,10 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/v1/orders/create_order/:
+  /api/v1/orders/create-from-cart/:
     post:
-      operationId: api_v1_orders_create_order_create
+      operationId: api_v1_orders_create_from_cart_create
+      description: Створити замовлення з корзини користувача
       tags:
       - Order API
       requestBody:
@@ -686,7 +676,7 @@ paths:
       - cookieAuth: []
       - {}
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
@@ -1128,24 +1118,6 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/v1/version/:
-    get:
-      operationId: api_v1_version_retrieve
-      tags:
-      - api
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Version'
-          description: ''
 components:
   schemas:
     ApiSchema:
@@ -1243,10 +1215,19 @@ components:
           readOnly: true
         user:
           type: integer
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderItem'
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
           readOnly: true
         payment_method:
           $ref: '#/components/schemas/PaymentMethodEnum'
@@ -1254,8 +1235,12 @@ components:
           $ref: '#/components/schemas/DeliveryMethodEnum'
         recipient_name:
           type: string
+          nullable: true
+          maxLength: 255
         recipient_phone:
           type: string
+          nullable: true
+          maxLength: 20
         coupon:
           type: string
           nullable: true
@@ -1264,20 +1249,32 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          readOnly: true
         status:
           $ref: '#/components/schemas/StatusEnum'
         call_me:
           type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          readOnly: true
       required:
-      - discount
+      - created_at
       - id
       - items
+      - total_price
+      - updated_at
     OrderItem:
       type: object
       properties:
+        id:
+          type: integer
+          readOnly: true
         product:
           type: integer
+        product_name:
+          type: string
+          readOnly: true
         quantity:
           type: integer
           maximum: 2147483647
@@ -1291,7 +1288,9 @@ components:
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
       required:
+      - id
       - product
+      - product_name
       - product_price
       - total_price
     PatchedCart:
@@ -1349,10 +1348,19 @@ components:
           readOnly: true
         user:
           type: integer
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderItem'
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
           readOnly: true
         payment_method:
           $ref: '#/components/schemas/PaymentMethodEnum'
@@ -1360,8 +1368,12 @@ components:
           $ref: '#/components/schemas/DeliveryMethodEnum'
         recipient_name:
           type: string
+          nullable: true
+          maxLength: 255
         recipient_phone:
           type: string
+          nullable: true
+          maxLength: 20
         coupon:
           type: string
           nullable: true
@@ -1370,11 +1382,15 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          readOnly: true
         status:
           $ref: '#/components/schemas/StatusEnum'
         call_me:
           type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          readOnly: true
     PatchedProduct:
       type: object
       properties:
