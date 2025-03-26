@@ -6,27 +6,42 @@ from rest_framework import serializers
 import logging
 
 logger = logging.getLogger(__name__)
+
+
 class ApiSchemaSerializer(serializers.Serializer):
     endpoints = serializers.DictField(child=serializers.URLField())
+
 
 class ApiRootView(APIView):
     serializer_class = ApiSchemaSerializer
 
     def get(self, request, *args, **kwargs):
-        schema_url = request.build_absolute_uri("/api/schema/?format=json")
+        # schema_url = request.build_absolute_uri("/api/schema/?format=json")
+        # server_addr = request.META.get("SERVER_NAME", "127.0.0.1")
+        server_addr = "localhost"
+        server_port = request.META.get("SERVER_PORT", "8000")
+        schema_domain = f"http://{server_addr}:{server_port}"
+        schema_url = f"{schema_domain}/api/schema/?format=json"
         try:
             schema_response = requests.get(schema_url, timeout=5)
             schema_response.raise_for_status()
         except requests.RequestException as e:
-            return Response({"error": f"Не вдалося отримати API-схему: {str(e)}"}, status=500)
+            return Response(
+                {"error": f"Не вдалося отримати API-схему: {str(e)}"}, status=500
+            )
 
         if not schema_response.text.strip():
-            return Response({"error": "Схема порожня", "content": schema_response.text}, status=500)
+            return Response(
+                {"error": "Схема порожня", "content": schema_response.text}, status=500
+            )
 
         try:
             schema = schema_response.json()
         except ValueError as e:
-            return Response({"error": "Некоректна API-схема", "content": schema_response.text}, status=500)
+            return Response(
+                {"error": "Некоректна API-схема", "content": schema_response.text},
+                status=500,
+            )
 
         endpoints = {}
         for path, details in schema.get("paths", {}).items():
@@ -40,11 +55,16 @@ class ApiRootView(APIView):
                         # Приклад значення залежно від типу
                         param_type = param["schema"]["type"]
                         example_value = "12" if param_type == "integer" else "example"
-                        resolved_path = resolved_path.replace(f"{{{param_name}}}", example_value)
-                endpoints[f"{method.upper()} {path}"] = request.build_absolute_uri(resolved_path)
+                        resolved_path = resolved_path.replace(
+                            f"{{{param_name}}}", example_value
+                        )
+                endpoints[f"{method.upper()} {path}"] = request.build_absolute_uri(
+                    resolved_path
+                )
 
         serializer = ApiSchemaSerializer({"endpoints": endpoints})
         return Response(serializer.data)
+
 
 # class ApiSchemaSerializer(serializers.Serializer):
 #     endpoints = serializers.DictField(child=serializers.URLField())
