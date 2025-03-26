@@ -173,7 +173,7 @@ cython_debug/
 poetry.lock
 #
 #/project_1444/static/
-/project_1444/media/
+# /project_1444/media/
 
 
 
