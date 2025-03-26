@@ -1,12 +1,19 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import OrderViewSet, HealthCheckView, VersionView
+from .views import OrderViewSet
 
-router = DefaultRouter()
+
+class NoSlashRouter(DefaultRouter):
+    """Custom router that removes the enforced trailing slash."""
+
+    trailing_slash = ""
+
+
+router = NoSlashRouter()  # Use this instead of DefaultRouter
+
+# router = DefaultRouter()
 router.register(r"orders", OrderViewSet, basename="order")
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("api/v1/livez/", HealthCheckView.as_view(), name="livez"),
-    path("api/v1/version/", VersionView.as_view(), name="version"),
 ]
