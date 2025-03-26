@@ -9,6 +9,6 @@ router.register(r'warehouse-stock', WarehouseStockViewSet)
 router.register(r'reservations', ReservationViewSet)
 
 urlpatterns = [
-    path('api/v1/', include(router.urls)),
+    path('', include(router.urls)),
 ]
 
