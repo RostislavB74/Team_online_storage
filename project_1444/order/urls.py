@@ -7,6 +7,6 @@ router.register(r"orders", OrderViewSet, basename="order")
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("api/v1/livez/", HealthCheckView.as_view(), name="livez"),
-    path("api/v1/version/", VersionView.as_view(), name="version"),
+    path("livez/", HealthCheckView.as_view(), name="livez"),
+    path("version/", VersionView.as_view(), name="version"),
 ]
