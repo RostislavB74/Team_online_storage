@@ -14,10 +14,11 @@ class VersionSerializer(serializers.Serializer):
 from rest_framework import serializers
 from order.models import Order, OrderItem
 from product.models import Product
+from discounts.models import PriceHistory
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
-
+    
     class Meta:
         model = OrderItem
         fields = ["id", "product", "product_name", "quantity", "product_price", "total_price"]
