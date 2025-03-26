@@ -20,23 +20,13 @@ class ApiRootView(APIView):
     serializer_class = ApiSchemaSerializer
 
     def get(self, request, *args, **kwargs):
-        # schema_url = request.build_absolute_uri("/api/schema/?format=json")
-        # server_addr = request.META.get("SERVER_NAME", "127.0.0.1")
-        # server_addr = os.environ.get(
-        #     "RENDER_DISCOVERY_SERVICE", request.get_host().split(":")[0]
-        # )
-        # # server_addr = request.get_host().split(":")[0]
-        # server_port = request.META.get("SERVER_PORT", "8000")
-        # schema_domain = f"http://{server_addr}:{server_port}"
-        # schema_url = f"{schema_domain}/api/schema/?format=json"
         factory = APIRequestFactory()
         try:
             # schema_response = requests.get(schema_url, timeout=5)
             # schema_response.raise_for_status()
-
-            request = factory.get(reverse("schema"))
+            request_factory = factory.get(reverse("schema"))
             view = SpectacularAPIView.as_view()
-            response = view(request)
+            response = view(request_factory)
             response.render()
             schema_response = response.content.decode("utf-8")
         except requests.RequestException as e:
