@@ -10,11 +10,6 @@
   "GET /api/v0/product/13": "/api/v0/product/13",
   "GET /api/v0/product/12": "/api/v0/product/12",
   "GET /api/v0/product/8": "/api/v0/product/8",
-  "GET /api/v0/products/": "/api/v0/products/",
-  "GET /api/v0/products/13": "/api/v0/products/13",
-  "GET /api/v0/products/12": "/api/v0/products/12",
-  "GET /api/v0/products/8": "/api/v0/products/8",
-  "GET /api/v0/products/8": "/api/v0/products/8",
   "GET /api/v0/ring-size/": "/api/v0/ring-size/",
   "GET /api/v0/ring-size/?circumference=60": "/api/v0/ring-size/?circumference=60"
 }
