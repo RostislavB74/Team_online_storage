@@ -82,7 +82,18 @@ class Collections(TranslatableModel):
     class Meta:
         verbose_name = 'Колекція'
         verbose_name_plural = 'Колекції'
+class Weaving(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(max_length=255, unique=True, verbose_name='Weaving'),
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+    )
 
+    def save(self, *args, **kwargs):
+        save_with_translation(self, *args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Плетіння'
+        verbose_name_plural = 'Плетіння'
 class Designs(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, verbose_name='Designs'),
@@ -254,6 +265,8 @@ class SubProducts(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     length = models.FloatField(null=True, blank=True, verbose_name="Довжина (см)")
+    # min_length = models.FloatField(null=True, blank=True, verbose_name="Довжина (см)")
+    max_length = models.FloatField(null=True, blank=True, verbose_name="Макс. довжина (см)")
     width = models.FloatField(null=True, blank=True, verbose_name="Ширина (см)")
     size = models.FloatField(null=True, blank=True, verbose_name="Розмір(мм) ")
     weight = models.FloatField(null=True, blank=True, verbose_name="Вага (г)")
@@ -270,7 +283,13 @@ class SubProducts(models.Model):
             self.diameter = None
         if not self.category.has_weight:
             self.weight = None
-
+    def get_length_display(self):
+        """Формує правильне відображення довжини"""
+        if self.length and self.max_length:
+            return f"{self.length}-{self.max_length} см"
+        elif self.length:
+            return f"{self.length} см"
+        return "Невідомо"
     def save(self, *args, **kwargs):
         """Автоматично встановлює порядковий номер для кожного продукту."""
         if not self.pk:  # Якщо створюється новий запис
@@ -318,12 +337,13 @@ class ProductAttributes(TranslatableModel):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="attributes")
     gender = models.CharField('Gender', max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
     color_coating=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
+    weaving_type=models.ForeignKey('Weaving', on_delete=models.SET_NULL,null=True,blank=True),
     # statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="status")
     translations = TranslatedFields(
         clasp_type = models.CharField(max_length=255, blank=True, null=True),
         coating_material = models.CharField(max_length=255, blank=True, null=True),
         description_coating = models.CharField(max_length=255, blank=True, null=True),
-       
+        
         style = models.CharField(max_length=255, blank=True, null=True),
     )
    
@@ -394,11 +414,13 @@ class ProductImage(models.Model):
 
 class ProductCertificate(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='certificates')
-    file = models.FileField(upload_to='product_certificates/')
+    file = CloudinaryField("file")  # Змінюємо на CloudinaryField
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
     class Meta: 
         verbose_name = 'Сертифікат продукції'
         verbose_name_plural = 'Сертифікати продукцій'
+
     def __str__(self):
         return f"{self.product.article} - Certificate"
 

@@ -3,6 +3,14 @@ from typing import List  # Для типу List[str]
 from drf_spectacular.utils import extend_schema_field
 from .models import *
 
+class ProductGemstoneSerializer:
+    status_display=serializers.CharField(source='get_sratus_display', read_only=True)
+    parent_product = serializers.CharField(source='parent_product.name', read_only=True)
+    gemstone = serializers.CharField(source='gemstone.name', read_only=True)
+    color = serializers.CharField(source='colors.name', read_only=True)
+    class Meta:
+        model = ProductGemstone
+        fields=['id','parent_product','status_display', 'gender', 'weaving_type', ]
 class CategoriesSerializer(serializers.ModelSerializer):
     name=serializers.SerializerMethodField()
     slug=serializers.SerializerMethodField()
@@ -23,15 +31,36 @@ class ProductStatusSerializer(serializers.ModelSerializer):
         model = ProductStatus
         fields = ['id', 'name', 'slug']
 
+class ProductAttributesSerializer(serializers.ModelSerializer):
+    status_display=serializers.CharField(source='get_sratus_display', read_only=True)
+    parent_product = serializers.CharField(source='parent_product.name', read_only=True)
+    clasp_type=serializers.SerializerMethodField()
+    coating_material=serializers.SerializerMethodField()
+    description_coating=serializers.SerializerMethodField()
+    class Meta:
+        models=ProductAttributes
+        fields=['id','parent_product','status_display', 'gender', 'weaving_type', 'clasp_type','coating_material','description_coating' ]
+
+    @extend_schema_field(str)
+    def get_clasp_type(self, obj):
+        return obj.clasp_type.safe_translation_getter('name', default='Без назви') if obj.clasp_type else None
+    @extend_schema_field(str)
+    def get_coating_material(self, obj):
+        return obj.coating_material.safe_translation_getter('name', default='Без назви') if obj.coating_material else None
+    @extend_schema_field(str)
+    def get_description_coating(self, obj):
+        return obj.description_coating.safe_translation_getter('name', default='Без назви') if obj.description_coating else None
+
 class SubProductsSizesSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     parent_product = serializers.CharField(source='parent_product.name', read_only=True)
+    
 
     class Meta:
         model = SubProducts
         fields = [
-            'id','parent_product','position', 'ean_13', 'sku', 'article','weight' , 'price',  'status_display',
-            'size','length','width'
+            'id','parent_product','position', 'ean_13', 'sku', 'article','weight' , 'price','discount_percentage', 'new_price', 'old_price' , 'status_display',
+            'size','length','max_length' ,'width'
         ]
     
 class SubCategoriesSerializer(serializers.ModelSerializer):
@@ -39,16 +68,34 @@ class SubCategoriesSerializer(serializers.ModelSerializer):
         model = SubCategories
         fields = ['id', 'name', 'slug', 'category','uploaded_at']
 
-
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductImage
-        fields = ['id', 'image', 'uploaded_at']
+        fields = ["id", "image", "uploaded_at"]
+
+    def get_image(self, obj):
+        if obj.image:
+            # Примусово формуємо правильний URL
+            public_id = str(obj.image)  # Отримуємо public_id (msadf0szr5dhc7ght0cc)
+            return f"https://res.cloudinary.com/dtftiyeso/image/upload/{public_id}.png"
+        return None
+
 
 class ProductCertificateSerializer(serializers.ModelSerializer):
+    file = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductCertificate
-        fields = ['id', 'file', 'uploaded_at']
+        fields = ["id", "file", "uploaded_at"]
+
+    def get_file(self, obj):
+        if obj.file:
+            # Примусово формуємо правильний URL
+            public_id = str(obj.file)  # Отримуємо public_id (msadf0szr5dhc7ght0cc)
+            return f"https://res.cloudinary.com/dtftiyeso/file/upload/{public_id}.png"
+        return None
 
 class ProductSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
@@ -106,12 +153,6 @@ class RingSizeSerializer(serializers.Serializer):
     ring_size = serializers.FloatField(help_text="Розмір кільця за стандартом")
 
 
-from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_field
-from .models import Product, Categories, SubCategories, ProductStatus
-
-from rest_framework import serializers
-from .models import Product, Categories, SubCategories, ProductStatus
 
 class TotalProductsSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
@@ -158,96 +199,3 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     def get_certificates(self, obj):
         request = self.context.get('request')
         return [request.build_absolute_uri(cert.file.url) for cert in obj.certificates.all()] if request else [cert.file.url for cert in obj.certificates.all()]
-# class TotalProductsSerializer(serializers.ModelSerializer):
-#     images = serializers.SerializerMethodField()
-#     certificates = serializers.SerializerMethodField()
-#     statuses = serializers.SlugRelatedField(
-#         many=True, queryset=ProductStatus.objects.all(), slug_field="name"
-#     )
-#     category = serializers.SerializerMethodField()
-#     subcategory = serializers.SerializerMethodField()
-#     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
-
-#     class Meta:
-#         model = Product
-#         fields = [
-#             "id", "category", "subcategory", "name", "slug", "ean_13", "sku", "article", "statuses",
-#             "collection", "occasions", "subproducts", "images", "certificates"
-#         ]
-
-#     def to_representation(self, instance):
-#         representation = super().to_representation(instance)
-#         # Обробка перекладених полів моделі Product
-#         representation['name'] = instance.safe_translation_getter('name', default='Без назви')
-#         representation['slug'] = instance.safe_translation_getter('slug', default=None)
-#         # Обробка перекладених полів пов’язаних моделей
-#         representation['category'] = (
-#             instance.category.safe_translation_getter('name', default='Без назви')
-#             if instance.category
-#             else None
-#         )
-#         representation['subcategory'] = (
-#             instance.subcategory.safe_translation_getter('name', default='Без назви')
-#             if instance.subcategory
-#             else None
-#         )
-#         return representation
-
-#     def get_images(self, obj):
-#         request = self.context.get('request')
-#         return [request.build_absolute_uri(img.image.url) for img in obj.images.all()] if request else [img.image.url for img in obj.images.all()]
-
-#     def get_certificates(self, obj):
-#         request = self.context.get('request')
-#         return [request.build_absolute_uri(cert.file.url) for cert in obj.certificates.all()] if request else [cert.file.url for cert in obj.certificates.all()]
-
-#     # Додаємо методи для category і subcategory, щоб уникнути конфліктів із Meta.fields
-#     @extend_schema_field(str)
-#     def get_category(self, obj):
-#         return obj.category.safe_translation_getter('name', default='Без назви') if obj.category else None
-
-#     @extend_schema_field(str)
-#     def get_subcategory(self, obj):
-#         return obj.subcategory.safe_translation_getter('name', default='Без назви') if obj.subcategory else None
-# class TotalProductsSerializer(serializers.ModelSerializer):
-#     images = serializers.SerializerMethodField()
-#     certificates = serializers.SerializerMethodField()
-#     statuses = serializers.SlugRelatedField(
-#         many=True, queryset=ProductStatus.objects.all(), slug_field="name"
-#     )
-#     category = serializers.SerializerMethodField()
-#     subcategory = serializers.SerializerMethodField()
-#     name = serializers.SlugRelatedField(many=False, queryset=Product.objects.all(), slug_field="name_property")  # Додаємо для name
-#     slug = serializers.SlugRelatedField(many=False, queryset=Product.objects.all(), slug_field="slug_property")
-#     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
-
-#     class Meta:
-#         model = Product
-#         fields = [
-#             "id", "category", "subcategory", "name", "slug", "ean_13", "sku", "article", "statuses",
-#             "collection", "occasions", "subproducts", "images", "certificates"
-#         ]
-
-#     @extend_schema_field(str)
-#     def get_name(self, obj):
-#         return obj.safe_translation_getter('name', default='Без назви')
-
-#     @extend_schema_field(str)
-#     def get_slug(self, obj):
-#         return obj.safe_translation_getter('slug', default=None)
-
-#     @extend_schema_field(str)
-#     def get_category(self, obj):
-#         return obj.category.safe_translation_getter('name', default='Без назви') if obj.category else None
-
-#     @extend_schema_field(str)
-#     def get_subcategory(self, obj):
-#         return obj.subcategory.safe_translation_getter('name', default='Без назви') if obj.subcategory else None
-
-#     def get_images(self, obj):
-#         request = self.context.get('request')
-#         return [request.build_absolute_uri(img.image.url) for img in obj.images.all()] if request else [img.image.url for img in obj.images.all()]
-
-#     def get_certificates(self, obj):
-#         request = self.context.get('request')
-#         return [request.build_absolute_uri(cert.file.url) for cert in obj.certificates.all()] if request else [cert.file.url for cert in obj.certificates.all()]

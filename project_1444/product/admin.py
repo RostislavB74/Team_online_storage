@@ -145,14 +145,14 @@ class ProductMaterialInline(admin.TabularInline):
 # Налаштування для товару
 @admin.register(SubProducts)
 class SubProductsAdmin(admin.ModelAdmin):
-    list_display = ('article', 'sku', 'id', 'parent_product', 'ean_13', 'size','weight', 'length', 'width', 'size', 'price','discount_percentage', 'new_price', 'old_price', 'created_by', 'created_at', 'updated_at')
+    list_display = ('article', 'sku', 'id', 'parent_product', 'ean_13', 'size','weight', 'length', 'max_length','width', 'size', 'price','discount_percentage', 'new_price', 'old_price', 'created_by', 'created_at', 'updated_at')
     search_fields = ('position', 'sku', 'ean_13',)
     readonly_fields = ('sku', 'article', 'qr_code','id', 'created_at', 'updated_at', 'created_by',)
     actions = ['mark_as_bestseller', 'remove_bestseller', 'mark_as_discount', 'remove_discount']
 
     fieldsets = (
         ("Основна інформація", {
-            "fields": ("article" , "ean_13", "sku",'parent_product' , "id",'size', 'length', 'width', 'weight',"price",),
+            "fields": ("article" , "ean_13", "sku",'parent_product' , "id",'size', 'length', 'max_length', 'width', 'weight',"price",),
         }),
         
         ("Ціна та знижки", {

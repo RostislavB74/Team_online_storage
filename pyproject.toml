@@ -39,6 +39,7 @@ django-extensions = "^3.2.3"
 django-parler = "^2.3"
 cloudinary = "^1.42.2"
 django-storages = "^1.14.5"
+django-cloudinary-storage = "^0.3.0"
 
 
 [tool.poetry.group.deploy.dependencies]

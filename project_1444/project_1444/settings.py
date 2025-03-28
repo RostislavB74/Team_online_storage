@@ -20,12 +20,17 @@ from urllib.parse import urlparse
 
 import environ
 from datetime import timedelta
-
+import os
+from urllib.parse import urlparse
+from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 from pygments.lexer import default
 
 from . import __version__
 
 # from django.utils.translation import gettext_lazy as _
+import os
+from urllib.parse import urlparse
 
 from django.conf.global_settings import STATIC_ROOT
 import cloudinary
@@ -40,7 +45,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
 environ.Env.read_env(BASE_DIR.parent / ".env")
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -80,7 +84,9 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "django_extensions",
     "parler",
+    "cloudinary_storage",
     "cloudinary",
+    # 
     "product",
     "users",
     "cart",
@@ -184,11 +190,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
-
 LANGUAGES = [
     ("en", _("English")),
     ("uk", _("Ukrainian")),
@@ -204,21 +205,10 @@ USE_TZ = True
 TIME_ZONE = "Europe/Kyiv"
 
 
-# print([zone for zone in zoneinfo.available_timezones() if zone.startswith("Europe/K")])
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = env("STATIC_URL", default="/static/")  # 'static/'
 
-# for manage.py collect static
 STATIC_ROOT = BASE_DIR / "static"
-# for additional static files outside static_root
-# STATICFILES_DIRS = [ BASE_DIR / 'static' ]
-# print(f"static_dir: {STATICFILES_DIRS}")
 
-# MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
@@ -228,40 +218,86 @@ for lang in PARLER_LANGUAGES_LIST:
         lang_locale = locale / lang
         if not lang_locale.exists():
             lang_locale.mkdir(parents=True)
+# CLOUDINARY_STORAGE = {
+#     "CLOUD_NAME": "dtftiyeso",
+#     "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+#     "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+#     "SECURE": True,
+# }
 
+# if not all([CLOUDINARY_STORAGE["CLOUD_NAME"], CLOUDINARY_STORAGE["API_KEY"], CLOUDINARY_STORAGE["API_SECRET"]]):
+#     raise ImproperlyConfigured("CLOUDINARY credentials are not set properly.")
 
-try:
-    try:
-        CLOUDINARY_URL = env("CLOUDINARY_URL")
-        cl_url = urlparse(CLOUDINARY_URL)
-        if cl_url.scheme == "cloudinary":
-            CLOUDINARY_NAME = cl_url.hostname
-            CLOUDINARY_API_KEY = cl_url.username
-            CLOUDINARY_API_SECRET = cl_url.password
-            if not all([CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
-                raise ValueError
-        else:
-            raise ValueError
-    except (ValueError, KeyError, environ.ImproperlyConfigured) as e:
-        CLOUDINARY_NAME = env("CLOUDINARY_NAME")
-        CLOUDINARY_API_KEY = env("CLOUDINARY_API_KEY")
-        CLOUDINARY_API_SECRET = env("CLOUDINARY_API_SECRET")
+# # Налаштування зберігання
+# DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+CLOUDINARY_NAME = "dtftiyeso"
+CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
+CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/image/upload/"
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": CLOUDINARY_NAME,
-        "API_KEY": CLOUDINARY_API_KEY,
-        "API_SECRET": CLOUDINARY_API_SECRET,
-        "SECURE": True,  # Додає https
-    }
-except (KeyError, environ.ImproperlyConfigured) as e:
-    print(
-        "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components.  Error:",
-        str(e),
-    )
+if not all([CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
+    raise ImproperlyConfigured("CLOUDINARY credentials are not set properly.")
 
+# Явна ініціалізація Cloudinary
+cloudinary.config(
+    cloud_name=CLOUDINARY_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
+    secure=True,
+)
 
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": CLOUDINARY_NAME,
+    "API_KEY": CLOUDINARY_API_KEY,
+    "API_SECRET": CLOUDINARY_API_SECRET,
+    "SECURE": True,
+}
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+# CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+
+# if not CLOUDINARY_URL:
+#     raise ValueError("CLOUDINARY_URL is not set!")
+
+# cloudinary.config(
+#     cloud_name=os.getenv("CLOUDINARY_NAME"),
+#     api_key=os.getenv("CLOUDINARY_API_KEY"),
+#     api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+#     secure=True,  # Используем HTTPS
+# )
+
+# DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+# MEDIA_URL = f"https://res.cloudinary.com/{os.getenv('CLOUDINARY_NAME')}/"
+# Читаємо CLOUDINARY_URL з .env
+# CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+
+# if CLOUDINARY_URL:
+#     cl_url = urlparse(CLOUDINARY_URL)
+#     if cl_url.scheme == "cloudinary":
+#         CLOUDINARY_NAME = cl_url.hostname
+#         CLOUDINARY_API_KEY = cl_url.username
+#         CLOUDINARY_API_SECRET = cl_url.password
+#     else:
+#         raise ImproperlyConfigured("Invalid CLOUDINARY_URL format")
+# else:
+#     CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME")
+#     CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
+#     CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
+
+# if not all([CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
+#     raise ImproperlyConfigured("CLOUDINARY credentials are not set properly.")
+
+# # Налаштування Cloudinary
+# CLOUDINARY_STORAGE = {
+#     "CLOUD_NAME": CLOUDINARY_NAME,
+#     "API_KEY": CLOUDINARY_API_KEY,
+#     "API_SECRET": CLOUDINARY_API_SECRET,
+#     "SECURE": True,
+# }
+
+# Налаштування для зберігання медіафайлів
+# DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 # MEDIA_URL = env("CLOUDINARY_URL")
 
 # Default primary key field type
