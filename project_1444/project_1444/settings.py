@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "order",
     "warehouse",
     "discounts",
+    "storages",  # For custom S3/Cloudinary storage class
 ]
 PARLER_LANGUAGES = {
     None: (
@@ -230,36 +231,66 @@ for lang in PARLER_LANGUAGES_LIST:
             lang_locale.mkdir(parents=True)
 
 
-try:
+DEFAULT_FILE_STORAGE = None
+# Try Cloudinary configuration first
+if env("CLOUDINARY_URL", default=None) or env("CLOUDINARY_NAME", default=None):
     try:
-        CLOUDINARY_URL = env("CLOUDINARY_URL")
-        cl_url = urlparse(CLOUDINARY_URL)
-        if cl_url.scheme == "cloudinary":
-            CLOUDINARY_NAME = cl_url.hostname
-            CLOUDINARY_API_KEY = cl_url.username
-            CLOUDINARY_API_SECRET = cl_url.password
-            if not all([CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
+        # Try CLOUDINARY_URL configuration first
+        try:
+            CLOUDINARY_URL = env("CLOUDINARY_URL")
+            cl_url = urlparse(CLOUDINARY_URL)
+            if cl_url.scheme == "cloudinary":
+                CLOUDINARY_NAME = cl_url.hostname
+                CLOUDINARY_API_KEY = cl_url.username
+                CLOUDINARY_API_SECRET = cl_url.password
+                if not all(
+                    [CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]
+                ):
+                    raise ValueError
+            else:
                 raise ValueError
-        else:
-            raise ValueError
-    except (ValueError, KeyError, environ.ImproperlyConfigured) as e:
-        CLOUDINARY_NAME = env("CLOUDINARY_NAME")
-        CLOUDINARY_API_KEY = env("CLOUDINARY_API_KEY")
-        CLOUDINARY_API_SECRET = env("CLOUDINARY_API_SECRET")
+        except (ValueError, KeyError, environ.ImproperlyConfigured) as e:
+            CLOUDINARY_NAME = env("CLOUDINARY_NAME")
+            CLOUDINARY_API_KEY = env("CLOUDINARY_API_KEY")
+            CLOUDINARY_API_SECRET = env("CLOUDINARY_API_SECRET")
 
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/image/upload/"
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": CLOUDINARY_NAME,
-        "API_KEY": CLOUDINARY_API_KEY,
-        "API_SECRET": CLOUDINARY_API_SECRET,
-        "SECURE": True,  # Додає https
-    }
-except (KeyError, environ.ImproperlyConfigured) as e:
-    print(
-        "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components.  Error:",
-        str(e),
-    )
+        DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+        MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/image/upload/"
+        CLOUDINARY_STORAGE = {
+            "CLOUD_NAME": CLOUDINARY_NAME,
+            "API_KEY": CLOUDINARY_API_KEY,
+            "API_SECRET": CLOUDINARY_API_SECRET,
+            "SECURE": True,  # Додає https
+        }
+    except (KeyError, environ.ImproperlyConfigured) as e:
+        print(
+            "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components.  Error:",
+            str(e),
+        )
+
+if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
+    # Try S3 / MinIO configuration
+    try:
+        AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+        AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+        AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+        AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="")  # optional
+        AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
+        from storages.backends.s3boto3 import (
+            S3Boto3Storage,
+        )  # For custom S3 storage class
+
+        DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    except (KeyError, environ.ImproperlyConfigured) as e:
+        print(
+            "AWS S3 / MinIO not configured correctly by environs. Error:",
+            str(e),
+        )
+
+# Fallback for use FileSystemStorage when CLOUDINARY, or S3 / MinIO not configured
+if not DEFAULT_FILE_STORAGE:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    print("Using FileSystemStorage as DEFAULT_FILE_STORAGE")
 
 
 # MEDIA_URL = env("CLOUDINARY_URL")
