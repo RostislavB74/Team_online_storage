@@ -411,7 +411,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .models import Product
-from .serializers import ProductSerializer
+from .serializers import *
 
 class ProductViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""

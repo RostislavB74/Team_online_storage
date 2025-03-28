@@ -94,6 +94,8 @@ class Weaving(TranslatableModel):
     class Meta:
         verbose_name = 'Плетіння'
         verbose_name_plural = 'Плетіння'
+    def __str__(self):
+        return self.safe_translation_getter('name', default='Без назви')  # Бере name із перекладу
 class Designs(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, verbose_name='Designs'),
@@ -147,9 +149,10 @@ class Material(TranslatableModel):
     class Meta:
         verbose_name = 'Матеріал'
         verbose_name_plural = 'Матеріали'
-
+    
     def __str__(self):
-        return f"{self.material} | {self.assay} | {self.color}"
+        material=f"{self.material} | {self.assay} | {self.color}"
+        return material
 
 # Функція для генерації артикула перед збереженням
 @receiver(pre_save, sender=Material)
@@ -337,7 +340,7 @@ class ProductAttributes(TranslatableModel):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="attributes")
     gender = models.CharField('Gender', max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
     color_coating=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
-    weaving_type=models.ForeignKey('Weaving', on_delete=models.SET_NULL,null=True,blank=True),
+    weaving_type=models.ForeignKey('Weaving', on_delete=models.SET_NULL,null=True,blank=True)
     # statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="status")
     translations = TranslatedFields(
         clasp_type = models.CharField(max_length=255, blank=True, null=True),
@@ -375,7 +378,7 @@ class ProductMaterial(models.Model):
 
 class ProductGemstone(TranslatableModel):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="gemstones")
-    gemstone = models.ForeignKey('Gemstone', on_delete=models.CASCADE)
+    gemstone = models.ForeignKey('Gemstone', on_delete=models.CASCADE, null=True, blank=True)
     color = models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)  # Колір каменю
     weight = models.FloatField(null=True, blank=True)  # Вага каменю
     is_main = models.BooleanField(default=False)  # Основний камінь
