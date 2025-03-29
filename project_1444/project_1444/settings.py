@@ -302,7 +302,7 @@ if DEFAULT_FILE_STORAGE:
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
-
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # for compatibility with cloudinary static files
 
 # Fallback for use FileSystemStorage when CLOUDINARY, or S3 / MinIO not configured
 if not DEFAULT_FILE_STORAGE:
