@@ -51,8 +51,7 @@ if not SECRET_KEY or SECRET_KEY.isspace():
     SECRET_KEY = "django-insecure-i&eu1qndfw3ooc#3@01b8)0(6z4yr(jfjh+=p1rk&@+j^o(m^i"
 
 
-PROJECT_NAME = env("PROJECT_NAME", default="project_1444")
-
+PROJECT_NAME = env("PROJECT_NAME", default=Path(__file__).resolve().parent.name)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=False, cast=bool)
 print(f"{DEBUG=}")
@@ -252,6 +251,9 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
         else:
             raise ValueError("cloudinary scheme not found in CLOUDINARY_URL")
         CLOUDINARY_MEDIA_TAG = env("CLOUDINARY_MEDIA_TAG", default=PROJECT_NAME)
+        CLOUDINARY_PREVIEW_TRANSFORMATION = env(
+            "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
+        )
 
         DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
         # MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/"

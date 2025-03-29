@@ -24,6 +24,8 @@ CSRF_TRUSTED_ORIGINS='http://localhost:3000'
 
 # Remember to remove any trailing slash from the CLOUDINARY_URL
 CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@cloud_name
+CLOUDINARY_MEDIA_TAG='my_media_tag'
+CLOUDINARY_PREVIEW_TRANSFORMATION="c_thumb,g_face,h_150,w_150"
 
 # If you want to use AWS S3 or MinIO instead of Cloudinary or local storage
 # AWS_ACCESS_KEY_ID=your-access-key
@@ -32,6 +34,7 @@ CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@cloud_name
 # AWS_S3_REGION_NAME=us-east-1  # Optional for AWS
 # AWS_S3_ENDPOINT_URL=https://s3.amazonaws.com  # Change this for MinIO or other providers
 
-
 REDIS_URL='redis://localhost:6379/0'
+
+PROJECT_NAME='project_1444'
 
