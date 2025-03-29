@@ -8,6 +8,13 @@ from django.db import models
 class MultiBackendImageField(models.ImageField):
     """Custom ImageField that correctly generates URLs based on storage backend."""
 
+    @staticmethod
+    def add_preview_url(url: str, transform: str = None) -> str:
+        if r".cloudinary.com/" in url:
+            transform = transform or "c_thumb,g_face,h_150,w_150"
+            return url.replace("/image/upload/", f"/image/upload/{transform}/")
+        return url
+
     def formfield(self, **kwargs):
         """Use custom form field with an image preview in Django Admin."""
         kwargs["form_class"] = MultiBackendImageFormField
@@ -50,11 +57,9 @@ class MultiBackendImageField(models.ImageField):
         if not image:
             return None  # No image uploaded
 
-        image_name = image.name  # File path stored in DB
-
-        if image_name and image_name.startswith("http"):
-            return image
-        image.name = self.get_full_image_url(image)
+        if image.name and not image.name.startswith("http"):
+            image.name = self.get_full_image_url(image)
+        image.preview_url = self.add_preview_url(image.name)
         return image
 
 
@@ -64,11 +69,11 @@ class MultiBackendImageWidget(forms.ClearableFileInput):
     def render(self, name, value, attrs=None, renderer=None):
         # Check if the value (image) has a URL
         image_html = ""
-        if value and hasattr(value, "url"):
+        if value and hasattr(value, "preview_url"):
             # Create the HTML for the image preview with a custom style
             image_html = format_html(
                 '<img src="{}" style="max-height: 150px; max-width: 150px; padding: 5px" /><br>',
-                value.name,
+                value.preview_url,
             )
 
             # Call the parent class's render method but we will modify the output to remove the duplicate <a> tag
