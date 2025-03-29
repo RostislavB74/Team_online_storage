@@ -260,7 +260,7 @@ class SubProducts(models.Model):
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Ціна")
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, default=0, validators=[MinValueValidator(0), MaxValueValidator(100)])  
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, default=0.00, validators=[MinValueValidator(0.00), MaxValueValidator(100.00)])  
     new_price = models.FloatField(null=True, blank=True)
     old_price = models.FloatField(null=True, blank=True)
     qr_code = models.ImageField(upload_to='qrcodes/', blank=True, null=True)

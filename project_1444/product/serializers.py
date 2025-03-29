@@ -21,7 +21,6 @@ class ProductMaterialSerializer(serializers.ModelSerializer):
 
 
 
-
 class CategoriesSerializer(serializers.ModelSerializer):
     name=serializers.SerializerMethodField()
     slug=serializers.SerializerMethodField()
@@ -121,19 +120,31 @@ class ProductSerializer(serializers.ModelSerializer):
     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
     gemstone = serializers.SerializerMethodField()
     materials = ProductMaterialSerializer(many=True, read_only=True)
+    attributes = ProductAttributesSerializer(many=True, read_only=True)
     design = serializers.SerializerMethodField()
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
     collection = serializers.SerializerMethodField()
+    description=serializers.SerializerMethodField()
+    occasions=serializers.SerializerMethodField()
+
 
     class Meta:
         model = Product
         fields = [
             'id', 'category', 'subcategory', 'name', 'slug', 'ean_13', 'sku', 
-            'article', 'collection', 'statuses', 'year_collection', 'occasions',
-            'design', 'status_display', 'subproducts', 'gemstone', 'materials', 'images', 'certificates'
+            'article', 'collection', 'statuses', 'year_collection', 'occasions', 'description',
+            'design', 'status_display', 'subproducts', 'gemstone', 'materials', 'attributes', 'images', 'certificates'
         ]
+    
+    @extend_schema_field(str)
+    def get_occasions(self, obj):
+       return obj.safe_translation_getter('name', default='Без назви')if obj.occasions else None
+    @extend_schema_field(str)
+    def get_description(self, obj):
+       return obj.safe_translation_getter('name', default='Без назви')if obj.description_product else None
+    
     @extend_schema_field(str)
     def get_gemstone(self, obj):
         gemstones = obj.gemstones.all()  # Використовуємо related_name="gemstones"
@@ -194,16 +205,24 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
     attributes=ProductAttributesSerializer(many=True, read_only=True)
     gemstone = serializers.SerializerMethodField()
-    material = serializers.SerializerMethodField()  # Фіксимо тут
-
+    material = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()  # Фіксимо тут
+    occasions = serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = [
             "id", "category", "subcategory", "name", "slug", "ean_13", "sku", "article", "statuses",
-            "collection", "occasions", "subproducts", "gemstone","material","images", "certificates", "design", 'attributes',
+            "collection", "occasions", "description","subproducts", "gemstone","material","images", "certificates", "design", 'attributes',
         ]
+    @extend_schema_field(str)
+    def get_occasions(self, obj):
+       return obj.safe_translation_getter('name', default='Без назви')if obj.occasions else None
     
     
+    
+    @extend_schema_field(str)
+    def get_description(self, obj):
+       return obj.safe_translation_getter('name', default='Без назви')if obj.description_product else None
     @extend_schema_field(str)
     def get_gemstone(self, obj):
         gemstones = obj.gemstones.all()  # Використовуємо related_name="gemstones"
