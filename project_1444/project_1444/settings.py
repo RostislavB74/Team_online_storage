@@ -221,7 +221,7 @@ STATIC_ROOT = BASE_DIR / "static"
 # STATICFILES_DIRS = [ BASE_DIR / 'static' ]
 # print(f"static_dir: {STATICFILES_DIRS}")
 
-# MEDIA_URL = "/media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
@@ -235,6 +235,9 @@ for lang in PARLER_LANGUAGES_LIST:
 
 DEFAULT_FILE_STORAGE = None
 # Try Cloudinary configuration first
+CLOUDINARY_PREVIEW_TRANSFORMATION = env(
+    "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
+)
 if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
     try:
         # CLOUDINARY_URL = env("CLOUDINARY_URL")
@@ -251,9 +254,6 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
         else:
             raise ValueError("cloudinary scheme not found in CLOUDINARY_URL")
         CLOUDINARY_MEDIA_TAG = env("CLOUDINARY_MEDIA_TAG", default=PROJECT_NAME)
-        CLOUDINARY_PREVIEW_TRANSFORMATION = env(
-            "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
-        )
 
         DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
         # MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/"
