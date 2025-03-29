@@ -1,8 +1,12 @@
+from urllib.parse import urlparse
+
 from django.conf import settings
 
 from django import forms
+from django.core.files.storage import default_storage
 from django.utils.html import format_html
 from django.db import models
+import cloudinary.uploader
 
 
 class MultiBackendImageField(models.ImageField):
@@ -43,13 +47,24 @@ class MultiBackendImageField(models.ImageField):
 
     def pre_save(self, model_instance, add):
         """Override pre_save to store the full URL in the database."""
-        image = super().pre_save(model_instance, add)
+        new_image = super().pre_save(model_instance, add)
 
-        if not image:
+        if not new_image:
             return None  # No image uploaded
-        image.name = self.get_full_image_url(image)
 
-        return image
+        """Delete the old image when replacing it."""
+        if not add and new_image:  # If the instance already exists and has a new image
+            old_image = getattr(
+                model_instance.__class__.objects.filter(pk=model_instance.pk).first(),
+                self.attname,
+                None,
+            )
+            new_image.name = self.get_full_image_url(new_image)
+
+            if old_image and old_image.name != new_image.name:
+                self.delete_old_image(old_image)
+
+        return new_image
 
     def value_from_object(self, instance):
         """Override default behavior to prevent MEDIA_URL from being added incorrectly."""
@@ -62,6 +77,36 @@ class MultiBackendImageField(models.ImageField):
             image.name = self.get_full_image_url(image)
         image.preview_url = self.add_preview_url(image.name)
         return image
+
+    @staticmethod
+    def get_cloudinary_public_id(url) -> str | None:
+        try:
+            path_parsed = urlparse(url)
+            if path_parsed.scheme.startswith("http"):
+                if "cloudinary.com" in path_parsed.hostname:
+                    url_path = path_parsed.path.split("/")
+                    public_id = "/".join(url_path[5:])
+                    return public_id
+        except Exception:
+            ...
+
+    def delete_old_image(self, old_image):
+        """Delete the old image from the correct storage backend."""
+        if not old_image:
+            return
+
+        old_image_path = old_image.name  # Path stored in DB
+
+        if public_id := self.get_cloudinary_public_id(old_image_path):
+            # Cloudinary delete logic
+            cloudinary.uploader.destroy(public_id)
+        else:
+            # Delete from S3 or local storage
+            try:
+                if default_storage.exists(old_image_path):
+                    default_storage.delete(old_image_path)
+            except Exception as e:
+                print(f"Error deleting image {old_image_path}: {e}")  # Log error
 
 
 class MultiBackendImageWidget(forms.ClearableFileInput):
