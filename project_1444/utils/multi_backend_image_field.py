@@ -13,19 +13,21 @@ class MultiBackendImageField(models.ImageField):
     """Custom ImageField that correctly generates URLs based on storage backend."""
 
     @staticmethod
-    def add_preview_url(url: str, transform: str = None) -> str:
+    def add_preview_url(url: str, transform: str = None) -> str | None:
         if r".cloudinary.com/" in url:
-            transform = transform or settings.CLOUDINARY_PREVIEW_TRANSFORMATION
+            transform = transform or getattr(
+                settings, "CLOUDINARY_PREVIEW_TRANSFORMATION"
+            )
             if transform:
                 return url.replace("/image/upload/", f"/image/upload/{transform}/")
-        return url
+        return url if url.startswith("http") else None
 
     def formfield(self, **kwargs):
         """Use custom form field with an image preview in Django Admin."""
         kwargs["form_class"] = MultiBackendImageFormField
         return super().formfield(**kwargs)
 
-    def get_full_image_url(self, image):
+    def get_full_image_url(self, image, add: bool = False):
         if not image:
             return None  # No image uploaded
 
@@ -41,7 +43,7 @@ class MultiBackendImageField(models.ImageField):
         elif "cloudinary" in default_file_storage:
             full_url = image.url  # Cloudinary full URL
         else:
-            full_url = f"{settings.MEDIA_URL}{image_name}"  # Local storage
+            full_url = image.name if add else image.url  # Local storage
 
         return full_url  # Store full URL in the database
 
@@ -59,7 +61,7 @@ class MultiBackendImageField(models.ImageField):
                 self.attname,
                 None,
             )
-            new_image.name = self.get_full_image_url(new_image)
+            new_image.name = self.get_full_image_url(new_image, add=True)
 
             if old_image and old_image.name != new_image.name:
                 self.delete_old_image(old_image)
@@ -73,9 +75,10 @@ class MultiBackendImageField(models.ImageField):
         if not image:
             return None  # No image uploaded
 
-        if image.name and not image.name.startswith("http"):
+        if getattr(image, "name") and not image.name.startswith("http"):
             image.name = self.get_full_image_url(image)
-        image.preview_url = self.add_preview_url(image.name)
+
+        image.preview_url = self.add_preview_url(image.name) or getattr(image, "name")
         return image
 
     @staticmethod
@@ -99,7 +102,9 @@ class MultiBackendImageField(models.ImageField):
 
         if public_id := self.get_cloudinary_public_id(old_image_path):
             # Cloudinary delete logic
-            cloudinary.uploader.destroy(public_id)
+            print(f"Deleting image from Cloudinary: {str(default_storage)}")
+            if "cloudinary" in str(default_storage):
+                cloudinary.uploader.destroy(public_id)
         else:
             # Delete from S3 or local storage
             try:
@@ -115,7 +120,7 @@ class MultiBackendImageWidget(forms.ClearableFileInput):
     def render(self, name, value, attrs=None, renderer=None):
         # Check if the value (image) has a URL
         image_html = ""
-        if value and hasattr(value, "preview_url"):
+        if value and getattr(value, "preview_url"):
             # Create the HTML for the image preview with a custom style
             image_html = format_html(
                 '<img src="{}" style="max-height: 150px; max-width: 150px; padding: 5px" /><br>',
