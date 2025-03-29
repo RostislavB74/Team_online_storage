@@ -11,8 +11,9 @@ class MultiBackendImageField(models.ImageField):
     @staticmethod
     def add_preview_url(url: str, transform: str = None) -> str:
         if r".cloudinary.com/" in url:
-            transform = transform or "c_thumb,g_face,h_150,w_150"
-            return url.replace("/image/upload/", f"/image/upload/{transform}/")
+            transform = transform or settings.CLOUDINARY_PREVIEW_TRANSFORMATION
+            if transform:
+                return url.replace("/image/upload/", f"/image/upload/{transform}/")
         return url
 
     def formfield(self, **kwargs):
