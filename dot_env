@@ -22,6 +22,7 @@ CORS_ALLOWED_ORIGINS='http://localhost:3000'
 CSRF_TRUSTED_ORIGINS='http://localhost:3000'
 # STATIC_URL='http://static.example.com/'
 
+# Remember to remove any trailing slash from the CLOUDINARY_URL
 CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@cloud_name
 
 # If you want to use AWS S3 or MinIO instead of Cloudinary or local storage
