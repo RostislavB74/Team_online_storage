@@ -50,6 +50,9 @@ SECRET_KEY = env("SECRET_KEY", default=None)
 if not SECRET_KEY or SECRET_KEY.isspace():
     SECRET_KEY = "django-insecure-i&eu1qndfw3ooc#3@01b8)0(6z4yr(jfjh+=p1rk&@+j^o(m^i"
 
+
+PROJECT_NAME = env("PROJECT_NAME", default="project_1444")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=False, cast=bool)
 print(f"{DEBUG=}")
@@ -87,6 +90,7 @@ INSTALLED_APPS = [
     "order",
     "warehouse",
     "discounts",
+    "storages",  # For custom S3/Cloudinary storage class
 ]
 PARLER_LANGUAGES = {
     None: (
@@ -230,37 +234,79 @@ for lang in PARLER_LANGUAGES_LIST:
             lang_locale.mkdir(parents=True)
 
 
-try:
+DEFAULT_FILE_STORAGE = None
+# Try Cloudinary configuration first
+if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
     try:
-        CLOUDINARY_URL = env("CLOUDINARY_URL")
+        # CLOUDINARY_URL = env("CLOUDINARY_URL")
+        CLOUDINARY_URL = CLOUDINARY_URL.rstrip("/")
         cl_url = urlparse(CLOUDINARY_URL)
         if cl_url.scheme == "cloudinary":
             CLOUDINARY_NAME = cl_url.hostname
             CLOUDINARY_API_KEY = cl_url.username
             CLOUDINARY_API_SECRET = cl_url.password
             if not all([CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
-                raise ValueError
+                raise ValueError(
+                    "CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET must be set"
+                )
         else:
-            raise ValueError
-    except (ValueError, KeyError, environ.ImproperlyConfigured) as e:
-        CLOUDINARY_NAME = env("CLOUDINARY_NAME")
-        CLOUDINARY_API_KEY = env("CLOUDINARY_API_KEY")
-        CLOUDINARY_API_SECRET = env("CLOUDINARY_API_SECRET")
+            raise ValueError("cloudinary scheme not found in CLOUDINARY_URL")
+        CLOUDINARY_MEDIA_TAG = env("CLOUDINARY_MEDIA_TAG", default=PROJECT_NAME)
 
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/image/upload/"
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": CLOUDINARY_NAME,
-        "API_KEY": CLOUDINARY_API_KEY,
-        "API_SECRET": CLOUDINARY_API_SECRET,
-        "SECURE": True,  # Додає https
+        DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+        # MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/"
+        MEDIA_URL = f"{PROJECT_NAME}/"
+        CLOUDINARY_STORAGE = {
+            "CLOUD_NAME": CLOUDINARY_NAME,
+            "API_KEY": CLOUDINARY_API_KEY,
+            "API_SECRET": CLOUDINARY_API_SECRET,
+            "MEDIA_TAG": CLOUDINARY_MEDIA_TAG,
+        }
+        INSTALLED_APPS.insert(0, "cloudinary_storage")
+    except (KeyError, environ.ImproperlyConfigured, ImportError) as e:
+        print(
+            "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components.  Error:",
+            str(e),
+        )
+
+if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
+    # Try S3 / MinIO configuration
+    try:
+        AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+        AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+        AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+        AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="")  # optional
+        AWS_S3_ENDPOINT_URL = env(
+            "AWS_S3_ENDPOINT_URL",
+            default=f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/",
+        )
+        MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}{PROJECT_NAME}"
+
+        from storages.backends.s3boto3 import (
+            S3Boto3Storage,
+        )  # For custom S3 storage class
+
+        DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    except (KeyError, environ.ImproperlyConfigured) as e:
+        print(
+            "AWS S3 / MinIO not configured correctly by environs. Error:",
+            str(e),
+        )
+
+if DEFAULT_FILE_STORAGE:
+    STORAGES = {
+        "default": {
+            "BACKEND": DEFAULT_FILE_STORAGE,
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
     }
-except (KeyError, environ.ImproperlyConfigured) as e:
-    print(
-        "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components.  Error:",
-        str(e),
-    )
 
+
+# Fallback for use FileSystemStorage when CLOUDINARY, or S3 / MinIO not configured
+if not DEFAULT_FILE_STORAGE:
+    print(f"Using FileSystemStorage as DEFAULT_FILE_STORAGE BACKEND")
 
 # MEDIA_URL = env("CLOUDINARY_URL")
 
