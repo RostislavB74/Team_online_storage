@@ -82,7 +82,8 @@ class Collections(TranslatableModel):
     class Meta:
         verbose_name = 'Колекція'
         verbose_name_plural = 'Колекції'
-
+    def __str__(self):
+        return self.safe_translation_getter('name', default='Без назви') 
 class Designs(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, verbose_name='Designs'),
