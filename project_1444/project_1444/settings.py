@@ -234,6 +234,7 @@ for lang in PARLER_LANGUAGES_LIST:
 
 
 DEFAULT_FILE_STORAGE = None
+DEFAULT_FILE_STORAGE_OPTIONS = {}
 # Try Cloudinary configuration first
 CLOUDINARY_PREVIEW_TRANSFORMATION = env(
     "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
@@ -277,18 +278,27 @@ if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
         AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
         AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
         AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
-        AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="")  # optional
+        AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default=None)  # optional
         AWS_S3_ENDPOINT_URL = env(
             "AWS_S3_ENDPOINT_URL",
             default=f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/",
         )
-        MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}{PROJECT_NAME}"
+        AWS_LOCATION = env("AWS_LOCATION", default=PROJECT_NAME)
+        # MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.rstrip('/')}/{PROJECT_NAME}/"
+        #
+        # from storages.backends.s3boto3 import (
+        #     S3Boto3Storage,
+        # )  # For custom S3 storage class
 
-        from storages.backends.s3boto3 import (
-            S3Boto3Storage,
-        )  # For custom S3 storage class
-
-        DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+        DEFAULT_FILE_STORAGE = "storages.backends.s3"
+        DEFAULT_FILE_STORAGE_OPTIONS = {
+            "AWS_ACCESS_KEY_ID": AWS_ACCESS_KEY_ID,
+            "AWS_SECRET_ACCESS_KEY": AWS_SECRET_ACCESS_KEY,
+            "AWS_STORAGE_BUCKET_NAME": AWS_STORAGE_BUCKET_NAME,
+            "AWS_S3_REGION_NAME": AWS_S3_REGION_NAME,
+            "AWS_S3_ENDPOINT_URL": AWS_S3_ENDPOINT_URL,
+            "AWS_LOCATION": AWS_LOCATION,
+        }
     except (KeyError, environ.ImproperlyConfigured) as e:
         print(
             "AWS S3 / MinIO not configured correctly by environs. Error:",
@@ -296,14 +306,17 @@ if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
         )
 
 if DEFAULT_FILE_STORAGE:
+    print(f"Using DEFAULT_FILE_STORAGE BACKEND: '{DEFAULT_FILE_STORAGE}'")
     STORAGES = {
         "default": {
             "BACKEND": DEFAULT_FILE_STORAGE,
+            "OPTIONS": DEFAULT_FILE_STORAGE_OPTIONS,
         },
         "staticfiles": {
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
+
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # for compatibility with cloudinary static files
 
 # Fallback for use FileSystemStorage when CLOUDINARY, or S3 / MinIO not configured

@@ -36,10 +36,9 @@ django-cors-headers = "^4.7.0"
 django-extensions = "^3.2.3"
 django-parler = "^2.3"
 cloudinary = "^1.42.2"
-django-storages = "^1.14.5"
-boto3 = "^1.37.22"
 psycopg = {extras = ["binary"], version = "^3.2.6"}
 django-cloudinary-storage = "^0.3.0"
+django-storages = {extras = ["s3"], version = "^1.14.5"}
 
 
 [tool.poetry.group.deploy.dependencies]
