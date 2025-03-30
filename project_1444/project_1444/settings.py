@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "django_extensions",
     "parler",
+    "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
     "product",
     "users",
@@ -89,7 +90,7 @@ INSTALLED_APPS = [
     "order",
     "warehouse",
     "discounts",
-    "storages",  # For custom S3/Cloudinary storage class
+    
 ]
 PARLER_LANGUAGES = {
     None: (

@@ -16,6 +16,7 @@ from django.core.exceptions import ValidationError
 from .utils import save_with_translation
 from cloudinary.models import CloudinaryField
 from django.utils import translation
+from utils.multi_backend_image_field import MultiBackendImageField
 # Категорії
 class Categories(TranslatableModel):
     translations = TranslatedFields(
@@ -82,7 +83,8 @@ class Collections(TranslatableModel):
     class Meta:
         verbose_name = 'Колекція'
         verbose_name_plural = 'Колекції'
-
+    def __str__(self):
+        return self.safe_translation_getter('name', default='Без назви') 
 class Designs(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, verbose_name='Designs'),
@@ -384,7 +386,8 @@ class ProductGemstone(TranslatableModel):
 
 class ProductImage(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='images')
-    image = CloudinaryField("image")
+    # image = CloudinaryField("image")
+    image = MultiBackendImageField(upload_to="image/", blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     class Meta:
         verbose_name = 'Фото продукції'
