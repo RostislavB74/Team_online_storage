@@ -16,7 +16,9 @@ class UserProfile(models.Model):
     telegram = models.CharField(max_length=50, blank=True, null=True)
     viber = models.CharField(max_length=50, blank=True, null=True)
     phone = models.CharField(max_length=15, blank=True, null=True)  # Додатковий номер
-    avatar = MultiBackendImageField(upload_to="avatars/", blank=True, null=True)
+    avatar = MultiBackendImageField(
+        upload_to="avatars/", blank=True, null=True, max_length=255
+    )
     birthday = models.DateField(blank=True, null=True)  # Виправлена назва
     partner_name = models.CharField(max_length=100, blank=True, null=True)
     partner_birthday = models.DateField(blank=True, null=True)
