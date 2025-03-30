@@ -273,7 +273,7 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
         )
 
 if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
-    # Try S3 / MinIO configuration
+    # Try S3 / MinIO / ... configuration
     try:
         AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
         AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
@@ -281,23 +281,28 @@ if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
         AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default=None)  # optional
         AWS_S3_ENDPOINT_URL = env(
             "AWS_S3_ENDPOINT_URL",
-            default=f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/",
+            default=f"https://{AWS_STORAGE_BUCKET_NAME}.s3{AWS_S3_REGION_NAME if AWS_S3_REGION_NAME else '.'}.amazonaws.com/",
         )
-        AWS_LOCATION = env("AWS_LOCATION", default=PROJECT_NAME)
+        AWS_LOCATION = env("AWS_LOCATION", default="")
+        AWS_S3_VERIFY = env("AWS_S3_VERIFY", default=None, cast=bool)
         # MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.rstrip('/')}/{PROJECT_NAME}/"
         #
         # from storages.backends.s3boto3 import (
         #     S3Boto3Storage,
         # )  # For custom S3 storage class
-
-        DEFAULT_FILE_STORAGE = "storages.backends.s3"
+        #
+        # from storages.backends.s3 import (
+        #     S3Boto3Storage,
+        # )  # F
+        DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
         DEFAULT_FILE_STORAGE_OPTIONS = {
-            "AWS_ACCESS_KEY_ID": AWS_ACCESS_KEY_ID,
-            "AWS_SECRET_ACCESS_KEY": AWS_SECRET_ACCESS_KEY,
-            "AWS_STORAGE_BUCKET_NAME": AWS_STORAGE_BUCKET_NAME,
-            "AWS_S3_REGION_NAME": AWS_S3_REGION_NAME,
-            "AWS_S3_ENDPOINT_URL": AWS_S3_ENDPOINT_URL,
-            "AWS_LOCATION": AWS_LOCATION,
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "region_name": AWS_S3_REGION_NAME,
+            "endpoint_url": AWS_S3_ENDPOINT_URL,
+            "location": AWS_LOCATION,
+            "verify": AWS_S3_VERIFY,
         }
     except (KeyError, environ.ImproperlyConfigured) as e:
         print(
