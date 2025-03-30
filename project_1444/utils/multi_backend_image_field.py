@@ -1,3 +1,4 @@
+import urllib.parse
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -11,6 +12,10 @@ import cloudinary.uploader
 
 class MultiBackendImageField(models.ImageField):
     """Custom ImageField that correctly generates URLs based on storage backend."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("max_length", 255)
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def add_preview_url(url: str, transform: str = None) -> str | None:
@@ -38,8 +43,8 @@ class MultiBackendImageField(models.ImageField):
         default_file_storage = settings.STORAGES["default"]["BACKEND"]
 
         # Generate full URL based on storage backend
-        if default_file_storage == "storages.backends.s3boto3.S3Boto3Storage":
-            full_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/{image_name}"
+        if default_file_storage.startswith("storages.backends."):
+            full_url = image.url
         elif "cloudinary" in default_file_storage:
             full_url = image.url  # Cloudinary full URL
         else:
@@ -131,9 +136,11 @@ class MultiBackendImageWidget(forms.ClearableFileInput):
             file_input_html = super().render(name, value, attrs, renderer)
 
             # Remove any <a> link if it is already included in the file input HTML to avoid duplication
-            file_input_html = file_input_html.replace(
-                f'href="{value.url}"', f'href="{value.name}"'
-            )
+            if getattr(value, "url"):
+                quoted_url = value.url.replace("&", "&amp;")
+                file_input_html = file_input_html.replace(
+                    f'href="{quoted_url}"', f'href="{value.name}"'
+                )
 
             # Return the image preview HTML + the modified file input HTML (without duplicate link)
             return format_html(f"<div>{image_html}</div><div>{file_input_html}</div>")
