@@ -32,7 +32,9 @@ CLOUDINARY_PREVIEW_TRANSFORMATION="c_thumb,g_face,h_150,w_150"
 # AWS_SECRET_ACCESS_KEY=your-secret-key
 # AWS_STORAGE_BUCKET_NAME=my-bucket
 # AWS_S3_REGION_NAME=us-east-1  # Optional for AWS
-# AWS_S3_ENDPOINT_URL=https://s3.amazonaws.com  # Change this for MinIO or other providers
+# AWS_S3_ENDPOINT_URL=https://<bucket>.s3.amazonaws.com  # Change this for MinIO or other providers
+# AWS_LOCATION=   # A path prefix that will be prepended to all uploads.
+# AWS_S3_VERIFY=   # Whether or not to verify the connection to S3. Can be set to False to not verify certificates or a path to a CA cert bundle.
 
 REDIS_URL='redis://localhost:6379/0'
 
