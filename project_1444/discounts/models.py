@@ -83,7 +83,7 @@ class PriceHistory(models.Model):
 
 class BirthdayDiscount(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="birthday_discount", verbose_name=_("Користувач"))
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=10, verbose_name=_("Знижка на день народження, %"))
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=10.00, verbose_name=_("Знижка на день народження, %"))
     valid_days = models.PositiveIntegerField(default=7, verbose_name=_("Дійсна кількість днів"))
     created_at = models.DateTimeField(auto_now_add=True)
     
