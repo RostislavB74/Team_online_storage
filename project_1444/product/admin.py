@@ -5,7 +5,7 @@ from django.contrib import admin
 from .models import (
     Categories, Material, Gemstone, Product, SubCategories,TypeGemstones, Origin,
     ProductImage, ProductCertificate, RingSizeConversion, Occasion, RingSizeConversion,Colors,
-    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts, Designs
+    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts, Designs, Weaving, Clasp, Coating, Styles
 )
 from parler.admin import TranslatableAdmin
 from django.contrib import admin
@@ -83,7 +83,30 @@ class ColorsAdmin(TranslatableAdmin):
     
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
-
+@admin.register(Styles)
+class StylesAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+@admin.register(Coating)
+class CoatingAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+@admin.register(Clasp)
+class ClaspAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+@admin.register(Weaving)
+class WeavingAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
 @admin.register(Designs)
 class DesignsAdmin(TranslatableAdmin):
     list_display = ('name', 'slug')
@@ -124,7 +147,7 @@ class ProductCertificateInline(admin.TabularInline):
 class ProductAttributesInline(TranslatableTabularInline):
     model = ProductAttributes
     extra = 1  
-    fields = ("gender", "color_coating","clasp_type", "coating_material", "description_coating", "style",)
+    fields = ("gender", "color_coating","clasp_type", "coating_material", 'weaving_type',"description_coating", "style",)
     
     verbose_name = "Характеристики"
     verbose_name_plural = "Характеристики"
@@ -145,14 +168,14 @@ class ProductMaterialInline(admin.TabularInline):
 # Налаштування для товару
 @admin.register(SubProducts)
 class SubProductsAdmin(admin.ModelAdmin):
-    list_display = ('article', 'sku', 'id', 'parent_product', 'ean_13', 'size','weight', 'length', 'width', 'size', 'price','discount_percentage', 'new_price', 'old_price', 'created_by', 'created_at', 'updated_at')
+    list_display = ('article', 'sku', 'id', 'parent_product', 'ean_13', 'size','weight', 'length', 'max_length','width', 'size', 'price','discount_percentage', 'new_price', 'old_price', 'created_by', 'created_at', 'updated_at')
     search_fields = ('position', 'sku', 'ean_13',)
     readonly_fields = ('sku', 'article', 'qr_code','id', 'created_at', 'updated_at', 'created_by',)
     actions = ['mark_as_bestseller', 'remove_bestseller', 'mark_as_discount', 'remove_discount']
 
     fieldsets = (
         ("Основна інформація", {
-            "fields": ("article" , "ean_13", "sku",'parent_product' , "id",'size', 'length', 'width', 'weight',"price",),
+            "fields": ("article" , "ean_13", "sku",'parent_product' , "id",'size', 'length', 'max_length', 'width', 'weight',"price",),
         }),
         
         ("Ціна та знижки", {
@@ -255,20 +278,7 @@ class ProductAdmin(TranslatableAdmin):
             for product in queryset:
                 product.statuses.remove(bestseller_status)
         self.message_user(request, "Статус 'bestseller' видалено у вибраних товарів.")
-    # @admin.action(description="Позначити як знижка")
-    # def mark_as_discount(self, request, queryset):
-    #     discount_status, _ = ProductStatus.objects.get_or_create(name="discount")
-    #     for product in queryset:
-    #         product.statuses.add(discount_status)
-    #     self.message_user(request, "Вибрані товари отримали статус 'discount'.")
-
-    # @admin.action(description="Прибрати статус знижки")
-    # def remove_discount(self, request, queryset):
-    #     discount_status = ProductStatus.objects.filter(name="discount").first()
-    #     if discount_status:
-    #         for product in queryset:
-    #             product.statuses.remove(discount_status)
-    #     self.message_user(request, "Статус 'discount' видалено у вибраних товарів.")
+  
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
 
