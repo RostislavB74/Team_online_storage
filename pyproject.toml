@@ -32,13 +32,13 @@ redis = {extras = ["hiredis"], version = "^5.2.1"}
 django-celery-beat = "^2.7.0"
 ipython = "^8.32.0"
 djoser = "^2.3.1"
-psycopg = "^3.2.5"
-psycopg-binary = "^3.2.5"
 django-cors-headers = "^4.7.0"
 django-extensions = "^3.2.3"
 django-parler = "^2.3"
 cloudinary = "^1.42.2"
-django-storages = "^1.14.5"
+psycopg = {extras = ["binary"], version = "^3.2.6"}
+django-cloudinary-storage = "^0.3.0"
+django-storages = {extras = ["s3"], version = "^1.14.5"}
 django-cloudinary-storage = "^0.3.0"
 
 
