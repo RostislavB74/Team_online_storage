@@ -39,6 +39,7 @@ cloudinary = "^1.42.2"
 psycopg = {extras = ["binary"], version = "^3.2.6"}
 django-cloudinary-storage = "^0.3.0"
 django-storages = {extras = ["s3"], version = "^1.14.5"}
+django-cloudinary-storage = "^0.3.0"
 
 
 [tool.poetry.group.deploy.dependencies]

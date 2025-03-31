@@ -83,7 +83,7 @@ class PriceHistory(models.Model):
 
 class BirthdayDiscount(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="birthday_discount", verbose_name=_("Користувач"))
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=10, verbose_name=_("Знижка на день народження, %"))
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=10.00, verbose_name=_("Знижка на день народження, %"))
     valid_days = models.PositiveIntegerField(default=7, verbose_name=_("Дійсна кількість днів"))
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -97,21 +97,6 @@ class BirthdayDiscount(models.Model):
     def __str__(self):
         return f"Знижка {self.discount_percentage}% для {self.user.email} на день народження"
 
-# class PersonalDiscount(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="personal_discounts", verbose_name=_("Користувач"))
-#     assigned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="assigned_discounts", verbose_name=_("Призначив"))
-#     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("Персональна знижка, %"))
-#     valid_from = models.DateTimeField(verbose_name=_("Початок дії"))
-#     valid_to = models.DateTimeField(verbose_name=_("Кінець дії"))
-#     is_active = models.BooleanField(default=True, verbose_name=_("Активний"))
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     user_groups = models.ManyToManyField('auth.Group', blank=True, related_name="group_discounts", verbose_name=_("Групи користувачів"))
-
-#     def is_valid(self):
-#         return self.is_active and self.valid_from <= now() <= self.valid_to
-
-#     def __str__(self):
-#         return f"{self.discount_percentage}% персональна знижка для {self.user.email}"
 
 class PersonalDiscount(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="personal_discounts", verbose_name=_("Користувач"))
