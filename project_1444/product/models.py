@@ -37,8 +37,49 @@ class Categories(TranslatableModel):
 
     def __str__(self):
         return self.safe_translation_getter('name', default='Без назви')  # Бере name із перекладу
-
-
+class Weaving(TranslatableModel):
+     translations = TranslatedFields(
+         name=models.CharField(max_length=255, unique=True, verbose_name='Weaving'),
+         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+     )
+ 
+     def save(self, *args, **kwargs):
+         save_with_translation(self, *args, **kwargs)
+ 
+     class Meta:
+         verbose_name = 'Плетіння'
+         verbose_name_plural = 'Плетіння'
+     def __str__(self):
+        return self.safe_translation_getter('name', default='Без назви')  # Бере name із перекладу
+class Clasp(TranslatableModel):
+     translations = TranslatedFields(
+         name=models.CharField(max_length=255, unique=True, verbose_name='Clasp'),
+         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+     )
+ 
+     def save(self, *args, **kwargs):
+         save_with_translation(self, *args, **kwargs)
+ 
+     class Meta:
+         verbose_name = 'Застібка'
+         verbose_name_plural = 'Застібка'
+     def __str__(self):
+         return self.safe_translation_getter('name', default='Без назви') 
+ 
+class Coating(TranslatableModel):
+     translations = TranslatedFields(
+         name=models.CharField(max_length=255, unique=True, verbose_name='Coating'),
+         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+     )
+ 
+     def save(self, *args, **kwargs):
+         save_with_translation(self, *args, **kwargs)
+ 
+     class Meta:
+         verbose_name = 'Покриття'
+         verbose_name_plural = 'Покриття'
+     def __str__(self):
+         return self.safe_translation_getter('name', default='Без назви') 
 class SubCategories(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True),
