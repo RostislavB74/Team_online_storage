@@ -5,7 +5,7 @@ from django.contrib import admin
 from .models import (
     Categories, Material, Gemstone, Product, SubCategories,TypeGemstones, Origin,
     ProductImage, ProductCertificate, RingSizeConversion, Occasion, RingSizeConversion,Colors,
-    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts, Designs, Weaving
+    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts, Designs, Weaving, Clasp, Coating, Styles
 )
 from parler.admin import TranslatableAdmin
 from django.contrib import admin
@@ -83,7 +83,24 @@ class ColorsAdmin(TranslatableAdmin):
     
     def get_prepopulated_fields(self, request, obj=None):
         return {'slug': ('name',)}
-
+@admin.register(Styles)
+class StylesAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+@admin.register(Coating)
+class CoatingAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
+@admin.register(Clasp)
+class ClaspAdmin(TranslatableAdmin):
+    list_display = ('name', 'slug')
+    
+    def get_prepopulated_fields(self, request, obj=None):
+        return {'slug': ('name',)}
 @admin.register(Weaving)
 class WeavingAdmin(TranslatableAdmin):
     list_display = ('name', 'slug')

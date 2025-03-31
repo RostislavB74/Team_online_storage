@@ -82,6 +82,36 @@ class Collections(TranslatableModel):
     class Meta:
         verbose_name = 'Колекція'
         verbose_name_plural = 'Колекції'
+class Clasp(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(max_length=255, unique=True, verbose_name='Clasp'),
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+    )
+
+    def save(self, *args, **kwargs):
+        save_with_translation(self, *args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Застібка'
+        verbose_name_plural = 'Застібка'
+    def __str__(self):
+        return self.safe_translation_getter('name', default='Без назви') 
+
+class Coating(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(max_length=255, unique=True, verbose_name='Coating'),
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+    )
+
+    def save(self, *args, **kwargs):
+        save_with_translation(self, *args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Покриття'
+        verbose_name_plural = 'Покриття'
+    def __str__(self):
+        return self.safe_translation_getter('name', default='Без назви') 
+
 class Weaving(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, verbose_name='Weaving'),
@@ -110,6 +140,20 @@ class Designs(TranslatableModel):
         verbose_name_plural = 'Дизайни'
     def __str__(self):
         return self.safe_translation_getter('name', default='Без назви')  # Бере name із перекладу
+class Styles(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(max_length=255, unique=True, verbose_name='Styles'),
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True), 
+    )
+
+    def save(self, *args, **kwargs):
+        save_with_translation(self, *args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Стиль'
+        verbose_name_plural = 'Стилі'
+    def __str__(self):
+        return self.safe_translation_getter('name', default='Без назви')  
 # Матеріали
 class Material(TranslatableModel):
 
@@ -341,14 +385,13 @@ class ProductAttributes(TranslatableModel):
     gender = models.CharField('Gender', max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
     color_coating=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
     weaving_type=models.ForeignKey('Weaving', on_delete=models.SET_NULL,null=True,blank=True)
+    coating_material=models.ForeignKey('Coating', on_delete=models.SET_NULL,null=True,blank=True)
+    style=models.ForeignKey('Styles', on_delete=models.SET_NULL,null=True,blank=True)
+    clasp_type=models.ForeignKey('Clasp', on_delete=models.SET_NULL,null=True,blank=True)
     # statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="status")
     translations = TranslatedFields(
-        clasp_type = models.CharField(max_length=255, blank=True, null=True),
-        coating_material = models.CharField(max_length=255, blank=True, null=True),
         description_coating = models.CharField(max_length=255, blank=True, null=True),
-        
-        style = models.CharField(max_length=255, blank=True, null=True),
-    )
+        )
    
 class ProductStatus(TranslatableModel):
     translations = TranslatedFields(

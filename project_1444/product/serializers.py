@@ -46,7 +46,7 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
     # parent_product = serializers.CharField(source='parent_product.name', read_only=True)
     clasp_type=serializers.SerializerMethodField()
     coating_material=serializers.SerializerMethodField()
-    description_coating=serializers.SerializerMethodField()
+    # description_coating=serializers.SerializerMethodField()
     weaving_type=serializers.SerializerMethodField()
     class Meta:
         model=ProductAttributes
@@ -61,9 +61,9 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
     @extend_schema_field(str)
     def get_coating_material(self, obj):
         return obj.coating_material.safe_translation_getter('name', default='Без назви') if obj.coating_material else None
-    @extend_schema_field(str)
-    def get_description_coating(self, obj):
-        return obj.description_coating.safe_translation_getter('name', default='Без назви') if obj.description_coating else None
+    # @extend_schema_field(str)
+    # def get_description_coating(self, obj):
+    #     return obj.description_coating.safe_translation_getter('name', default='Без назви') if obj.description_coating else None
 
 class SubProductsSizesSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
