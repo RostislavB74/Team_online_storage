@@ -379,7 +379,7 @@ def subproduct_pre_save(sender, instance, **kwargs):
         instance.qr_code = generate_qr_code(instance)
 
 
-class ProductAttributes(TranslatableModel):
+class ProductAttributes(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="attributes")
     gender = models.CharField('Gender', max_length=20, choices=Gender.GENDER_CHOICES, default='unisex', blank=True)
     color_coating=models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
@@ -387,10 +387,8 @@ class ProductAttributes(TranslatableModel):
     coating_material=models.ForeignKey('Coating', on_delete=models.SET_NULL,null=True,blank=True)
     style=models.ForeignKey('Styles', on_delete=models.SET_NULL,null=True,blank=True)
     clasp_type=models.ForeignKey('Clasp', on_delete=models.SET_NULL,null=True,blank=True)
-    # statuses = models.ManyToManyField('ProductStatus', blank=True, related_name="status")
-    translations = TranslatedFields(
-        description_coating = models.CharField(max_length=255, blank=True, null=True),
-        )
+    description = models.ForeignKey('Descriptions', on_delete=models.SET_NULL, null=True, blank=True)
+    
    
 class ProductStatus(TranslatableModel):
     translations = TranslatedFields(
@@ -418,18 +416,15 @@ class ProductMaterial(models.Model):
         return f"{self.product} - {self.material}"
 
 
-class ProductGemstone(TranslatableModel):
+class ProductGemstone(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="gemstones")
     gemstone = models.ForeignKey('Gemstone', on_delete=models.CASCADE, null=True, blank=True)
     color = models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)  # Колір каменю
     weight = models.FloatField(null=True, blank=True)  # Вага каменю
     is_main = models.BooleanField(default=False)  # Основний камінь
     set_included = models.BooleanField(default=False)  # Камінь в комплекті
-
-    translations = TranslatedFields(
-        description = models.CharField(max_length=255, blank=True, null=True),
-    )
-
+    description = models.ForeignKey('Descriptions', on_delete=models.SET_NULL, null=True, blank=True)
+    
     class Meta:
         unique_together = ('product', 'gemstone', 'color')  # Один і той самий камінь може бути різного кольору
 
@@ -469,14 +464,49 @@ class ProductCertificate(models.Model):
 
     def __str__(self):
         return f"{self.product.article} - Certificate"
+class Descriptions(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(max_length=255),
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
+        text=models.TextField(null=True, blank=True),
+        seo_title=models.CharField(max_length=255, null=True, blank=True, unique=True),
+        seo_description=models.TextField(null=True, blank=True),
+        keywords=models.CharField(max_length=500, null=True, blank=True),
+        # slug=models.SlugField(max_length=255, unique=True, blank=True)
+    )
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Description"
+        verbose_name_plural = "Descriptions"
+
+    # def save(self, *args, **kwargs):
+    #     if not self.slug and self.seo_title:
+    #         self.slug = slugify(self.seo_title)
+    #     super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.seo_title or self.name
+    def save(self, *args, **kwargs):
+        save_with_translation(self, *args, **kwargs)
+    
+    @property
+    def name_property(self):
+        return self.safe_translation_getter('name', default='Без назви')
+    
+    def __str__(self):
+        translation = self.safe_translation_getter('name', any_language=True)
+        return translation if translation else f"Description {self.id}"
+    
 class Product(TranslatableModel):
     
     category = models.ForeignKey('Categories', on_delete=models.SET_NULL, null=True, blank=True)
     subproducts = models.ManyToManyField("SubProducts", related_name="subproducts", blank=True)
+    description_product = models.ForeignKey('Descriptions', on_delete=models.SET_NULL, null=True, blank=True)
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, null=True, blank=True),
-        description_product=models.TextField(null=True, blank=True),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
     )
     category = models.ForeignKey('Categories', on_delete=models.SET_NULL, null=True, blank=True)
