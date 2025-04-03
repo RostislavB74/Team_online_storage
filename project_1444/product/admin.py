@@ -5,7 +5,8 @@ from django.contrib import admin
 from .models import (
     Categories, Material, Gemstone, Product, SubCategories,TypeGemstones, Origin,
     ProductImage, ProductCertificate, RingSizeConversion, Occasion, RingSizeConversion,Colors,
-    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts, Designs, Weaving, Clasp, Coating, Styles
+    ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts, 
+    Designs, Weaving, Clasp, Coating, Styles, Descriptions
 )
 from parler.admin import TranslatableAdmin
 from django.contrib import admin
@@ -32,6 +33,15 @@ from django.utils.text import slugify
 #     list_display = ('name',)
 #     search_fields = ('name',) 
 #     list_display_links = ('name',)
+@admin.register(Descriptions)
+class DescriptionsAdmin(TranslatableAdmin):
+    list_display = ('get_name','slug','text', 'seo_title', 'seo_description', 'keywords',)
+    search_fields = ('translations__text',)
+    list_display_links = ('get_name','text','keywords', 'seo_title',)
+    def get_name(self, obj):
+        return obj.safe_translation_getter("name", default=_("Unnamed"))
+    get_name.admin_order_field = "translations__name"
+    get_name.short_description = _("Name")
 
     
 @admin.register(Gemstone)
@@ -144,10 +154,10 @@ class ProductImageInline(admin.TabularInline):
 class ProductCertificateInline(admin.TabularInline):
     model = ProductCertificate
     extra = 1
-class ProductAttributesInline(TranslatableTabularInline):
+class ProductAttributesInline(admin.TabularInline):
     model = ProductAttributes
     extra = 1  
-    fields = ("gender", "color_coating","clasp_type", "coating_material", 'weaving_type',"description_coating", "style",)
+    fields = ("gender", "color_coating","clasp_type", "coating_material", 'weaving_type',"description", "style",)
     
     verbose_name = "Характеристики"
     verbose_name_plural = "Характеристики"

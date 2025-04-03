@@ -34,7 +34,16 @@ class CategoriesSerializer(serializers.ModelSerializer):
     @extend_schema_field(str)
     def get_slug(self, obj):
         return obj.safe_translation_getter('slug', default=None)
-
+class DescriptionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Descriptions
+        fields = ['id', 'name', 'slug', 'text', 'seo_title', 'seo_description', 'keywords']
+    @extend_schema_field(str)
+    def get_slug(self, obj):
+        return obj.safe_translation_getter('slug', default=None)
+    @extend_schema_field(str)
+    def get_name(self, obj):
+        return obj.safe_translation_getter('name', default='Без назви')
 
 class ProductStatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,11 +55,10 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
     # parent_product = serializers.CharField(source='parent_product.name', read_only=True)
     clasp_type=serializers.SerializerMethodField()
     coating_material=serializers.SerializerMethodField()
-    # description_coating=serializers.SerializerMethodField()
     weaving_type=serializers.SerializerMethodField()
     class Meta:
         model=ProductAttributes
-        fields=['id','status_display', 'gender', 'weaving_type', 'clasp_type','coating_material','description_coating' ]
+        fields=['id','status_display', 'gender', 'weaving_type', 'clasp_type','coating_material','description' ]
 
     @extend_schema_field(str)
     def get_weaving_type(self, obj):
