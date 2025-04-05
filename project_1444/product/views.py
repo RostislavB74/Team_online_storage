@@ -37,6 +37,7 @@ from .models import (
     RingSizeConversion,
     Categories,
     SubProducts,
+    Descriptions
     
 )
 from .serializers import (
@@ -47,6 +48,7 @@ from .serializers import (
     CategoriesSerializer,
     RingSizeSerializer,
     SubProductsSizesSerializer,    
+    DescriptionsSerializer
 )
 
 
@@ -57,7 +59,10 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from .models import Product
 from .serializers import TotalProductsSerializer
 
-
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+# from .serializers import *
 
 @extend_schema_view(
     get=extend_schema(
@@ -375,43 +380,15 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         return Response({"message": "Hello, API!"})
 
 
-# NOT USED
-# class ProductViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
-#     """CRUD для продуктів"""
+class DescriptionViewSet(viewsets.ModelViewSet):
+    """CRUD для продуктів"""
+    serializer_class = DescriptionsSerializer
+    permission_classes = (AllowAny,)
 
-#     # queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#     permission_classes = (AllowAny,)
-
-#     def get_queryset(self):
-#         """Фільтрація товарів за мовою"""
-#         lang = get_language_code(self.request)
-#         return Product.objects.language(lang).all()
-
-#     def retrieve(self, request, *args, **kwargs):
-#         """Отримання продукту за slug з урахуванням мови"""
-#         lang = request.GET.get("lang", "uk")
-#         field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-#         product = get_object_or_404(
-#             Product, **{field: kwargs["pk"], "translations__language_code": lang}
-#         )
-#         serializer = self.get_serializer(product)
-#         return Response(serializer.data)
-
-#     @extend_schema(
-#         summary="Get example data",
-#         description="Returns an example response with some data.",
-#         responses={200: dict},
-#     )
-#     def get(self, request):
-#         return Response({"message": "Hello, API!"})
-from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from .models import Product
-from .serializers import *
+    def get_queryset(self):
+        """Фільтрація товарів за мовою"""
+        lang = get_language_code(self.request)
+        return Descriptions.objects.language(lang).all()
 
 class ProductViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
