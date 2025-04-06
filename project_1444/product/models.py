@@ -311,7 +311,6 @@ class SubProducts(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     length = models.FloatField(null=True, blank=True, verbose_name="Довжина (см)")
-    # min_length = models.FloatField(null=True, blank=True, verbose_name="Довжина (см)")
     max_length = models.FloatField(null=True, blank=True, verbose_name="Макс. довжина (см)")
     width = models.FloatField(null=True, blank=True, verbose_name="Ширина (см)")
     size = models.FloatField(null=True, blank=True, verbose_name="Розмір(мм) ")
@@ -387,7 +386,6 @@ class ProductAttributes(models.Model):
     coating_material=models.ForeignKey('Coating', on_delete=models.SET_NULL,null=True,blank=True)
     style=models.ForeignKey('Styles', on_delete=models.SET_NULL,null=True,blank=True)
     clasp_type=models.ForeignKey('Clasp', on_delete=models.SET_NULL,null=True,blank=True)
-    description = models.ForeignKey('Descriptions', on_delete=models.SET_NULL, null=True, blank=True)
     
    
 class ProductStatus(TranslatableModel):
@@ -465,14 +463,15 @@ class ProductCertificate(models.Model):
     def __str__(self):
         return f"{self.product.article} - Certificate"
 class Descriptions(TranslatableModel):
+    
+
     translations = TranslatedFields(
         name=models.CharField(max_length=255),
-        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
+        slug = models.SlugField(max_length=255, unique=True, blank=True, null=True),  # Загальний slug для всієї моделі
         text=models.TextField(null=True, blank=True),
-        seo_title=models.CharField(max_length=255, null=True, blank=True, unique=True),
+        seo_title=models.CharField(max_length=255, null=True, blank=True),
         seo_description=models.TextField(null=True, blank=True),
         keywords=models.CharField(max_length=500, null=True, blank=True),
-        # slug=models.SlugField(max_length=255, unique=True, blank=True)
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -482,29 +481,17 @@ class Descriptions(TranslatableModel):
         verbose_name = "Description"
         verbose_name_plural = "Descriptions"
 
-    # def save(self, *args, **kwargs):
-    #     if not self.slug and self.seo_title:
-    #         self.slug = slugify(self.seo_title)
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name)  # Генеруємо slug тільки один раз
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.seo_title or self.name
-    def save(self, *args, **kwargs):
-        save_with_translation(self, *args, **kwargs)
-    
-    @property
-    def name_property(self):
-        return self.safe_translation_getter('name', default='Без назви')
-    
-    def __str__(self):
-        translation = self.safe_translation_getter('name', any_language=True)
-        return translation if translation else f"Description {self.id}"
-    
+        return self.safe_translation_getter('name', default=f"Description {self.id}")
 class Product(TranslatableModel):
-    
+    description = models.ManyToManyField('Descriptions', blank=True, related_name="products")
     category = models.ForeignKey('Categories', on_delete=models.SET_NULL, null=True, blank=True)
     subproducts = models.ManyToManyField("SubProducts", related_name="subproducts", blank=True)
-    description_product = models.ForeignKey('Descriptions', on_delete=models.SET_NULL, null=True, blank=True)
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, null=True, blank=True),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
