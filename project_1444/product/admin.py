@@ -1,38 +1,21 @@
 from django.utils.html import format_html
 from django.utils.translation import get_language
 from django.shortcuts import get_object_or_404
-from django.contrib import admin
 from .models import (
     Categories, Material, Gemstone, Product, SubCategories,TypeGemstones, Origin,
     ProductImage, ProductCertificate, RingSizeConversion, Occasion, RingSizeConversion,Colors,
     ProductGemstone,  ProductAttributes,  Collections, ProductMaterial, ProductStatus, SubProducts, 
     Designs, Weaving, Clasp, Coating, Styles, Descriptions
 )
-from parler.admin import TranslatableAdmin
 from django.contrib import admin
-from django.utils.html import format_html
 from parler.admin import TranslatableAdmin, TranslatableTabularInline
-
 from django.utils.translation import gettext_lazy as _
-from parler.admin import TranslatableAdmin
-
 from django import forms
-
-
 from django.urls import path
 from django.shortcuts import redirect
-from django.utils.html import format_html
-
 from django.utils import translation
-
 from django.utils.text import slugify
 
-
-# @admin.register(SizeType)
-# class SizeTypeAdmin(admin.ModelAdmin):
-#     list_display = ('name',)
-#     search_fields = ('name',) 
-#     list_display_links = ('name',)
 @admin.register(Descriptions)
 class DescriptionsAdmin(TranslatableAdmin):
     list_display = ('get_name','slug','text', 'seo_title', 'seo_description', 'keywords',)
@@ -157,7 +140,7 @@ class ProductCertificateInline(admin.TabularInline):
 class ProductAttributesInline(admin.TabularInline):
     model = ProductAttributes
     extra = 1  
-    fields = ("gender", "color_coating","clasp_type", "coating_material", 'weaving_type',"description", "style",)
+    fields = ("gender", "color_coating","clasp_type", "coating_material", 'weaving_type', "style",)
     
     verbose_name = "Характеристики"
     verbose_name_plural = "Характеристики"
@@ -227,7 +210,7 @@ class ProductAdmin(TranslatableAdmin):
     readonly_fields = ('sku', 'article', 'created_at', 'updated_at', 'created_by',)
     inlines = [ProductImageInline, ProductMaterialInline, ProductGemstoneInline, ProductCertificateInline,ProductAttributesInline]
     actions = ['mark_as_bestseller', 'remove_bestseller', 'mark_as_discount', 'remove_discount']
-    filter_horizontal = ("subproducts", "statuses",) 
+    filter_horizontal = ("subproducts", "statuses", 'description',) 
     fieldsets = (
         ("Основна інформація", {
             "fields": ("category","subcategory","name","article" , "ean_13", "sku", "slug","collection", "year_collection", "design","country_of_origin",),
@@ -235,6 +218,10 @@ class ProductAdmin(TranslatableAdmin):
         }),
         ("Статуси", {
             "fields": ("statuses",),
+            "classes": ("collapse",),
+        }),
+         ("Опис товару", {
+            "fields": ("description",),
             "classes": ("collapse",),
         }),
        ("Типорозміри товару", {
