@@ -311,7 +311,6 @@ class SubProducts(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     length = models.FloatField(null=True, blank=True, verbose_name="Довжина (см)")
-    # min_length = models.FloatField(null=True, blank=True, verbose_name="Довжина (см)")
     max_length = models.FloatField(null=True, blank=True, verbose_name="Макс. довжина (см)")
     width = models.FloatField(null=True, blank=True, verbose_name="Ширина (см)")
     size = models.FloatField(null=True, blank=True, verbose_name="Розмір(мм) ")
@@ -490,7 +489,7 @@ class Descriptions(TranslatableModel):
     def __str__(self):
         return self.safe_translation_getter('name', default=f"Description {self.id}")
 class Product(TranslatableModel):
-    
+    description = models.ManyToManyField('Descriptions', blank=True, related_name="products")
     category = models.ForeignKey('Categories', on_delete=models.SET_NULL, null=True, blank=True)
     subproducts = models.ManyToManyField("SubProducts", related_name="subproducts", blank=True)
     translations = TranslatedFields(

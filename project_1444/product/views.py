@@ -1,9 +1,5 @@
 from django.conf import settings
 from rest_framework import generics, status
-from rest_framework.permissions import (
-    IsAuthenticated,
-    AllowAny,
-)
 from rest_framework import viewsets
 from django.db.models import F, FloatField
 from django.db.models.functions import Abs
@@ -19,17 +15,13 @@ from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
 )
-from rest_framework.views import APIView
+from utils.language_code import get_language_code
+from utils.cache_headers import MixinCacheHeaders
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.response import Response
-from rest_framework import viewsets
-from rest_framework import status
-from django.db.models import F
+from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
-
-from .models import RingSizeConversion  # Імпортуйте свою модель
-from .serializers import RingSizeSerializer  # Імпортуйте серіалізатор
-
 from .models import (
     Product,
     ProductImage,
@@ -48,21 +40,9 @@ from .serializers import (
     CategoriesSerializer,
     RingSizeSerializer,
     SubProductsSizesSerializer,    
-    DescriptionsSerializer
+    DescriptionsSerializer,
+    TotalProductsSerializer
 )
-
-
-from utils.language_code import get_language_code
-from utils.cache_headers import MixinCacheHeaders
-
-from rest_framework.viewsets import ReadOnlyModelViewSet
-from .models import Product
-from .serializers import TotalProductsSerializer
-
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-# from .serializers import *
 
 @extend_schema_view(
     get=extend_schema(
@@ -121,7 +101,6 @@ class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
             return cache_data
         response = super().list(request, *args, **kwargs)
         return self.add_cache_headers(response, cache_data)
-
 
 @extend_schema_view(
     get=extend_schema(
@@ -264,7 +243,6 @@ class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         response = super().retrieve(request, *args, **kwargs)
         return self.add_cache_headers(response, cache_data)
 
-
 @extend_schema(tags=["Product API"])
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
@@ -272,7 +250,6 @@ class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (IsAuthenticated,)
-
 
 @extend_schema(tags=["Tools API"])
 class RingSizeLookup(APIView):
@@ -344,7 +321,6 @@ class RingSizeLookup(APIView):
             "size_asia": size_obj.size_asia,
             "size_other_eu": size_obj.size_other_eu,
         }
-
 
 # NOT USED
 class CategoriesViewSet(viewsets.ModelViewSet):

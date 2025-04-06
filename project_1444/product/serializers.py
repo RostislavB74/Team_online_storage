@@ -19,8 +19,6 @@ class ProductMaterialSerializer(serializers.ModelSerializer):
         model = ProductMaterial
         fields = ['id', 'status_display', 'material']
 
-
-
 class CategoriesSerializer(serializers.ModelSerializer):
     name=serializers.SerializerMethodField()
     slug=serializers.SerializerMethodField()
@@ -104,7 +102,6 @@ class ProductImageSerializer(serializers.ModelSerializer):
             return f"https://res.cloudinary.com/dtftiyeso/image/upload/{public_id}.png"
         return None
 
-
 class ProductCertificateSerializer(serializers.ModelSerializer):
     file = serializers.SerializerMethodField()
 
@@ -149,19 +146,12 @@ class ProductSerializer(serializers.ModelSerializer):
     @extend_schema_field(str)
     def get_occasions(self, obj):
        return obj.safe_translation_getter('name', default='Без назви')if obj.occasions else None
-    # @extend_schema_field(str)
-    # def get_description(self, obj):
-    #    return obj.safe_translation_getter('name', default='Без назви')if obj.description else None
-    
+        
     @extend_schema_field(str)
     def get_gemstone(self, obj):
         gemstones = obj.gemstones.all()  # Використовуємо related_name="gemstones"
         return ProductGemstoneSerializer(gemstones, many=True).data if gemstones else None
-    # @extend_schema_field(str)
-    # def get_material(self, obj):
-    #     materials = obj.materials.all()  # Використовуємо related_name="gemstones"
-    #     return ProductMaterialSerializer(materials, many=True).data if materials else None
-    
+        
     @extend_schema_field(str)
     def get_category(self, obj):
         return obj.category.safe_translation_getter('name', default='Без назви') if obj.category else None
@@ -199,8 +189,6 @@ class RingSizeSerializer(serializers.Serializer):
     finger_circumference = serializers.FloatField(help_text="Обхват пальця в мм")
     ring_size = serializers.FloatField(help_text="Розмір кільця за стандартом")
 
-
-
 class TotalProductsSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     certificates = serializers.SerializerMethodField()
@@ -226,11 +214,6 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     def get_occasions(self, obj):
        return obj.safe_translation_getter('name', default='Без назви')if obj.occasions else None
     
-    
-    
-    # @extend_schema_field(str)
-    # def get_description(self, obj):
-    #    return obj.safe_translation_getter('name', default='Без назви')if obj.description_product else None
     @extend_schema_field(str)
     def get_gemstone(self, obj):
         gemstones = obj.gemstones.all()  # Використовуємо related_name="gemstones"
