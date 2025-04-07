@@ -17,6 +17,7 @@ from .utils import save_with_translation
 from cloudinary.models import CloudinaryField
 from django.utils import translation
 from utils.multi_backend_image_field import MultiBackendImageField
+from decimal import Decimal
 # Категорії
 class Categories(TranslatableModel):
     translations = TranslatedFields(
@@ -303,7 +304,7 @@ class SubProducts(models.Model):
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True) 
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Ціна")
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, default=0.00, validators=[MinValueValidator(0.00), MaxValueValidator(100.00)])  
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, default=Decimal('0.00'), validators=[MinValueValidator(Decimal('0.0')), MaxValueValidator(Decimal('100.0'))])  
     new_price = models.FloatField(null=True, blank=True)
     old_price = models.FloatField(null=True, blank=True)
     qr_code = models.ImageField(upload_to='qrcodes/', blank=True, null=True)
