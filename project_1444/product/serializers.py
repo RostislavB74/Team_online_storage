@@ -12,12 +12,25 @@ class ProductGemstoneSerializer(serializers.ModelSerializer):
         model = ProductGemstone
         fields = ['id', 'status_display', 'gemstone', 'color']
 class ProductMaterialSerializer(serializers.ModelSerializer):
-    status_display = serializers.CharField(source='get_status_display', read_only=True)
-    material = serializers.CharField(source='material.name', read_only=True)
+    material = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductMaterial
-        fields = ['id', 'status_display', 'material']
+        fields = ['id', 'is_primary', 'set_included', 'material']
+
+    def get_material(self, obj):
+        if not obj.material:
+            return None
+
+        material_obj = obj.material
+
+        return {
+            "material": material_obj.get_material_display(),  # "Золото"
+            "assay": material_obj.assay,                      # "585"
+            "color": material_obj.get_color_display(),        # "Червоний"
+            "slug": material_obj.safe_translation_getter("slug", default=None),
+            "label": f"{material_obj.get_material_display()} {material_obj.assay} {material_obj.get_color_display()}"
+        }
 
 class CategoriesSerializer(serializers.ModelSerializer):
     name=serializers.SerializerMethodField()
@@ -32,16 +45,21 @@ class CategoriesSerializer(serializers.ModelSerializer):
     @extend_schema_field(str)
     def get_slug(self, obj):
         return obj.safe_translation_getter('slug', default=None)
+
 class DescriptionsSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
+
     class Meta:
         model = Descriptions
         fields = ['id', 'name', 'slug', 'text', 'seo_title', 'seo_description', 'keywords']
-    @extend_schema_field(str)
+
     def get_slug(self, obj):
         return obj.safe_translation_getter('slug', default=None)
-    @extend_schema_field(str)
+
     def get_name(self, obj):
         return obj.safe_translation_getter('name', default='Без назви')
+
 
 class ProductStatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -253,3 +271,12 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     def get_certificates(self, obj):
         request = self.context.get('request')
         return [request.build_absolute_uri(cert.file.url) for cert in obj.certificates.all()] if request else [cert.file.url for cert in obj.certificates.all()]
+class MaterialSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Material
+        fields = ['material', 'assay', 'color', 'slug', 'name']
+
+    def get_name(self, obj):
+        return f"{obj.get_material_display()} {obj.assay} {obj.get_color_display()}"

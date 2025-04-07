@@ -487,7 +487,7 @@ class Descriptions(TranslatableModel):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.safe_translation_getter('name', default=f"Description {self.id}")
+        return self.safe_translation_getter('text', default=f"Description {self.id}")
 class Product(TranslatableModel):
     description = models.ManyToManyField('Descriptions', blank=True, related_name="products")
     category = models.ForeignKey('Categories', on_delete=models.SET_NULL, null=True, blank=True)
