@@ -11,7 +11,14 @@ import cloudinary.uploader
 
 
 class MultiBackendImageField(models.ImageField):
-    """Custom ImageField that correctly generates URLs based on storage backend."""
+    """Custom ImageField that correctly generates URLs based on storage backend.
+    Since for compatibility with ImageField, the Full URL is stored in the database,
+    and accessed as Field.name not Field.url.
+
+    Field.name = Full URL to the image
+    Field.url = double full name of the image, not used.
+    Can use str(image) for representation of the image Field.name
+    """
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("max_length", 255)
