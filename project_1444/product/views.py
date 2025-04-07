@@ -30,8 +30,7 @@ from .models import (
     RingSizeConversion,
     Categories,
     SubProducts,
-    Descriptions
-    
+    Descriptions,
 )
 from .serializers import (
     ProductSerializer,
@@ -40,10 +39,11 @@ from .serializers import (
     ProductCertificateSerializer,
     CategoriesSerializer,
     RingSizeSerializer,
-    SubProductsSizesSerializer,    
+    SubProductsSizesSerializer,
     DescriptionsSerializer,
-    TotalProductsSerializer
+    TotalProductsSerializer,
 )
+
 
 @extend_schema_view(
     get=extend_schema(
@@ -102,6 +102,7 @@ class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
             return cache_data
         response = super().list(request, *args, **kwargs)
         return self.add_cache_headers(response, cache_data)
+
 
 @extend_schema_view(
     get=extend_schema(
@@ -244,6 +245,7 @@ class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
         response = super().retrieve(request, *args, **kwargs)
         return self.add_cache_headers(response, cache_data)
 
+
 @extend_schema(tags=["Product API"])
 class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
     """Оновлення продукту"""
@@ -251,6 +253,7 @@ class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = (IsAuthenticated,)
+
 
 @extend_schema(tags=["Tools API"])
 class RingSizeLookup(APIView):
@@ -323,6 +326,7 @@ class RingSizeLookup(APIView):
             "size_other_eu": size_obj.size_other_eu,
         }
 
+
 # NOT USED
 class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
@@ -359,6 +363,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
 class DescriptionViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
+
     serializer_class = DescriptionsSerializer
     permission_classes = (AllowAny,)
 
@@ -367,31 +372,34 @@ class DescriptionViewSet(viewsets.ModelViewSet):
         lang = get_language_code(self.request)
         return Descriptions.objects.language(lang).all()
 
+
 class ProductViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
+
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
+
     def get_queryset(self):
         lang = get_language_code(self.request)
         description_qs = Descriptions.objects.language(lang)
         """Фільтрація товарів за мовою та підвантаження зв'язків"""
         # lang = get_language_code(self.request)
-        return Product.objects.language(lang).prefetch_related(
-        Prefetch('description', queryset=description_qs),
-            'statuses',
-            'subproducts',
-            'occasions',
-             'materials__material',        # якщо є
-            'attributes',       # якщо є
-            'images',           # якщо є
-            'certificates',     # якщо є
-            'gemstones'         # якщо є
-        ).select_related(
-            'category',
-            'subcategory',
-            'collection',
-            'design'
+        return (
+            Product.objects.language(lang)
+            .prefetch_related(
+                Prefetch("description", queryset=description_qs),
+                "statuses",
+                "subproducts",
+                "occasions",
+                "materials__material",  # якщо є
+                "attributes",  # якщо є
+                "images",  # якщо є
+                "certificates",  # якщо є
+                "gemstones",  # якщо є
+            )
+            .select_related("category", "subcategory", "collection", "design")
         )
+
     # def get_queryset(self):
     #     """Фільтрація товарів за мовою"""
     #     lang = get_language_code(self.request)
@@ -433,12 +441,15 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(product)
         return Response(serializer.data)
 
+
 class SubProductsSizesViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
     """CRUD для типорозмірів"""
-    queryset=SubProducts.objects.all()
+
+    queryset = SubProducts.objects.all()
     serializer_class = SubProductsSizesSerializer
     permission_classes = (AllowAny,)
-        
+
+
 class TotalProductsViewSet(ReadOnlyModelViewSet):
     queryset = Product.objects.prefetch_related("subproducts").all()
     serializer_class = TotalProductsSerializer
@@ -454,6 +465,7 @@ class TotalProductsViewSet(ReadOnlyModelViewSet):
         product = get_object_or_404(Product, id=kwargs["pk"])
         serializer = self.get_serializer(product)
         return Response(serializer.data)
+
     @extend_schema(
         summary="Get example data",
         description="Returns an example response with some data.",
