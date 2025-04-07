@@ -328,14 +328,16 @@ class ProductSerializer(serializers.ModelSerializer):
     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
     def get_certificates(self, obj):
         request = self.context.get("request")
-        return (
-            [
-                request.build_absolute_uri(cert.file.url)
-                for cert in obj.certificates.all()
-            ]
-            if request
-            else [cert.file.url for cert in obj.certificates.all()]
-        )
+        return [str(cert.file) for cert in obj.certificates.all()] if request else []
+
+        # return (
+        #     [
+        #         request.build_absolute_uri(cert.file.url)
+        #         for cert in obj.certificates.all()
+        #     ]
+        #     if request
+        #     else [cert.file.url for cert in obj.certificates.all()]
+        # )
 
 
 class RingSizeSerializer(serializers.Serializer):
@@ -447,23 +449,25 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
     def get_images(self, obj):
         request = self.context.get("request")
-        return (
-            [request.build_absolute_uri(img.image.url) for img in obj.images.all()]
-            if request
-            else [img.image.url for img in obj.images.all()]
-        )
+        return [str(img.image) for img in obj.images.all()] if request else []
+        # return (
+        #     [request.build_absolute_uri(img.image.url) for img in obj.images.all()]
+        #     if request
+        #     else [img.image.url for img in obj.images.all()]
+        # )
 
     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
     def get_certificates(self, obj):
         request = self.context.get("request")
-        return (
-            [
-                request.build_absolute_uri(cert.file.url)
-                for cert in obj.certificates.all()
-            ]
-            if request
-            else [cert.file.url for cert in obj.certificates.all()]
-        )
+        return [str(cert.file) for cert in obj.certificates.all()] if request else []
+        # return (
+        #     [
+        #         request.build_absolute_uri(cert.file.url)
+        #         for cert in obj.certificates.all()
+        #     ]
+        #     if request
+        #     else [cert.file.url for cert in obj.certificates.all()]
+        # )
 
 
 class MaterialSerializer(serializers.ModelSerializer):
