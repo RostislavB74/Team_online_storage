@@ -118,42 +118,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/TotalProducts'
           description: ''
-  /api/v1/api/v1/livez/:
-    get:
-      operationId: api_v1_api_v1_livez_retrieve
-      tags:
-      - api
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthCheck'
-          description: ''
-  /api/v1/api/v1/version/:
-    get:
-      operationId: api_v1_api_v1_version_retrieve
-      tags:
-      - api
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Version'
-          description: ''
   /api/v1/cart/:
     get:
       operationId: api_v1_cart_list
@@ -489,11 +453,198 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/description/:
+    get:
+      operationId: api_v1_description_list
+      description: CRUD для продуктів
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Descriptions'
+          description: ''
+    post:
+      operationId: api_v1_description_create
+      description: CRUD для продуктів
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Descriptions'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Descriptions'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Descriptions'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Descriptions'
+          description: ''
+  /api/v1/description/{id}/:
+    get:
+      operationId: api_v1_description_retrieve
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Description.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Descriptions'
+          description: ''
+    put:
+      operationId: api_v1_description_update
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Description.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Descriptions'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Descriptions'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Descriptions'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Descriptions'
+          description: ''
+    patch:
+      operationId: api_v1_description_partial_update
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Description.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDescriptions'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDescriptions'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDescriptions'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Descriptions'
+          description: ''
+    delete:
+      operationId: api_v1_description_destroy
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Description.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/livez/:
+    get:
+      operationId: api_v1_livez_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+          description: ''
   /api/v1/orders/:
     get:
       operationId: api_v1_orders_list
       tags:
-      - Order API
+      - api
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -512,7 +663,7 @@ paths:
     post:
       operationId: api_v1_orders_create
       tags:
-      - Order API
+      - api
       requestBody:
         content:
           application/json:
@@ -548,7 +699,7 @@ paths:
         description: A unique integer value identifying this order.
         required: true
       tags:
-      - Order API
+      - api
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -572,7 +723,7 @@ paths:
         description: A unique integer value identifying this order.
         required: true
       tags:
-      - Order API
+      - api
       requestBody:
         content:
           application/json:
@@ -607,7 +758,7 @@ paths:
         description: A unique integer value identifying this order.
         required: true
       tags:
-      - Order API
+      - api
       requestBody:
         content:
           application/json:
@@ -642,7 +793,7 @@ paths:
         description: A unique integer value identifying this order.
         required: true
       tags:
-      - Order API
+      - api
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -655,9 +806,39 @@ paths:
   /api/v1/orders/create-from-cart/:
     post:
       operationId: api_v1_orders_create_from_cart_create
-      description: Створити замовлення з корзини користувача
+      description: Створити замовлення з корзини користувача з урахуванням знижок
       tags:
-      - Order API
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/v1/orders/create-manual/:
+    post:
+      operationId: api_v1_orders_create_manual_create
+      description: Створити замовлення вручну, вказавши товари
+      tags:
+      - api
       requestBody:
         content:
           application/json:
@@ -735,25 +916,13 @@ paths:
   /api/v1/product/{id}/:
     get:
       operationId: api_v1_product_retrieve
-      description: Retrieve a product by ID or slug with language support
+      description: Отримання продукту за id або slug з урахуванням мови
       parameters:
       - in: path
         name: id
         schema:
           type: integer
         description: A unique integer value identifying this product.
-        required: true
-      - in: query
-        name: lang
-        schema:
-          type: string
-          default: uk
-        description: Language code (e.g., 'uk', 'en')
-      - in: path
-        name: lookup
-        schema:
-          type: string
-        description: ID (integer) or slug of the product
         required: true
       tags:
       - api
@@ -863,62 +1032,6 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/v1/products/:
-    get:
-      operationId: api_v1_products_list
-      description: Отримати список продуктів або створити новий
-      parameters:
-      - in: header
-        name: Accept-Language
-        schema:
-          type: string
-        description: 'Обрана мова для відповіді. Дозволені значення: uk, en.'
-      tags:
-      - Product API
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
-          description: ''
-    post:
-      operationId: api_v1_products_create
-      description: Отримати список продуктів або створити новий
-      tags:
-      - Product API
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Product'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Product'
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-          description: ''
   /api/v1/ring-size/:
     get:
       operationId: api_v1_ring_size_retrieve
@@ -1118,6 +1231,24 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/version/:
+    get:
+      operationId: api_v1_version_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+          description: ''
 components:
   schemas:
     ApiSchema:
@@ -1130,6 +1261,9 @@ components:
             format: uri
       required:
       - endpoints
+    BlankEnum:
+      enum:
+      - ''
     Cart:
       type: object
       properties:
@@ -1199,6 +1333,50 @@ components:
         * `pickup` - Самовивіз
         * `courier` - Кур'єр
         * `nova_poshta` - Нова Пошта
+    Descriptions:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        text:
+          type: string
+          readOnly: true
+        seo_title:
+          type: string
+          readOnly: true
+        seo_description:
+          type: string
+          readOnly: true
+        keywords:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - keywords
+      - name
+      - seo_description
+      - seo_title
+      - slug
+      - text
+    GenderEnum:
+      enum:
+      - female
+      - male
+      - children
+      - unisex
+      type: string
+      description: |-
+        * `female` - Жіноче
+        * `male` - Чоловіче
+        * `children` - Дитяче
+        * `unisex` - Унісекс
     HealthCheck:
       type: object
       properties:
@@ -1340,6 +1518,30 @@ components:
           type: string
           format: date-time
           readOnly: true
+    PatchedDescriptions:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        text:
+          type: string
+          readOnly: true
+        seo_title:
+          type: string
+          readOnly: true
+        seo_description:
+          type: string
+          readOnly: true
+        keywords:
+          type: string
+          readOnly: true
     PatchedOrder:
       type: object
       properties:
@@ -1433,9 +1635,8 @@ components:
           minimum: -2147483648
           nullable: true
         occasions:
-          type: array
-          items:
-            type: integer
+          type: string
+          readOnly: true
         design:
           type: string
           readOnly: true
@@ -1447,6 +1648,19 @@ components:
           items:
             $ref: '#/components/schemas/SubProductsSizes'
           readOnly: true
+        gemstone:
+          type: string
+          readOnly: true
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductMaterial'
+          readOnly: true
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAttributes'
+          readOnly: true
         images:
           type: array
           items:
@@ -1457,14 +1671,16 @@ components:
           items:
             type: string
           readOnly: true
+        description:
+          type: array
+          items:
+            $ref: '#/components/schemas/Descriptions'
+          readOnly: true
     PatchedSubProductsSizes:
       type: object
       properties:
         id:
           type: integer
-          readOnly: true
-        parent_product:
-          type: string
           readOnly: true
         position:
           type: integer
@@ -1493,6 +1709,19 @@ components:
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
           title: Ціна
+        discount_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        new_price:
+          type: number
+          format: double
+          nullable: true
+        old_price:
+          type: number
+          format: double
+          nullable: true
         status_display:
           type: string
           readOnly: true
@@ -1506,6 +1735,11 @@ components:
           format: double
           nullable: true
           title: Довжина (см)
+        max_length:
+          type: number
+          format: double
+          nullable: true
+          title: Макс. довжина (см)
         width:
           type: number
           format: double
@@ -1563,9 +1797,8 @@ components:
           minimum: -2147483648
           nullable: true
         occasions:
-          type: array
-          items:
-            type: integer
+          type: string
+          readOnly: true
         design:
           type: string
           readOnly: true
@@ -1577,6 +1810,19 @@ components:
           items:
             $ref: '#/components/schemas/SubProductsSizes'
           readOnly: true
+        gemstone:
+          type: string
+          readOnly: true
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductMaterial'
+          readOnly: true
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAttributes'
+          readOnly: true
         images:
           type: array
           items:
@@ -1587,19 +1833,73 @@ components:
           items:
             type: string
           readOnly: true
+        description:
+          type: array
+          items:
+            $ref: '#/components/schemas/Descriptions'
+          readOnly: true
       required:
+      - attributes
       - category
       - certificates
       - collection
+      - description
       - design
+      - gemstone
       - id
       - images
+      - materials
       - name
+      - occasions
       - slug
       - status_display
       - statuses
       - subcategory
       - subproducts
+    ProductAttributes:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status_display:
+          type: string
+          readOnly: true
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        weaving_type:
+          type: string
+          readOnly: true
+        clasp_type:
+          type: string
+          readOnly: true
+        coating_material:
+          type: string
+          readOnly: true
+      required:
+      - clasp_type
+      - coating_material
+      - id
+      - status_display
+      - weaving_type
+    ProductMaterial:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        is_primary:
+          type: boolean
+        set_included:
+          type: boolean
+        material:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - material
     RingSize:
       type: object
       properties:
@@ -1632,9 +1932,6 @@ components:
         id:
           type: integer
           readOnly: true
-        parent_product:
-          type: string
-          readOnly: true
         position:
           type: integer
           maximum: 2147483647
@@ -1662,6 +1959,19 @@ components:
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
           title: Ціна
+        discount_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        new_price:
+          type: number
+          format: double
+          nullable: true
+        old_price:
+          type: number
+          format: double
+          nullable: true
         status_display:
           type: string
           readOnly: true
@@ -1675,6 +1985,11 @@ components:
           format: double
           nullable: true
           title: Довжина (см)
+        max_length:
+          type: number
+          format: double
+          nullable: true
+          title: Макс. довжина (см)
         width:
           type: number
           format: double
@@ -1682,7 +1997,6 @@ components:
           title: Ширина (см)
       required:
       - id
-      - parent_product
       - price
       - status_display
     TotalProducts:
@@ -1722,13 +2036,23 @@ components:
           type: integer
           nullable: true
         occasions:
+          type: string
+          readOnly: true
+        description:
           type: array
           items:
-            type: integer
+            $ref: '#/components/schemas/Descriptions'
+          readOnly: true
         subproducts:
           type: array
           items:
             $ref: '#/components/schemas/SubProductsSizes'
+          readOnly: true
+        gemstone:
+          type: string
+          readOnly: true
+        material:
+          type: string
           readOnly: true
         images:
           type: array
@@ -1741,14 +2065,25 @@ components:
             type: string
           readOnly: true
         design:
-          type: integer
-          nullable: true
+          type: string
+          readOnly: true
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAttributes'
+          readOnly: true
       required:
+      - attributes
       - category
       - certificates
+      - description
+      - design
+      - gemstone
       - id
       - images
+      - material
       - name
+      - occasions
       - slug
       - statuses
       - subcategory

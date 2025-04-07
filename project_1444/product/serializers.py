@@ -17,7 +17,7 @@ class ProductMaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductMaterial
         fields = ['id', 'is_primary', 'set_included', 'material']
-
+    @extend_schema_field(str)
     def get_material(self, obj):
         if not obj.material:
             return None
@@ -49,17 +49,33 @@ class CategoriesSerializer(serializers.ModelSerializer):
 class DescriptionsSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
-
+    text=serializers.SerializerMethodField()
+    seo_title=serializers.SerializerMethodField()
+    seo_description=serializers.SerializerMethodField()
+    keywords=serializers.SerializerMethodField()
     class Meta:
         model = Descriptions
         fields = ['id', 'name', 'slug', 'text', 'seo_title', 'seo_description', 'keywords']
-
+    @extend_schema_field(str)
     def get_slug(self, obj):
         return obj.safe_translation_getter('slug', default=None)
-
+    @extend_schema_field(str)
     def get_name(self, obj):
         return obj.safe_translation_getter('name', default='Без назви')
-
+    @extend_schema_field(str)
+    def get_text(self, obj):
+        return obj.safe_translation_getter('text', default='Без назви')
+    @extend_schema_field(str)
+    def get_seo_title(self, obj):
+        return obj.safe_translation_getter('seo_title', default='Без назви')
+    @extend_schema_field(str)
+    def get_seo_description(self, obj):
+        return obj.safe_translation_getter('seo_description', default='Без назви')
+    @extend_schema_field(str)
+    def get_keywords(self, obj):
+        return obj.safe_translation_getter('keywords', default='Без назви')
+    
+    
 
 class ProductStatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -277,6 +293,6 @@ class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Material
         fields = ['material', 'assay', 'color', 'slug', 'name']
-
+    @extend_schema_field(str)
     def get_name(self, obj):
         return f"{obj.get_material_display()} {obj.assay} {obj.get_color_display()}"
