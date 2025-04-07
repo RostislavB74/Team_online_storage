@@ -15,6 +15,7 @@ from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
 )
+from django.db.models import Prefetch
 from utils.language_code import get_language_code
 from utils.cache_headers import MixinCacheHeaders
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -370,30 +371,50 @@ class ProductViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
-
     def get_queryset(self):
-        """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        return Product.objects.language(lang).all()
+        description_qs = Descriptions.objects.language(lang)
+        """Фільтрація товарів за мовою та підвантаження зв'язків"""
+        # lang = get_language_code(self.request)
+        return Product.objects.language(lang).prefetch_related(
+        Prefetch('description', queryset=description_qs),
+            'statuses',
+            'subproducts',
+            'occasions',
+             'materials__material',        # якщо є
+            'attributes',       # якщо є
+            'images',           # якщо є
+            'certificates',     # якщо є
+            'gemstones'         # якщо є
+        ).select_related(
+            'category',
+            'subcategory',
+            'collection',
+            'design'
+        )
+    # def get_queryset(self):
+    #     """Фільтрація товарів за мовою"""
+    #     lang = get_language_code(self.request)
+    #     return Product.objects.language(lang).all()
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="lookup",
-                type=str,
-                location=OpenApiParameter.PATH,
-                description="ID (integer) or slug of the product"
-            ),
-            OpenApiParameter(
-                name="lang",
-                type=str,
-                location=OpenApiParameter.QUERY,
-                description="Language code (e.g., 'uk', 'en')",
-                default="uk"
-            )
-        ],
-        description="Retrieve a product by ID or slug with language support"
-    )
+    # @extend_schema(
+    #     parameters=[
+    #         OpenApiParameter(
+    #             name="lookup",
+    #             type=str,
+    #             location=OpenApiParameter.PATH,
+    #             description="ID (integer) or slug of the product"
+    #         ),
+    #         OpenApiParameter(
+    #             name="lang",
+    #             type=str,
+    #             location=OpenApiParameter.QUERY,
+    #             description="Language code (e.g., 'uk', 'en')",
+    #             default="uk"
+    #         )
+    #     ],
+    #     description="Retrieve a product by ID or slug with language support"
+    # )
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за id або slug з урахуванням мови"""
         lookup_value = kwargs.get("pk")  # Отримуємо значення з URL
