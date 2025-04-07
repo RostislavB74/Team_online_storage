@@ -6,6 +6,7 @@ from django.utils.timezone import now
 import random
 import string
 from datetime import timedelta
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -70,20 +71,9 @@ class PriceHistory(models.Model):
         return f"{self.product.name} | {self.old_price} -> {self.new_price}"
 
 
-# class PriceHistory(models.Model):
-#     product = models.ForeignKey('product.Product', on_delete=models.CASCADE, related_name="price_history", verbose_name=_("Товар"))
-#     old_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Стара ціна"))
-#     new_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Нова ціна"))
-#     discount_applied = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Застосована знижка"))
-#     changed_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Дата зміни"))
-    
-#     def __str__(self):
-#         return f"{self.product} | {self.old_price} -> {self.new_price}"
-
-
 class BirthdayDiscount(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="birthday_discount", verbose_name=_("Користувач"))
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=10.00, verbose_name=_("Знижка на день народження, %"))
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('10.00'), verbose_name=_("Знижка на день народження, %"))
     valid_days = models.PositiveIntegerField(default=7, verbose_name=_("Дійсна кількість днів"))
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -141,7 +131,7 @@ class ProductDiscount(models.Model):
 
 class BonusAccount(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="bonus_account")
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name=_("Баланс бонусів"))
 
     def __str__(self):
         return f"{self.user.username} - {self.balance} бонусів"
