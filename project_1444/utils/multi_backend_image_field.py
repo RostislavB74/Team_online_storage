@@ -8,6 +8,7 @@ from django.core.files.storage import default_storage
 from django.utils.html import format_html
 from django.db import models
 import cloudinary.uploader
+from django.utils.module_loading import import_string
 
 
 class MultiBackendImageField(models.ImageField):
@@ -172,37 +173,43 @@ class MultiBackendFileField(models.FileField):
     Since for compatibility with FileField, the Full URL is stored in the database,
     and accessed as Field.name not Field.url.
 
-    Field.name = Full URL to the image
-    Field.url = double full name of the image, not used.
-    Can use str(file) for representation of the image Field.name
+    Field.name = Full URL to the file
+    Field.url = double full name of the file, not used.
+    Can use str(file) for representation of the file Field.name
     """
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("max_length", 255)
+        default_file_storage = settings.STORAGES["default"]["BACKEND"]
+        if "cloudinary" in default_file_storage:
+            storage_class = import_string(
+                "cloudinary_storage.storage.RawMediaCloudinaryStorage"
+            )
+            kwargs.setdefault("storage", storage_class())
         super().__init__(*args, **kwargs)
 
-    @staticmethod
-    def add_preview_url(url: str, transform: str = None) -> str | None:
-        if r".cloudinary.com/" in url:
-            transform = transform or getattr(
-                settings, "CLOUDINARY_PREVIEW_TRANSFORMATION"
-            )
-            if transform:
-                return url.replace("/image/upload/", f"/image/upload/{transform}/")
-        return url if url.startswith("http") else None
+    # @staticmethod
+    # def add_preview_url(url: str, transform: str = None) -> str | None:
+    #     if r".cloudinary.com/" in url:
+    #         transform = transform or getattr(
+    #             settings, "CLOUDINARY_PREVIEW_TRANSFORMATION"
+    #         )
+    #         if transform:
+    #             return url.replace("/image/upload/", f"/image/upload/{transform}/")
+    #     return url if url.startswith("http") else None
 
     def formfield(self, **kwargs):
         """Use custom form field with an image preview in Django Admin."""
-        kwargs["form_class"] = MultiBackendImageFormField
+        kwargs["form_class"] = MultiBackendFileFormField
         return super().formfield(**kwargs)
 
     def get_full_file_url(self, file, add: bool = False):
         if not file:
             return None  # No image uploaded
 
-        image_name = file.name  # File path stored in DB
-        if image_name and image_name.startswith("http"):
-            return image_name
+        file_name = file.name  # File path stored in DB
+        if file_name and file_name.startswith("http"):
+            return file_name
 
         default_file_storage = settings.STORAGES["default"]["BACKEND"]
 
@@ -249,7 +256,7 @@ class MultiBackendFileField(models.FileField):
         if getattr(file, "name") and not file.name.startswith("http"):
             file.name = self.get_full_file_url(file)
 
-        file.preview_url = self.add_preview_url(file.name) or getattr(file, "name")
+        # file.preview_url = self.add_preview_url(file.name) or getattr(file, "name")
         return file
 
     @staticmethod
@@ -273,7 +280,7 @@ class MultiBackendFileField(models.FileField):
 
         if public_id := self.get_cloudinary_public_id(old_file_path):
             # Cloudinary delete logic
-            print(f"Deleting image from Cloudinary: {str(default_storage)}")
+            print(f"Deleting file from Cloudinary: {str(default_storage)}")
             if "cloudinary" in str(default_storage):
                 cloudinary.uploader.destroy(public_id)
         else:
@@ -283,6 +290,46 @@ class MultiBackendFileField(models.FileField):
                     default_storage.delete(old_file_path)
             except Exception as e:
                 print(f"Error deleting image {old_file_path}: {e}")  # Log error
+
+
+class MultiBackendFileFormField(forms.FileField):
+    """Custom Form Field to use the custom widget."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget = MultiBackendFileWidget()
+
+
+class MultiBackendFileWidget(forms.ClearableFileInput):
+    """Custom Widget to display images correctly in Django Admin."""
+
+    def render(self, name, value, attrs=None, renderer=None):
+        # Check if the value (image) has a URL
+        image_html = ""
+        if value:
+            # Create the HTML for the image preview with a custom style
+            # image_html = format_html(
+            #     '<img src="{}" style="max-height: 150px; max-width: 150px; padding: 5px" /><br>',
+            #     value.preview_url,
+            # )
+
+            # Call the parent class's render method but we will modify the output to remove the duplicate <a> tag
+            file_input_html = super().render(name, value, attrs, renderer)
+
+            # Remove any <a> link if it is already included in the file input HTML to avoid duplication
+            if getattr(value, "url"):
+                quoted_url = value.url.replace("&", "&amp;")
+                file_input_html = file_input_html.replace(
+                    f'href="{quoted_url}"',
+                    f' target="preview_file" href="{value.name}"',
+                )
+
+            # Return the image preview HTML + the modified file input HTML (without duplicate link)
+            return format_html(f"<div>{file_input_html}</div>")
+            # return file_input_html
+
+        # Return the standard render for non-image fields
+        return super().render(name, value, attrs, renderer)
 
 
 class UniversalImageMixin(models.Model):

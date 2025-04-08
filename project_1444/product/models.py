@@ -16,7 +16,10 @@ from django.core.exceptions import ValidationError
 from .utils import save_with_translation
 from cloudinary.models import CloudinaryField
 from django.utils import translation
-from utils.multi_backend_image_field import MultiBackendImageField
+from utils.multi_backend_image_field import (
+    MultiBackendImageField,
+    MultiBackendFileField,
+)
 from decimal import Decimal
 
 
@@ -600,7 +603,7 @@ class ProductCertificate(models.Model):
     product = models.ForeignKey(
         "Product", on_delete=models.CASCADE, related_name="certificates"
     )
-    file = MultiBackendImageField(upload_to="file/", blank=True, null=True)
+    file = MultiBackendFileField(upload_to="file/", blank=True, null=True)
     # file = CloudinaryField("file")  # Змінюємо на CloudinaryField
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
