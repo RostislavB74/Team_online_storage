@@ -234,6 +234,8 @@ class MultiBackendFileField(models.FileField):
 
             if old_file and old_file.name != new_file.name:
                 self.delete_old_file(old_file)
+        else:
+            new_file.name = self.get_full_file_url(new_file, add=True)
 
         return new_file
 
