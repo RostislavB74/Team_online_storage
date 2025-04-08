@@ -8,6 +8,7 @@ from django.core.files.storage import default_storage
 from django.utils.html import format_html
 from django.db import models
 import cloudinary.uploader
+from django.utils.module_loading import import_string
 
 
 class MultiBackendImageField(models.ImageField):
@@ -165,6 +166,170 @@ class MultiBackendImageFormField(forms.ImageField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.widget = MultiBackendImageWidget()
+
+
+class MultiBackendFileField(models.FileField):
+    """Custom FileField that correctly generates URLs based on storage backend.
+    Since for compatibility with FileField, the Full URL is stored in the database,
+    and accessed as Field.name not Field.url.
+
+    Field.name = Full URL to the file
+    Field.url = double full name of the file, not used.
+    Can use str(file) for representation of the file Field.name
+    """
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("max_length", 255)
+        default_file_storage = settings.STORAGES["default"]["BACKEND"]
+        if "cloudinary" in default_file_storage:
+            storage_class = import_string(
+                "cloudinary_storage.storage.RawMediaCloudinaryStorage"
+            )
+            kwargs.setdefault("storage", storage_class())
+        super().__init__(*args, **kwargs)
+
+    # @staticmethod
+    # def add_preview_url(url: str, transform: str = None) -> str | None:
+    #     if r".cloudinary.com/" in url:
+    #         transform = transform or getattr(
+    #             settings, "CLOUDINARY_PREVIEW_TRANSFORMATION"
+    #         )
+    #         if transform:
+    #             return url.replace("/image/upload/", f"/image/upload/{transform}/")
+    #     return url if url.startswith("http") else None
+
+    def formfield(self, **kwargs):
+        """Use custom form field with an image preview in Django Admin."""
+        kwargs["form_class"] = MultiBackendFileFormField
+        return super().formfield(**kwargs)
+
+    def get_full_file_url(self, file, add: bool = False):
+        if not file:
+            return None  # No image uploaded
+
+        file_name = file.name  # File path stored in DB
+        if file_name and file_name.startswith("http"):
+            return file_name
+
+        default_file_storage = settings.STORAGES["default"]["BACKEND"]
+
+        # Generate full URL based on storage backend
+        if default_file_storage.startswith("storages.backends."):
+            full_url = file.url
+        elif "cloudinary" in default_file_storage:
+            full_url = file.url  # Cloudinary full URL
+        else:
+            full_url = file.name if add else file.url  # Local storage
+
+        return full_url  # Store full URL in the database
+
+    def pre_save(self, model_instance, add):
+        """Override pre_save to store the full URL in the database."""
+        new_file = super().pre_save(model_instance, add)
+
+        if not new_file:
+            return None  # No image uploaded
+
+        """Delete the old image when replacing it."""
+        if not add and new_file:  # If the instance already exists and has a new image
+            old_file = getattr(
+                model_instance.__class__.objects.filter(pk=model_instance.pk).first(),
+                self.attname,
+                None,
+            )
+            new_file.name = self.get_full_file_url(new_file, add=True)
+
+            if old_file and old_file.name != new_file.name:
+                self.delete_old_file(old_file)
+        else:
+            new_file.name = self.get_full_file_url(new_file, add=True)
+
+        return new_file
+
+    def value_from_object(self, instance):
+        """Override default behavior to prevent MEDIA_URL from being added incorrectly."""
+        file = super().value_from_object(instance)
+
+        if not file:
+            return None  # No image uploaded
+
+        if getattr(file, "name") and not file.name.startswith("http"):
+            file.name = self.get_full_file_url(file)
+
+        # file.preview_url = self.add_preview_url(file.name) or getattr(file, "name")
+        return file
+
+    @staticmethod
+    def get_cloudinary_public_id(url) -> str | None:
+        try:
+            path_parsed = urlparse(url)
+            if path_parsed.scheme.startswith("http"):
+                if "cloudinary.com" in path_parsed.hostname:
+                    url_path = path_parsed.path.split("/")
+                    public_id = "/".join(url_path[5:])
+                    return public_id
+        except Exception:
+            ...
+
+    def delete_old_file(self, old_file):
+        """Delete the old image from the correct storage backend."""
+        if not old_file:
+            return
+
+        old_file_path = old_file.name  # Path stored in DB
+
+        if public_id := self.get_cloudinary_public_id(old_file_path):
+            # Cloudinary delete logic
+            print(f"Deleting file from Cloudinary: {str(default_storage)}")
+            if "cloudinary" in str(default_storage):
+                cloudinary.uploader.destroy(public_id)
+        else:
+            # Delete from S3 or local storage
+            try:
+                if default_storage.exists(old_file_path):
+                    default_storage.delete(old_file_path)
+            except Exception as e:
+                print(f"Error deleting image {old_file_path}: {e}")  # Log error
+
+
+class MultiBackendFileFormField(forms.FileField):
+    """Custom Form Field to use the custom widget."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget = MultiBackendFileWidget()
+
+
+class MultiBackendFileWidget(forms.ClearableFileInput):
+    """Custom Widget to display images correctly in Django Admin."""
+
+    def render(self, name, value, attrs=None, renderer=None):
+        # Check if the value (image) has a URL
+        image_html = ""
+        if value:
+            # Create the HTML for the image preview with a custom style
+            # image_html = format_html(
+            #     '<img src="{}" style="max-height: 150px; max-width: 150px; padding: 5px" /><br>',
+            #     value.preview_url,
+            # )
+
+            # Call the parent class's render method but we will modify the output to remove the duplicate <a> tag
+            file_input_html = super().render(name, value, attrs, renderer)
+
+            # Remove any <a> link if it is already included in the file input HTML to avoid duplication
+            if getattr(value, "url"):
+                quoted_url = value.url.replace("&", "&amp;")
+                file_input_html = file_input_html.replace(
+                    f'href="{quoted_url}"',
+                    f' target="preview_file" href="{value.name}"',
+                )
+
+            # Return the image preview HTML + the modified file input HTML (without duplicate link)
+            return format_html(f"<div>{file_input_html}</div>")
+            # return file_input_html
+
+        # Return the standard render for non-image fields
+        return super().render(name, value, attrs, renderer)
 
 
 class UniversalImageMixin(models.Model):
