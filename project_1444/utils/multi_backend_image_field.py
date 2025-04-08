@@ -77,6 +77,8 @@ class MultiBackendImageField(models.ImageField):
 
             if old_image and old_image.name != new_image.name:
                 self.delete_old_image(old_image)
+        else:
+            new_image.name = self.get_full_image_url(new_image, add=True)
 
         return new_image
 
