@@ -4,9 +4,13 @@ from django.contrib.auth import get_user_model
 from product.models import Product
 from django.contrib.auth.models import User
 from decimal import Decimal
+from discounts.models import Discount
 
 
 class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    selected_discount = models.ForeignKey(Discount, null=True, blank=True, on_delete=models.SET_NULL)
+    final_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="orders", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

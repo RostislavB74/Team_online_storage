@@ -13,7 +13,6 @@ from discounts.models import (
     Coupon,
     BirthdayDiscount,
     PersonalDiscount,
-    ProductDiscount,
     BonusAccount,
 )
 from django.db import transaction
@@ -31,7 +30,7 @@ from discounts.models import (
     Coupon,
     BirthdayDiscount,
     PersonalDiscount,
-    ProductDiscount,
+    
 )
 
 
