@@ -4,7 +4,7 @@ from product.models import Product
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from drf_spectacular.utils import extend_schema_field
-
+from discounts.models import Discount
 
 from rest_framework import serializers
 from order.models import Order, OrderItem
@@ -58,6 +58,36 @@ class OrderSerializer(serializers.ModelSerializer):
             # Тут потрібно додати логіку для створення OrderItem із Cart
             return order
 
+# orders/serializers.py
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    selected_discount = serializers.PrimaryKeyRelatedField(queryset=Discount.objects.all(), required=False)
+
+    class Meta:
+        model = Order
+        fields = ['selected_discount', '...']
+
+    def validate_selected_discount(self, discount):
+        user = self.context['request'].user
+        if discount and discount.manual_activation and discount.user != user:
+            raise serializers.ValidationError("Ця знижка не для вас або не активна.")
+        return discount
+
+    def create(self, validated_data):
+        discount = validated_data.pop('selected_discount', None)
+        order = Order.objects.create(**validated_data)
+        
+        if discount:
+            order.selected_discount = discount
+            # Обрахунок знижки
+            total = ...  # сума з товарів у замовленні
+            discounted = total * (1 - discount.discount_percent / 100)
+            order.final_price = discounted
+        else:
+            order.final_price = ...  # звичайна сума
+
+        order.save()
+        return order
 
 # class OrderItemSerializer(serializers.ModelSerializer):
 #     class Meta:

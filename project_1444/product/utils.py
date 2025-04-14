@@ -12,6 +12,7 @@
 # from parler.models import TranslatableModel, TranslatedFields
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
+from decimal import Decimal
 
 def save_with_translation(instance, *args, **kwargs):
     """Зберігає об'єкт і створює переклад, якщо його немає."""
@@ -35,3 +36,10 @@ def save_with_translation(instance, *args, **kwargs):
         translation.save()  # Зберігаємо переклад окремо
     return instance
 
+def get_price_with_discount(product, user=None):
+    applicable_discounts = get_applicable_discounts(product, user)
+    if not applicable_discounts:
+        return product.price
+    top_discount = applicable_discounts[0]
+    discounted_price = product.price * (1 - (top_discount.discount_percent / 100))
+    return discounted_price.quantize(Decimal("0.01"))

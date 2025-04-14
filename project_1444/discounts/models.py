@@ -1,35 +1,114 @@
 import uuid
-from django.db import models
-from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
-from django.utils.timezone import now
 import random
 import string
 from datetime import timedelta
 from decimal import Decimal
+from django.db import models
+from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import now
+from django.conf import settings
+from product.models import *
+from users.models import UserProfile
 
 User = get_user_model()
 
+
 def generate_promo_code(length=10):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
-
-class PromoCode(models.Model):
-    code = models.CharField(max_length=20, unique=True, default=generate_promo_code, verbose_name=_("Промокод"))
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("Знижка, %"))
+def generate_unique_promo_code():
+    while True:
+        code = generate_promo_code()
+        if not PromoCode.objects.filter(code=code).exists():
+            return code
+class BaseDiscount(models.Model):
     valid_from = models.DateTimeField(verbose_name=_("Початок дії"))
     valid_to = models.DateTimeField(verbose_name=_("Кінець дії"))
     is_active = models.BooleanField(default=True, verbose_name=_("Активний"))
+    combine_with_others = models.BooleanField(default=True)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_valid(self):
+        now_ = now()
+        return self.is_active and self.valid_from <= now_ <= self.valid_to
+
+
+class Discount(models.Model):
+    class DiscountType(models.TextChoices):
+        SEASONAL = 'seasonal', 'Сезонна'
+        BIRTHDAY = 'birthday', 'День народження'
+        PERSONAL = 'personal', 'Персональна'
+        MANUAL = 'manual', 'Ручна'
+        PROMO = 'promo', 'Промокод'
+        CATEGORY = 'category', 'По категоріях'
+        PRODUCT = 'product', 'На продукт'
+        OCCASION = 'occasion', 'З приводу'
+        COUPON = 'coupon', 'Купон'
+        MATERIAL = 'material', 'На матеріал'
+        STATUS = 'status', 'На статус'
+        GEMSTONE = 'gemstone', 'На камінь'
+        SIZE = 'size', 'На розмір'
+        GENDER = 'gender', 'На стать'
+        COLLECTION = 'collection', 'На колекцію'
+        STYLE = 'style', 'На стиль'
+
+    name = models.CharField(max_length=255)
+    discount_type = models.CharField(max_length=20, choices=DiscountType.choices)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2)
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+    combine_with_others = models.BooleanField(default=True)
+    priority = models.PositiveIntegerField(default=0)
+
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
+
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    products = models.ManyToManyField(Product, blank=True)
+    categories = models.ManyToManyField(Categories, blank=True)
+    occasions = models.ManyToManyField(Occasion, blank=True)
+    materials = models.ManyToManyField(Material, blank=True)
+    gemstones = models.ManyToManyField(Gemstone, blank=True)
+    sizes = models.ManyToManyField(RingSizeConversion, blank=True)
+    genders = models.ManyToManyField(Gender, blank=True)
+    collections = models.ManyToManyField(Collections, blank=True)
+    styles = models.ManyToManyField(Styles, blank=True)
+
+    class Meta:
+        ordering = ['-priority', 'name']
+
+    def is_valid(self, user=None):
+        now_ = now()
+        if not self.is_active or not (self.valid_from <= now_ <= self.valid_to):
+            return False
+
+        if self.discount_type == self.DiscountType.BIRTHDAY and user:
+            return hasattr(user, 'profile') and user.profile.is_birthday_today()
+
+        return True
+
+    def __str__(self):
+        return f"{self.name} ({self.discount_percent}%)"
+
+
+class PromoCode(BaseDiscount):
+    code = models.CharField(max_length=20, unique=True, default=generate_unique_promo_code, verbose_name=_("Промокод"))
+    discount_percentage = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Знижка, %"))
     usage_limit = models.PositiveIntegerField(default=1, verbose_name=_("Ліміт використання"))
     used_count = models.PositiveIntegerField(default=0, verbose_name=_("Використано"))
-    applicable_products = models.ManyToManyField('product.Product', blank=True, related_name="promo_codes", verbose_name=_("Застосовується до товарів"))
-    applicable_categories = models.ManyToManyField('product.Categories', blank=True, related_name="promo_codes", verbose_name=_("Застосовується до категорій"))
+    applicable_products = models.ManyToManyField(Product, blank=True, related_name="promo_codes", verbose_name=_("Застосовується до товарів"))
+    applicable_categories = models.ManyToManyField(Categories, blank=True, related_name="promo_codes", verbose_name=_("Застосовується до категорій"))
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
+    @property
     def is_valid(self):
         return self.is_active and self.valid_from <= now() <= self.valid_to and self.used_count < self.usage_limit
-    
+
     def use(self):
-        if self.is_valid():
+        if self.is_valid:
             self.used_count += 1
             self.save()
             return True
@@ -41,98 +120,177 @@ class PromoCode(models.Model):
 
     def __str__(self):
         return self.code
+class DiscountUsageHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    promo_code = models.ForeignKey(PromoCode, on_delete=models.SET_NULL, null=True, blank=True)
+    discount = models.ForeignKey(Discount, on_delete=models.SET_NULL, null=True, blank=True)
+    used_at = models.DateTimeField(auto_now_add=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    order_id = models.CharField(max_length=100, null=True, blank=True)
 
+    class Meta:
+        ordering = ['-used_at']
 
-class Coupon(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="coupons", verbose_name=_("Користувач"))
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("Знижка, %"))
-    valid_from = models.DateTimeField(verbose_name=_("Початок дії"))
-    valid_to = models.DateTimeField(verbose_name=_("Кінець дії"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Активний"))
+    def __str__(self):
+        return f"Промокод {self.promo_code} використаний для {self.user.email}"
+
+class Coupon(BaseDiscount):
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='coupons', verbose_name=_("Користувач"))
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="coupons", verbose_name=_("Користувач"))
+    discount_percentage = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Знижка, %"))
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
     def is_valid(self):
         return self.is_active and self.valid_from <= now() <= self.valid_to
 
     def extend_validity(self, days):
         self.valid_to += timedelta(days=days)
         self.save()
-
+    @property
+    def email(self):
+        return self.profile.user.email
     def __str__(self):
-        return f"Купон {self.discount_percentage}% для {self.user.email}"
+        return f"Купон {self.discount_percentage}% для {self.email}"
+
+
 class PriceHistory(models.Model):
-    product = models.ForeignKey('product.Product', on_delete=models.CASCADE, related_name="price_history", verbose_name=_("Товар"))
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="price_history", verbose_name=_("Товар"))
     old_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Стара ціна"))
     new_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Нова ціна"))
     discount_applied = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Застосована знижка"))
     changed_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Дата зміни"))
-    
+
     def __str__(self):
         return f"{self.product.name} | {self.old_price} -> {self.new_price}"
 
 
-class BirthdayDiscount(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="birthday_discount", verbose_name=_("Користувач"))
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('10.00'), verbose_name=_("Знижка на день народження, %"))
-    valid_days = models.PositiveIntegerField(default=7, verbose_name=_("Дійсна кількість днів"))
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def is_valid(self):
-        if self.user.date_of_birth:
-            start_date = self.user.date_of_birth.replace(year=now().year)
-            end_date = start_date + timedelta(days=self.valid_days)
-            return start_date <= now().date() <= end_date
-        return False
+class BonusAccount(models.Model):
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='bonus_account', verbose_name=_("Користувач"))
+    # user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="bonus_account")
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name=_("Баланс бонусів"))
 
     def __str__(self):
-        return f"Знижка {self.discount_percentage}% для {self.user.email} на день народження"
+        return f"{self.profile.user.username} - {self.balance} бонусів"
 
 
-class PersonalDiscount(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="personal_discounts", verbose_name=_("Користувач"))
+class PersonalDiscount(BaseDiscount):
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='personal_discounts', verbose_name=_("Користувач"))
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="personal_discounts", verbose_name=_("Користувач"))
     assigned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="assigned_discounts", verbose_name=_("Призначив"))
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("Персональна знижка, %"))
-    valid_from = models.DateTimeField(verbose_name=_("Початок дії"))
-    valid_to = models.DateTimeField(verbose_name=_("Кінець дії"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Активний"))
-    applicable_products = models.ManyToManyField('product.Product', blank=True, related_name="personal_discounts", verbose_name=_("Застосовується до товарів"))
-    applicable_categories = models.ManyToManyField('product.Categories', blank=True, related_name="personal_discounts", verbose_name=_("Застосовується до категорій"))
+    discount_percentage = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Персональна знижка, %"))
+    applicable_products = models.ManyToManyField(Product, blank=True, related_name="personal_discounts", verbose_name=_("Застосовується до товарів"))
+    applicable_categories = models.ManyToManyField(Categories, blank=True, related_name="personal_discounts", verbose_name=_("Застосовується до категорій"))
     user_groups = models.ManyToManyField('auth.Group', blank=True, related_name="group_discounts", verbose_name=_("Групи користувачів"))
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
     def is_valid(self):
         return self.is_active and self.valid_from <= now() <= self.valid_to
 
     def extend_validity(self, days):
         self.valid_to += timedelta(days=days)
         self.save()
-
+    @property
+    def email(self):
+        return self.profile.user.email
     def __str__(self):
-        return f"{self.discount_percentage}% персональна знижка для {self.user.email}"
-class ProductDiscount(models.Model):
-    product = models.ForeignKey('product.Product', on_delete=models.CASCADE, related_name="discounts", verbose_name=_("Товар"))
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("Знижка, %"))
-    valid_from = models.DateTimeField(verbose_name=_("Початок дії"))
-    valid_to = models.DateTimeField(verbose_name=_("Кінець дії"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Активний"))
+        return f"{self.discount_percentage}% персональна знижка для {self.email}"
 
+
+class BirthdayDiscount(models.Model):
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='birthday_discount', verbose_name=_("Користувач"))
+    # user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="birthday_discount", verbose_name=_("Користувач"))
+    discount_percentage = models.DecimalField(max_digits=4, decimal_places=2, default=Decimal('10.00'), verbose_name=_("Знижка на день народження, %"))
+    valid_days = models.PositiveIntegerField(default=7, verbose_name=_("Дійсна кількість днів"))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def is_valid(self):
+        if self.profile.date_of_birth:
+            today = now().date()
+            birthday_this_year = self.profile.birthday.replace(year=today.year)
+            start_date = birthday_this_year
+            end_date = birthday_this_year + timedelta(days=self.valid_days)
+            return start_date <= today <= end_date
+        return False
+    @property
+    def email(self):
+        return self.profile.user.email
+    def __str__(self):
+        return f"Знижка {self.discount_percentage}% для {self.email} на день народження"
+
+
+
+class AbstractDiscount(models.Model):
+    discount_percentage = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Знижка, %"))
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        abstract = True
+
+    @property
     def is_valid(self):
         return self.is_active and self.valid_from <= now() <= self.valid_to
 
+
+class ProductDiscount(AbstractDiscount):
+    product = models.ForeignKey('product.Product', on_delete=models.CASCADE, related_name="product_discounts", verbose_name=_("Товар"))
     def __str__(self):
         return f"{self.product.name} | {self.discount_percentage}%"
-# class PersonalDiscount(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="discounts")
-#     discount_percent = models.DecimalField(max_digits=5, decimal_places=2)  # Наприклад, 10.00%
-#     valid_until = models.DateField(blank=True, null=True)  # Термін дії
+ 
 
-#     def __str__(self):
-#         return f"{self.user.username} - {self.discount_percent}%"
+class MaterialDiscount(AbstractDiscount):
+    material=models.ForeignKey('product.Material', on_delete=models.CASCADE, related_name="material_discounts", verbose_name=_("Матеріал"))
+    def __str__(self):
+        return f"{self.material.material} | {self.discount_percentage}%"
 
-class BonusAccount(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="bonus_account")
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name=_("Баланс бонусів"))
+class StatusDiscount(AbstractDiscount):
+    status=models.ForeignKey('product.ProductStatus', on_delete=models.CASCADE, related_name="status_discounts", verbose_name=_("Статус"))
+    
+    def __str__(self):
+        return f"{self.status.name} | {self.discount_percentage}%"
+class GemstoneDiscount(AbstractDiscount):
+    gemstone=models.ForeignKey('product.Gemstone', on_delete=models.CASCADE, related_name="gemstone_discounts", verbose_name=_("Каміння"))
+    
+    def __str__(self):
+        return f"{self.gemstone.name} | {self.discount_percentage}%"
+
+
+class CategoryDiscount(AbstractDiscount):
+    category=models.ForeignKey('product.Categories', on_delete=models.CASCADE, related_name="categories_discounts", verbose_name=_("Категорії"))
+    
+    def __str__(self):
+        return f"{self.category.name} | {self.discount_percentage}%"
+class SubcategoryDiscount(AbstractDiscount):
+    subcategory=models.ForeignKey('product.Subproducts', on_delete=models.CASCADE, related_name="subcategories_discounts", verbose_name=_("Підкатегорії"))
+   
 
     def __str__(self):
-        return f"{self.user.username} - {self.balance} бонусів"
+        return f"{self.subcategory.name} | {self.discount_percentage}%"
+
+class CollectionDiscount(AbstractDiscount):
+    collection = models.ForeignKey('product.Collections', on_delete=models.CASCADE, related_name="collections_discounts", verbose_name=_("Колекції"))
+
+    def __str__(self):
+        return f"{self.collection.name} | {self.discount_percentage}%"
+
+class StylesDiscount(AbstractDiscount):
+    style=models.ForeignKey('product.Styles', on_delete=models.CASCADE, related_name="styles_discounts", verbose_name=_("Стилі"))
+   
+    def __str__(self):
+        return f"{self.style.name} | {self.discount_percentage}%"
+class OccasionsDiscount(AbstractDiscount):
+    ocassions=models.ForeignKey('product.Occasion', on_delete=models.CASCADE, related_name="occasions_discounts", verbose_name=_("Привід"))
     
+    def __str__(self):
+        return f"{self.ocassions.name} | {self.discount_percentage}%"
+class SeasonDiscount(AbstractDiscount):
+    name = models.CharField(max_length=255)  # Наприклад, "Зимова акція"
+    categories = models.ManyToManyField(Categories, blank=True)  # або products
+
+
+    def __str__(self):
+        return f"{self.name} - {self.discount_percentage}%"
