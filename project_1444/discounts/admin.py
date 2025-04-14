@@ -16,7 +16,7 @@ class PromoCodeAdmin(admin.ModelAdmin):
 
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):
-    list_display = ("user", "discount_percentage", "valid_from", "valid_to", "is_active")
+    list_display = ("profile", "discount_percentage", "valid_from", "valid_to", "is_active")
     list_filter = ("is_active", "valid_from", "valid_to")
     search_fields = ("user__email",)
     
@@ -24,7 +24,7 @@ class CouponAdmin(admin.ModelAdmin):
     verbose_name_plural = "Купони на знижку"
 @admin.register(PersonalDiscount)
 class PersonalDiscountAdmin(admin.ModelAdmin):
-    list_display = ("user", "discount_percentage", "valid_from", "valid_to", "is_active")
+    list_display = ("profile", "discount_percentage", "valid_from", "valid_to", "is_active")
     list_filter = ("is_active", "valid_from", "valid_to")
     search_fields = ("user__email",)    
 
@@ -33,7 +33,7 @@ class PersonalDiscountAdmin(admin.ModelAdmin):
 
 @admin.register(BirthdayDiscount)
 class BirthdayDiscountAdmin(admin.ModelAdmin):
-    list_display = ("user", "discount_percentage", "valid_days",)
+    list_display = ("profile", "discount_percentage", "valid_days",)
     list_filter = ("valid_days",)
     
     search_fields = ("user__email",)
