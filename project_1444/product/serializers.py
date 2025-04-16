@@ -2,6 +2,8 @@ from rest_framework import serializers
 from typing import List  # Для типу List[str]
 from drf_spectacular.utils import extend_schema_field
 from .models import *
+from django.utils.translation import gettext_lazy as _
+from .utils import *
 
 
 class ProductGemstoneSerializer(serializers.ModelSerializer):
@@ -154,8 +156,25 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
 
 class SubProductsSizesSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
+    old_price = serializers.SerializerMethodField()
+    discount_applied = serializers.SerializerMethodField()
     # parent_product = serializers.CharField(source='parent_product.name', read_only=True)
+    new_price = serializers.SerializerMethodField()
 
+    def get_new_price(self, obj):
+        request = self.context.get('request')
+        user = request.user if request and hasattr(request, 'user') else None
+        return get_discounted_price(user, obj)['new_price']
+
+    def get_old_price(self, obj):
+        request = self.context.get('request')
+        user = request.user if request and hasattr(request, 'user') else None
+        return get_discounted_price(user, obj)['old_price']
+
+    def get_discount_applied(self, obj):
+        request = self.context.get('request')
+        user = request.user if request and hasattr(request, 'user') else None
+        return get_discounted_price(user, obj)['discount_applied']
     class Meta:
         model = SubProducts
         fields = [
@@ -169,12 +188,22 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             "discount_percentage",
             "new_price",
             "old_price",
+            'discount_applied',
             "status_display",
             "size",
             "length",
             "max_length",
             "width",
         ]
+    # @extend_schema_field(str)
+    # def get_new_price(self, obj):
+    #     request = self.context.get('request')
+    #     user = request.user if request and hasattr(request, 'user') else None
+    #     return get_discounted_price(user, obj)['new_price']
+    # @extend_schema_field(str)
+    # def get_new_price(self, obj):
+    #     user = self.context.get('request').user
+    #     return get_discounted_price(user, obj)['new_price']
 
 
 class SubCategoriesSerializer(serializers.ModelSerializer):

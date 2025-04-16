@@ -622,6 +622,36 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/discounts/available/:
+    get:
+      operationId: api_v1_discounts_available_retrieve
+      parameters:
+      - in: query
+        name: category_id
+        schema:
+          type: integer
+      - in: query
+        name: product_id
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  discounts:
+                    type: array
+          description: ''
   /api/v1/livez/:
     get:
       operationId: api_v1_livez_retrieve
@@ -1715,13 +1745,14 @@ components:
           pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
           nullable: true
         new_price:
-          type: number
-          format: double
-          nullable: true
+          type: string
+          readOnly: true
         old_price:
-          type: number
-          format: double
-          nullable: true
+          type: string
+          readOnly: true
+        discount_applied:
+          type: string
+          readOnly: true
         status_display:
           type: string
           readOnly: true
@@ -1965,13 +1996,14 @@ components:
           pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
           nullable: true
         new_price:
-          type: number
-          format: double
-          nullable: true
+          type: string
+          readOnly: true
         old_price:
-          type: number
-          format: double
-          nullable: true
+          type: string
+          readOnly: true
+        discount_applied:
+          type: string
+          readOnly: true
         status_display:
           type: string
           readOnly: true
@@ -1996,7 +2028,10 @@ components:
           nullable: true
           title: Ширина (см)
       required:
+      - discount_applied
       - id
+      - new_price
+      - old_price
       - price
       - status_display
     TotalProducts:

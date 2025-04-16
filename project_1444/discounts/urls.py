@@ -6,6 +6,11 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 
+from django.urls import path
+from .views import AvailableDiscountsView
+
+app_name = "discounts"
+
 
 # router.register(r'product', ProductViewSet, basename='product')
 # router.register(r'categories', CategoriesViewSet, basename='categories')
@@ -15,6 +20,5 @@ router = DefaultRouter()
 
 urlpatterns = [
     path('', include(router.urls)),
-
-    path('my/', AvailableDiscountsView.as_view(), name='user-available-discounts'),
+    path("available/", AvailableDiscountsView.as_view(), name="available-discounts"),
 ]

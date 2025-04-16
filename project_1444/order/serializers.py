@@ -76,18 +76,25 @@ class OrderCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         discount = validated_data.pop('selected_discount', None)
         order = Order.objects.create(**validated_data)
-        
         if discount:
             order.selected_discount = discount
-            # Обрахунок знижки
-            total = ...  # сума з товарів у замовленні
-            discounted = total * (1 - discount.discount_percent / 100)
-            order.final_price = discounted
+            total=order.total_price
+            order.final_price = total * (1 - discount.discount_percent / 100)
+            order.old_price = total
         else:
-            order.final_price = ...  # звичайна сума
+            order.final_price = total
+            order.old_price = None
+        # if discount:
+        #     order.selected_discount = discount
+        #     # Обрахунок знижки
+        #     total = ...  # сума з товарів у замовленні
+        #     discounted = total * (1 - discount.discount_percent / 100)
+        #     order.final_price = discounted
+        # else:
+        #     order.final_price = ...  # звичайна сума
 
-        order.save()
-        return order
+        # order.save()
+        # return order
 
 # class OrderItemSerializer(serializers.ModelSerializer):
 #     class Meta:
