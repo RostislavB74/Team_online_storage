@@ -447,9 +447,8 @@ class SubProducts(models.Model):
         elif self.length:
             return f"{self.length} см"
         return "Невідомо"
-
     def save(self, *args, **kwargs):
-        """Автоматично встановлює порядковий номер для кожного продукту."""
+    # Автоматично встановлює порядковий номер для кожного продукту
         if not self.pk:  # Якщо створюється новий запис
             last_subproduct = (
                 SubProducts.objects.filter(parent_product=self.parent_product)
@@ -458,7 +457,34 @@ class SubProducts(models.Model):
             )
             self.position = (last_subproduct.position + 1) if last_subproduct else 1
 
+        # 💸 Логіка обчислення знижки
+        if self.discount_percentage:
+            discount = float(self.discount_percentage)
+            self.old_price = float(self.price)
+            self.new_price = round(float(self.price) * (1 - discount / 100), 2)
+        else:
+            self.old_price = None
+            self.new_price = None
+
         super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     """Автоматично встановлює порядковий номер для кожного продукту."""
+    #     if not self.pk:  # Якщо створюється новий запис
+    #         last_subproduct = (
+    #             SubProducts.objects.filter(parent_product=self.parent_product)
+    #             .order_by("position")
+    #             .last()
+    #         )
+    #         self.position = (last_subproduct.position + 1) if last_subproduct else 1
+    #     if self.discount_percentage: 
+    #         discount = float(self.discount_percentage)
+    #         self.old_price = float(self.price)
+    #         self.new_price = round(float(self.price) * (1 - discount / 100), 2)
+    #     else:
+    #         self.old_price = None
+    #         self.new_price = None
+
+    #     super().save(*args, **kwargs)
 
     def __str__(self):
         details = []
@@ -693,6 +719,7 @@ class Product(TranslatableModel):
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True)
     year_collection = models.IntegerField(null=True, blank=True)
     country_of_origin = models.CharField(max_length=255, null=True, blank=True)
+    is_ukrainian_cashback = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
