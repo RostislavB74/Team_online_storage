@@ -49,28 +49,18 @@ urlpatterns = [
     path("api/v1/", include("cart.urls")),
     path("api/v1/", include("product.urls")),
     path("api/v1/auth/", include("rest_framework.urls")),
-    path("api/v1/", include("discounts.urls")),
-    # path("api/v1/product/<int:pk>", ProductAPIDetail.as_view()),
-    # path(
-    #     "api/v1/all-products/<int:pk>",
-    #     TotalProductsViewSet.as_view({"get": "retrieve"}),
-    # ),
-    # # path("api/v1/categories/", CategoriesAPIList.as_view()),
-    # # path("api/v1/categories/<int:pk>", CategoriesAPIDetail.as_view()),
-    # path("api/v1/subproducts/", SubProductsSizesViewSet.as_view({"get": "list"})),
-    # path("api/v1/ring-size/", RingSizeLookup.as_view(), name="ring-size-lookup"),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),  # JSON схема API
-    path(
-        "api/docs/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
-    ),  # Swagger UI
-    path(
-        "api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
-    ),  # ReDoc
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"),name="swagger-ui"),  
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),  # ReDoc
     path("api/v1/livez/", HealthCheckView.as_view(), name="livez"),
     path("api/v1/version/", VersionView.as_view(), name="version"),
+    path("api/v1/", include([
+        path("discounts/", include("discounts.urls", namespace="discounts")),
+        # path("products/", include("product.urls", namespace="products")),
+        # path("cart/", include("cart.urls", namespace="cart")),
+        ])),
 ]
+
 
 if settings.STATIC_URL:
     # Redirect other static files (favicon.ico, robots.txt)
