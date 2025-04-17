@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User
+from .models import User, OTP
 from .serializers import OTPRequestSerializer, OTPVerifySerializer
 from .utils import send_otp_via_email, send_otp_via_sms, send_otp_via_telegram
 from rest_framework import generics, permissions

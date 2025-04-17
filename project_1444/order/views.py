@@ -30,6 +30,7 @@ from discounts.models import (
     Coupon,
     BirthdayDiscount,
     PersonalDiscount,
+    ProductDiscount
     
 )
 
