@@ -83,14 +83,7 @@ class CollectionDiscountAdmin(admin.ModelAdmin):
 
     verbose_name = "Знижки на колекції"
     verbose_name_plural = "Знижки на колекції"
-# @admin.register(SeasonDiscount)
-# class SeasonDiscountAdmin(admin.ModelAdmin):
-#     list_display = ("season", "discount_percentage", "valid_from", "valid_to", "is_active")
-#     list_filter = ("is_active", "valid_from", "valid_to")
-#     search_fields = ("season__name",)
 
-#     verbose_name = "Знижки на сезон"
-#     verbose_name_plural = "Знижки на сезон"
 @admin.register(OccasionsDiscount)
 class OccasionsDiscountAdmin(admin.ModelAdmin):
     list_display = ("ocassions", "discount_percentage", "valid_from", "valid_to", "is_active")

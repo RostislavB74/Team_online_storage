@@ -4,7 +4,14 @@ from django.utils.translation import gettext as _
 
 from utils.multi_backend_image_field import MultiBackendImageField
 
+class OTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
 
+    def __str__(self):
+        return f"OTP {self.code} for {self.user.username}"
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     gender = models.CharField(
