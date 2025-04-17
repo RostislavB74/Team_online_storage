@@ -654,14 +654,10 @@ class ProductCertificate(models.Model):
     def __str__(self):
         return f"{self.product.article} - Certificate"
 
-
 class Descriptions(TranslatableModel):
-
     translations = TranslatedFields(
         name=models.CharField(max_length=255),
-        slug=models.SlugField(
-            max_length=255, unique=True, blank=True, null=True
-        ),  # Загальний slug для всієї моделі
+        slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
         text=models.TextField(null=True, blank=True),
         seo_title=models.CharField(max_length=255, null=True, blank=True),
         seo_description=models.TextField(null=True, blank=True),
@@ -676,12 +672,52 @@ class Descriptions(TranslatableModel):
         verbose_name_plural = "Descriptions"
 
     def save(self, *args, **kwargs):
-        if not self.slug and self.name:
-            self.slug = slugify(self.name)  # Генеруємо slug тільки один раз
+        name = self.safe_translation_getter("name")
+        if not self.safe_translation_getter("slug") and name:
+            self.set_current_language(self.get_current_language())
+            self.slug = slugify(name)
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.safe_translation_getter("text", default=f"Description {self.id}")
+        name = self.safe_translation_getter("name")
+        return name if name is not None else f"Description {self.id}"
+# class Descriptions(TranslatableModel):
+
+#     translations = TranslatedFields(
+#         name=models.CharField(max_length=255),
+#         slug=models.SlugField(
+#             max_length=255, unique=True, blank=True, null=True
+#         ),  # Загальний slug для всієї моделі
+#         text=models.TextField(null=True, blank=True),
+#         seo_title=models.CharField(max_length=255, null=True, blank=True),
+#         seo_description=models.TextField(null=True, blank=True),
+#         keywords=models.CharField(max_length=500, null=True, blank=True),
+#     )
+
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+#     class Meta:
+#         verbose_name = "Description"
+#         verbose_name_plural = "Descriptions"
+#     def save(self, *args, **kwargs):
+#         # Генеруємо slug на основі name для поточної мови
+#         name = self.safe_translation_getter("name")
+#         if not self.safe_translation_getter("slug") and name:
+#             self.set_current_language(self.get_current_language())
+#             self.slug = slugify(name)
+#         super().save(*args, **kwargs)
+
+#     def __str__(self):
+#         text = self.safe_translation_getter("text")
+#         return text if text is not None else f"Description {self.id}"
+    # def save(self, *args, **kwargs):
+    #     if not self.slug and self.name:
+    #         self.slug = slugify(self.name)  # Генеруємо slug тільки один раз
+    #     super().save(*args, **kwargs)
+
+    # def __str__(self):
+    #     return self.safe_translation_getter("text", default=f"Description {self.id}")
 
 
 class Product(TranslatableModel):

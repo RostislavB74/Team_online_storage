@@ -97,21 +97,42 @@ INSTALLED_APPS = [
     "discounts",
     
 ]
+
+LANGUAGE_CODE = 'uk'  # Мова за замовчуванням
+
 PARLER_LANGUAGES = {
     None: (
         {"code": "uk", "fallbacks": ["en"], "hide_untranslated": False},
         {"code": "en", "fallbacks": ["uk"], "hide_untranslated": False},
     ),
     "default": {
-        "fallback": "uk",  # Яка мова буде за замовчуванням
+        "fallbacks": ["uk"],
+        "hide_untranslated": False,
     },
 }
+
 PARLER_LANGUAGES_LIST = [lang.get("code") for lang in PARLER_LANGUAGES.get(None, [])]
+
+GLOBAL_LANGUAGES = [
+    ('uk', 'Ukrainian'),
+    ('en', 'English'),
+]
 
 LANGUAGES = []
 for lang in GLOBAL_LANGUAGES:
     if lang[0] in PARLER_LANGUAGES_LIST:
         LANGUAGES.append(lang)
+
+# Для локалізації шаблонів і API
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+# PARLER_LANGUAGES_LIST = [lang.get("code") for lang in PARLER_LANGUAGES.get(None, [])]
+
+# LANGUAGES = []
+# for lang in GLOBAL_LANGUAGES:
+#     if lang[0] in PARLER_LANGUAGES_LIST:
+#         LANGUAGES.append(lang)
 
 
 MIDDLEWARE = [
@@ -193,14 +214,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGES = [
-    ("en", _("English")),
-    ("uk", _("Ukrainian")),
-]
+# LANGUAGES = [
+#     ("en", _("English")),
+#     ("uk", _("Ukrainian")),
+# ]
 
-LOCALE_PATHS = [
-    BASE_DIR / "locale",
-]
+# LOCALE_PATHS = [
+#     BASE_DIR / "locale",
+# ]
 LANGUAGE_CODE = "uk"
 USE_I18N = True
 USE_L10N = True
