@@ -171,7 +171,20 @@ WSGI_APPLICATION = "project_1444.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'neondb',
+#         'USER': 'your_user',
+#         'PASSWORD': 'your_password',
+#         'HOST': 'your_neon_host',
+#         'PORT': '5432',
+#     },
+#     'test': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'test_db.sqlite3',
+#     }
+# }
 try:
     if not env("DATABASE_URL", default=None):
         raise environ.ImproperlyConfigured
