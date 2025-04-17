@@ -149,10 +149,6 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
             else None
         )
 
-    # @extend_schema_field(str)
-    # def get_description_coating(self, obj):
-    #     return obj.description_coating.safe_translation_getter('name', default='Без назви') if obj.description_coating else None
-
 
 class SubProductsSizesSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
@@ -195,16 +191,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             "max_length",
             "width",
         ]
-    # @extend_schema_field(str)
-    # def get_new_price(self, obj):
-    #     request = self.context.get('request')
-    #     user = request.user if request and hasattr(request, 'user') else None
-    #     return get_discounted_price(user, obj)['new_price']
-    # @extend_schema_field(str)
-    # def get_new_price(self, obj):
-    #     user = self.context.get('request').user
-    #     return get_discounted_price(user, obj)['new_price']
-
+    
 
 class SubCategoriesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -359,16 +346,7 @@ class ProductSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         return [str(cert.file) for cert in obj.certificates.all()] if request else []
 
-        # return (
-        #     [
-        #         request.build_absolute_uri(cert.file.url)
-        #         for cert in obj.certificates.all()
-        #     ]
-        #     if request
-        #     else [cert.file.url for cert in obj.certificates.all()]
-        # )
-
-
+       
 class RingSizeSerializer(serializers.Serializer):
     finger_circumference = serializers.FloatField(help_text="Обхват пальця в мм")
     ring_size = serializers.FloatField(help_text="Розмір кільця за стандартом")
@@ -489,15 +467,7 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     def get_certificates(self, obj):
         request = self.context.get("request")
         return [str(cert.file) for cert in obj.certificates.all()] if request else []
-        # return (
-        #     [
-        #         request.build_absolute_uri(cert.file.url)
-        #         for cert in obj.certificates.all()
-        #     ]
-        #     if request
-        #     else [cert.file.url for cert in obj.certificates.all()]
-        # )
-
+      
 
 class MaterialSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
