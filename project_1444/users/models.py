@@ -6,7 +6,7 @@ from utils.multi_backend_image_field import MultiBackendImageField
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     gender = models.CharField(
         max_length=1,
         choices=[("M", _("Male")), ("F", _("Female"))],
