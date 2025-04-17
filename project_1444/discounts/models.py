@@ -10,7 +10,16 @@ from django.utils.timezone import now
 from django.conf import settings
 from product.models import *
 from users.models import UserProfile
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import now
+from django.contrib.auth.models import User
+from product.models import Product, Categories, SubProducts
+from users.models import UserProfile
+from datetime import timedelta
 
+def default_valid_to():
+    return now() + timedelta(days=30)
 User = get_user_model()
 
 
@@ -173,16 +182,18 @@ class BonusAccount(models.Model):
     def __str__(self):
         return f"{self.profile.user.username} - {self.balance} бонусів"
 
-
 class PersonalDiscount(BaseDiscount):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='personal_discounts', verbose_name=_("Користувач"))
-    # user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="personal_discounts", verbose_name=_("Користувач"))
     assigned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="assigned_discounts", verbose_name=_("Призначив"))
     discount_percentage = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Персональна знижка, %"))
     applicable_products = models.ManyToManyField(Product, blank=True, related_name="personal_discounts", verbose_name=_("Застосовується до товарів"))
+    applicable_subproducts = models.ManyToManyField(SubProducts, blank=True, related_name="personal_discounts", verbose_name=_("Застосовується до субпродуктів"))
     applicable_categories = models.ManyToManyField(Categories, blank=True, related_name="personal_discounts", verbose_name=_("Застосовується до категорій"))
     user_groups = models.ManyToManyField('auth.Group', blank=True, related_name="group_discounts", verbose_name=_("Групи користувачів"))
     created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True, verbose_name=_("Активна"))
+    valid_from = models.DateTimeField(default=now, verbose_name=_("Дійсна з"))
+    valid_to = models.DateTimeField(default=default_valid_to, verbose_name=_("Дійсна до"))
 
     @property
     def is_valid(self):
@@ -191,11 +202,39 @@ class PersonalDiscount(BaseDiscount):
     def extend_validity(self, days):
         self.valid_to += timedelta(days=days)
         self.save()
+
     @property
     def email(self):
         return self.profile.user.email
+
     def __str__(self):
         return f"{self.discount_percentage}% персональна знижка для {self.email}"
+
+    class Meta:
+        verbose_name = _("Персональна знижка")
+        verbose_name_plural = _("Персональні знижки")
+# class PersonalDiscount(BaseDiscount):
+#     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='personal_discounts', verbose_name=_("Користувач"))
+#     # user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="personal_discounts", verbose_name=_("Користувач"))
+#     assigned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="assigned_discounts", verbose_name=_("Призначив"))
+#     discount_percentage = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Персональна знижка, %"))
+#     applicable_products = models.ManyToManyField(Product, blank=True, related_name="personal_discounts", verbose_name=_("Застосовується до товарів"))
+#     applicable_categories = models.ManyToManyField(Categories, blank=True, related_name="personal_discounts", verbose_name=_("Застосовується до категорій"))
+#     user_groups = models.ManyToManyField('auth.Group', blank=True, related_name="group_discounts", verbose_name=_("Групи користувачів"))
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     @property
+#     def is_valid(self):
+#         return self.is_active and self.valid_from <= now() <= self.valid_to
+
+#     def extend_validity(self, days):
+#         self.valid_to += timedelta(days=days)
+#         self.save()
+#     @property
+#     def email(self):
+#         return self.profile.user.email
+#     def __str__(self):
+#         return f"{self.discount_percentage}% персональна знижка для {self.email}"
 
 
 class BirthdayDiscount(models.Model):
