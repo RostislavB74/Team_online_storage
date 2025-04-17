@@ -36,31 +36,115 @@ from django.urls import path
 from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.text import slugify
-
-
 @admin.register(Descriptions)
 class DescriptionsAdmin(TranslatableAdmin):
     list_display = (
         "get_name",
-        "slug",
-        "text",
-        "seo_title",
-        "seo_description",
-        "keywords",
+        "get_slug",
+        "get_text",
+        "get_seo_title",
+        "get_seo_description",
+        "get_keywords",
     )
-    search_fields = ("translations__text",)
+    search_fields = ("translations__name", "translations__text", "translations__slug")
     list_display_links = (
         "get_name",
-        "text",
-        "keywords",
-        "seo_title",
+        "get_text",
     )
 
     def get_name(self, obj):
         return obj.safe_translation_getter("name", default=_("Unnamed"))
 
+    def get_slug(self, obj):
+        return obj.safe_translation_getter("slug", default=_("No slug"))
+
+    def get_text(self, obj):
+        return obj.safe_translation_getter("text", default=_("No text"))
+
+    def get_seo_title(self, obj):
+        return obj.safe_translation_getter("seo_title", default=_("No SEO title"))
+
+    def get_seo_description(self, obj):
+        return obj.safe_translation_getter("seo_description", default=_("No SEO description"))
+
+    def get_keywords(self, obj):
+        return obj.safe_translation_getter("keywords", default=_("No keywords"))
+
     get_name.admin_order_field = "translations__name"
     get_name.short_description = _("Name")
+
+    get_slug.admin_order_field = "translations__slug"
+    get_slug.short_description = _("Slug")
+
+    get_text.admin_order_field = "translations__text"
+    get_text.short_description = _("Text")
+
+    get_seo_title.admin_order_field = "translations__seo_title"
+    get_seo_title.short_description = _("SEO Title")
+
+    get_seo_description.admin_order_field = "translations__seo_description"
+    get_seo_description.short_description = _("SEO Description")
+
+    get_keywords.admin_order_field = "translations__keywords"
+    get_keywords.short_description = _("Keywords")
+# @admin.register(Descriptions)
+# class DescriptionsAdmin(TranslatableAdmin):
+#     list_display = (
+#         "get_name",
+#         "get_slug",  # Додаємо метод для slug
+#         "get_text",  # Додаємо метод для text
+#         "seo_title",
+#         "seo_description",
+#         "keywords",
+#     )
+#     search_fields = ("translations__name", "translations__text", "translations__slug")
+#     list_display_links = (
+#         "get_name",
+#         "get_text",
+#     )
+
+#     def get_name(self, obj):
+#         return obj.safe_translation_getter("name", default=_("Unnamed"))
+
+#     def get_slug(self, obj):
+#         return obj.safe_translation_getter("slug", default=_("No slug"))
+
+#     def get_text(self, obj):
+#         text = obj.safe_translation_getter("text")
+#         return text if text is not None else _("No text")
+
+#     get_name.admin_order_field = "translations__name"
+#     get_name.short_description = _("Name")
+
+#     get_slug.admin_order_field = "translations__slug"
+#     get_slug.short_description = _("Slug")
+
+#     get_text.admin_order_field = "translations__text"
+#     get_text.short_description = _("Text")
+
+# @admin.register(Descriptions)
+# class DescriptionsAdmin(TranslatableAdmin):
+#     list_display = (
+#         "get_name",
+#         "slug",
+#         "text",
+#         "seo_title",
+#         "seo_description",
+#         "keywords",
+#     )
+#     search_fields = ("translations__text",)
+#     list_display_links = (
+#         "get_name",
+#         "text",
+#         "keywords",
+#         "seo_title",
+#     )
+
+#     def get_name(self, obj):
+#         return obj.safe_translation_getter("name", default=_("Unnamed"))
+
+#     get_name.admin_order_field = "translations__name"
+#     get_name.short_description = _("Name")
 
 
 @admin.register(Gemstone)

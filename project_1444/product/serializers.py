@@ -160,17 +160,17 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     discount_applied = serializers.SerializerMethodField()
     # parent_product = serializers.CharField(source='parent_product.name', read_only=True)
     new_price = serializers.SerializerMethodField()
-
+    @extend_schema_field(str)
     def get_new_price(self, obj):
         request = self.context.get('request')
         user = request.user if request and hasattr(request, 'user') else None
         return get_discounted_price(user, obj)['new_price']
-
+    @extend_schema_field(str)
     def get_old_price(self, obj):
         request = self.context.get('request')
         user = request.user if request and hasattr(request, 'user') else None
         return get_discounted_price(user, obj)['old_price']
-
+    @extend_schema_field(str)
     def get_discount_applied(self, obj):
         request = self.context.get('request')
         user = request.user if request and hasattr(request, 'user') else None
