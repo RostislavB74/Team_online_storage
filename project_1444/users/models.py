@@ -17,20 +17,15 @@ class OTP(models.Model):
         return f"OTP {self.code} for {self.user.username}"
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    gender = models.CharField(
-        max_length=1,
-        choices=[("M", _("Male")), ("F", _("Female"))],
-        blank=True,
-        null=True,
-    )
+    gender = models.CharField(max_length=1,choices=[("M", _("Male")), ("F", _("Female"))],blank=True,null=True,)
     telegram = models.CharField(max_length=50, blank=True, null=True)
     viber = models.CharField(max_length=50, blank=True, null=True)
-    phone = models.CharField(max_length=15, blank=True, null=True)  # Додатковий номер
+    phone = models.CharField(max_length=15, blank=True, null=True)  
     avatar = MultiBackendImageField(upload_to="avatars/", blank=True, null=True)
-    birthday = models.DateField(blank=True, null=True)  # Виправлена назва
+    birthday = models.DateField(blank=True, null=True) 
     partner_name = models.CharField(max_length=100, blank=True, null=True)
     partner_birthday = models.DateField(blank=True, null=True)
-
+    address = models.TextField(blank=True, null=True)  
     wedding_date = models.DateField(blank=True, null=True)
     ocassions_personal = models.CharField(max_length=100, blank=True, null=True)
     ocassions_date = models.DateField(blank=True, null=True)

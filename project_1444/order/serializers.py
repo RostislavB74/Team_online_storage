@@ -1,87 +1,144 @@
 from rest_framework import serializers
 from .models import Order, OrderItem
-from product.models import Product
-from django.contrib.auth import get_user_model
-from django.db import transaction
-from drf_spectacular.utils import extend_schema_field
-from discounts.models import Discount
-
-from rest_framework import serializers
-from order.models import Order, OrderItem
-from product.models import Product
-from discounts.models import PriceHistory
-
+from product.models import SubProducts
+from product.serializers import SubProductsSizesSerializer
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(source="product.name", read_only=True)
-
-    class Meta:
-        model = OrderItem
-        fields = [
-            "id",
-            "product",
-            "product_name",
-            "quantity",
-            "product_price",
-            "total_price",
-        ]
-
-
-class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
-    total_price = serializers.DecimalField(
-        max_digits=10, decimal_places=2, read_only=True
+    product = SubProductsSizesSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubProducts.objects.all(), source='product', write_only=True
     )
 
     class Meta:
-        model = Order
-        fields = [
-            "id",
-            "user",
-            "created_at",
-            "updated_at",
-            "total_price",
-            "payment_method",
-            "delivery_method",
-            "recipient_name",
-            "recipient_phone",
-            "coupon",
-            "discount",
-            "status",
-            "call_me",
-            "items",
-        ]
+        model = OrderItem
+        fields = ['product', 'product_id', 'quantity', 'product_price', 'total_price']
 
-    def create(self, validated_data):
-        with transaction.atomic():
-            order = Order.objects.create(**validated_data)
-            # Тут потрібно додати логіку для створення OrderItem із Cart
-            return order
-
-# orders/serializers.py
-
-class OrderCreateSerializer(serializers.ModelSerializer):
-    selected_discount = serializers.PrimaryKeyRelatedField(queryset=Discount.objects.all(), required=False)
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    manual_items = OrderItemSerializer(many=True, write_only=True, required=False)
 
     class Meta:
         model = Order
-        fields = ['selected_discount', '...']
+        fields = [
+            'id', 'user', 'payment_method', 'delivery_method', 'recipient_name',
+            'recipient_phone', 'address', 'coupon', 'call_me', 'total_price',
+            'discount', 'final_price', 'status', 'created_at', 'updated_at',
+            'items', 'manual_items'
+        ]
+# class OrderItemSerializer(serializers.ModelSerializer):
+#     product = SubProductsSizesSerializer(read_only=True)
+#     product_id = serializers.PrimaryKeyRelatedField(
+#         queryset=SubProducts.objects.all(), source='product', write_only=True
+#     )
 
-    def validate_selected_discount(self, discount):
-        user = self.context['request'].user
-        if discount and discount.manual_activation and discount.user != user:
-            raise serializers.ValidationError("Ця знижка не для вас або не активна.")
-        return discount
+#     class Meta:
+#         model = OrderItem
+#         fields = ['product', 'product_id', 'quantity', 'product_price', 'total_price']
+
+# class OrderSerializer(serializers.ModelSerializer):
+#     items = OrderItemSerializer(many=True, read_only=True)
+#     manual_items = OrderItemSerializer(many=True, write_only=True, required=False)
+
+#     class Meta:
+#         model = Order
+#         fields = [
+#             'id', 'user', 'payment_method', 'delivery_method', 'recipient_name',
+#             'recipient_phone', 'address', 'coupon', 'call_me', 'total_price',
+#             'discount', 'final_price', 'status', 'created_at', 'updated_at',
+#             'items', 'manual_items'
+#         ]
 
     def create(self, validated_data):
-        discount = validated_data.pop('selected_discount', None)
+        manual_items_data = validated_data.pop('manual_items', [])
         order = Order.objects.create(**validated_data)
-        if discount:
-            order.selected_discount = discount
-            total=order.total_price
-            order.final_price = total * (1 - discount.discount_percent / 100)
-            order.old_price = total
-        else:
-            order.final_price = total
-            order.old_price = None
+        OrderItem.objects.bulk_create([OrderItem(order=order, **item) for item in manual_items_data])
+        return order
+
+
+# from rest_framework import serializers
+# from .models import Order, OrderItem
+# from product.models import Product
+# from django.contrib.auth import get_user_model
+# from django.db import transaction
+# from drf_spectacular.utils import extend_schema_field
+# from discounts.models import Discount
+
+# from rest_framework import serializers
+# from order.models import Order, OrderItem
+# from product.models import Product
+# from discounts.models import PriceHistory
+
+
+# class OrderItemSerializer(serializers.ModelSerializer):
+#     product_name = serializers.CharField(source="product.name", read_only=True)
+
+#     class Meta:
+#         model = OrderItem
+#         fields = [
+#             "id",
+#             "product",
+#             "product_name",
+#             "quantity",
+#             "product_price",
+#             "total_price",
+#         ]
+
+
+# class OrderSerializer(serializers.ModelSerializer):
+#     items = OrderItemSerializer(many=True, read_only=True)
+#     total_price = serializers.DecimalField(
+#         max_digits=10, decimal_places=2, read_only=True
+#     )
+
+#     class Meta:
+#         model = Order
+#         fields = [
+#             "id",
+#             "user",
+#             "created_at",
+#             "updated_at",
+#             "total_price",
+#             "payment_method",
+#             "delivery_method",
+#             "recipient_name",
+#             "recipient_phone",
+#             "coupon",
+#             "discount",
+#             "status",
+#             "call_me",
+#             "items",
+#         ]
+
+#     def create(self, validated_data):
+#         with transaction.atomic():
+#             order = Order.objects.create(**validated_data)
+#             # Тут потрібно додати логіку для створення OrderItem із Cart
+#             return order
+
+# # orders/serializers.py
+
+# class OrderCreateSerializer(serializers.ModelSerializer):
+#     selected_discount = serializers.PrimaryKeyRelatedField(queryset=Discount.objects.all(), required=False)
+
+#     class Meta:
+#         model = Order
+#         fields = ['selected_discount', '...']
+
+#     def validate_selected_discount(self, discount):
+#         user = self.context['request'].user
+#         if discount and discount.manual_activation and discount.user != user:
+#             raise serializers.ValidationError("Ця знижка не для вас або не активна.")
+#         return discount
+
+#     def create(self, validated_data):
+#         discount = validated_data.pop('selected_discount', None)
+#         order = Order.objects.create(**validated_data)
+#         if discount:
+#             order.selected_discount = discount
+#             total=order.total_price
+#             order.final_price = total * (1 - discount.discount_percent / 100)
+#             order.old_price = total
+#         else:
+#             order.final_price = total
+#             order.old_price = None
         

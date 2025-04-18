@@ -90,7 +90,8 @@ INSTALLED_APPS = [
     "cloudinary",
     # 
     "product",
-    "users",
+    'users.apps.UsersConfig',
+    # "users",
     "cart",
     "order",
     "warehouse",
@@ -171,7 +172,7 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/profile/'
 LOGOUT_REDIRECT_URL = '/'
-
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 # DATABASES = {
@@ -257,9 +258,9 @@ DEFAULT_FILE_STORAGE_OPTIONS = {}
 CLOUDINARY_PREVIEW_TRANSFORMATION = env(
     "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
 )
+
 if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
     try:
-        # CLOUDINARY_URL = env("CLOUDINARY_URL")
         CLOUDINARY_URL = CLOUDINARY_URL.rstrip("/")
         cl_url = urlparse(CLOUDINARY_URL)
         if cl_url.scheme == "cloudinary":
@@ -275,7 +276,6 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
         CLOUDINARY_MEDIA_TAG = env("CLOUDINARY_MEDIA_TAG", default=PROJECT_NAME)
 
         DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-        # MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/"
         MEDIA_URL = f"{PROJECT_NAME}/"
         CLOUDINARY_STORAGE = {
             "CLOUD_NAME": CLOUDINARY_NAME,
@@ -286,57 +286,114 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
         INSTALLED_APPS.insert(0, "cloudinary_storage")
     except (KeyError, environ.ImproperlyConfigured, ImportError) as e:
         print(
-            "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components.  Error:",
+            "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components. Error:",
             str(e),
         )
+else:
+    # Фаллбек на FileSystemStorage, якщо Cloudinary не налаштовано
+    print("Cloudinary not configured. Using FileSystemStorage as DEFAULT_FILE_STORAGE")
+    DEFAULT_FILE_STORAGE = "django.core.mail.backends.FileSystemStorage"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 
-if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
-    # Try S3 / MinIO / ... configuration
-    try:
-        AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
-        AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
-        AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
-        AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default=None)  # optional
-        AWS_S3_ENDPOINT_URL = env(
-            "AWS_S3_ENDPOINT_URL",
-            default=f"https://{AWS_STORAGE_BUCKET_NAME}.s3{AWS_S3_REGION_NAME if AWS_S3_REGION_NAME else '.'}.amazonaws.com/",
-        )
-        AWS_LOCATION = env("AWS_LOCATION", default="")
-        AWS_S3_VERIFY = env("AWS_S3_VERIFY", default=None, cast=bool)
-       
-        DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
-        DEFAULT_FILE_STORAGE_OPTIONS = {
-            "access_key": AWS_ACCESS_KEY_ID,
-            "secret_key": AWS_SECRET_ACCESS_KEY,
-            "bucket_name": AWS_STORAGE_BUCKET_NAME,
-            "region_name": AWS_S3_REGION_NAME,
-            "endpoint_url": AWS_S3_ENDPOINT_URL,
-            "location": AWS_LOCATION,
-            "verify": AWS_S3_VERIFY,
-        }
-    except (KeyError, environ.ImproperlyConfigured) as e:
-        print(
-            "AWS S3 / MinIO not configured correctly by environs. Error:",
-            str(e),
-        )
+# Налаштування STORAGES
+STORAGES = {
+    "default": {
+        "BACKEND": DEFAULT_FILE_STORAGE,
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
+# Логування конфігурації
 if DEFAULT_FILE_STORAGE:
     print(f"Using DEFAULT_FILE_STORAGE BACKEND: '{DEFAULT_FILE_STORAGE}'")
-    STORAGES = {
-        "default": {
-            "BACKEND": DEFAULT_FILE_STORAGE,
-            "OPTIONS": DEFAULT_FILE_STORAGE_OPTIONS,
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
+# CLOUDINARY_PREVIEW_TRANSFORMATION = env(
+#     "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
+# )
+# if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
+#     try:
+#         # CLOUDINARY_URL = env("CLOUDINARY_URL")
+#         CLOUDINARY_URL = CLOUDINARY_URL.rstrip("/")
+#         cl_url = urlparse(CLOUDINARY_URL)
+#         if cl_url.scheme == "cloudinary":
+#             CLOUDINARY_NAME = cl_url.hostname
+#             CLOUDINARY_API_KEY = cl_url.username
+#             CLOUDINARY_API_SECRET = cl_url.password
+#             if not all([CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
+#                 raise ValueError(
+#                     "CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET must be set"
+#                 )
+#         else:
+#             raise ValueError("cloudinary scheme not found in CLOUDINARY_URL")
+#         CLOUDINARY_MEDIA_TAG = env("CLOUDINARY_MEDIA_TAG", default=PROJECT_NAME)
 
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # for compatibility with cloudinary static files
+#         DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+#         # MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/"
+#         MEDIA_URL = f"{PROJECT_NAME}/"
+#         CLOUDINARY_STORAGE = {
+#             "CLOUD_NAME": CLOUDINARY_NAME,
+#             "API_KEY": CLOUDINARY_API_KEY,
+#             "API_SECRET": CLOUDINARY_API_SECRET,
+#             "MEDIA_TAG": CLOUDINARY_MEDIA_TAG,
+#         }
+#         INSTALLED_APPS.insert(0, "cloudinary_storage")
+#     except (KeyError, environ.ImproperlyConfigured, ImportError) as e:
+#         print(
+#             "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components.  Error:",
+#             str(e),
+#         )
 
-# Fallback for use FileSystemStorage when CLOUDINARY, or S3 / MinIO not configured
-if not DEFAULT_FILE_STORAGE:
-    print(f"Using FileSystemStorage as DEFAULT_FILE_STORAGE BACKEND")
+# if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
+#     # Try S3 / MinIO / ... configuration
+#     try:
+#         AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+#         AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+#         AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+#         AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default=None)  # optional
+#         AWS_S3_ENDPOINT_URL = env(
+#             "AWS_S3_ENDPOINT_URL",
+#             default=f"https://{AWS_STORAGE_BUCKET_NAME}.s3{AWS_S3_REGION_NAME if AWS_S3_REGION_NAME else '.'}.amazonaws.com/",
+#         )
+#         AWS_LOCATION = env("AWS_LOCATION", default="")
+#         AWS_S3_VERIFY = env("AWS_S3_VERIFY", default=None, cast=bool)
+       
+#         DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+#         DEFAULT_FILE_STORAGE_OPTIONS = {
+#             "access_key": AWS_ACCESS_KEY_ID,
+#             "secret_key": AWS_SECRET_ACCESS_KEY,
+#             "bucket_name": AWS_STORAGE_BUCKET_NAME,
+#             "region_name": AWS_S3_REGION_NAME,
+#             "endpoint_url": AWS_S3_ENDPOINT_URL,
+#             "location": AWS_LOCATION,
+#             "verify": AWS_S3_VERIFY,
+#         }
+#     except (KeyError, environ.ImproperlyConfigured) as e:
+#         print(
+#             "AWS S3 / MinIO not configured correctly by environs. Error:",
+#             str(e),
+#         )
+
+# if DEFAULT_FILE_STORAGE:
+#     print(f"Using DEFAULT_FILE_STORAGE BACKEND: '{DEFAULT_FILE_STORAGE}'")
+#     STORAGES = {
+#         "default": {
+#             "BACKEND": DEFAULT_FILE_STORAGE,
+#             "OPTIONS": DEFAULT_FILE_STORAGE_OPTIONS,
+#         },
+#         "staticfiles": {
+#             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+#         },
+#     }
+
+# STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # for compatibility with cloudinary static files
+
+# # Fallback for use FileSystemStorage when CLOUDINARY, or S3 / MinIO not configured
+# if not DEFAULT_FILE_STORAGE:
+#     print(f"Using FileSystemStorage as DEFAULT_FILE_STORAGE BACKEND")
 
 
 
