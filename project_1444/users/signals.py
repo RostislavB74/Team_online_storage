@@ -1,25 +1,53 @@
 from django.db.models.signals import post_save
-from django.contrib.auth.models import User
 from django.dispatch import receiver
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from users.models import UserProfile
+import logging
 
-User = get_user_model()
+logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.get_or_create(user=instance)
+    try:
+        # Перевіряємо, чи існує профіль
+        if not hasattr(instance, 'profile'):
+            logger.info(f"Creating UserProfile for user {instance.username}")
+            UserProfile.objects.create(user=instance)
+        else:
+            logger.info(f"UserProfile already exists for user {instance.username}")
+    except Exception as e:
+        logger.error(f"Error creating UserProfile for user {instance.username}: {e}")
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
-
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.contrib.auth.models import User
-from .models import UserProfile
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
+    try:
+        if hasattr(instance, 'profile') and instance.profile._state.has_changed():
+            instance.profile.save()
+    except UserProfile.DoesNotExist:
         UserProfile.objects.create(user=instance)
+# @receiver(post_save, sender=User)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         UserProfile.objects.create(user=instance)
+
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     try:
+#         # Перевіряємо, чи існує профіль і чи він змінений
+#         if hasattr(instance, 'profile') and instance.profile._state.has_changed():
+#             instance.profile.save()
+#     except UserProfile.DoesNotExist:
+#         # Якщо профіль не існує, створюємо його
+#         UserProfile.objects.create(user=instance)
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
+# from django.contrib.auth.models import User
+# from users.models import UserProfile
+
+# @receiver(post_save, sender=User)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         UserProfile.objects.create(user=instance)
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.profile.save()
+

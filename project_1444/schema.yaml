@@ -72,6 +72,35 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/token/:
+    post:
+      operationId: api_token_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
   /api/v1/all-products/:
     get:
       operationId: api_v1_all_products_list
@@ -118,9 +147,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/TotalProducts'
           description: ''
-  /api/v1/cart/:
+  /api/v1/api/cart/:
     get:
-      operationId: api_v1_cart_list
+      operationId: api_v1_api_cart_list
       description: Отримання списку корзин + загальної суми
       tags:
       - api
@@ -140,7 +169,7 @@ paths:
                   $ref: '#/components/schemas/Cart'
           description: ''
     post:
-      operationId: api_v1_cart_create
+      operationId: api_v1_api_cart_create
       tags:
       - api
       requestBody:
@@ -160,7 +189,6 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '201':
           content:
@@ -168,9 +196,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Cart'
           description: ''
-  /api/v1/cart/{id}/:
+  /api/v1/api/cart/{id}/:
     get:
-      operationId: api_v1_cart_retrieve
+      operationId: api_v1_api_cart_retrieve
       parameters:
       - in: path
         name: id
@@ -194,7 +222,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
           description: ''
     put:
-      operationId: api_v1_cart_update
+      operationId: api_v1_api_cart_update
       parameters:
       - in: path
         name: id
@@ -221,7 +249,6 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -230,7 +257,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
           description: ''
     patch:
-      operationId: api_v1_cart_partial_update
+      operationId: api_v1_api_cart_partial_update
       parameters:
       - in: path
         name: id
@@ -256,7 +283,6 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -265,7 +291,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
           description: ''
     delete:
-      operationId: api_v1_cart_destroy
+      operationId: api_v1_api_cart_destroy
       parameters:
       - in: path
         name: id
@@ -280,10 +306,60 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '204':
           description: No response body
+  /api/v1/api/cart/{id}/remove/:
+    delete:
+      operationId: api_v1_api_cart_remove_destroy
+      description: Видалення товару з корзини
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Корзина.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/api/cart/add/:
+    post:
+      operationId: api_v1_api_cart_add_create
+      description: Додавання товару до корзини
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cart'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Cart'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Cart'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
   /api/v1/categories/:
     get:
       operationId: api_v1_categories_list
@@ -726,7 +802,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this order.
+        description: A unique integer value identifying this Замовлення.
         required: true
       tags:
       - api
@@ -750,7 +826,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this order.
+        description: A unique integer value identifying this Замовлення.
         required: true
       tags:
       - api
@@ -785,7 +861,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this order.
+        description: A unique integer value identifying this Замовлення.
         required: true
       tags:
       - api
@@ -820,7 +896,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this order.
+        description: A unique integer value identifying this Замовлення.
         required: true
       tags:
       - api
@@ -837,36 +913,6 @@ paths:
     post:
       operationId: api_v1_orders_create_from_cart_create
       description: Створити замовлення з корзини користувача з урахуванням знижок
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Order'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Order'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Order'
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-          description: ''
-  /api/v1/orders/create-manual/:
-    post:
-      operationId: api_v1_orders_create_manual_create
-      description: Створити замовлення вручну, вказавши товари
       tags:
       - api
       requestBody:
@@ -1291,6 +1337,25 @@ components:
             format: uri
       required:
       - endpoints
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          title: Ім'я користувача
+        password:
+          type: string
+          writeOnly: true
+          title: Пароль
+        token:
+          type: string
+          readOnly: true
+          title: Токен
+      required:
+      - password
+      - token
+      - username
     BlankEnum:
       enum:
       - ''
@@ -1424,81 +1489,109 @@ components:
         user:
           type: integer
           nullable: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-        total_price:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          readOnly: true
+          title: Користувач
         payment_method:
-          $ref: '#/components/schemas/PaymentMethodEnum'
+          allOf:
+          - $ref: '#/components/schemas/PaymentMethodEnum'
+          title: Спосіб оплати
         delivery_method:
-          $ref: '#/components/schemas/DeliveryMethodEnum'
+          allOf:
+          - $ref: '#/components/schemas/DeliveryMethodEnum'
+          title: Спосіб доставки
         recipient_name:
           type: string
           nullable: true
+          title: Ім’я отримувача
           maxLength: 255
         recipient_phone:
           type: string
           nullable: true
+          title: Телефон отримувача
           maxLength: 20
+        address:
+          type: string
+          nullable: true
+          title: Адреса доставки
         coupon:
           type: string
           nullable: true
+          title: Купон
           maxLength: 50
+        call_me:
+          type: boolean
+          title: Передзвонити
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Загальна ціна
         discount:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Знижка
+        final_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Фінальна ціна
         status:
-          $ref: '#/components/schemas/StatusEnum'
-        call_me:
-          type: boolean
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          title: Статус
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата створення
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата оновлення
         items:
           type: array
           items:
             $ref: '#/components/schemas/OrderItem'
           readOnly: true
+        manual_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          writeOnly: true
       required:
       - created_at
       - id
       - items
-      - total_price
       - updated_at
     OrderItem:
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
         product:
-          type: integer
-        product_name:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/SubProductsSizes'
           readOnly: true
+        product_id:
+          type: integer
+          writeOnly: true
         quantity:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: Кількість
         product_price:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Ціна товару
         total_price:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Загальна ціна
       required:
-      - id
       - product
-      - product_name
+      - product_id
       - product_price
       - total_price
     PatchedCart:
@@ -1581,48 +1674,76 @@ components:
         user:
           type: integer
           nullable: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-        total_price:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          readOnly: true
+          title: Користувач
         payment_method:
-          $ref: '#/components/schemas/PaymentMethodEnum'
+          allOf:
+          - $ref: '#/components/schemas/PaymentMethodEnum'
+          title: Спосіб оплати
         delivery_method:
-          $ref: '#/components/schemas/DeliveryMethodEnum'
+          allOf:
+          - $ref: '#/components/schemas/DeliveryMethodEnum'
+          title: Спосіб доставки
         recipient_name:
           type: string
           nullable: true
+          title: Ім’я отримувача
           maxLength: 255
         recipient_phone:
           type: string
           nullable: true
+          title: Телефон отримувача
           maxLength: 20
+        address:
+          type: string
+          nullable: true
+          title: Адреса доставки
         coupon:
           type: string
           nullable: true
+          title: Купон
           maxLength: 50
+        call_me:
+          type: boolean
+          title: Передзвонити
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Загальна ціна
         discount:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Знижка
+        final_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Фінальна ціна
         status:
-          $ref: '#/components/schemas/StatusEnum'
-        call_me:
-          type: boolean
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          title: Статус
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата створення
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата оновлення
         items:
           type: array
           items:
             $ref: '#/components/schemas/OrderItem'
           readOnly: true
+        manual_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          writeOnly: true
     PatchedProduct:
       type: object
       properties:

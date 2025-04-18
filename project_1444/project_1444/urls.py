@@ -44,6 +44,7 @@ from .views import ApiRootView
 urlpatterns = [
     path("api/", ApiRootView.as_view(), name="api-root"),
     path("admin/", admin.site.urls),
+    path('', include('users.urls')),
     path("api/v0/", include("mock.urls")),
     path("api/v1/", include("order.urls")),
     path("api/v1/", include("cart.urls")),

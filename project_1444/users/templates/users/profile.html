@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Профіль</title>
+</head>
+<body>
+    <h2>Вітаємо, {{ user.username }}!</h2>
+    <p>Стать: {{ profile.gender|default:"Не вказано" }}</p>
+    <p>День народження: {{ profile.birthday|default:"Не вказано" }}</p>
+    <a href="{% url 'logout' %}">Вийти</a>
+</body>
+</html>
