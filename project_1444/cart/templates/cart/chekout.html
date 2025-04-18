@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Оформлення замовлення</title>
+</head>
+<body>
+    <h2>Оформлення замовлення</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <p {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <h3>Ваш кошик:</h3>
+    <ul>
+    {% for item in cart_items %}
+        <li>{{ item.product }} x {{ item.quantity }} - {{ item.products_price }} грн</li>
+    {% endfor %}
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        <label>Спосіб оплати:
+            <select name="payment_method">
+                <option value="cash">Готівка</option>
+                <option value="liqpay">LiqPay</option>
+                <option value="googlepay">Google Pay</option>
+            </select>
+        </label><br>
+        <label>Спосіб доставки:
+            <select name="delivery_method">
+                <option value="pickup">Самовивіз</option>
+                <option value="courier">Кур'єр</option>
+                <option value="nova_poshta">Нова Пошта</option>
+            </select>
+        </label><br>
+        <label>Ім’я отримувача: <input type="text" name="recipient_name" value="{{ profile.user.get_full_name }}"></label><br>
+        <label>Телефон: <input type="text" name="recipient_phone" value="{{ profile.phone }}"></label><br>
+        <label>Адреса: <input type="text" name="address" value="{{ profile.address }}"></label><br>
+        <label>Купон: <input type="text" name="coupon"></label><br>
+        <label><input type="checkbox" name="call_me"> Передзвонити мені</label><br>
+        <button type="submit">Підтвердити замовлення</button>
+    </form>
+    <a href="{% url 'profile' %}">Редагувати профіль</a>
+</body>
+</html>
