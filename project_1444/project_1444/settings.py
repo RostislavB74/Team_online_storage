@@ -127,12 +127,6 @@ for lang in GLOBAL_LANGUAGES:
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
-# PARLER_LANGUAGES_LIST = [lang.get("code") for lang in PARLER_LANGUAGES.get(None, [])]
-
-# LANGUAGES = []
-# for lang in GLOBAL_LANGUAGES:
-#     if lang[0] in PARLER_LANGUAGES_LIST:
-#         LANGUAGES.append(lang)
 
 
 MIDDLEWARE = [
@@ -168,6 +162,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "project_1444.wsgi.application"
 
+# Налаштування автентифікації
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# URL для перенаправлення після логіну/логоуту
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/profile/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -227,14 +230,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# LANGUAGES = [
-#     ("en", _("English")),
-#     ("uk", _("Ukrainian")),
-# ]
-
-# LOCALE_PATHS = [
-#     BASE_DIR / "locale",
-# ]
 LANGUAGE_CODE = "uk"
 USE_I18N = True
 USE_L10N = True
@@ -308,15 +303,7 @@ if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
         )
         AWS_LOCATION = env("AWS_LOCATION", default="")
         AWS_S3_VERIFY = env("AWS_S3_VERIFY", default=None, cast=bool)
-        # MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.rstrip('/')}/{PROJECT_NAME}/"
-        #
-        # from storages.backends.s3boto3 import (
-        #     S3Boto3Storage,
-        # )  # For custom S3 storage class
-        #
-        # from storages.backends.s3 import (
-        #     S3Boto3Storage,
-        # )  # F
+       
         DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
         DEFAULT_FILE_STORAGE_OPTIONS = {
             "access_key": AWS_ACCESS_KEY_ID,
@@ -351,42 +338,7 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  #
 if not DEFAULT_FILE_STORAGE:
     print(f"Using FileSystemStorage as DEFAULT_FILE_STORAGE BACKEND")
 
-# try:
-#     try:
-#         CLOUDINARY_URL = env("CLOUDINARY_URL")
-#         cl_url = urlparse(CLOUDINARY_URL)
-#         if cl_url.scheme == "cloudinary":
-#             CLOUDINARY_NAME = cl_url.hostname
-#             CLOUDINARY_API_KEY = cl_url.username
-#             CLOUDINARY_API_SECRET = cl_url.password
-#             if not all([CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
-#                 raise ValueError
-#         else:
-#             raise ValueError
-#     except (ValueError, KeyError, environ.ImproperlyConfigured) as e:
-#         CLOUDINARY_NAME = env("CLOUDINARY_NAME")
-#         CLOUDINARY_API_KEY = env("CLOUDINARY_API_KEY")
-#         CLOUDINARY_API_SECRET = env("CLOUDINARY_API_SECRET")
 
-#     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-#     MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/image/upload/"
-#     CLOUDINARY_STORAGE = {
-#         "CLOUD_NAME": CLOUDINARY_NAME,
-#         "API_KEY": CLOUDINARY_API_KEY,
-#         "API_SECRET": CLOUDINARY_API_SECRET,
-#         "SECURE": True,  # Додає https
-#     }
-# except (KeyError, environ.ImproperlyConfigured) as e:
-#     print(
-#         "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components.  Error:",
-#         str(e),
-#     )
-
-
-# MEDIA_URL = env("CLOUDINARY_URL")
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

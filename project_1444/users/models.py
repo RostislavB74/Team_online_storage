@@ -3,12 +3,15 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 from utils.multi_backend_image_field import MultiBackendImageField
-
+from datetime import timedelta  # Додаємо імпорт
+from django.utils import timezone
+def default_expires_at():
+    return timezone.now() + timedelta(minutes=5)
 class OTP(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="otps")
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
+    expires_at = models.DateTimeField(default=default_expires_at)
 
     def __str__(self):
         return f"OTP {self.code} for {self.user.username}"
