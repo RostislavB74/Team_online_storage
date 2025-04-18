@@ -162,6 +162,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "project_1444.wsgi.application"
 
+# Налаштування автентифікації
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# URL для перенаправлення після логіну/логоуту
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/profile/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

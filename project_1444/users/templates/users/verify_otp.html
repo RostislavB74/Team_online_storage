@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Верифікація OTP</title>
+</head>
+<body>
+    <h2>Введіть OTP</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <p {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="otp_code" placeholder="Введіть OTP" required>
+        <button type="submit">Перевірити</button>
+    </form>
+</body>
+</html>
