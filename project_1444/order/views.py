@@ -17,7 +17,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
-from order.tasks import send_order_confirmation_email  # Імпорт задачі
+# from order.tasks import send_order_confirmation_email  # Імпорт задачі
 from order.models import Order, OrderItem
 from cart.models import Cart
 from product.models import SubProducts
