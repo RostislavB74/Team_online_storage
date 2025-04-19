@@ -12,6 +12,20 @@ from discounts.models import PromoCode, Coupon, BirthdayDiscount, PersonalDiscou
 from product.utils import get_discounted_price
 from users.models import UserProfile
 from decimal import Decimal
+from django.db import transaction
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from drf_spectacular.utils import extend_schema
+# from order.tasks import send_order_confirmation_email  # Імпорт задачі
+from order.models import Order, OrderItem
+from cart.models import Cart
+from product.models import SubProducts
+from order.serializers import OrderSerializer, OrderItemSerializer
+from discounts.models import PromoCode, Coupon, BirthdayDiscount, PersonalDiscount, ProductDiscount
+from product.utils import get_discounted_price
+from users.models import UserProfile
+from decimal import Decimal
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -30,7 +44,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         user = request.user if request.user.is_authenticated else None
         session_key = request.session.session_key if not user else None
 
-        # Перевірка профілю
         if user:
             try:
                 profile = user.profile
@@ -45,24 +58,22 @@ class OrderViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-        # Отримуємо кошик
         if user:
             cart_items = Cart.objects.filter(user=user)
         else:
             if not session_key:
                 return Response(
-                    {"error": "Сесія не знайдена"}, 
+                    {"error": "Сесія не знайдена"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             cart_items = Cart.objects.filter(session_key=session_key)
 
         if not cart_items.exists():
             return Response(
-                {"error": "Корзина порожня"}, 
+                {"error": "Корзина порожня"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Дані замовлення
         order_data = {
             "user": user,
             "payment_method": request.data.get("payment_method", "cash"),
@@ -114,21 +125,128 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.calculate_total()
             cart_items.delete()
 
-            # Відправка email
+            # Виклик задачі Celery для асинхронної відправки email
             if order.user and order.user.email:
-                try:
-                    send_mail(
-                        'Замовлення підтверджено',
-                        f'Ваше замовлення #{order.id} оформлено! Сума: {order.final_price} грн',
-                        'from@example.com',
-                        [order.user.email],
-                        fail_silently=True,
-                    )
-                except Exception as e:
-                    print(f"Помилка відправки email: {e}")
+                send_order_confirmation_email.delay(order.id, order.user.email)
 
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+# class OrderViewSet(viewsets.ModelViewSet):
+#     queryset = Order.objects.all()
+#     serializer_class = OrderSerializer
+
+#     def perform_create(self, serializer):
+#         serializer.save(user=self.request.user if self.request.user.is_authenticated else None)
+
+#     @extend_schema(
+#         request=OrderSerializer,
+#         responses={201: OrderSerializer},
+#         description="Створити замовлення з корзини користувача з урахуванням знижок",
+#     )
+#     @action(detail=False, methods=["post"], url_path="create-from-cart")
+#     def create_from_cart(self, request):
+#         user = request.user if request.user.is_authenticated else None
+#         session_key = request.session.session_key if not user else None
+
+#         # Перевірка профілю
+#         if user:
+#             try:
+#                 profile = user.profile
+#                 if not profile.phone or not profile.address:
+#                     return Response(
+#                         {"error": "Заповніть профіль (телефон і адресу)"},
+#                         status=status.HTTP_400_BAD_REQUEST
+#                     )
+#             except UserProfile.DoesNotExist:
+#                 return Response(
+#                     {"error": "Профіль не знайдено"},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+
+#         # Отримуємо кошик
+#         if user:
+#             cart_items = Cart.objects.filter(user=user)
+#         else:
+#             if not session_key:
+#                 return Response(
+#                     {"error": "Сесія не знайдена"}, 
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+#             cart_items = Cart.objects.filter(session_key=session_key)
+
+#         if not cart_items.exists():
+#             return Response(
+#                 {"error": "Корзина порожня"}, 
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+
+#         # Дані замовлення
+#         order_data = {
+#             "user": user,
+#             "payment_method": request.data.get("payment_method", "cash"),
+#             "delivery_method": request.data.get("delivery_method", "pickup"),
+#             "recipient_name": request.data.get("recipient_name"),
+#             "recipient_phone": request.data.get("recipient_phone"),
+#             "address": profile.address if user else request.data.get("address"),
+#             "coupon": request.data.get("coupon"),
+#             "call_me": request.data.get("call_me", False),
+#         }
+
+#         if not order_data["recipient_name"] or not order_data["recipient_phone"] or not order_data["address"]:
+#             return Response(
+#                 {"error": "Ім’я, телефон і адреса отримувача обов’язкові"},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+
+#         with transaction.atomic():
+#             order = Order.objects.create(**order_data)
+#             total_discount = Decimal('0.00')
+#             items_data = []
+
+#             for cart_item in cart_items:
+#                 subproduct = cart_item.product
+#                 if not SubProducts.objects.filter(id=subproduct.id).exists():
+#                     continue
+
+#                 item_price = get_discounted_price(user, subproduct)['new_price']
+#                 item_total = item_price * cart_item.quantity
+
+#                 items_data.append(
+#                     OrderItem(
+#                         order=order,
+#                         product=subproduct,
+#                         quantity=cart_item.quantity,
+#                         product_price=item_price,
+#                         total_price=item_total,
+#                     )
+#                 )
+
+#             if not items_data:
+#                 order.delete()
+#                 return Response(
+#                     {"error": "Жоден товар у кошику не доступний"},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+
+#             OrderItem.objects.bulk_create(items_data)
+#             order.calculate_total()
+#             cart_items.delete()
+
+#             # Відправка email
+#             if order.user and order.user.email:
+#                 try:
+#                     send_mail(
+#                         'Замовлення підтверджено',
+#                         f'Ваше замовлення #{order.id} оформлено! Сума: {order.final_price} грн',
+#                         'from@example.com',
+#                         [order.user.email],
+#                         fail_silently=True,
+#                     )
+#                 except Exception as e:
+#                     print(f"Помилка відправки email: {e}")
+
+#         serializer = OrderSerializer(order)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     # ... (create_manual і get_applicable_discount без змін)
 # from django.db import transaction
