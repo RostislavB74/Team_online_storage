@@ -97,7 +97,7 @@ INSTALLED_APPS = [
     # "django_prices_vatlayer",
     # "sorl.thumbnail",
     # 
-    "django-liqpay",
+    # "django-liqpay",
     "product",
     'users.apps.UsersConfig',
     # "users",
