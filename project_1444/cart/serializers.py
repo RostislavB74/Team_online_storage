@@ -14,7 +14,7 @@ from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema_field
 User = get_user_model()
 class CartSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(source="product.parent_product", read_only=True)
+    product_name = serializers.CharField(source="product.parent_product", read_only=True,)
     total_price = serializers.SerializerMethodField()  # Обчислена ціна окремої позиції
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     username = serializers.CharField(source="user.username", read_only=True) 

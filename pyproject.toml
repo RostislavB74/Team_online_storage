@@ -40,6 +40,8 @@ psycopg = {extras = ["binary"], version = "^3.2.6"}
 django-cloudinary-storage = "^0.3.0"
 django-storages = {extras = ["s3"], version = "^1.14.5"}
 pyotp = "^2.9.0"
+liqpay = "^1.0.1"
+django-liqpay = "^1.1"
 
 
 [tool.poetry.group.deploy.dependencies]

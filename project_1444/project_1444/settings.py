@@ -88,7 +88,16 @@ INSTALLED_APPS = [
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
+    # "cloudinary_storage",
+    # "django_filters",
+    # "mptt",
+    # "django_countries",
+    # "django_prices",
+    # "django_prices_openexchangerates",
+    # "django_prices_vatlayer",
+    # "sorl.thumbnail",
     # 
+    "liqpay",
     "product",
     'users.apps.UsersConfig',
     # "users",
@@ -311,6 +320,25 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 # Логування конфігурації
 if DEFAULT_FILE_STORAGE:
     print(f"Using DEFAULT_FILE_STORAGE BACKEND: '{DEFAULT_FILE_STORAGE}'")
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'cloudinary': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
 # CLOUDINARY_PREVIEW_TRANSFORMATION = env(
 #     "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
 # )
@@ -461,10 +489,14 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+# CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+# CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TIMEZONE = 'Europe/Kyiv'
 
-CELERY_BROKER_URL = env(
-    "CELERY_BROKER_URL", default=None
-)  # Redis як брокер повідомлень
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=None)  # Redis як брокер повідомлень
 if not CELERY_BROKER_URL:
     CELERY_BROKER_URL = "redis://localhost:6379/0"
 
@@ -476,6 +508,7 @@ if not CELERY_RESULT_BACKEND:
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = 'Europe/Kyiv'
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
@@ -505,3 +538,9 @@ if REDIS_URL:
 
 
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")
+LIQPAY_PUBLIC_KEY = env('LIQPAY_PUBLIC_KEY', default='your-public-key')
+LIQPAY_PRIVATE_KEY = env('LIQPAY_PRIVATE_KEY', default='your-private-key')
+LIQPAY_DEFAULT_CURRENCY = env('LIQPAY_DEFAULT_CURRENCY', default='UAH')
+LIQPAY_DEFAULT_LANGUAGE = env('LIQPAY_DEFAULT_LANGUAGE', default='uk')
+LIQPAY_DEFAULT_ACTION = env('LIQPAY_DEFAULT_ACTION', default='pay')
+LIQPAY_SANDBOX_MODE = env('LIQPAY_SANDBOX_MODE', default=True, cast=bool)
