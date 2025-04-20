@@ -1,148 +1,217 @@
-from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User
 from product.models import SubProducts
-from discounts.models import Discount
+from decimal import Decimal
 
 class Order(models.Model):
-    user = models.ForeignKey(
-        User, 
-        on_delete=models.SET_NULL, 
-        related_name="orders", 
-        null=True, 
-        blank=True, 
-        verbose_name='Користувач'
-    )
-    selected_discount = models.ForeignKey(
-        Discount, 
-        null=True, 
-        blank=True, 
-        on_delete=models.SET_NULL, 
-        verbose_name='Обрана знижка'
-    )
-    final_price = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        default=0, 
-        verbose_name='Фінальна ціна'
-    )
-    total_price = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        default=Decimal('0.00'), 
-        verbose_name='Загальна ціна'
-    )
-    discount = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        default=Decimal('0.00'), 
-        verbose_name='Знижка'
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     payment_method = models.CharField(
-        max_length=50, 
-        choices=[("cash", "Готівка"), ("liqpay", "LiqPay"), ("googlepay", "Google Pay")], 
-        default="cash", 
-        verbose_name='Спосіб оплати'
+        max_length=20,
+        choices=[('cash', 'Cash'), ('liqpay', 'LiqPay'), ('googlepay', 'GooglePay')],
+        default='cash'
     )
     delivery_method = models.CharField(
-        max_length=50, 
-        choices=[("pickup", "Самовивіз"), ("courier", "Кур'єр"), ("nova_poshta", "Нова Пошта")], 
-        default="pickup", 
-        verbose_name='Спосіб доставки'
+        max_length=20,
+        choices=[('pickup', 'Pickup'), ('delivery', 'Delivery')],
+        default='pickup'
     )
-    recipient_name = models.CharField(
-        max_length=255, 
-        blank=True, 
-        null=True, 
-        verbose_name='Ім’я отримувача'
-    )
-    recipient_phone = models.CharField(
-        max_length=20, 
-        blank=True, 
-        null=True, 
-        verbose_name='Телефон отримувача'
-    )
-    address = models.TextField(
-        blank=True, 
-        null=True, 
-        verbose_name='Адреса доставки'
-    )
-    coupon = models.CharField(
-        max_length=50, 
-        blank=True, 
-        null=True, 
-        verbose_name='Купон'
-    )
+    recipient_name = models.CharField(max_length=100, blank=True, null=True)
+    recipient_phone = models.CharField(max_length=20, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    coupon = models.CharField(max_length=50, blank=True, null=True)
+    call_me = models.BooleanField(default=False)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    final_price = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     status = models.CharField(
-        max_length=20, 
-        choices=[("new", "Нове"), ("processing", "Обробка"), ("paid", "Оплачене"), ("shipped", "Відправлене")], 
-        default="new", 
-        verbose_name='Статус'
+        max_length=20,
+        choices=[('new', 'New'), ('paid', 'Paid'), ('failed', 'Failed'), ('reversed', 'Reversed')],
+        default='new'
     )
-    call_me = models.BooleanField(
-        default=False, 
-        verbose_name='Передзвонити'
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True, 
-        verbose_name='Дата створення'
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True, 
-        verbose_name='Дата оновлення'
-    )
+    status_pay = models.CharField(max_length=20, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Замовлення"
-        verbose_name_plural = "Замовлення"
+        verbose_name = 'Order'
+        verbose_name_plural = 'Orders'
 
     def calculate_total(self):
-        self.total_price = sum(item.total_price for item in self.items.all())
-        if self.total_price > Decimal('10000.00'):
-            self.discount = max(self.discount, self.total_price * Decimal('0.05'))
-        self.final_price = self.total_price - self.discount
+        """Обчислює total_price і final_price з урахуванням знижок"""
+        items = self.items.all()
+        total_price = sum(item.total_price for item in items)
+        discount = self.discount or Decimal('0.00')
+        final_price = total_price * (1 - discount / 100)
+        
+        self.total_price = total_price
+        self.final_price = round(final_price, 2)
         self.save()
 
     def __str__(self):
-        return f"Замовлення №{self.id} від {self.created_at.date()}"
+        return f'Order #{self.id} by {self.user or "Anonymous"}'
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(
-        Order, 
-        on_delete=models.CASCADE, 
-        related_name="items", 
-        verbose_name='Замовлення'
-    )
-    product = models.ForeignKey(
-        SubProducts, 
-        on_delete=models.CASCADE, 
-        verbose_name='Товар'
-    )
-    quantity = models.PositiveIntegerField(
-        default=1, 
-        verbose_name='Кількість'
-    )
-    product_price = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        verbose_name='Ціна товару'
-    )
-    total_price = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        verbose_name='Загальна ціна'
-    )
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(SubProducts, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    product_price = models.DecimalField(max_digits=12, decimal_places=2)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2)
+
+    class Meta:
+        verbose_name = 'Order Item'
+        verbose_name_plural = 'Order Items'
 
     def save(self, *args, **kwargs):
         self.total_price = self.product_price * self.quantity
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.product} x {self.quantity} (₴{self.total_price})"
+        return f'{self.product} x {self.quantity} in Order #{self.order.id}'
+# from decimal import Decimal
+# from django.db import models
+# from django.contrib.auth.models import User
+# from product.models import SubProducts
+# from discounts.models import Discount
 
-    class Meta:
-        verbose_name = "Елемент замовлення"
-        verbose_name_plural = "Елементи замовлення"
+# class Order(models.Model):
+#     user = models.ForeignKey(
+#         User, 
+#         on_delete=models.SET_NULL, 
+#         related_name="orders", 
+#         null=True, 
+#         blank=True, 
+#         verbose_name='Користувач'
+#     )
+#     selected_discount = models.ForeignKey(
+#         Discount, 
+#         null=True, 
+#         blank=True, 
+#         on_delete=models.SET_NULL, 
+#         verbose_name='Обрана знижка'
+#     )
+#     final_price = models.DecimalField(
+#         max_digits=10, 
+#         decimal_places=2, 
+#         default=0, 
+#         verbose_name='Фінальна ціна'
+#     )
+#     total_price = models.DecimalField(
+#         max_digits=10, 
+#         decimal_places=2, 
+#         default=Decimal('0.00'), 
+#         verbose_name='Загальна ціна'
+#     )
+#     discount = models.DecimalField(
+#         max_digits=10, 
+#         decimal_places=2, 
+#         default=Decimal('0.00'), 
+#         verbose_name='Знижка'
+#     )
+#     payment_method = models.CharField(
+#         max_length=50, 
+#         choices=[("cash", "Готівка"), ("liqpay", "LiqPay"), ("googlepay", "Google Pay")], 
+#         default="cash", 
+#         verbose_name='Спосіб оплати'
+#     )
+#     delivery_method = models.CharField(
+#         max_length=50, 
+#         choices=[("pickup", "Самовивіз"), ("courier", "Кур'єр"), ("nova_poshta", "Нова Пошта")], 
+#         default="pickup", 
+#         verbose_name='Спосіб доставки'
+#     )
+#     recipient_name = models.CharField(
+#         max_length=255, 
+#         blank=True, 
+#         null=True, 
+#         verbose_name='Ім’я отримувача'
+#     )
+#     recipient_phone = models.CharField(
+#         max_length=20, 
+#         blank=True, 
+#         null=True, 
+#         verbose_name='Телефон отримувача'
+#     )
+#     address = models.TextField(
+#         blank=True, 
+#         null=True, 
+#         verbose_name='Адреса доставки'
+#     )
+#     coupon = models.CharField(
+#         max_length=50, 
+#         blank=True, 
+#         null=True, 
+#         verbose_name='Купон'
+#     )
+#     status = models.CharField(
+#         max_length=20, 
+#         choices=[("new", "Нове"), ("processing", "Обробка"), ("paid", "Оплачене"), ("shipped", "Відправлене")], 
+#         default="new", 
+#         verbose_name='Статус'
+#     )
+#     call_me = models.BooleanField(
+#         default=False, 
+#         verbose_name='Передзвонити'
+#     )
+#     created_at = models.DateTimeField(
+#         auto_now_add=True, 
+#         verbose_name='Дата створення'
+#     )
+#     updated_at = models.DateTimeField(
+#         auto_now=True, 
+#         verbose_name='Дата оновлення'
+#     )
+
+#     class Meta:
+#         verbose_name = "Замовлення"
+#         verbose_name_plural = "Замовлення"
+
+#     def calculate_total(self):
+#         self.total_price = sum(item.total_price for item in self.items.all())
+#         if self.total_price > Decimal('10000.00'):
+#             self.discount = max(self.discount, self.total_price * Decimal('0.05'))
+#         self.final_price = self.total_price - self.discount
+#         self.save()
+
+#     def __str__(self):
+#         return f"Замовлення №{self.id} від {self.created_at.date()}"
+
+# class OrderItem(models.Model):
+#     order = models.ForeignKey(
+#         Order, 
+#         on_delete=models.CASCADE, 
+#         related_name="items", 
+#         verbose_name='Замовлення'
+#     )
+#     product = models.ForeignKey(
+#         SubProducts, 
+#         on_delete=models.CASCADE, 
+#         verbose_name='Товар'
+#     )
+#     quantity = models.PositiveIntegerField(
+#         default=1, 
+#         verbose_name='Кількість'
+#     )
+#     product_price = models.DecimalField(
+#         max_digits=10, 
+#         decimal_places=2, 
+#         verbose_name='Ціна товару'
+#     )
+#     total_price = models.DecimalField(
+#         max_digits=10, 
+#         decimal_places=2, 
+#         verbose_name='Загальна ціна'
+#     )
+
+#     def save(self, *args, **kwargs):
+#         self.total_price = self.product_price * self.quantity
+#         super().save(*args, **kwargs)
+
+#     def __str__(self):
+#         return f"{self.product} x {self.quantity} (₴{self.total_price})"
+
+#     class Meta:
+#         verbose_name = "Елемент замовлення"
+#         verbose_name_plural = "Елементи замовлення"
 # from decimal import Decimal
 # from django.db import models
 # from django.contrib.auth.models import User
