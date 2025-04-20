@@ -147,9 +147,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/TotalProducts'
           description: ''
-  /api/v1/api/cart/:
+  /api/v1/cart/:
     get:
-      operationId: api_v1_api_cart_list
+      operationId: api_v1_cart_list
       description: Отримання списку корзин + загальної суми
       tags:
       - api
@@ -166,10 +166,20 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Cart'
-          description: ''
+                  type: object
+                  properties:
+                    carts:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Cart'
+                    total_sum_carts:
+                      type: number
+                      format: float
+                    total_quantity:
+                      type: integer
+          description: Список елементів кошика, загальна сума і кількість
     post:
-      operationId: api_v1_api_cart_create
+      operationId: api_v1_cart_create
       tags:
       - api
       requestBody:
@@ -196,9 +206,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Cart'
           description: ''
-  /api/v1/api/cart/{id}/:
+  /api/v1/cart/{id}/:
     get:
-      operationId: api_v1_api_cart_retrieve
+      operationId: api_v1_cart_retrieve
       parameters:
       - in: path
         name: id
@@ -222,7 +232,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
           description: ''
     put:
-      operationId: api_v1_api_cart_update
+      operationId: api_v1_cart_update
       parameters:
       - in: path
         name: id
@@ -257,7 +267,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
           description: ''
     patch:
-      operationId: api_v1_api_cart_partial_update
+      operationId: api_v1_cart_partial_update
       parameters:
       - in: path
         name: id
@@ -291,7 +301,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
           description: ''
     delete:
-      operationId: api_v1_api_cart_destroy
+      operationId: api_v1_cart_destroy
       parameters:
       - in: path
         name: id
@@ -309,9 +319,9 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/v1/api/cart/{id}/remove/:
+  /api/v1/cart/{id}/remove/:
     delete:
-      operationId: api_v1_api_cart_remove_destroy
+      operationId: api_v1_cart_remove_destroy
       description: Видалення товару з корзини
       parameters:
       - in: path
@@ -330,9 +340,9 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/v1/api/cart/add/:
+  /api/v1/cart/add/:
     post:
-      operationId: api_v1_api_cart_add_create
+      operationId: api_v1_cart_add_create
       description: Додавання товару до корзини
       tags:
       - api
