@@ -1,57 +1,68 @@
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
-from cart.models import Cart
-from cart.serializers import CartSerializer
+from .models import Cart
+from .serializers import CartSerializer
 from product.models import SubProducts
-from decimal import Decimal
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        user = self.request.user if self.request.user.is_authenticated else None
-        session_key = self.request.session.session_key if not user else None
-        if user:
+        user = self.request.user
+        if user.is_authenticated:
             return Cart.objects.filter(user=user)
+        session_key = self.request.session.session_key
+        if not session_key:
+            self.request.session.create()
+            session_key = self.request.session.session_key
         return Cart.objects.filter(session_key=session_key)
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        
-        # Обчислення загальної кількості та суми
-        total_quantity = sum(item.quantity for item in queryset)
-        total_price = sum(
-            item.quantity * item.product.price for item in queryset
-        )
-
-        response_data = {
-            'items': serializer.data,
-            'total_quantity': total_quantity,
-            'total_price': float(total_price),  # Конвертуємо Decimal у float для JSON
+    @extend_schema(
+        responses={
+            200: OpenApiResponse(
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'carts': {'type': 'array', 'items': {'$ref': '#/components/schemas/Cart'}},
+                        'total_sum_carts': {'type': 'number', 'format': 'float'},
+                        'total_quantity': {'type': 'integer'}
+                    }
+                },
+                description='Список елементів кошика, загальна сума і кількість'
+            )
         }
-        return Response(response_data)
+    )
+    def list(self, request, *args, **kwargs):
+        """Отримання списку корзин + загальної суми"""
+        cart_items = self.get_queryset()
+        serializer = self.get_serializer(cart_items, many=True)
+        total_sum = cart_items.total_price(user=request.user)
+        total_quantity = cart_items.total_quantity()
+
+        return Response({
+            "carts": serializer.data,
+            "total_sum_carts": float(total_sum),  # Конвертуємо Decimal у float для JSON
+            "total_quantity": total_quantity
+        })
 
     @action(detail=False, methods=['post'], url_path='add')
-    def add_to_cart(self, request):
+    def add(self, request):
+        """Додавання товару до корзини"""
         subproduct_id = request.data.get('subproduct_id')
         quantity = int(request.data.get('quantity', 1))
-        
-        try:
-            subproduct = SubProducts.objects.get(id=subproduct_id)
-        except SubProducts.DoesNotExist:
-            return Response(
-                {'error': 'Товар не знайдено'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        subproduct = get_object_or_404(SubProducts, id=subproduct_id)
 
-        session_key = request.session.session_key
+        session_key = self.request.session.session_key
         if not session_key:
             request.session.create()
-            session_key = request.session.session_key
+            session_key = self.request.session.session_key
 
         cart, created = Cart.objects.get_or_create(
             user=request.user if request.user.is_authenticated else None,
@@ -67,16 +78,13 @@ class CartViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['delete'], url_path='remove')
-    def remove_from_cart(self, request, pk=None):
-        try:
-            cart_item = self.get_queryset().get(id=pk)
-            cart_item.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Cart.DoesNotExist:
-            return Response(
-                {'error': 'Елемент кошика не знайдено'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+    def remove(self, request, pk=None):
+        """Видалення товару з корзини"""
+        cart = get_object_or_404(Cart, pk=pk)
+        cart.delete()
+        return Response({"message": "Товар видалено з корзини"}, status=status.HTTP_204_NO_CONTENT)
+
+
 # from django.shortcuts import render, redirect, get_object_or_404
 # from django.contrib import messages
 # from django.contrib.auth.decorators import login_required
@@ -92,16 +100,6 @@ class CartViewSet(viewsets.ModelViewSet):
 # from rest_framework.permissions import IsAuthenticatedOrReadOnly
 # from .serializers import CartSerializer
 # from rest_framework.decorators import action
-# from django.shortcuts import render, redirect, get_object_or_404
-# from django.contrib import messages
-# from django.contrib.auth.decorators import login_required
-# from django.db import transaction
-# from order.tasks import send_order_confirmation_email  # Імпорт задачі
-# from cart.models import Cart
-# from order.models import Order, OrderItem
-# from product.models import SubProducts
-# from product.utils import get_discounted_price
-# from decimal import Decimal
 
 # class CartViewSet(viewsets.ModelViewSet):
 #     queryset = Cart.objects.all()
@@ -202,8 +200,6 @@ class CartViewSet(viewsets.ModelViewSet):
 #     messages.success(request, 'Товар видалено з кошика.')
 #     return redirect('cart_view')
 
-
-
 # @login_required
 # def checkout_view(request):
 #     cart_items = Cart.objects.filter(user=request.user)
@@ -265,9 +261,18 @@ class CartViewSet(viewsets.ModelViewSet):
 #             order.calculate_total()
 #             cart_items.delete()
 
-#             # Виклик задачі Celery для асинхронної відправки email
+#             # Відправка email
 #             if order.user and order.user.email:
-#                 send_order_confirmation_email.delay(order.id, order.user.email)
+#                 try:
+#                     send_mail(
+#                         'Замовлення підтверджено',
+#                         f'Ваше замовлення #{order.id} оформлено! Сума: {order.final_price} грн',
+#                         'from@example.com',
+#                         [order.user.email],
+#                         fail_silently=True,
+#                     )
+#                 except Exception as e:
+#                     print(f"Помилка відправки email: {e}")
 
 #         messages.success(request, 'Замовлення оформлено!')
 #         return redirect('order_confirmation', order_id=order.id)
