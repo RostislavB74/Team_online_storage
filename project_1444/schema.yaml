@@ -72,35 +72,6 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
-  /api/token/:
-    post:
-      operationId: api_token_create
-      tags:
-      - api
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/AuthToken'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/AuthToken'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthToken'
-        required: true
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthToken'
-          description: ''
   /api/v1/all-products/:
     get:
       operationId: api_v1_all_products_list
@@ -1336,6 +1307,236 @@ paths:
               schema:
                 $ref: '#/components/schemas/Version'
           description: ''
+  /auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Аутентифікація користувача та генерація OTP
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: ''
+  /auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Вихід користувача та видалення токена
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Logout'
+          description: ''
+  /auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Реєстрація нового користувача
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: ''
+  /auth/token/:
+    post:
+      operationId: auth_token_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /notifications/:
+    get:
+      operationId: notifications_retrieve
+      description: Отримання або оновлення налаштувань сповіщень
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserNotificationSettings'
+          description: ''
+    post:
+      operationId: notifications_create
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNotificationSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserNotificationSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserNotificationSettings'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserNotificationSettings'
+          description: ''
+  /profile/:
+    get:
+      operationId: profile_retrieve
+      description: Отримання або оновлення профілю користувача
+      tags:
+      - profile
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    post:
+      operationId: profile_create
+      tags:
+      - profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+  /verify-otp/:
+    post:
+      operationId: verify_otp_create
+      description: Верифікація OTP та видача токена
+      tags:
+      - verify-otp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OTP'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: ''
 components:
   schemas:
     ApiSchema:
@@ -1469,18 +1670,6 @@ components:
       - seo_title
       - slug
       - text
-    GenderEnum:
-      enum:
-      - female
-      - male
-      - children
-      - unisex
-      type: string
-      description: |-
-        * `female` - Жіноче
-        * `male` - Чоловіче
-        * `children` - Дитяче
-        * `unisex` - Унісекс
     HealthCheck:
       type: object
       properties:
@@ -1489,6 +1678,42 @@ components:
           maxLength: 10
       required:
       - status
+    Login:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    Logout:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      required:
+      - message
+      - status
+    NullEnum:
+      enum:
+      - null
+    OTP:
+      type: object
+      properties:
+        otp_code:
+          type: string
+          maxLength: 6
+          minLength: 6
+        otp_user_id:
+          type: integer
+      required:
+      - otp_code
     Order:
       type: object
       properties:
@@ -1590,9 +1815,7 @@ components:
       type: object
       properties:
         product:
-          type: array
-          items:
-            type: string
+          type: string
           readOnly: true
         quantity:
           type: integer
@@ -2014,7 +2237,7 @@ components:
           readOnly: true
         gender:
           oneOf:
-          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/ProductAttributesGenderEnum'
           - $ref: '#/components/schemas/BlankEnum'
         weaving_type:
           type: string
@@ -2031,6 +2254,18 @@ components:
       - id
       - status_display
       - weaving_type
+    ProductAttributesGenderEnum:
+      enum:
+      - female
+      - male
+      - children
+      - unisex
+      type: string
+      description: |-
+        * `female` - Жіноче
+        * `male` - Чоловіче
+        * `children` - Дитяче
+        * `unisex` - Унісекс
     ProductMaterial:
       type: object
       properties:
@@ -2047,6 +2282,27 @@ components:
       required:
       - id
       - material
+    Register:
+      type: object
+      properties:
+        username:
+          type: string
+          title: Ім'я користувача
+          description: 'Необхідно: 150 або менше символів. тільки букви, цифри та  знаки
+            @/./+/-/_.'
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        password_confirm:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - password_confirm
+      - username
     RingSize:
       type: object
       properties:
@@ -2150,6 +2406,19 @@ components:
       - old_price
       - price
       - status_display
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+        user_id:
+          type: integer
+        username:
+          type: string
+      required:
+      - token
+      - user_id
+      - username
     TotalProducts:
       type: object
       properties:
@@ -2239,6 +2508,47 @@ components:
       - statuses
       - subcategory
       - subproducts
+    UserNotificationSettings:
+      type: object
+      properties:
+        email_notifications:
+          type: boolean
+        sms_notifications:
+          type: boolean
+        viber_notifications:
+          type: boolean
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+        gender:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/UserProfileGenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        viber:
+          type: string
+          nullable: true
+          maxLength: 50
+        telegram:
+          type: string
+          nullable: true
+          maxLength: 50
+      required:
+      - id
+    UserProfileGenderEnum:
+      enum:
+      - M
+      - F
+      type: string
+      description: |-
+        * `M` - Male
+        * `F` - Female
     Version:
       type: object
       properties:

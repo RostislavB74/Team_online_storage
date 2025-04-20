@@ -42,6 +42,9 @@ django-storages = {extras = ["s3"], version = "^1.14.5"}
 pyotp = "^2.9.0"
 liqpay = "^1.0.1"
 django-liqpay = "^1.1"
+django-ratelimit = "^4.1.0"
+django-recaptcha = "^4.1.0"
+django-versatileimagefield = "^3.1"
 
 
 [tool.poetry.group.deploy.dependencies]

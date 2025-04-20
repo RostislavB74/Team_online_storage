@@ -105,9 +105,14 @@ INSTALLED_APPS = [
     "order",
     "warehouse",
     "discounts",
+    # 'versatileimagefield',
+    # 'django_ratelimit',
     
 ]
-
+VERSATILEIMAGEFIELD_SETTINGS = {
+    'create_images_on_demand': True,
+    'cache_length': 2592000,
+}
 LANGUAGE_CODE = 'uk'  # Мова за замовчуванням
 
 PARLER_LANGUAGES = {
@@ -150,7 +155,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # 'ratelimit.middleware.RatelimitMiddleware',
 ]
+# RATELIMIT_VIEW = 'yourapp.views.rate_limited'
+
 
 ROOT_URLCONF = "project_1444.urls"
 
@@ -245,13 +253,14 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 TIME_ZONE = "Europe/Kyiv"
-
+RECAPTCHA_PUBLIC_KEY = 'your_public_key'
+RECAPTCHA_PRIVATE_KEY = 'your_private_key'
 
 STATIC_URL = env("STATIC_URL", default="/static/")  # 'static/'
 
 STATIC_ROOT = BASE_DIR / "static"
 
-# MEDIA_URL = "/media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 LOCALE_PATHS = [BASE_DIR / "locale"]
@@ -455,7 +464,22 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/minute',
+        'user': '10/minute'
+    },
 }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -544,3 +568,66 @@ LIQPAY_DEFAULT_CURRENCY = env('LIQPAY_DEFAULT_CURRENCY', default='UAH')
 LIQPAY_DEFAULT_LANGUAGE = env('LIQPAY_DEFAULT_LANGUAGE', default='uk')
 LIQPAY_DEFAULT_ACTION = env('LIQPAY_DEFAULT_ACTION', default='pay')
 LIQPAY_SANDBOX_MODE = env('LIQPAY_SANDBOX_MODE', default=True, cast=bool)
+
+
+
+
+# INSTALLED_APPS = [
+#     ...,
+#     'django_ratelimit',
+# ]
+
+# MIDDLEWARE = [
+#     ...,
+#     'ratelimit.middleware.RatelimitMiddleware',
+# ]
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379/1',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
+
+# RATELIMIT_VIEW = 'users.views.rate_limited'
+# RATELIMIT_CACHE_BACKEND = 'default'
+# project_1444/settings.py
+
+
+
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_THROTTLE_CLASSES': [
+#         'rest_framework.throttling.AnonRateThrottle',
+#         'rest_framework.throttling.UserRateThrottle'
+#     ],
+#     'DEFAULT_THROTTLE_RATES': {
+#         'anon': '5/minute',
+#         'user': '10/minute'
+#     }
+# }
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#     }
+# }
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         '': {
+#             'handlers': ['console'],
+#             'level': 'INFO',
+#         },
+#     },
+# }
