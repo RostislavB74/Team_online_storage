@@ -2,6 +2,8 @@ from rest_framework import serializers
 from order.models import Order, OrderItem
 from product.models import SubProducts
 from product.utils import get_discounted_price
+from typing import List  # Для типу List[str]
+from drf_spectacular.utils import extend_schema_field
 
 class OrderCreateSerializer(serializers.Serializer):
     payment_method = serializers.ChoiceField(
@@ -31,7 +33,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['product', 'quantity', 'product_price', 'total_price']
-
+    @extend_schema_field(str)
     def get_product(self, obj):
         # Безпечно отримуємо user із контексту
         request = self.context.get('request')

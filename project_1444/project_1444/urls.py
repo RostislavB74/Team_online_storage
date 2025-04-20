@@ -51,6 +51,9 @@ urlpatterns = [
     path("api/v1/", include("product.urls")),
     path("api/v1/auth/", include("rest_framework.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),  # JSON схема API
+    # Маршрути для drf-spectacular
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"),name="swagger-ui"),  
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),  # ReDoc
     path("api/v1/livez/", HealthCheckView.as_view(), name="livez"),
