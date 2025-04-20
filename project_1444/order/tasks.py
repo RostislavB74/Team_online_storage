@@ -1,25 +1,25 @@
-# from celery import shared_task
-# from django.core.mail import send_mail
+from celery import shared_task
+from django.core.mail import send_mail
 # from liqpay import LiqPay
 
-# @shared_task
-# def send_order_confirmation_email(order_id, user_email):
-#     """
-#     Асинхронна задача для відправки email після створення замовлення.
-#     """
-#     try:
-#         send_mail(
-#             subject='Замовлення підтверджено',
-#             message=f'Ваше замовлення #{order_id} оформлено!',
-#             from_email='from@example.com',
-#             recipient_list=[user_email],
-#             fail_silently=True,
-#         )
-#     except Exception as e:
-#         # Логування помилок
-#         from logging import getLogger
-#         logger = getLogger(__name__)
-#         logger.error(f"Помилка відправки email для замовлення #{order_id}: {e}")
+@shared_task
+def send_order_confirmation_email(order_id, user_email):
+    """
+    Асинхронна задача для відправки email після створення замовлення.
+    """
+    try:
+        send_mail(
+            subject='Замовлення підтверджено',
+            message=f'Ваше замовлення #{order_id} оформлено!',
+            from_email='from@example.com',
+            recipient_list=[user_email],
+            fail_silently=True,
+        )
+    except Exception as e:
+        # Логування помилок
+        from logging import getLogger
+        logger = getLogger(__name__)
+        logger.error(f"Помилка відправки email для замовлення #{order_id}: {e}")
 
 
 

@@ -812,7 +812,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this Замовлення.
+        description: A unique integer value identifying this Order.
         required: true
       tags:
       - api
@@ -836,7 +836,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this Замовлення.
+        description: A unique integer value identifying this Order.
         required: true
       tags:
       - api
@@ -871,7 +871,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this Замовлення.
+        description: A unique integer value identifying this Order.
         required: true
       tags:
       - api
@@ -906,7 +906,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this Замовлення.
+        description: A unique integer value identifying this Order.
         required: true
       tags:
       - api
@@ -929,13 +929,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/OrderCreate'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/OrderCreate'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/OrderCreate'
+        required: true
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -1431,13 +1432,11 @@ components:
     DeliveryMethodEnum:
       enum:
       - pickup
-      - courier
-      - nova_poshta
+      - delivery
       type: string
       description: |-
-        * `pickup` - Самовивіз
-        * `courier` - Кур'єр
-        * `nova_poshta` - Нова Пошта
+        * `pickup` - Pickup
+        * `delivery` - Delivery
     Descriptions:
       type: object
       properties:
@@ -1499,110 +1498,118 @@ components:
         user:
           type: integer
           nullable: true
-          title: Користувач
         payment_method:
-          allOf:
-          - $ref: '#/components/schemas/PaymentMethodEnum'
-          title: Спосіб оплати
+          $ref: '#/components/schemas/PaymentMethodEnum'
         delivery_method:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryMethodEnum'
-          title: Спосіб доставки
+          $ref: '#/components/schemas/DeliveryMethodEnum'
         recipient_name:
           type: string
           nullable: true
-          title: Ім’я отримувача
-          maxLength: 255
+          maxLength: 100
         recipient_phone:
           type: string
           nullable: true
-          title: Телефон отримувача
           maxLength: 20
         address:
           type: string
           nullable: true
-          title: Адреса доставки
         coupon:
           type: string
           nullable: true
-          title: Купон
           maxLength: 50
         call_me:
           type: boolean
-          title: Передзвонити
         total_price:
           type: string
           format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          title: Загальна ціна
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         discount:
           type: string
           format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          title: Знижка
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
         final_price:
           type: string
           format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          title: Фінальна ціна
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         status:
-          allOf:
-          - $ref: '#/components/schemas/StatusEnum'
-          title: Статус
+          $ref: '#/components/schemas/StatusEnum'
         created_at:
           type: string
           format: date-time
           readOnly: true
-          title: Дата створення
         updated_at:
           type: string
           format: date-time
           readOnly: true
-          title: Дата оновлення
         items:
           type: array
           items:
             $ref: '#/components/schemas/OrderItem'
           readOnly: true
-        manual_items:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderItem'
-          writeOnly: true
       required:
       - created_at
       - id
       - items
       - updated_at
+    OrderCreate:
+      type: object
+      properties:
+        payment_method:
+          allOf:
+          - $ref: '#/components/schemas/PaymentMethodEnum'
+          default: cash
+        delivery_method:
+          allOf:
+          - $ref: '#/components/schemas/DeliveryMethodEnum'
+          default: pickup
+        recipient_name:
+          type: string
+          maxLength: 100
+        recipient_phone:
+          type: string
+          maxLength: 20
+        address:
+          type: string
+        coupon:
+          type: string
+          nullable: true
+          maxLength: 50
+        call_me:
+          type: boolean
+          default: false
+        discount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          default: '0.00'
+      required:
+      - address
+      - recipient_name
+      - recipient_phone
     OrderItem:
       type: object
       properties:
         product:
-          allOf:
-          - $ref: '#/components/schemas/SubProductsSizes'
+          type: array
+          items:
+            type: string
           readOnly: true
-        product_id:
-          type: integer
-          writeOnly: true
         quantity:
           type: integer
           maximum: 2147483647
           minimum: 0
-          title: Кількість
         product_price:
           type: string
           format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          title: Ціна товару
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         total_price:
           type: string
           format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          title: Загальна ціна
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
       required:
       - product
-      - product_id
       - product_price
+      - quantity
       - total_price
     PatchedCart:
       type: object
@@ -1684,76 +1691,54 @@ components:
         user:
           type: integer
           nullable: true
-          title: Користувач
         payment_method:
-          allOf:
-          - $ref: '#/components/schemas/PaymentMethodEnum'
-          title: Спосіб оплати
+          $ref: '#/components/schemas/PaymentMethodEnum'
         delivery_method:
-          allOf:
-          - $ref: '#/components/schemas/DeliveryMethodEnum'
-          title: Спосіб доставки
+          $ref: '#/components/schemas/DeliveryMethodEnum'
         recipient_name:
           type: string
           nullable: true
-          title: Ім’я отримувача
-          maxLength: 255
+          maxLength: 100
         recipient_phone:
           type: string
           nullable: true
-          title: Телефон отримувача
           maxLength: 20
         address:
           type: string
           nullable: true
-          title: Адреса доставки
         coupon:
           type: string
           nullable: true
-          title: Купон
           maxLength: 50
         call_me:
           type: boolean
-          title: Передзвонити
         total_price:
           type: string
           format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          title: Загальна ціна
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         discount:
           type: string
           format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          title: Знижка
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
         final_price:
           type: string
           format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          title: Фінальна ціна
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         status:
-          allOf:
-          - $ref: '#/components/schemas/StatusEnum'
-          title: Статус
+          $ref: '#/components/schemas/StatusEnum'
         created_at:
           type: string
           format: date-time
           readOnly: true
-          title: Дата створення
         updated_at:
           type: string
           format: date-time
           readOnly: true
-          title: Дата оновлення
         items:
           type: array
           items:
             $ref: '#/components/schemas/OrderItem'
           readOnly: true
-        manual_items:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderItem'
-          writeOnly: true
     PatchedProduct:
       type: object
       properties:
@@ -1914,9 +1899,9 @@ components:
       - googlepay
       type: string
       description: |-
-        * `cash` - Готівка
+        * `cash` - Cash
         * `liqpay` - LiqPay
-        * `googlepay` - Google Pay
+        * `googlepay` - GooglePay
     Product:
       type: object
       properties:
@@ -2079,15 +2064,15 @@ components:
     StatusEnum:
       enum:
       - new
-      - processing
       - paid
-      - shipped
+      - failed
+      - reversed
       type: string
       description: |-
-        * `new` - Нове
-        * `processing` - Обробка
-        * `paid` - Оплачене
-        * `shipped` - Відправлене
+        * `new` - New
+        * `paid` - Paid
+        * `failed` - Failed
+        * `reversed` - Reversed
     SubProductsSizes:
       type: object
       properties:
