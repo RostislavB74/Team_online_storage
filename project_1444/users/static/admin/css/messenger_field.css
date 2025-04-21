@@ -1,0 +1,30 @@
+.messenger-field {
+    margin-bottom: 15px;
+}
+
+.messenger-entry {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.messenger-name,
+.messenger-value {
+    flex: 1;
+}
+
+.remove-messenger {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.add-messenger {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+}

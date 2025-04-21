@@ -570,7 +570,8 @@ LIQPAY_DEFAULT_ACTION = env('LIQPAY_DEFAULT_ACTION', default='pay')
 LIQPAY_SANDBOX_MODE = env('LIQPAY_SANDBOX_MODE', default=True, cast=bool)
 
 
-
+# Allowed messengers
+ALLOWED_MESSENGERS = ['viber', 'telegram', 'whatsapp', 'signal', 'discord', 'skype']
 
 # INSTALLED_APPS = [
 #     ...,
