@@ -109,10 +109,10 @@ INSTALLED_APPS = [
     # 'django_ratelimit',
     
 ]
-VERSATILEIMAGEFIELD_SETTINGS = {
-    'create_images_on_demand': True,
-    'cache_length': 2592000,
-}
+# VERSATILEIMAGEFIELD_SETTINGS = {
+#     'create_images_on_demand': True,
+#     'cache_length': 2592000,
+# }
 LANGUAGE_CODE = 'uk'  # Мова за замовчуванням
 
 PARLER_LANGUAGES = {
@@ -188,7 +188,7 @@ AUTHENTICATION_BACKENDS = [
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/profile/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/admin/login/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

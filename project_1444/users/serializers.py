@@ -26,20 +26,24 @@ class LoginSerializer(serializers.Serializer):
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
+    email = serializers.EmailField(required=True)
 
     class Meta:
         model = User
-        fields = ['username', 'password', 'password_confirm']
+        fields = ['username', 'email', 'password', 'password_confirm']
 
     def validate(self, data):
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError({'password': 'Passwords must match'})
+        if User.objects.filter(email=data['email']).exists():
+            raise serializers.ValidationError({'email': 'Email already exists'})
         return data
 
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         user = User.objects.create_user(
             username=validated_data['username'],
+            email=validated_data['email'],
             password=validated_data['password']
         )
         return user
@@ -50,16 +54,21 @@ class OTPSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    avatar = serializers.ImageField(allow_null=True, required=False)
 
     class Meta:
         model = UserProfile
-        fields = ["id", "user", "gender", "viber", "telegram"]
+        fields = ["id", "user", "gender", "viber", "telegram", "avatar"]
 
     def validate_user(self, value):
-        # Якщо юзер не є адміністратором, забороняємо зміну user_id
         request = self.context.get("request")
         if request and not request.user.is_staff:
             raise serializers.ValidationError("Ви не можете змінювати це поле.")
+        return value
+
+    def validate_avatar(self, value):
+        if value and value.size > 2 * 1024 * 1024:
+            raise serializers.ValidationError("Image size must be under 2MB.")
         return value
 
 class UserNotificationSettingsSerializer(serializers.ModelSerializer):
@@ -75,6 +84,83 @@ class TokenSerializer(serializers.Serializer):
 class LogoutSerializer(serializers.Serializer):
     status = serializers.CharField()
     message = serializers.CharField()
+# from rest_framework import serializers
+# from django.contrib.auth.models import User
+# from django.contrib.auth import authenticate
+# from .models import UserProfile, OTP, UserNotificationSettings
+
+# class LoginSerializer(serializers.Serializer):
+#     username = serializers.CharField(max_length=150)
+#     password = serializers.CharField(write_only=True)
+
+#     def validate(self, data):
+#         username = data.get('username')
+#         password = data.get('password')
+#         if username and password:
+#             user = authenticate(
+#                 request=self.context.get('request'),
+#                 username=username,
+#                 password=password
+#             )
+#             if not user:
+#                 raise serializers.ValidationError('Invalid credentials')
+#         else:
+#             raise serializers.ValidationError('Must include username and password')
+#         data['user'] = user
+#         return data
+
+# class RegisterSerializer(serializers.ModelSerializer):
+#     password = serializers.CharField(write_only=True, min_length=8)
+#     password_confirm = serializers.CharField(write_only=True)
+
+#     class Meta:
+#         model = User
+#         fields = ['username', 'password', 'password_confirm']
+
+#     def validate(self, data):
+#         if data['password'] != data['password_confirm']:
+#             raise serializers.ValidationError({'password': 'Passwords must match'})
+#         return data
+
+#     def create(self, validated_data):
+#         validated_data.pop('password_confirm')
+#         user = User.objects.create_user(
+#             username=validated_data['username'],
+#             password=validated_data['password']
+#         )
+#         return user
+
+# class OTPSerializer(serializers.Serializer):
+#     otp_code = serializers.CharField(max_length=6, min_length=6)
+#     otp_user_id = serializers.IntegerField(required=False)
+
+# class UserProfileSerializer(serializers.ModelSerializer):
+#     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+
+#     class Meta:
+#         model = UserProfile
+#         fields = ["id", "user", "gender", "viber", "telegram"]
+
+#     def validate_user(self, value):
+#         # Якщо юзер не є адміністратором, забороняємо зміну user_id
+#         request = self.context.get("request")
+#         if request and not request.user.is_staff:
+#             raise serializers.ValidationError("Ви не можете змінювати це поле.")
+#         return value
+
+# class UserNotificationSettingsSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserNotificationSettings
+#         fields = ['email_notifications', 'sms_notifications', 'viber_notifications']
+
+# class TokenSerializer(serializers.Serializer):
+#     token = serializers.CharField()
+#     user_id = serializers.IntegerField()
+#     username = serializers.CharField()
+
+# class LogoutSerializer(serializers.Serializer):
+#     status = serializers.CharField()
+#     message = serializers.CharField()
 
 # from rest_framework import serializers
 # from django.contrib.auth.models import User
