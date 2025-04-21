@@ -105,14 +105,14 @@ INSTALLED_APPS = [
     "order",
     "warehouse",
     "discounts",
-    'versatileimagefield',
+    # 'versatileimagefield',
     # 'django_ratelimit',
     
 ]
-VERSATILEIMAGEFIELD_SETTINGS = {
-    'create_images_on_demand': True,
-    'cache_length': 2592000,
-}
+# VERSATILEIMAGEFIELD_SETTINGS = {
+#     'create_images_on_demand': True,
+#     'cache_length': 2592000,
+# }
 LANGUAGE_CODE = 'uk'  # Мова за замовчуванням
 
 PARLER_LANGUAGES = {
