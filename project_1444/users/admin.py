@@ -62,7 +62,6 @@ class MessengerFieldWidget(forms.Widget):
     template_name = 'admin/messenger_field.html'
 
     def render(self, name, value, attrs=None, renderer=None):
-        # Використовуємо value напряму, якщо є, інакше порожній словник
         messengers = value if isinstance(value, dict) else {}
         allowed_messengers = settings.ALLOWED_MESSENGERS
         template = get_template(self.template_name)
@@ -92,12 +91,17 @@ class UserProfileAdminForm(forms.ModelForm):
             if key not in allowed_messengers:
                 raise forms.ValidationError(f"Unsupported messenger: {key}")
             
+            # Перевірка для viber і whatsapp (тільки номер телефону)
             if key in {'viber', 'whatsapp'} and messengers[key]:
                 if not re.match(r'^\+?\d{10,15}$', messengers[key]):
                     raise forms.ValidationError(f"Invalid {key} format. Must be a phone number (e.g., +380123456789)")
+            
+            # Перевірка для telegram (ID з @ або номер телефону)
             if key == 'telegram' and messengers[key]:
-                if not messengers[key].startswith('@'):
-                    raise forms.ValidationError("Telegram ID must start with @")
+                if not (messengers[key].startswith('@') or re.match(r'^\+?\d{10,15}$', messengers[key])):
+                    raise forms.ValidationError("Telegram must start with @ (e.g., @username) or be a phone number (e.g., +380123456789)")
+            
+            # Перевірка для signal (не може бути порожнім)
             if key == 'signal' and messengers[key] == '':
                 raise forms.ValidationError("Signal ID cannot be empty")
         
@@ -107,9 +111,7 @@ class UserProfileAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance and hasattr(self.instance, '_messengers'):
             print('Initializing form with _messengers:', self.instance._messengers)
-            # Ініціалізуємо поле messengers з даними з моделі
             self.initial['messengers'] = self.instance._messengers if self.instance._messengers else {}
-            # Якщо форма вже заповнена (наприклад, після валідації), беремо дані з неї
             if 'messengers' in self.data:
                 try:
                     self.initial['messengers'] = json.loads(self.data.get('messengers', '{}'))
@@ -120,11 +122,8 @@ class UserProfileAdminForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        # Отримуємо попередні месенджери
         current_messengers = instance._messengers if instance._messengers else {}
-        # Отримуємо нові месенджери з форми
         new_messengers = self.cleaned_data.get('messengers', {})
-        # Об'єднуємо, щоб не затерти попередні
         current_messengers.update(new_messengers)
         instance._messengers = current_messengers
         print('Saving UserProfile with _messengers:', instance._messengers)
