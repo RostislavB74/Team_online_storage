@@ -2096,10 +2096,8 @@ components:
           type: string
           readOnly: true
         size:
-          type: number
-          format: double
-          nullable: true
-          title: 'Розмір(мм) '
+          type: string
+          readOnly: true
         length:
           type: number
           format: double
@@ -2384,10 +2382,8 @@ components:
           type: string
           readOnly: true
         size:
-          type: number
-          format: double
-          nullable: true
-          title: 'Розмір(мм) '
+          type: string
+          readOnly: true
         length:
           type: number
           format: double
@@ -2409,6 +2405,7 @@ components:
       - new_price
       - old_price
       - price
+      - size
       - status_display
     Token:
       type: object
@@ -2528,27 +2525,22 @@ components:
           type: integer
           readOnly: true
         user:
-          type: integer
+          type: string
+          readOnly: true
         gender:
           nullable: true
           oneOf:
           - $ref: '#/components/schemas/UserProfileGenderEnum'
           - $ref: '#/components/schemas/BlankEnum'
           - $ref: '#/components/schemas/NullEnum'
-        viber:
-          type: string
-          nullable: true
-          maxLength: 50
-        telegram:
-          type: string
-          nullable: true
-          maxLength: 50
+        messengers: {}
         avatar:
           type: string
           format: uri
           nullable: true
       required:
       - id
+      - user
     UserProfileGenderEnum:
       enum:
       - M

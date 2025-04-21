@@ -7,10 +7,13 @@ from discounts.models import (
     PersonalDiscount, BirthdayDiscount,
     Coupon, BonusAccount
 )
-from django.contrib import admin
 from .models import UserProfile, OTP, UserNotificationSettings, UserAddress
 from django import forms
 import json
+import re
+from django.conf import settings
+from django.template.loader import get_template
+
 
 User = get_user_model()
 
@@ -47,71 +50,84 @@ class BonusAccountInline(admin.StackedInline):
     verbose_name_plural = 'Бонусний рахунок'
     readonly_fields = ('balance',)
 
-# users/admin.py
+from django.contrib import admin
+from django import forms
+from django.conf import settings
+from django.template.loader import get_template
+from .models import UserProfile, OTP, UserNotificationSettings, UserAddress
+import json
+import re
 
+class MessengerFieldWidget(forms.Widget):
+    template_name = 'admin/messenger_field.html'
 
-# class UserProfileAdminForm(forms.ModelForm):
-#     messengers = forms.CharField(widget=forms.Textarea, required=False)
-
-#     class Meta:
-#         model = UserProfile
-#         fields = '__all__'
-
-#     def clean_messengers(self):
-#         data = self.cleaned_data['messengers']
-#         if data:
-#             try:
-#                 json_data = json.loads(data)
-#                 if not isinstance(json_data, dict):
-#                     raise forms.ValidationError("Messengers must be a JSON dictionary")
-#                 return json_data
-#             except json.JSONDecodeError:
-#                 raise forms.ValidationError("Invalid JSON format")
-#         return {}
-
-# #     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         if self.instance and self.instance.messengers:
-#             self.initial['messengers'] = json.dumps(self.instance.messengers, indent=2)
-
-
-# @admin.register(UserProfile)
-
+    def render(self, name, value, attrs=None, renderer=None):
+        # Використовуємо value напряму, якщо є, інакше порожній словник
+        messengers = value if isinstance(value, dict) else {}
+        allowed_messengers = settings.ALLOWED_MESSENGERS
+        template = get_template(self.template_name)
+        context = {
+            'name': name,
+            'messengers': messengers,
+            'allowed_messengers': allowed_messengers,
+        }
+        print('Rendering MessengerFieldWidget with context:', context)
+        return template.render(context)
 
 class UserProfileAdminForm(forms.ModelForm):
-    viber = forms.CharField(max_length=50, required=False, label="Viber")
-    telegram = forms.CharField(max_length=50, required=False, label="Telegram")
-    whatsapp = forms.CharField(max_length=50, required=False, label="WhatsApp")
-    signal = forms.CharField(max_length=50, required=False, label="Signal")
+    messengers = forms.JSONField(widget=MessengerFieldWidget, required=False)
 
     class Meta:
         model = UserProfile
         fields = '__all__'
 
+    def clean_messengers(self):
+        messengers = self.cleaned_data.get('messengers', {})
+        print('Cleaning messengers:', messengers)
+        if not isinstance(messengers, dict):
+            raise forms.ValidationError("Messengers must be a dictionary")
+        
+        allowed_messengers = set(settings.ALLOWED_MESSENGERS)
+        for key in messengers:
+            if key not in allowed_messengers:
+                raise forms.ValidationError(f"Unsupported messenger: {key}")
+            
+            if key in {'viber', 'whatsapp'} and messengers[key]:
+                if not re.match(r'^\+?\d{10,15}$', messengers[key]):
+                    raise forms.ValidationError(f"Invalid {key} format. Must be a phone number (e.g., +380123456789)")
+            if key == 'telegram' and messengers[key]:
+                if not messengers[key].startswith('@'):
+                    raise forms.ValidationError("Telegram ID must start with @")
+            if key == 'signal' and messengers[key] == '':
+                raise forms.ValidationError("Signal ID cannot be empty")
+        
+        return messengers
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance and self.instance._messengers:
-            messengers = self.instance.get_messengers_for_admin()
-            self.initial['viber'] = messengers.get('viber', '')
-            self.initial['telegram'] = messengers.get('telegram', '')
-            self.initial['whatsapp'] = messengers.get('whatsapp', '')
-            self.initial['signal'] = messengers.get('signal', '')
-
-    def clean(self):
-        cleaned_data = super().clean()
-        messengers = {
-            'viber': cleaned_data.get('viber', ''),
-            'telegram': cleaned_data.get('telegram', ''),
-            'whatsapp': cleaned_data.get('whatsapp', ''),
-            'signal': cleaned_data.get('signal', '')
-        }
-        # Видаляємо порожні значення
-        cleaned_data['messengers'] = {k: v for k, v in messengers.items() if v}
-        return cleaned_data
+        if self.instance and hasattr(self.instance, '_messengers'):
+            print('Initializing form with _messengers:', self.instance._messengers)
+            # Ініціалізуємо поле messengers з даними з моделі
+            self.initial['messengers'] = self.instance._messengers if self.instance._messengers else {}
+            # Якщо форма вже заповнена (наприклад, після валідації), беремо дані з неї
+            if 'messengers' in self.data:
+                try:
+                    self.initial['messengers'] = json.loads(self.data.get('messengers', '{}'))
+                except json.JSONDecodeError:
+                    pass
+        else:
+            self.initial['messengers'] = {}
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        instance._messengers = self.cleaned_data['messengers']
+        # Отримуємо попередні месенджери
+        current_messengers = instance._messengers if instance._messengers else {}
+        # Отримуємо нові месенджери з форми
+        new_messengers = self.cleaned_data.get('messengers', {})
+        # Об'єднуємо, щоб не затерти попередні
+        current_messengers.update(new_messengers)
+        instance._messengers = current_messengers
+        print('Saving UserProfile with _messengers:', instance._messengers)
         if commit:
             instance.save()
         return instance
@@ -122,14 +138,18 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'gender', 'get_messengers_display')
     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
     fields = (
-        'user', 'gender', 'viber', 'telegram', 'whatsapp', 'signal',
+        'user', 'gender', 'messengers',
         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
         'address', 'wedding_date', 'ocassions_personal', 'ocassions_date'
     )
 
     def get_messengers_display(self, obj):
-        return json.dumps(obj.get_messengers_for_admin(), indent=2, ensure_ascii=False)
+        return json.dumps(obj._messengers, indent=2, ensure_ascii=False)
     get_messengers_display.short_description = 'Messengers'
+
+    class Media:
+        js = ('admin/js/messenger_field.js',)
+        css = {'all': ('admin/css/messenger_field.css',)}
 
 @admin.register(OTP)
 class OTPAdmin(admin.ModelAdmin):
@@ -145,6 +165,75 @@ class UserNotificationSettingsAdmin(admin.ModelAdmin):
 class UserAddressAdmin(admin.ModelAdmin):
     list_display = ('user', 'delivery_type', 'city', 'is_default')
     search_fields = ('user__username', 'city')
+
+#12.00 
+# class UserProfileAdminForm(forms.ModelForm):
+#     viber = forms.CharField(max_length=50, required=False, label="Viber")
+#     telegram = forms.CharField(max_length=50, required=False, label="Telegram")
+#     whatsapp = forms.CharField(max_length=50, required=False, label="WhatsApp")
+#     signal = forms.CharField(max_length=50, required=False, label="Signal")
+
+#     class Meta:
+#         model = UserProfile
+#         fields = '__all__'
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         if self.instance and self.instance._messengers:
+#             messengers = self.instance.get_messengers_for_admin()
+#             self.initial['viber'] = messengers.get('viber', '')
+#             self.initial['telegram'] = messengers.get('telegram', '')
+#             self.initial['whatsapp'] = messengers.get('whatsapp', '')
+#             self.initial['signal'] = messengers.get('signal', '')
+
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         messengers = {
+#             'viber': cleaned_data.get('viber', ''),
+#             'telegram': cleaned_data.get('telegram', ''),
+#             'whatsapp': cleaned_data.get('whatsapp', ''),
+#             'signal': cleaned_data.get('signal', '')
+#         }
+#         # Видаляємо порожні значення
+#         cleaned_data['messengers'] = {k: v for k, v in messengers.items() if v}
+#         return cleaned_data
+
+#     def save(self, commit=True):
+#         instance = super().save(commit=False)
+#         instance._messengers = self.cleaned_data['messengers']
+#         if commit:
+#             instance.save()
+#         return instance
+
+# @admin.register(UserProfile)
+# class UserProfileAdmin(admin.ModelAdmin):
+#     form = UserProfileAdminForm
+#     list_display = ('user', 'gender', 'get_messengers_display')
+#     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
+#     fields = (
+#         'user', 'gender', 'viber', 'telegram', 'whatsapp', 'signal',
+#         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
+#         'address', 'wedding_date', 'ocassions_personal', 'ocassions_date'
+#     )
+
+#     def get_messengers_display(self, obj):
+#         return json.dumps(obj.get_messengers_for_admin(), indent=2, ensure_ascii=False)
+#     get_messengers_display.short_description = 'Messengers'
+
+# @admin.register(OTP)
+# class OTPAdmin(admin.ModelAdmin):
+#     list_display = ('user', 'code', 'created_at', 'expires_at')
+#     search_fields = ('user__username', 'code')
+
+# @admin.register(UserNotificationSettings)
+# class UserNotificationSettingsAdmin(admin.ModelAdmin):
+#     list_display = ('user', 'email_notifications', 'sms_notifications', 'viber_notifications')
+#     search_fields = ('user__username',)
+
+# @admin.register(UserAddress)
+# class UserAddressAdmin(admin.ModelAdmin):
+#     list_display = ('user', 'delivery_type', 'city', 'is_default')
+#     search_fields = ('user__username', 'city')
 # @admin.register(UserProfile)
 # class UserProfileAdmin(admin.ModelAdmin):
 #     form = UserProfileAdminForm

@@ -154,12 +154,22 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
     old_price = serializers.SerializerMethodField()
     discount_applied = serializers.SerializerMethodField()
-    size_product=serializers.SerializerMethodField()
+    size=serializers.SerializerMethodField()
     # parent_product = serializers.CharField(source='parent_product.name', read_only=True)
     new_price = serializers.SerializerMethodField()
     @extend_schema_field(str)
-    def get_size_product(self, obj):
-        return obj.product.name
+    def get_size(self, obj):
+        # Якщо size є і містить 'value', повертаємо його
+        if obj.size and isinstance(obj.size, dict) and 'value' in obj.size:
+            return obj.size['value']
+        # Якщо size порожнє, але є length і max_length, повертаємо діапазон
+        if obj.length and obj.max_length:
+            return f"{obj.length}-{obj.max_length}"
+        # Якщо нічого немає, повертаємо порожній рядок
+        return ""
+    # @extend_schema_field(str)
+    # def get_size_product(self, obj):
+    #     return obj.product.name
     @extend_schema_field(str)
     def get_new_price(self, obj):
         request = self.context.get('request')
