@@ -39,19 +39,22 @@ from product.views import (
 from product.views import RingSizeLookup
 from discounts.views import AvailableDiscountsView
 from .views import ApiRootView
-
+# urls.py
+admin.site.site_header = "VEVELLY"
+admin.site.site_title = "Адмінка"
+admin.site.index_title = "Ласкаво просимо"
+admin.site.login_template = 'custom_admin/login.html'
 
 urlpatterns = [
     path("api/", ApiRootView.as_view(), name="api-root"),
-    path("admin/", admin.site.urls),
+    path("admin/", admin.site.urls, name="admin"),
     path('', include('users.urls')),
     path("api/v0/", include("mock.urls")),
     path("api/v1/", include("order.urls")),
     path("api/v1/", include("cart.urls")),
     path("api/v1/", include("product.urls")),
     path("api/v1/auth/", include("rest_framework.urls")),
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),  # JSON схема API
-    # Маршрути для drf-spectacular
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"),name="swagger-ui"),  
@@ -60,8 +63,6 @@ urlpatterns = [
     path("api/v1/version/", VersionView.as_view(), name="version"),
     path("api/v1/", include([
         path("discounts/", include("discounts.urls", namespace="discounts")),
-        # path("products/", include("product.urls", namespace="products")),
-        # path("cart/", include("cart.urls", namespace="cart")),
         ])),
 ]
 

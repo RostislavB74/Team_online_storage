@@ -2292,6 +2292,9 @@ components:
             @/./+/-/_.'
           pattern: ^[\w.@+-]+$
           maxLength: 150
+        email:
+          type: string
+          format: email
         password:
           type: string
           writeOnly: true
@@ -2300,6 +2303,7 @@ components:
           type: string
           writeOnly: true
       required:
+      - email
       - password
       - password_confirm
       - username
@@ -2539,6 +2543,10 @@ components:
           type: string
           nullable: true
           maxLength: 50
+        avatar:
+          type: string
+          format: uri
+          nullable: true
       required:
       - id
     UserProfileGenderEnum:

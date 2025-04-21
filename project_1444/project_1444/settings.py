@@ -188,7 +188,7 @@ AUTHENTICATION_BACKENDS = [
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/profile/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/admin/login/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -431,16 +431,28 @@ LOGGING = {
 # # Fallback for use FileSystemStorage when CLOUDINARY, or S3 / MinIO not configured
 # if not DEFAULT_FILE_STORAGE:
 #     print(f"Using FileSystemStorage as DEFAULT_FILE_STORAGE BACKEND")
-
-
-
+## Email налаштування
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@gmail.com'  # Твій Gmail
+# EMAIL_HOST_PASSWORD = 'your-app-password'  # Пароль програми (не звичайний пароль Gmail)
+# DEFAULT_FROM_EMAIL = 'Your App Name <your-email@gmail.com>'
+# EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
+# SENDGRID_API_KEY = 'your-sendgrid-api-key'
+# DEFAULT_FROM_EMAIL = 'your-email@domain.com'
+# EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+# CELERY_BROKER_URL = 'redis://localhost:6379/0'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 try:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = env("EMAIL_HOST")
     EMAIL_PORT = env("EMAIL_PORT", cast=int, default=465)
-    EMAIL_USE_SSL = env("EMAIL_USE_SSL", cast=bool, default=True)
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
+    # EMAIL_USE_SSL = env("EMAIL_USE_SSL", cast=bool, default=True)
     EMAIL_HOST_USER = env("EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
     if not EMAIL_HOST:
