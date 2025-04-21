@@ -154,8 +154,12 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
     old_price = serializers.SerializerMethodField()
     discount_applied = serializers.SerializerMethodField()
+    size_product=serializers.SerializerMethodField()
     # parent_product = serializers.CharField(source='parent_product.name', read_only=True)
     new_price = serializers.SerializerMethodField()
+    @extend_schema_field(str)
+    def get_size_product(self, obj):
+        return obj.product.name
     @extend_schema_field(str)
     def get_new_price(self, obj):
         request = self.context.get('request')
