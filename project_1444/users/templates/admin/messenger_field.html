@@ -1,0 +1,43 @@
+{% load i18n %}
+{% load json_tags %}
+<div class="messenger-field">
+    <div class="messenger-entries">
+        {% if messengers %}
+            {% for key, value in messengers.items %}
+            <div class="messenger-entry">
+                <select name="messenger_name_{{ forloop.counter0 }}" class="messenger-name">
+                    <option value="">{% trans "Select messenger" %}</option>
+                    {% for messenger in allowed_messengers %}
+                    <option value="{{ messenger }}" {% if key == messenger %}selected{% endif %}>{{ messenger|capfirst }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="messenger_value_{{ forloop.counter0 }}" value="{{ value|default:'' }}" class="messenger-value">
+                <button type="button" class="remove-messenger">{% trans "Remove" %}</button>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="messenger-entry">
+                <select name="messenger_name_0" class="messenger-name">
+                    <option value="">{% trans "Select messenger" %}</option>
+                    {% for messenger in allowed_messengers %}
+                    <option value="{{ messenger }}">{{ messenger|capfirst }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="messenger_value_0" value="" class="messenger-value">
+                <button type="button" class="remove-messenger">{% trans "Remove" %}</button>
+            </div>
+        {% endif %}
+    </div>
+    <button type="button" class="add-messenger">{% trans "Add Messenger" %}</button>
+</div>
+{% with messengers_json=messengers|default:'{}'|jsonify %}
+<input type="hidden" name="{{ name }}" id="id_{{ name }}" value="{{ messengers_json }}">
+{% endwith %}
+<script src="/static/admin/js/messenger_field.js"></script>
+<style>
+    .messenger-field { margin-bottom: 15px; }
+    .messenger-entry { display: flex; gap: 10px; margin-bottom: 10px; }
+    .messenger-name, .messenger-value { flex: 1; }
+    .remove-messenger { background: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+    .add-messenger { background: #4CAF50; color: white; border: none; padding: 8px 15px; cursor: pointer; }
+</style>
