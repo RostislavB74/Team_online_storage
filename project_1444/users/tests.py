@@ -10,12 +10,12 @@
 # from django.core.files.uploadedfile import SimpleUploadedFile
 
 # class AuthAPITest(TestCase):
-#     def setUp(self):
-/*************  ✨ Windsurf Command ⭐  *************/
-        """
-        Creates a test user, profile, product, subproduct and a cart entry.
-        """
-/*******  8314059a-4602-424c-af1c-67ae0666f1eb  *******/
+# #     def setUp(self):
+# /*************  ✨ Windsurf Command ⭐  *************/
+#         """
+#         Creates a test user, profile, product, subproduct and a cart entry.
+#         """
+# /*******  8314059a-4602-424c-af1c-67ae0666f1eb  *******/
 #         self.client = APIClient()
 #         self.user = User.objects.create_user(username='testuser', password='testpass')
 #         self.profile = UserProfile.objects.get(user=self.user)
