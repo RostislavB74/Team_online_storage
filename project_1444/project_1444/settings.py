@@ -88,7 +88,7 @@ INSTALLED_APPS = [
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
-    "debug_toolbar",
+    'debag_toolbar',
     # "cloudinary_storage",
     # "django_filters",
     # "mptt",
