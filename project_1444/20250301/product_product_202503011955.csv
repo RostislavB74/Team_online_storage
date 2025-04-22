@@ -1,3 +1,0 @@
-"id","article","ean_13","sku","size","circumference_mm","price","discount_percentage","new_price","old_price","weight_material","main_set_included","weight_gemstone_main","set_included","weight_gemstone_second","dimensions","width_mm","length_mm","coating","gold_plates","year_collection","country_of_origin","qr_code","created_at","updated_at","created_by_id","category_id"
-1,PR00001,,SKU-E0E14D5F,,,,0.00,18426.0,36852.0,0.96,true,,true,,true,"12",26.0,false,false,,,qrcodes/qr_SKU-E0E14D5F.png,2025-02-28 19:37:36.179 +0200,2025-02-28 19:41:30.980 +0200,,
-2,PR00002,,SKU-E3E0ACA2,,,,0.00,,,37.09,false,,false,,false,,,false,false,,,qrcodes/qr_SKU-E3E0ACA2.png,2025-02-28 21:03:00.388 +0200,2025-03-01 19:49:34.325 +0200,,

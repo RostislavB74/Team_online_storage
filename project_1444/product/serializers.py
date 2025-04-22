@@ -167,9 +167,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             return f"{obj.length}-{obj.max_length}"
         # Якщо нічого немає, повертаємо порожній рядок
         return ""
-    # @extend_schema_field(str)
-    # def get_size_product(self, obj):
-    #     return obj.product.name
+   
     @extend_schema_field(str)
     def get_new_price(self, obj):
         request = self.context.get('request')

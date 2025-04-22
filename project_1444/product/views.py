@@ -400,29 +400,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             .select_related("category", "subcategory", "collection", "design")
         )
 
-    # def get_queryset(self):
-    #     """Фільтрація товарів за мовою"""
-    #     lang = get_language_code(self.request)
-    #     return Product.objects.language(lang).all()
-
-    # @extend_schema(
-    #     parameters=[
-    #         OpenApiParameter(
-    #             name="lookup",
-    #             type=str,
-    #             location=OpenApiParameter.PATH,
-    #             description="ID (integer) or slug of the product"
-    #         ),
-    #         OpenApiParameter(
-    #             name="lang",
-    #             type=str,
-    #             location=OpenApiParameter.QUERY,
-    #             description="Language code (e.g., 'uk', 'en')",
-    #             default="uk"
-    #         )
-    #     ],
-    #     description="Retrieve a product by ID or slug with language support"
-    # )
+    
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за id або slug з урахуванням мови"""
         lookup_value = kwargs.get("pk")  # Отримуємо значення з URL

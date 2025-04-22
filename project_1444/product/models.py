@@ -22,19 +22,7 @@ from utils.multi_backend_image_field import (
 )
 from decimal import Decimal
 
-# class Seasons(TranslatableModel):
-#     translations = TranslatedFields(
-#         name=models.CharField(max_length=255, unique=True, verbose_name="Seasons"),
-#         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
-#     )
-#     updated_at = models.DateTimeField(auto_now=True)
 
-#     def save(self, *args, **kwargs):
-#         save_with_translation(self, *args, **kwargs)
-#     class Meta:
-#         verbose_name = "Сезон"
-#         verbose_name_plural = "Сезони"
-# Категорії
 class Categories(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, verbose_name="Categories"),

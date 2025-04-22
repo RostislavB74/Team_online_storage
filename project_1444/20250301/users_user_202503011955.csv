@@ -1,2 +1,0 @@
-"id","password","last_login","is_superuser","name","email","phone","telegram","is_active","is_staff"
-1,pbkdf2_sha256$870000$cWqQ6P8DjksFhQ59Aur0XL$sEUnNDM+3qMzWC0uD7PoiNVj+6YujMxld5wgBzgY0Yw=,2025-02-27 11:38:05.144 +0200,true,admin,brn.h74@gmail.com,,,true,true
