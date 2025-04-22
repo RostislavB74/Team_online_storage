@@ -39,6 +39,8 @@ from product.views import (
 from product.views import RingSizeLookup
 from discounts.views import AvailableDiscountsView
 from .views import ApiRootView
+
+from debug_toolbar.toolbar import debug_toolbar_urls
 # urls.py
 admin.site.site_header = "VEVELLY"
 admin.site.site_title = "Адмінка"
@@ -64,7 +66,7 @@ urlpatterns = [
     path("api/v1/", include([
         path("discounts/", include("discounts.urls", namespace="discounts")),
         ])),
-]
+]+ debug_toolbar_urls()
 
 
 if settings.STATIC_URL:

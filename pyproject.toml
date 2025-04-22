@@ -47,6 +47,7 @@ django-recaptcha = "^4.1.0"
 django-versatileimagefield = "^3.1"
 django-sendgrid-v5 = "^1.2.4"
 django-celery-email = "^3.0.0"
+django-debug-toolbar = "^5.1.0"
 
 
 [tool.poetry.group.deploy.dependencies]

@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
+    "debug_toolbar",
     # "cloudinary_storage",
     # "django_filters",
     # "mptt",
@@ -155,6 +156,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     # 'ratelimit.middleware.RatelimitMiddleware',
 ]
 # RATELIMIT_VIEW = 'yourapp.views.rate_limited'
@@ -573,7 +575,11 @@ LIQPAY_SANDBOX_MODE = env('LIQPAY_SANDBOX_MODE', default=True, cast=bool)
 
 # Allowed messengers
 ALLOWED_MESSENGERS = ['viber', 'telegram', 'whatsapp', 'signal', 'discord', 'skype']
-
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
 # INSTALLED_APPS = [
 #     ...,
 #     'django_ratelimit',
