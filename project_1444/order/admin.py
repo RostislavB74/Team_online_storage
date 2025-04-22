@@ -1,11 +1,4 @@
-# from django.utils.html import format_html
-# from django.contrib import admin
-# from .models import Order, OrderItem
-# from django.contrib import admin
-# from .models import Order
 
-# admin.site.register(Order)
-# admin.site.register(OrderItem)
 from django.contrib import admin
 from .models import Order, OrderItem
 
