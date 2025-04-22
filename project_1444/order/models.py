@@ -20,9 +20,9 @@ class Order(models.Model):
     address = models.TextField(blank=True, null=True)
     coupon = models.CharField(max_length=50, blank=True, null=True)
     call_me = models.BooleanField(default=False)
-    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
-    final_price = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'))
+    final_price = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     status = models.CharField(
         max_length=20,
         choices=[('new', 'New'), ('paid', 'Paid'), ('failed', 'Failed'), ('reversed', 'Reversed')],

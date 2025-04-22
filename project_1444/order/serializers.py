@@ -4,6 +4,7 @@ from product.models import SubProducts
 from product.utils import get_discounted_price
 from typing import List  # Для типу List[str]
 from drf_spectacular.utils import extend_schema_field
+from decimal import Decimal
 
 class OrderCreateSerializer(serializers.Serializer):
     payment_method = serializers.ChoiceField(
@@ -19,7 +20,7 @@ class OrderCreateSerializer(serializers.Serializer):
     address = serializers.CharField(required=True)
     coupon = serializers.CharField(max_length=50, required=False, allow_null=True)
     call_me = serializers.BooleanField(default=False)
-    discount = serializers.DecimalField(max_digits=5, decimal_places=2, default=0.00, required=False)
+    discount = serializers.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'), required=False)
 
     def validate(self, data):
         """Додаткова валідація"""
