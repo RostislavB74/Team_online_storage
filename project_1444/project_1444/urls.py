@@ -66,7 +66,10 @@ urlpatterns = [
     path("api/v1/", include([
         path("discounts/", include("discounts.urls", namespace="discounts")),
         ])),
-]+ debug_toolbar_urls()
+]
+# Додаємо debug_toolbar, якщо в дебаг-режимі
+if 'debug_toolbar' in settings.INSTALLED_APPS:
+    urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
 
 
 if settings.STATIC_URL:
