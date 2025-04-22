@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load json_tags %}
+{% load static %}
 <div class="messenger-field">
     <div class="messenger-entries">
         {% if messengers %}
@@ -33,7 +34,7 @@
 {% with messengers_json=messengers|default:'{}'|jsonify %}
 <input type="hidden" name="{{ name }}" id="id_{{ name }}" value="{{ messengers_json }}">
 {% endwith %}
-<script src="/static/admin/js/messenger_field.js"></script>
+<script src="{% static 'admin/js/messenger_field.js' %}"></script>
 <style>
     .messenger-field { margin-bottom: 15px; }
     .messenger-entry { display: flex; gap: 10px; margin-bottom: 10px; }

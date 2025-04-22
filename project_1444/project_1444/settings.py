@@ -255,6 +255,7 @@ USE_TZ = True
 TIME_ZONE = "Europe/Kyiv"
 RECAPTCHA_PUBLIC_KEY = 'your_public_key'
 RECAPTCHA_PRIVATE_KEY = 'your_private_key'
+# settings.py
 
 STATIC_URL = env("STATIC_URL", default="/static/")  # 'static/'
 
