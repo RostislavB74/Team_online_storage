@@ -513,7 +513,10 @@ class TotalProductsViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        return Product.objects.language(lang).all()
+        qs = Product.objects.language(lang)
+        if self.action == "list":
+            return qs.prefetch_related("translations")
+        return qs.all()
 
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за ID разом із його підпродуктами"""
