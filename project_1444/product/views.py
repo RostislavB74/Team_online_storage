@@ -376,7 +376,10 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        return Categories.objects.language(lang).prefetch_related("translations").all()
+        qs = Categories.objects.language(lang)
+        if self.action == "list":
+            return qs.prefetch_related("translations")
+        return qs
 
     # def retrieve(self, request, *args, **kwargs):
     #     """Отримання продукту за slug з урахуванням мови"""
@@ -452,7 +455,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         lang = get_language_code(self.request)
         description_qs = Descriptions.objects.language(lang)
         """Фільтрація товарів за мовою та підвантаження зв'язків"""
-        # lang = get_language_code(self.request)
         return (
             Product.objects.language(lang)
             .prefetch_related(
@@ -465,6 +467,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 "images",  # якщо є
                 "certificates",  # якщо є
                 "gemstones",  # якщо є
+                "translations",
             )
             .select_related("category", "subcategory", "collection", "design")
         )
@@ -472,7 +475,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за id або slug з урахуванням мови"""
         lookup_value = kwargs.get("pk")  # Отримуємо значення з URL
-        lang = request.GET.get("lang", "uk")
+        lang = get_language_code(self.request)
         queryset = Product.objects.language(lang)
 
         # Перевіряємо, чи є lookup_value числом (id) чи текстом (slug)
