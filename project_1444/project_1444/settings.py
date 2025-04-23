@@ -12,34 +12,36 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import sys
 
-from django.utils.translation import gettext_lazy as _
-import zoneinfo
+# from django.utils.translation import gettext_lazy as _
+# import zoneinfo
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from pathlib import Path
-from urllib.parse import urlparse
+
+# from urllib.parse import urlparse
 
 import environ
 from datetime import timedelta
-from pygments.lexer import default
-import os
-from urllib.parse import urlparse
-from dotenv import load_dotenv
-from django.core.exceptions import ImproperlyConfigured
+
+# from pygments.lexer import default
+# import os
+# from urllib.parse import urlparse
+# from dotenv import load_dotenv
+# from django.core.exceptions import ImproperlyConfigured
 
 
 from . import __version__
 
 # from django.utils.translation import gettext_lazy as _
-import os
+# import os
 from urllib.parse import urlparse
 
-from django.conf.global_settings import STATIC_ROOT
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-from cloudinary.utils import cloudinary_url
-from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
+# from django.conf.global_settings import STATIC_ROOT
+# import cloudinary
+# import cloudinary.uploader
+# import cloudinary.api
+# from cloudinary.utils import cloudinary_url
+# from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
