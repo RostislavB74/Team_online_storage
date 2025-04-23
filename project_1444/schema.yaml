@@ -2647,10 +2647,12 @@ components:
           type: integer
           readOnly: true
         category:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/Categories'
           readOnly: true
         subcategory:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/SubCategories'
           readOnly: true
         name:
           type: string
