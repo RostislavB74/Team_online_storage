@@ -40,3 +40,8 @@ REDIS_URL='redis://localhost:6379/0'
 
 PROJECT_NAME='project_1444'
 
+CACHE_HEADERS_ENABLED=False
+
+ANON_RATE_THROTTLE='5/minute'
+USER_RATE_THROTTLE='10/minute'
+
