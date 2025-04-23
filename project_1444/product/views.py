@@ -335,7 +335,7 @@ class RingSizeLookup(APIView):
 
 # NOT USED
 class CategoriesViewSet(viewsets.ModelViewSet):
-    """CRUD для продуктів"""
+    """CRUD для продуктів CategoriesViewSet"""
 
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
@@ -343,20 +343,18 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
-        lang = self.request.GET.get("lang", "uk")
-        if lang == "uk":
-            return Categories.objects.filter(translations__language_code="uk")
-        return Categories.objects.filter(translations__language_code="en")
+        lang = get_language_code(self.request)
+        return Categories.objects.language(lang).all()
 
-    def retrieve(self, request, *args, **kwargs):
-        """Отримання продукту за slug з урахуванням мови"""
-        lang = request.GET.get("lang", "uk")
-        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        result = get_object_or_404(
-            Categories, **{field: kwargs["pk"], "translations__language_code": lang}
-        )
-        serializer = self.get_serializer(result)
-        return Response(serializer.data)
+    # def retrieve(self, request, *args, **kwargs):
+    #     """Отримання продукту за slug з урахуванням мови"""
+    #     lang = get_language_code(self.request)
+    #     field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
+    #     result = get_object_or_404(
+    #         Categories, **{field: kwargs["pk"], "translations__language_code": lang}
+    #     )
+    #     serializer = self.get_serializer(result)
+    #     return Response(serializer.data)
 
     @extend_schema(
         summary="Get example data",
