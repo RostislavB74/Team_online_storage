@@ -379,7 +379,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         qs = Categories.objects.language(lang)
         if self.action == "list":
             return qs.prefetch_related("translations")
-        return qs
+        return qs.all()
 
     # def retrieve(self, request, *args, **kwargs):
     #     """Отримання продукту за slug з урахуванням мови"""
@@ -409,14 +409,15 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
-        lang = self.request.GET.get("lang", "uk")
-        if lang == "uk":
-            return SubCategories.objects.filter(translations__language_code="uk")
-        return SubCategories.objects.filter(translations__language_code="en")
+        lang = get_language_code(self.request)
+        qs = SubCategories.objects.language(lang)
+        if self.action == "list":
+            return qs.prefetch_related("translations")
+        return qs.all()
 
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за slug з урахуванням мови"""
-        lang = request.GET.get("lang", "uk")
+        lang = get_language_code(self.request)
         field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
         result = get_object_or_404(
             SubCategories, **{field: kwargs["pk"], "translations__language_code": lang}
@@ -442,7 +443,10 @@ class DescriptionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        return Descriptions.objects.language(lang).all()
+        qs = Descriptions.objects.language(lang)
+        if self.action == "list":
+            return qs.prefetch_related("translations")
+        return qs.all()
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -454,6 +458,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         lang = get_language_code(self.request)
         description_qs = Descriptions.objects.language(lang)
+        if self.action == "list":
+            return description_qs.prefetch_related("translations")
         """Фільтрація товарів за мовою та підвантаження зв'язків"""
         return (
             Product.objects.language(lang)
