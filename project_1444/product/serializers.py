@@ -165,6 +165,8 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
         # Якщо size порожнє, але є length і max_length, повертаємо діапазон
         if obj.length and obj.max_length:
             return f"{obj.length}-{obj.max_length}"
+        if obj.length :
+            return f"{obj.length}"
         # Якщо нічого немає, повертаємо порожній рядок
         return ""
    
