@@ -218,14 +218,14 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
         ]
 
 
-from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_field
-from .models import Product, SubProducts, Categories, SubCategories
+# from rest_framework import serializers
+# from drf_spectacular.utils import extend_schema_field
+# from .models import Product, SubProducts, Categories, SubCategories
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Categories
-        fields = ['id', 'name', 'slug']
+# class CategorySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Categories
+#         fields = ['id', 'name', 'slug']
 
 class SubProductSerializer(serializers.ModelSerializer):
     size = serializers.SerializerMethodField()
@@ -246,13 +246,13 @@ class SubProductSerializer(serializers.ModelSerializer):
             return str(obj.length)
         return ""
 
-class ProductSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
-    subproducts = SubProductSerializer(many=True, source='subproducts_set')
+# class ProductSerializer(serializers.ModelSerializer):
+#     category = CategorySerializer()
+#     subproducts = SubProductSerializer(many=True, source='subproducts_set')
 
-    class Meta:
-        model = Product
-        fields = ['id', 'name', 'category', 'sku', 'subproducts']
+#     class Meta:
+#         model = Product
+#         fields = ['id', 'name', 'category', 'sku', 'subproducts']
 
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
@@ -261,6 +261,7 @@ from .models import Product, SubProducts, Categories, SubCategories
 class CategorySerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
+    
 
     class Meta:
         model = Categories
@@ -353,7 +354,7 @@ class ProductSerializer(serializers.ModelSerializer):
     certificates = serializers.SerializerMethodField()
     statuses = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
-    subcategory = serializers.SerializerMethodField()
+    subcategory = SubCategoriesSerializer(read_only=True)
     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
     gemstone = serializers.SerializerMethodField()
     materials = ProductMaterialSerializer(many=True, read_only=True)
@@ -415,13 +416,13 @@ class ProductSerializer(serializers.ModelSerializer):
             else None
         )
 
-    @extend_schema_field(str)
-    def get_subcategory(self, obj):
-        return (
-            obj.subcategory.safe_translation_getter("name", default="Без назви")
-            if obj.subcategory
-            else None
-        )
+    # @extend_schema_field(str)
+    # def get_subcategory(self, obj):
+    #     return (
+    #         obj.subcategory.safe_translation_getter("name", default="Без назви")
+    #         if obj.subcategory
+    #         else None
+    #     )
 
     @extend_schema_field(str)
     def get_name(self, obj):
@@ -475,8 +476,8 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     certificates = serializers.SerializerMethodField()
     statuses = serializers.SerializerMethodField()
-    category = serializers.SerializerMethodField()
-    subcategory = serializers.SerializerMethodField()
+    category = CategoriesSerializer(read_only=True)
+    subcategory = SubCategoriesSerializer(read_only=True)
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
     design = serializers.SerializerMethodField()
@@ -564,13 +565,13 @@ class TotalProductsSerializer(serializers.ModelSerializer):
             else None
         )
 
-    @extend_schema_field(str)
-    def get_subcategory(self, obj):
-        return (
-            obj.subcategory.safe_translation_getter("name", default="Без назви")
-            if obj.subcategory
-            else None
-        )
+    # @extend_schema_field(str)
+    # def get_subcategory(self, obj):
+    #     return (
+    #         obj.subcategory.safe_translation_getter("name", default="Без назви")
+    #         if obj.subcategory
+    #         else None
+    #     )
 
     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
     def get_images(self, obj):
