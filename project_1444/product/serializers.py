@@ -347,7 +347,7 @@ class ProductSerializer(serializers.ModelSerializer):
     certificates = serializers.SerializerMethodField()
     statuses = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
-    subcategory = serializers.SerializerMethodField()
+    subcategory = SubCategoriesSerializer(read_only=True)
     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
     gemstone = serializers.SerializerMethodField()
     materials = ProductMaterialSerializer(many=True, read_only=True)
@@ -409,13 +409,13 @@ class ProductSerializer(serializers.ModelSerializer):
             else None
         )
 
-    @extend_schema_field(str)
-    def get_subcategory(self, obj):
-        return (
-            obj.subcategory.safe_translation_getter("name", default="Без назви")
-            if obj.subcategory
-            else None
-        )
+    # @extend_schema_field(str)
+    # def get_subcategory(self, obj):
+    #     return (
+    #         obj.subcategory.safe_translation_getter("name", default="Без назви")
+    #         if obj.subcategory
+    #         else None
+    #     )
 
     @extend_schema_field(str)
     def get_name(self, obj):
