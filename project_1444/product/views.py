@@ -12,6 +12,7 @@ from drf_spectacular.utils import (
     OpenApiTypes,
     extend_schema_view,
 )
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     IsAuthenticated,
@@ -47,6 +48,11 @@ from .serializers import (
     TotalProductsSerializer,
     SubCategoriesSerializer,
 )
+
+
+class Pagination(LimitOffsetPagination):
+    default_limit = 4  # змінюй на потрібне значення
+    max_limit = 100
 
 
 @extend_schema(tags=["SubCategory API"])
@@ -438,6 +444,7 @@ class DescriptionViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
 
     serializer_class = DescriptionsSerializer
+    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
@@ -453,6 +460,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
 
     serializer_class = ProductSerializer
+    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
@@ -500,12 +508,14 @@ class SubProductsSizesViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
 
     queryset = SubProducts.objects.all()
     serializer_class = SubProductsSizesSerializer
+    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
 
 class TotalProductsViewSet(ReadOnlyModelViewSet):
     queryset = Product.objects.prefetch_related("subproducts").all()
     serializer_class = TotalProductsSerializer
+    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
