@@ -1118,6 +1118,177 @@ paths:
               schema:
                 $ref: '#/components/schemas/RingSize'
           description: ''
+  /api/v1/subcategories/:
+    get:
+      operationId: api_v1_subcategories_list
+      description: CRUD для продуктів
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubCategories'
+          description: ''
+    post:
+      operationId: api_v1_subcategories_create
+      description: CRUD для продуктів
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubCategories'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubCategories'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubCategories'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubCategories'
+          description: ''
+  /api/v1/subcategories/{id}/:
+    get:
+      operationId: api_v1_subcategories_retrieve
+      description: Отримання продукту за slug з урахуванням мови
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Підкатегорія виробу.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubCategories'
+          description: ''
+    put:
+      operationId: api_v1_subcategories_update
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Підкатегорія виробу.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubCategories'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubCategories'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubCategories'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubCategories'
+          description: ''
+    patch:
+      operationId: api_v1_subcategories_partial_update
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Підкатегорія виробу.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSubCategories'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSubCategories'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSubCategories'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubCategories'
+          description: ''
+    delete:
+      operationId: api_v1_subcategories_destroy
+      description: CRUD для продуктів
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Підкатегорія виробу.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
   /api/v1/subproducts/:
     get:
       operationId: api_v1_subproducts_list
@@ -1630,6 +1801,22 @@ components:
       - name
       - slug
       - updated_at
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - name
+      - slug
     DeliveryMethodEnum:
       enum:
       - pickup
@@ -2045,6 +2232,20 @@ components:
           items:
             $ref: '#/components/schemas/Descriptions'
           readOnly: true
+    PatchedSubCategories:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        parent:
+          $ref: '#/components/schemas/Category'
     PatchedSubProductsSizes:
       type: object
       properties:
@@ -2331,6 +2532,25 @@ components:
         * `paid` - Paid
         * `failed` - Failed
         * `reversed` - Reversed
+    SubCategories:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        parent:
+          $ref: '#/components/schemas/Category'
+      required:
+      - id
+      - name
+      - parent
+      - slug
     SubProductsSizes:
       type: object
       properties:

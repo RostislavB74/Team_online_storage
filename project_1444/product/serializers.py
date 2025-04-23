@@ -218,11 +218,105 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
         ]
 
 
+from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from .models import Product, SubProducts, Categories, SubCategories
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categories
+        fields = ['id', 'name', 'slug']
+
+class SubProductSerializer(serializers.ModelSerializer):
+    size = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SubProducts
+        fields = ['id', 'parent_product', 'price', 'sku', 'size']
+
+    @extend_schema_field(str)
+    def get_size(self, obj):
+        if obj.size:
+            if isinstance(obj.size, dict) and 'value' in obj.size:
+                return obj.size['value']
+            return str(obj.size)
+        if obj.length and obj.max_length:
+            return f"{obj.length}-{obj.max_length}"
+        if obj.length:
+            return str(obj.length)
+        return ""
+
+class ProductSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    subproducts = SubProductSerializer(many=True, source='subproducts_set')
+
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'category', 'sku', 'subproducts']
+
+from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from .models import Product, SubProducts, Categories, SubCategories
+
+class CategorySerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Categories
+        fields = ['id', 'name', 'slug']
+
+    @extend_schema_field(str)
+    def get_name(self, obj):
+        return obj.safe_translation_getter('name', default='Без назви')
+
+    @extend_schema_field(str)
+    def get_slug(self, obj):
+        return obj.safe_translation_getter('slug', default=None)
+
+class SubProductSerializer(serializers.ModelSerializer):
+    size = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SubProducts
+        fields = ['id', 'parent_product', 'price', 'sku', 'size']
+
+    @extend_schema_field(str)
+    def get_size(self, obj):
+        if obj.size:
+            if isinstance(obj.size, dict) and 'value' in obj.size:
+                return obj.size['value']
+            return str(obj.size)
+        if obj.length and obj.max_length:
+            return f"{obj.length}-{obj.max_length}"
+        if obj.length:
+            return str(obj.length)
+        return ""
+
+class ProductSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    subproducts = SubProductSerializer(many=True, source='subproducts_set')
+
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'category', 'sku', 'subproducts']
+
 class SubCategoriesSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
+    parent = CategorySerializer()
+
     class Meta:
         model = SubCategories
-        fields = ["id", "name", "slug", "category", "uploaded_at"]
+        fields = ['id', 'name', 'slug', 'parent']
 
+    @extend_schema_field(str)
+    def get_name(self, obj):
+        return obj.safe_translation_getter('name', default='Без назви')
+
+    @extend_schema_field(str)
+    def get_slug(self, obj):
+        return obj.safe_translation_getter('slug', default=None)
 
 class ProductImageSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
