@@ -513,7 +513,7 @@ class SubProductsSizesViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
 
 
 class TotalProductsViewSet(ReadOnlyModelViewSet):
-    queryset = Product.objects.prefetch_related("subproducts").all()
+    queryset = Product.objects.prefetch_related("subproducts")
     serializer_class = TotalProductsSerializer
     pagination_class = Pagination
     permission_classes = (AllowAny,)
@@ -521,7 +521,7 @@ class TotalProductsViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        qs = Product.objects.language(lang)
+        qs = super().get_queryset().language(lang)
         if self.action == "list":
             return qs.prefetch_related("translations")
         return qs.all()
