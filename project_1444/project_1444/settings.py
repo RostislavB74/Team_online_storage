@@ -313,8 +313,8 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
 else:
     # Фаллбек на FileSystemStorage, якщо Cloudinary не налаштовано
     print("Cloudinary not configured. Using FileSystemStorage as DEFAULT_FILE_STORAGE")
-    # DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    # DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
 
