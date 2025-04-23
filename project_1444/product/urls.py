@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import ProductViewSet, RingSizeLookup, ProductAPIList, ProductAPIUpdate
 from .views import CategoriesAPIList, CategoriesViewSet, CategoriesAPIUpdate, CategoriesAPIList
-from .views import SubProductsSizesViewSet, TotalProductsViewSet,DescriptionViewSet
+from .views import SubProductsSizesViewSet, TotalProductsViewSet,DescriptionViewSet, SubCategoriesViewSet
 
 router = DefaultRouter()
 
@@ -10,6 +10,7 @@ router = DefaultRouter()
 router.register(r'product', ProductViewSet, basename='product')
 router.register(r'categories', CategoriesViewSet, basename='categories')
 router.register(r'subproducts', SubProductsSizesViewSet, basename='subproducts')
+router.register(r'subcategories', SubCategoriesViewSet, basename='subcategories')
 router.register(r'all-products', TotalProductsViewSet, basename='all-products')
 router.register(r'description', DescriptionViewSet, basename='description')
 

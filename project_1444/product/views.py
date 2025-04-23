@@ -31,6 +31,7 @@ from .models import (
     Categories,
     SubProducts,
     Descriptions,
+    SubCategories
 )
 from .serializers import (
     ProductSerializer,
@@ -42,8 +43,21 @@ from .serializers import (
     SubProductsSizesSerializer,
     DescriptionsSerializer,
     TotalProductsSerializer,
+    SubCategoriesSerializer
 )
+@extend_schema(tags=["SubCategory API"])
+class SubCategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
+    """Отримати список продуктів або створити новий"""
 
+    # queryset = Categories.objects.all()
+    serializer_class = SubCategoriesSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):  # noqa
+        """Фільтрація за мовою"""
+        lang = get_language_code(self.request)
+        result = SubCategories.objects.language(lang).all()
+        return result
 
 @extend_schema_view(
     get=extend_schema(
@@ -360,6 +374,37 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     def get(self, request):
         return Response({"message": "Hello, API!"})
 
+class SubCategoriesViewSet(viewsets.ModelViewSet):
+    """CRUD для продуктів"""
+
+    queryset = SubCategories.objects.all()
+    serializer_class = SubCategoriesSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        """Фільтрація товарів за мовою"""
+        lang = self.request.GET.get("lang", "uk")
+        if lang == "uk":
+            return SubCategories.objects.filter(translations__language_code="uk")
+        return SubCategories.objects.filter(translations__language_code="en")
+
+    def retrieve(self, request, *args, **kwargs):
+        """Отримання продукту за slug з урахуванням мови"""
+        lang = request.GET.get("lang", "uk")
+        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
+        result = get_object_or_404(
+            SubCategories, **{field: kwargs["pk"], "translations__language_code": lang}
+        )
+        serializer = self.get_serializer(result)
+        return Response(serializer.data)
+
+    @extend_schema(
+        summary="Get example data",
+        description="Returns an example response with some data.",
+        responses={200: dict},
+    )
+    def get(self, request):
+        return Response({"message": "Hello, API!"})
 
 class DescriptionViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""

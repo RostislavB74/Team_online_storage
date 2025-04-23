@@ -214,7 +214,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
 class SubCategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategories
-        fields = ["id", "name", "slug", "category", "uploaded_at"]
+        fields = ["id", "name", "slug", "parent"]
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
