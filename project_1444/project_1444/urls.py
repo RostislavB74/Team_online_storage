@@ -39,6 +39,8 @@ from product.views import (
 from product.views import RingSizeLookup
 from discounts.views import AvailableDiscountsView
 from .views import ApiRootView
+
+from debug_toolbar.toolbar import debug_toolbar_urls
 # urls.py
 admin.site.site_header = "VEVELLY"
 admin.site.site_title = "Адмінка"
@@ -65,6 +67,9 @@ urlpatterns = [
         path("discounts/", include("discounts.urls", namespace="discounts")),
         ])),
 ]
+# Додаємо debug_toolbar, якщо в дебаг-режимі
+if 'debug_toolbar' in settings.INSTALLED_APPS:
+    urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
 
 
 if settings.STATIC_URL:

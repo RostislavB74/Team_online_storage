@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
+    'debug_toolbar',
     # "cloudinary_storage",
     # "django_filters",
     # "mptt",
@@ -155,6 +156,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     # 'ratelimit.middleware.RatelimitMiddleware',
 ]
 # RATELIMIT_VIEW = 'yourapp.views.rate_limited'
@@ -311,7 +313,8 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
 else:
     # Фаллбек на FileSystemStorage, якщо Cloudinary не налаштовано
     print("Cloudinary not configured. Using FileSystemStorage as DEFAULT_FILE_STORAGE")
-    DEFAULT_FILE_STORAGE = "django.core.mail.backends.FileSystemStorage"
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    # DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
 
@@ -432,7 +435,8 @@ LOGGING = {
 # # Fallback for use FileSystemStorage when CLOUDINARY, or S3 / MinIO not configured
 # if not DEFAULT_FILE_STORAGE:
 #     print(f"Using FileSystemStorage as DEFAULT_FILE_STORAGE BACKEND")
-
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'emails'
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -573,7 +577,11 @@ LIQPAY_SANDBOX_MODE = env('LIQPAY_SANDBOX_MODE', default=True, cast=bool)
 
 # Allowed messengers
 ALLOWED_MESSENGERS = ['viber', 'telegram', 'whatsapp', 'signal', 'discord', 'skype']
-
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
 # INSTALLED_APPS = [
 #     ...,
 #     'django_ratelimit',
