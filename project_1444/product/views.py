@@ -1,4 +1,6 @@
+import django_filters
 from django.conf import settings
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework import viewsets
 from django.db.models import F, FloatField
@@ -10,6 +12,7 @@ from drf_spectacular.utils import (
     OpenApiTypes,
     extend_schema_view,
 )
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     IsAuthenticated,
@@ -31,7 +34,7 @@ from .models import (
     Categories,
     SubProducts,
     Descriptions,
-    SubCategories
+    SubCategories,
 )
 from .serializers import (
     ProductSerializer,
@@ -43,8 +46,15 @@ from .serializers import (
     SubProductsSizesSerializer,
     DescriptionsSerializer,
     TotalProductsSerializer,
-    SubCategoriesSerializer
+    SubCategoriesSerializer,
 )
+
+
+class Pagination(LimitOffsetPagination):
+    default_limit = 4  # змінюй на потрібне значення
+    max_limit = 100
+
+
 @extend_schema(tags=["SubCategory API"])
 class SubCategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
@@ -58,6 +68,7 @@ class SubCategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         lang = get_language_code(self.request)
         result = SubCategories.objects.language(lang).all()
         return result
+
 
 @extend_schema_view(
     get=extend_schema(
@@ -163,6 +174,12 @@ class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        """Фільтрація за мовою"""
+        lang = get_language_code(self.request)
+        result = Categories.objects.language(lang).all()
+        return result
 
 
 @extend_schema_view(
@@ -341,30 +358,44 @@ class RingSizeLookup(APIView):
         }
 
 
+class CategoriesFilter(django_filters.FilterSet):
+    has_length = django_filters.BooleanFilter()
+    has_width = django_filters.BooleanFilter()
+    has_diameter = django_filters.BooleanFilter()
+    has_weight = django_filters.BooleanFilter()
+
+    class Meta:
+        model = Categories
+        fields = ["has_length", "has_width", "has_diameter", "has_weight"]
+
+
 # NOT USED
 class CategoriesViewSet(viewsets.ModelViewSet):
-    """CRUD для продуктів"""
+    """CRUD для продуктів CategoriesViewSet"""
 
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CategoriesFilter
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
-        lang = self.request.GET.get("lang", "uk")
-        if lang == "uk":
-            return Categories.objects.filter(translations__language_code="uk")
-        return Categories.objects.filter(translations__language_code="en")
+        lang = get_language_code(self.request)
+        qs = Categories.objects.language(lang)
+        if self.action == "list":
+            return qs.prefetch_related("translations")
+        return qs.all()
 
-    def retrieve(self, request, *args, **kwargs):
-        """Отримання продукту за slug з урахуванням мови"""
-        lang = request.GET.get("lang", "uk")
-        field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        result = get_object_or_404(
-            Categories, **{field: kwargs["pk"], "translations__language_code": lang}
-        )
-        serializer = self.get_serializer(result)
-        return Response(serializer.data)
+    # def retrieve(self, request, *args, **kwargs):
+    #     """Отримання продукту за slug з урахуванням мови"""
+    #     lang = get_language_code(self.request)
+    #     field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
+    #     result = get_object_or_404(
+    #         Categories, **{field: kwargs["pk"], "translations__language_code": lang}
+    #     )
+    #     serializer = self.get_serializer(result)
+    #     return Response(serializer.data)
 
     @extend_schema(
         summary="Get example data",
@@ -373,6 +404,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     )
     def get(self, request):
         return Response({"message": "Hello, API!"})
+
 
 class SubCategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
@@ -383,14 +415,15 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
-        lang = self.request.GET.get("lang", "uk")
-        if lang == "uk":
-            return SubCategories.objects.filter(translations__language_code="uk")
-        return SubCategories.objects.filter(translations__language_code="en")
+        lang = get_language_code(self.request)
+        qs = SubCategories.objects.language(lang)
+        if self.action == "list":
+            return qs.prefetch_related("translations")
+        return qs.all()
 
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за slug з урахуванням мови"""
-        lang = request.GET.get("lang", "uk")
+        lang = get_language_code(self.request)
         field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
         result = get_object_or_404(
             SubCategories, **{field: kwargs["pk"], "translations__language_code": lang}
@@ -406,29 +439,34 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
     def get(self, request):
         return Response({"message": "Hello, API!"})
 
+
 class DescriptionViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
 
     serializer_class = DescriptionsSerializer
+    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        return Descriptions.objects.language(lang).all()
+        qs = Descriptions.objects.language(lang)
+        if self.action == "list":
+            return qs.prefetch_related("translations")
+        return qs.all()
 
 
 class ProductViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
 
     serializer_class = ProductSerializer
+    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
         lang = get_language_code(self.request)
         description_qs = Descriptions.objects.language(lang)
         """Фільтрація товарів за мовою та підвантаження зв'язків"""
-        # lang = get_language_code(self.request)
         return (
             Product.objects.language(lang)
             .prefetch_related(
@@ -441,15 +479,15 @@ class ProductViewSet(viewsets.ModelViewSet):
                 "images",  # якщо є
                 "certificates",  # якщо є
                 "gemstones",  # якщо є
+                "translations",
             )
             .select_related("category", "subcategory", "collection", "design")
         )
 
-    
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за id або slug з урахуванням мови"""
         lookup_value = kwargs.get("pk")  # Отримуємо значення з URL
-        lang = request.GET.get("lang", "uk")
+        lang = get_language_code(self.request)
         queryset = Product.objects.language(lang)
 
         # Перевіряємо, чи є lookup_value числом (id) чи текстом (slug)
@@ -470,18 +508,23 @@ class SubProductsSizesViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
 
     queryset = SubProducts.objects.all()
     serializer_class = SubProductsSizesSerializer
+    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
 
 class TotalProductsViewSet(ReadOnlyModelViewSet):
-    queryset = Product.objects.prefetch_related("subproducts").all()
+    queryset = Product.objects.prefetch_related("subproducts")
     serializer_class = TotalProductsSerializer
+    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        return Product.objects.language(lang).all()
+        qs = super().get_queryset().language(lang)
+        if self.action == "list":
+            return qs.prefetch_related("translations")
+        return qs.all()
 
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за ID разом із його підпродуктами"""
