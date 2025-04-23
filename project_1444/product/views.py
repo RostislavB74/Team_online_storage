@@ -1,4 +1,6 @@
+import django_filters
 from django.conf import settings
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework import viewsets
 from django.db.models import F, FloatField
@@ -31,7 +33,7 @@ from .models import (
     Categories,
     SubProducts,
     Descriptions,
-    SubCategories
+    SubCategories,
 )
 from .serializers import (
     ProductSerializer,
@@ -43,8 +45,10 @@ from .serializers import (
     SubProductsSizesSerializer,
     DescriptionsSerializer,
     TotalProductsSerializer,
-    SubCategoriesSerializer
+    SubCategoriesSerializer,
 )
+
+
 @extend_schema(tags=["SubCategory API"])
 class SubCategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
     """Отримати список продуктів або створити новий"""
@@ -58,6 +62,7 @@ class SubCategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         lang = get_language_code(self.request)
         result = SubCategories.objects.language(lang).all()
         return result
+
 
 @extend_schema_view(
     get=extend_schema(
@@ -347,6 +352,17 @@ class RingSizeLookup(APIView):
         }
 
 
+class CategoriesFilter(django_filters.FilterSet):
+    has_length = django_filters.BooleanFilter()
+    has_width = django_filters.BooleanFilter()
+    has_diameter = django_filters.BooleanFilter()
+    has_weight = django_filters.BooleanFilter()
+
+    class Meta:
+        model = Categories
+        fields = ["has_length", "has_width", "has_diameter", "has_weight"]
+
+
 # NOT USED
 class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів CategoriesViewSet"""
@@ -354,11 +370,13 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AllowAny,)
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CategoriesFilter
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        return Categories.objects.language(lang).all()
+        return Categories.objects.language(lang).prefetch_related("translations").all()
 
     # def retrieve(self, request, *args, **kwargs):
     #     """Отримання продукту за slug з урахуванням мови"""
@@ -377,6 +395,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     )
     def get(self, request):
         return Response({"message": "Hello, API!"})
+
 
 class SubCategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
@@ -409,6 +428,7 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
     )
     def get(self, request):
         return Response({"message": "Hello, API!"})
+
 
 class DescriptionViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
