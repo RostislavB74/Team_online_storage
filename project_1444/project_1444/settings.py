@@ -484,6 +484,10 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {"anon": "5/minute", "user": "10/minute"},
 }
 
+if "test" in sys.argv:
+    REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
+    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {}
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
