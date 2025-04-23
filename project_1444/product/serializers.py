@@ -159,12 +159,18 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     new_price = serializers.SerializerMethodField()
     @extend_schema_field(str)
     def get_size(self, obj):
-        # Якщо size є і містить 'value', повертаємо його
-        if obj.size and isinstance(obj.size, dict) and 'value' in obj.size:
-            return obj.size['value']
-        # Якщо size порожнє, але є length і max_length, повертаємо діапазон
+        # Обробка size
+        if obj.size:
+            if isinstance(obj.size, dict) and 'value' in obj.size:
+                return obj.size['value']  # Для словника повертаємо значення 'value'
+            return str(obj.size)  # Для рядка або іншого типу повертаємо як є
+
+        # Обробка length і max_length
         if obj.length and obj.max_length:
             return f"{obj.length}-{obj.max_length}"
+        if obj.length:
+            return str(obj.length)
+
         # Якщо нічого немає, повертаємо порожній рядок
         return ""
    
