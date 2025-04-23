@@ -54,7 +54,7 @@ class CategoriesAPITestCase(APITestCase):
             data_uk,
             HTTP_ACCEPT_LANGUAGE=HTTP_ACCEPT_LANGUAGE,
         )
-        print("POST", response.data)
+        # print("POST", response.data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["name"], data_uk["name"])
         self.assertEqual(response.data["slug"], data_uk["slug"])
@@ -71,19 +71,19 @@ class CategoriesAPITestCase(APITestCase):
             data_en,
             HTTP_ACCEPT_LANGUAGE=HTTP_ACCEPT_LANGUAGE,
         )
-        print("PUT en", response.data)
+        # print("PUT en", response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["name"], data_en["name"])
         self.assertEqual(response.data["slug"], data_en["slug"])
 
-        print("Translations:", Categories.objects.get(pk=pk).translations.all())
+        # print("Translations:", Categories.objects.get(pk=pk).translations.all())
 
         HTTP_ACCEPT_LANGUAGE = "uk"
         response = self.client.get(
             reverse("categories-detail", args=[pk]),
             HTTP_ACCEPT_LANGUAGE=HTTP_ACCEPT_LANGUAGE,
         )
-        print("GET uk", response.data)
+        # print("GET uk", response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["name"], data_uk["name"])
         self.assertEqual(response.data["slug"], data_uk["slug"])
@@ -93,10 +93,44 @@ class CategoriesAPITestCase(APITestCase):
             reverse("categories-detail", args=[pk]),
             HTTP_ACCEPT_LANGUAGE=HTTP_ACCEPT_LANGUAGE,
         )
-        print("GET en", response.data)
+        # print("GET en", response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["name"], data_en["name"])
         self.assertEqual(response.data["slug"], data_en["slug"])
+
+    def test_categories_create_api_delete(self):
+        # Тестуємо API-запит на створення категорії
+        data_uk = {
+            "name": "Кольє",
+            "slug": "kolie_uk",
+        }
+        HTTP_ACCEPT_LANGUAGE = "uk"
+        response = self.client.post(
+            reverse("categories-list"),
+            data_uk,
+            HTTP_ACCEPT_LANGUAGE=HTTP_ACCEPT_LANGUAGE,
+        )
+        # print("POST", response.data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["name"], data_uk["name"])
+        self.assertEqual(response.data["slug"], data_uk["slug"])
+
+        pk = response.data["id"]
+
+        HTTP_ACCEPT_LANGUAGE = "uk"
+        response = self.client.delete(
+            reverse("categories-detail", args=[pk]),
+            HTTP_ACCEPT_LANGUAGE=HTTP_ACCEPT_LANGUAGE,
+        )
+        # print("DELETE", response.data)
+        self.assertEqual(response.status_code, 204)
+
+        response = self.client.get(
+            reverse("categories-detail", args=[pk]),
+            HTTP_ACCEPT_LANGUAGE=HTTP_ACCEPT_LANGUAGE,
+        )
+        # print("GET", response.data)
+        self.assertEqual(response.status_code, 404)
 
 
 # class ProductAPITestCase(APITestCase):
