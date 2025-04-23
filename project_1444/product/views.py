@@ -150,6 +150,12 @@ class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
     serializer_class = CategoriesSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_queryset(self):
+        """Фільтрація за мовою"""
+        lang = get_language_code(self.request)
+        result = Categories.objects.language(lang).all()
+        return result
+
 
 @extend_schema_view(
     get=extend_schema(
@@ -400,7 +406,6 @@ class ProductViewSet(viewsets.ModelViewSet):
             .select_related("category", "subcategory", "collection", "design")
         )
 
-    
     def retrieve(self, request, *args, **kwargs):
         """Отримання продукту за id або slug з урахуванням мови"""
         lookup_value = kwargs.get("pk")  # Отримуємо значення з URL
