@@ -458,8 +458,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         lang = get_language_code(self.request)
         description_qs = Descriptions.objects.language(lang)
-        if self.action == "list":
-            return description_qs.prefetch_related("translations")
         """Фільтрація товарів за мовою та підвантаження зв'язків"""
         return (
             Product.objects.language(lang)
