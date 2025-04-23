@@ -461,6 +461,9 @@ try:
 except (KeyError, environ.ImproperlyConfigured):
     EMAIL_BACKEND = None
 
+ANON_RATE_THROTTLE = env("ANON_RATE_THROTTLE", default="5/minute") or None
+USER_RATE_THROTTLE = env("USER_RATE_THROTTLE", default="10/minute") or None
+print(f"{ANON_RATE_THROTTLE=}, {USER_RATE_THROTTLE=}")
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -481,7 +484,7 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
-    "DEFAULT_THROTTLE_RATES": {"anon": "5/minute", "user": "10/minute"},
+    "DEFAULT_THROTTLE_RATES": {"anon": ANON_RATE_THROTTLE, "user": USER_RATE_THROTTLE},
 }
 
 if "test" in sys.argv:
