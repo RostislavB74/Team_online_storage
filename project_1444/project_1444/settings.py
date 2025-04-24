@@ -235,10 +235,10 @@ except environ.ImproperlyConfigured:
         raise ValueError(e)
 
 if IS_TESTING:
-    print("Test mode detected, using temporary SQLite database in memory")
+    print("Test mode detected: using a SQLite DB for diagnostics")
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",  # Використання SQLite в оперативній пам'яті
+        "TEST": {"NAME": "test_db.sqlite3"},
     }
 
 # Password validation
