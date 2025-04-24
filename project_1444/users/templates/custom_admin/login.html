@@ -1,5 +1,36 @@
 {% extends "admin/login.html" %}
+
 {% block content %}
-<h1>Ласкаво просимо до адмінки</h1>
-{{ block.super }}
+<div class="login-container">
+    <h1>Ласкаво просимо до адмінки</h1>
+    {{ block.super }}
+
+    {% if request.GET.auth_error %}
+        <p style="color:red;">Google login was canceled or failed. Please try again.</p>
+    {% endif %}
+
+    <div class="row text-center">
+        <div class="col-md-8 mx-auto social-container my-3 text-center">
+            <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}"
+               style="
+                    margin-top: 15px;
+                    display: inline-flex;
+                    align-items: center;
+                    background-color: #fff;
+                    color: #444;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 10px 16px;
+                    font-size: 16px;
+                    font-weight: 500;
+                    text-decoration: none;
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+               ">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo"
+                     style="width: 20px; height: 20px; margin-right: 10px;">
+                Увійти через Google
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

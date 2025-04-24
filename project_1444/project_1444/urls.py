@@ -31,35 +31,56 @@ from utils.views import HealthCheckView, VersionView
 from .views import ApiRootView
 
 from debug_toolbar.toolbar import debug_toolbar_urls
+
 # urls.py
 admin.site.site_header = "VEVELLY"
 admin.site.site_title = "Адмінка"
 admin.site.index_title = "Ласкаво просимо"
-admin.site.login_template = 'custom_admin/login.html'
+admin.site.login_template = "custom_admin/login.html"
 
 urlpatterns = [
     path("api/", ApiRootView.as_view(), name="api-root"),
     path("admin/", admin.site.urls, name="admin"),
-    path('', include('users.urls')),
+    path("", include("users.urls")),
     path("api/v0/", include("mock.urls")),
     path("api/v1/", include("order.urls")),
     path("api/v1/", include("cart.urls")),
     path("api/v1/", include("product.urls")),
     path("api/v1/auth/", include("rest_framework.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"),name="swagger-ui"),  
-    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),  # ReDoc
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path(
+        "api/schema/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="redoc",
+    ),
+    path(
+        "api/docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path(
+        "api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
+    ),  # ReDoc
     path("api/v1/livez/", HealthCheckView.as_view(), name="livez"),
     path("api/v1/version/", VersionView.as_view(), name="version"),
-    path("api/v1/", include([
-        path("discounts/", include("discounts.urls", namespace="discounts")),
-        ])),
+    path(
+        "api/v1/",
+        include(
+            [
+                path("discounts/", include("discounts.urls", namespace="discounts")),
+            ]
+        ),
+    ),
+    path("auth/", include("social_django.urls", namespace="social")),
 ]
 # Додаємо debug_toolbar, якщо в дебаг-режимі
-if 'debug_toolbar' in settings.INSTALLED_APPS:
-    urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
+if "debug_toolbar" in settings.INSTALLED_APPS:
+    urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]
 
 
 if settings.STATIC_URL:
