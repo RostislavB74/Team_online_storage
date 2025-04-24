@@ -58,238 +58,6 @@ class Pagination(LimitOffsetPagination):
     max_limit = 100
 
 
-@extend_schema(tags=["SubCategory API"])
-class SubCategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
-    """Отримати список продуктів або створити новий"""
-
-    # queryset = Categories.objects.all()
-    serializer_class = SubCategoriesSerializer
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):  # noqa
-        """Фільтрація за мовою"""
-        lang = get_language_code(self.request)
-        result = SubCategories.objects.language(lang).all()
-        return result
-
-
-# NOT USED
-@extend_schema_view(
-    get=extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="Accept-Language",
-                description=_(
-                    "Preferred language for the response. Allowed values: {languages_list}."
-                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
-                required=False,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.HEADER,
-            )
-        ],
-    ),
-    list=extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="Accept-Language",
-                description=_(
-                    "Preferred language for the response. Allowed values: {languages_list}."
-                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
-                required=False,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.HEADER,
-            )
-        ],
-    ),
-)
-@extend_schema(tags=["Category API"])
-class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
-    """Отримати список продуктів або створити новий"""
-
-    # queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        """Фільтрація за мовою"""
-        lang = get_language_code(self.request)
-        result = Categories.objects.language(lang).all()
-        return result
-
-    def get(self, request, *args, **kwargs):
-        # Перевірка на наявність кешування
-        cache_data = self.check_cache_headers(request)
-        if isinstance(cache_data, HttpResponse):
-            return cache_data
-        response = super().get(request, *args, **kwargs)
-        return self.add_cache_headers(response, cache_data)
-
-    def list(self, request, *args, **kwargs):
-        # Перевірка на наявність кешування
-        cache_data = self.check_cache_headers(request)
-        if isinstance(cache_data, HttpResponse):
-            return cache_data
-        response = super().list(request, *args, **kwargs)
-        return self.add_cache_headers(response, cache_data)
-
-
-@extend_schema_view(
-    get=extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="Accept-Language",
-                description=_(
-                    "Preferred language for the response. Allowed values: {languages_list}."
-                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
-                required=False,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.HEADER,
-            )
-        ],
-    ),
-)
-@extend_schema(tags=["Category API"])
-class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
-    """Отримати деталі продукту"""
-
-    # queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        """Фільтрація за мовою"""
-        lang = get_language_code(self.request)
-        result = Categories.objects.language(lang).all()
-        return result
-
-    def retrieve(self, request, *args, **kwargs):
-        # Перевірка на наявність кешування
-        cache_data = self.check_cache_headers(request)
-        if isinstance(cache_data, HttpResponse):
-            return cache_data
-        response = super().retrieve(request, *args, **kwargs)
-        return self.add_cache_headers(response, cache_data)
-
-
-@extend_schema(tags=["Category API"])
-class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
-    """Оновлення продукту"""
-
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        """Фільтрація за мовою"""
-        lang = get_language_code(self.request)
-        result = Categories.objects.language(lang).all()
-        return result
-
-
-@extend_schema_view(
-    get=extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="Accept-Language",
-                description=_(
-                    "Preferred language for the response. Allowed values: {languages_list}."
-                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
-                required=False,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.HEADER,
-            )
-        ],
-    ),
-    list=extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="Accept-Language",
-                description=_(
-                    "Preferred language for the response. Allowed values: {languages_list}."
-                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
-                required=False,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.HEADER,
-            )
-        ],
-    ),
-)
-@extend_schema(tags=["Product API"])
-class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
-    """Отримати список продуктів або створити новий"""
-
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        """Фільтрація товарів за мовою"""
-        lang = get_language_code(self.request)
-        return Product.objects.language(lang).all()
-
-    def get(self, request, *args, **kwargs):
-        # Перевірка на наявність кешування
-        cache_data = self.check_cache_headers(request)
-        if isinstance(cache_data, HttpResponse):
-            return cache_data
-        response = super().get(request, *args, **kwargs)
-        return self.add_cache_headers(response, cache_data)
-
-    def list(self, request, *args, **kwargs):
-        # Перевірка на наявність кешування
-        cache_data = self.check_cache_headers(request)
-        if isinstance(cache_data, HttpResponse):
-            return cache_data
-        response = super().list(request, *args, **kwargs)
-        return self.add_cache_headers(response, cache_data)
-
-
-@extend_schema_view(
-    get=extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="Accept-Language",
-                description=_(
-                    "Preferred language for the response. Allowed values: {languages_list}."
-                ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
-                required=False,
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.HEADER,
-            )
-        ],
-    ),
-)
-@extend_schema(tags=["Product API"])
-class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
-    """Отримати деталі продукту"""
-
-    # queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        """Фільтрація товарів за мовою"""
-        lang = get_language_code(self.request)
-        return Product.objects.language(lang).all()
-
-    def retrieve(self, request, *args, **kwargs):
-        # Перевірка на наявність кешування
-        cache_data = self.check_cache_headers(request)
-        if isinstance(cache_data, HttpResponse):
-            return cache_data
-        response = super().retrieve(request, *args, **kwargs)
-        return self.add_cache_headers(response, cache_data)
-
-
-@extend_schema(tags=["Product API"])
-class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
-    """Оновлення продукту"""
-
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticated,)
-
-
 @extend_schema(tags=["Tools API"])
 class RingSizeLookup(APIView):
     """Переводить окружність пальця в розмір кільця, знаходячи найближче значення"""
@@ -399,16 +167,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
                 {"detail": "Category already exists or violates unique constraint."}
             )
 
-    # def retrieve(self, request, *args, **kwargs):
-    #     """Отримання продукту за slug з урахуванням мови"""
-    #     lang = get_language_code(self.request)
-    #     field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-    #     result = get_object_or_404(
-    #         Categories, **{field: kwargs["pk"], "translations__language_code": lang}
-    #     )
-    #     serializer = self.get_serializer(result)
-    #     return Response(serializer.data)
-
+  
     @extend_schema(
         summary="Get example data",
         description="Returns an example response with some data.",
@@ -551,3 +310,235 @@ class TotalProductsViewSet(ReadOnlyModelViewSet):
     )
     def get(self, request):
         return Response({"message": "Hello, API!"})
+
+
+# @extend_schema(tags=["SubCategory API"])
+# class SubCategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
+#     """Отримати список продуктів або створити новий"""
+
+#     # queryset = Categories.objects.all()
+#     serializer_class = SubCategoriesSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):  # noqa
+#         """Фільтрація за мовою"""
+#         lang = get_language_code(self.request)
+#         result = SubCategories.objects.language(lang).all()
+#         return result
+
+
+# # NOT USED
+# @extend_schema_view(
+#     get=extend_schema(
+#         parameters=[
+#             OpenApiParameter(
+#                 name="Accept-Language",
+#                 description=_(
+#                     "Preferred language for the response. Allowed values: {languages_list}."
+#                 ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+#                 required=False,
+#                 type=OpenApiTypes.STR,
+#                 location=OpenApiParameter.HEADER,
+#             )
+#         ],
+#     ),
+#     list=extend_schema(
+#         parameters=[
+#             OpenApiParameter(
+#                 name="Accept-Language",
+#                 description=_(
+#                     "Preferred language for the response. Allowed values: {languages_list}."
+#                 ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+#                 required=False,
+#                 type=OpenApiTypes.STR,
+#                 location=OpenApiParameter.HEADER,
+#             )
+#         ],
+#     ),
+# )
+# @extend_schema(tags=["Category API"])
+# class CategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
+#     """Отримати список продуктів або створити новий"""
+
+#     # queryset = Categories.objects.all()
+#     serializer_class = CategoriesSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):
+#         """Фільтрація за мовою"""
+#         lang = get_language_code(self.request)
+#         result = Categories.objects.language(lang).all()
+#         return result
+
+#     def get(self, request, *args, **kwargs):
+#         # Перевірка на наявність кешування
+#         cache_data = self.check_cache_headers(request)
+#         if isinstance(cache_data, HttpResponse):
+#             return cache_data
+#         response = super().get(request, *args, **kwargs)
+#         return self.add_cache_headers(response, cache_data)
+
+#     def list(self, request, *args, **kwargs):
+#         # Перевірка на наявність кешування
+#         cache_data = self.check_cache_headers(request)
+#         if isinstance(cache_data, HttpResponse):
+#             return cache_data
+#         response = super().list(request, *args, **kwargs)
+#         return self.add_cache_headers(response, cache_data)
+
+
+# @extend_schema_view(
+#     get=extend_schema(
+#         parameters=[
+#             OpenApiParameter(
+#                 name="Accept-Language",
+#                 description=_(
+#                     "Preferred language for the response. Allowed values: {languages_list}."
+#                 ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+#                 required=False,
+#                 type=OpenApiTypes.STR,
+#                 location=OpenApiParameter.HEADER,
+#             )
+#         ],
+#     ),
+# )
+# @extend_schema(tags=["Category API"])
+# class CategoriesAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
+#     """Отримати деталі продукту"""
+
+#     # queryset = Categories.objects.all()
+#     serializer_class = CategoriesSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):
+#         """Фільтрація за мовою"""
+#         lang = get_language_code(self.request)
+#         result = Categories.objects.language(lang).all()
+#         return result
+
+#     def retrieve(self, request, *args, **kwargs):
+#         # Перевірка на наявність кешування
+#         cache_data = self.check_cache_headers(request)
+#         if isinstance(cache_data, HttpResponse):
+#             return cache_data
+#         response = super().retrieve(request, *args, **kwargs)
+#         return self.add_cache_headers(response, cache_data)
+
+
+# @extend_schema(tags=["Category API"])
+# class CategoriesAPIUpdate(generics.RetrieveUpdateAPIView):
+#     """Оновлення продукту"""
+
+#     queryset = Categories.objects.all()
+#     serializer_class = CategoriesSerializer
+#     permission_classes = (IsAuthenticated,)
+
+#     def get_queryset(self):
+#         """Фільтрація за мовою"""
+#         lang = get_language_code(self.request)
+#         result = Categories.objects.language(lang).all()
+#         return result
+
+
+# @extend_schema_view(
+#     get=extend_schema(
+#         parameters=[
+#             OpenApiParameter(
+#                 name="Accept-Language",
+#                 description=_(
+#                     "Preferred language for the response. Allowed values: {languages_list}."
+#                 ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+#                 required=False,
+#                 type=OpenApiTypes.STR,
+#                 location=OpenApiParameter.HEADER,
+#             )
+#         ],
+#     ),
+#     list=extend_schema(
+#         parameters=[
+#             OpenApiParameter(
+#                 name="Accept-Language",
+#                 description=_(
+#                     "Preferred language for the response. Allowed values: {languages_list}."
+#                 ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+#                 required=False,
+#                 type=OpenApiTypes.STR,
+#                 location=OpenApiParameter.HEADER,
+#             )
+#         ],
+#     ),
+# )
+# @extend_schema(tags=["Product API"])
+# class ProductAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
+#     """Отримати список продуктів або створити новий"""
+
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):
+#         """Фільтрація товарів за мовою"""
+#         lang = get_language_code(self.request)
+#         return Product.objects.language(lang).all()
+
+#     def get(self, request, *args, **kwargs):
+#         # Перевірка на наявність кешування
+#         cache_data = self.check_cache_headers(request)
+#         if isinstance(cache_data, HttpResponse):
+#             return cache_data
+#         response = super().get(request, *args, **kwargs)
+#         return self.add_cache_headers(response, cache_data)
+
+#     def list(self, request, *args, **kwargs):
+#         # Перевірка на наявність кешування
+#         cache_data = self.check_cache_headers(request)
+#         if isinstance(cache_data, HttpResponse):
+#             return cache_data
+#         response = super().list(request, *args, **kwargs)
+#         return self.add_cache_headers(response, cache_data)
+
+
+# @extend_schema_view(
+#     get=extend_schema(
+#         parameters=[
+#             OpenApiParameter(
+#                 name="Accept-Language",
+#                 description=_(
+#                     "Preferred language for the response. Allowed values: {languages_list}."
+#                 ).format(languages_list=", ".join(settings.PARLER_LANGUAGES_LIST)),
+#                 required=False,
+#                 type=OpenApiTypes.STR,
+#                 location=OpenApiParameter.HEADER,
+#             )
+#         ],
+#     ),
+# )
+# @extend_schema(tags=["Product API"])
+# class ProductAPIDetail(MixinCacheHeaders, generics.RetrieveAPIView):
+#     """Отримати деталі продукту"""
+
+#     # queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = (AllowAny,)
+
+#     def get_queryset(self):
+#         """Фільтрація товарів за мовою"""
+#         lang = get_language_code(self.request)
+#         return Product.objects.language(lang).all()
+
+#     def retrieve(self, request, *args, **kwargs):
+#         # Перевірка на наявність кешування
+#         cache_data = self.check_cache_headers(request)
+#         if isinstance(cache_data, HttpResponse):
+#             return cache_data
+#         response = super().retrieve(request, *args, **kwargs)
+#         return self.add_cache_headers(response, cache_data)
+
+
+# @extend_schema(tags=["Product API"])
+# class ProductAPIUpdate(generics.RetrieveUpdateAPIView):
+#     """Оновлення продукту"""
+
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = (IsAuthenticated,)
