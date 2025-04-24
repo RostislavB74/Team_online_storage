@@ -38,7 +38,6 @@ from .serializers import (
     CategoriesSerializer,
     ProductImageSerializer,
     ProductCertificateSerializer,
-    CategoriesSerializer,
     RingSizeSerializer,
     SubProductsSizesSerializer,
     DescriptionsSerializer,

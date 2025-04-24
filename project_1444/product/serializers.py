@@ -6,39 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from .utils import *
 
 
-class ProductGemstoneSerializer(serializers.ModelSerializer):
-    status_display = serializers.CharField(source="get_status_display", read_only=True)
-    gemstone = serializers.CharField(source="gemstone.name", read_only=True)
-    color = serializers.CharField(source="color.name", read_only=True)
-
-    class Meta:
-        model = ProductGemstone
-        fields = ["id", "status_display", "gemstone", "color"]
-
-
-class ProductMaterialSerializer(serializers.ModelSerializer):
-    material = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ProductMaterial
-        fields = ["id", "is_primary", "set_included", "material"]
-
-    @extend_schema_field(str)
-    def get_material(self, obj):
-        if not obj.material:
-            return None
-
-        material_obj = obj.material
-
-        return {
-            "material": material_obj.get_material_display(),  # "Золото"
-            "assay": material_obj.assay,  # "585"
-            "color": material_obj.get_color_display(),  # "Червоний"
-            "slug": material_obj.safe_translation_getter("slug", default=None),
-            "label": f"{material_obj.get_material_display()} {material_obj.assay} {material_obj.get_color_display()}",
-        }
-
-
 class CategoriesSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
@@ -99,6 +66,53 @@ class DescriptionsSerializer(serializers.ModelSerializer):
     @extend_schema_field(str)
     def get_keywords(self, obj):
         return obj.safe_translation_getter("keywords", default="Без назви")
+
+
+
+class MaterialSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Material
+        fields = ["material", "assay", "color", "slug", "name"]
+
+    @extend_schema_field(str)
+    def get_name(self, obj):
+        return f"{obj.get_material_display()} {obj.assay} {obj.get_color_display()}"
+
+
+class ProductGemstoneSerializer(serializers.ModelSerializer):
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    gemstone = serializers.CharField(source="gemstone.name", read_only=True)
+    color = serializers.CharField(source="color.name", read_only=True)
+
+    class Meta:
+        model = ProductGemstone
+        fields = ["id", "status_display", "gemstone", "color"]
+
+
+class ProductMaterialSerializer(serializers.ModelSerializer):
+    material = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductMaterial
+        fields = ["id", "is_primary", "set_included", "material"]
+
+    @extend_schema_field(str)
+    def get_material(self, obj):
+        if not obj.material:
+            return None
+
+        material_obj = obj.material
+
+        return {
+            "material": material_obj.get_material_display(),  # "Золото"
+            "assay": material_obj.assay,  # "585"
+            "color": material_obj.get_color_display(),  # "Червоний"
+            "slug": material_obj.safe_translation_getter("slug", default=None),
+            "label": f"{material_obj.get_material_display()} {material_obj.assay} {material_obj.get_color_display()}",
+        }
+
 
 
 class ProductStatusSerializer(serializers.ModelSerializer):
@@ -209,96 +223,11 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             "max_length",
             "width",
         ]
-    
-
-# from rest_framework import serializers
-# from drf_spectacular.utils import extend_schema_field
-# from .models import Product, SubProducts, Categories, SubCategories
-
-# class CategorySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Categories
-#         fields = ['id', 'name', 'slug']
-
-class SubProductSerializer(serializers.ModelSerializer):
-    size = serializers.SerializerMethodField()
-
-    class Meta:
-        model = SubProducts
-        fields = ['id', 'parent_product', 'price', 'sku', 'size']
-
-    @extend_schema_field(str)
-    def get_size(self, obj):
-        if obj.size:
-            if isinstance(obj.size, dict) and 'value' in obj.size:
-                return obj.size['value']
-            return str(obj.size)
-        if obj.length and obj.max_length:
-            return f"{obj.length}-{obj.max_length}"
-        if obj.length:
-            return str(obj.length)
-        return ""
-
-# class ProductSerializer(serializers.ModelSerializer):
-#     category = CategorySerializer()
-#     subproducts = SubProductSerializer(many=True, source='subproducts_set')
-
-#     class Meta:
-#         model = Product
-#         fields = ['id', 'name', 'category', 'sku', 'subproducts']
-
-from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_field
-from .models import Product, SubProducts, Categories, SubCategories
-
-class CategorySerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-    slug = serializers.SerializerMethodField()
-    
-
-    class Meta:
-        model = Categories
-        fields = ['id', 'name', 'slug']
-
-    @extend_schema_field(str)
-    def get_name(self, obj):
-        return obj.safe_translation_getter('name', default='Без назви')
-
-    @extend_schema_field(str)
-    def get_slug(self, obj):
-        return obj.safe_translation_getter('slug', default=None)
-
-class SubProductSerializer(serializers.ModelSerializer):
-    size = serializers.SerializerMethodField()
-
-    class Meta:
-        model = SubProducts
-        fields = ['id', 'parent_product', 'price', 'sku', 'size']
-
-    @extend_schema_field(str)
-    def get_size(self, obj):
-        if obj.size:
-            if isinstance(obj.size, dict) and 'value' in obj.size:
-                return obj.size['value']
-            return str(obj.size)
-        if obj.length and obj.max_length:
-            return f"{obj.length}-{obj.max_length}"
-        if obj.length:
-            return str(obj.length)
-        return ""
-
-class ProductSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
-    subproducts = SubProductSerializer(many=True, source='subproducts_set')
-
-    class Meta:
-        model = Product
-        fields = ['id', 'name', 'category', 'sku', 'subproducts']
-
+ 
 class SubCategoriesSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
-    parent = CategorySerializer()
+    parent = CategoriesSerializer()
 
     class Meta:
         model = SubCategories
@@ -409,13 +338,6 @@ class ProductSerializer(serializers.ModelSerializer):
             else None
         )
 
-    # @extend_schema_field(str)
-    # def get_subcategory(self, obj):
-    #     return (
-    #         obj.subcategory.safe_translation_getter("name", default="Без назви")
-    #         if obj.subcategory
-    #         else None
-    #     )
 
     @extend_schema_field(str)
     def get_name(self, obj):
@@ -558,13 +480,7 @@ class TotalProductsSerializer(serializers.ModelSerializer):
             else None
         )
 
-    # @extend_schema_field(str)
-    # def get_subcategory(self, obj):
-    #     return (
-    #         obj.subcategory.safe_translation_getter("name", default="Без назви")
-    #         if obj.subcategory
-    #         else None
-    #     )
+   
 
     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
     def get_images(self, obj):
@@ -581,14 +497,3 @@ class TotalProductsSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         return [str(cert.file) for cert in obj.certificates.all()] if request else []
       
-
-class MaterialSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Material
-        fields = ["material", "assay", "color", "slug", "name"]
-
-    @extend_schema_field(str)
-    def get_name(self, obj):
-        return f"{obj.get_material_display()} {obj.assay} {obj.get_color_display()}"
