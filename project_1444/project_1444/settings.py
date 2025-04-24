@@ -53,7 +53,7 @@ environ.Env.read_env(BASE_DIR.parent / ".env")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-IS_TESTING = "test" in sys.arg
+IS_TESTING = "test" in sys.argv
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY", default=None)
 if not SECRET_KEY or SECRET_KEY.isspace():
