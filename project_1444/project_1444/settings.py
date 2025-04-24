@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_celery_beat",
+    "social_django",
     "rest_framework",
     "drf_spectacular",
     "djoser",
@@ -160,6 +161,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "social_django.middleware.SocialAuthExceptionMiddleware",
     # 'ratelimit.middleware.RatelimitMiddleware',
 ]
 # RATELIMIT_VIEW = 'yourapp.views.rate_limited'
@@ -170,7 +172,7 @@ ROOT_URLCONF = "project_1444.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -178,6 +180,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
         },
     },
@@ -186,9 +190,10 @@ TEMPLATES = [
 WSGI_APPLICATION = "project_1444.wsgi.application"
 
 # Налаштування автентифікації
-AUTHENTICATION_BACKENDS = [
+AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
-]
+    "social_core.backends.google.GoogleOAuth2",
+)
 
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = "/login/"
@@ -597,6 +602,19 @@ LIQPAY_DEFAULT_CURRENCY = env("LIQPAY_DEFAULT_CURRENCY", default="UAH")
 LIQPAY_DEFAULT_LANGUAGE = env("LIQPAY_DEFAULT_LANGUAGE", default="uk")
 LIQPAY_DEFAULT_ACTION = env("LIQPAY_DEFAULT_ACTION", default="pay")
 LIQPAY_SANDBOX_MODE = env("LIQPAY_SANDBOX_MODE", default=True, cast=bool)
+
+# Google auth
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
+    env("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", default=None) or None
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = (
+    env("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", default=None) or None
+)
+
+SOCIAL_AUTH_LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
+LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
+# SOCIAL_AUTH_REQUIRE_POST = True
 
 
 # Allowed messengers
