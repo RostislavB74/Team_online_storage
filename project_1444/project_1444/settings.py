@@ -53,6 +53,7 @@ environ.Env.read_env(BASE_DIR.parent / ".env")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
+IS_TESTING = "test" in sys.arg
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY", default=None)
 if not SECRET_KEY or SECRET_KEY.isspace():
@@ -233,7 +234,7 @@ except environ.ImproperlyConfigured:
         )
         raise ValueError(e)
 
-if "test" in sys.argv:
+if IS_TESTING:
     print("Test mode detected, using temporary SQLite database in memory")
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
@@ -326,7 +327,7 @@ else:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
 
-if "test" in sys.argv:
+if IS_TESTING:
     DEFAULT_FILE_STORAGE = "django.core.files.storage.InMemoryStorage"
     PASSWORD_HASHERS = [
         "django.contrib.auth.hashers.MD5PasswordHasher",
@@ -493,7 +494,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {"anon": ANON_RATE_THROTTLE, "user": USER_RATE_THROTTLE},
 }
 
-if "test" in sys.argv:
+if IS_TESTING:
     REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {}
 
