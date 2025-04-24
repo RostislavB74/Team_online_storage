@@ -21,12 +21,12 @@ class ProductAPITestCase(APITestCase):
             dump_file = f"test_db_output_{cls.__name__}.json"
             with open(dump_file, "w", encoding="utf-8") as f:
                 call_command("dumpdata", indent=2, stdout=f)
-            print(f"Dumped test data to: {dump_file}")
+            # print(f"Dumped test data to: {dump_file}")
         super().tearDownClass()
 
     @staticmethod
     def crud():
-        print("CRUD")
+        # print("CRUD")
         # Створюємо об'єкти через прямий доступ до моделі
         if Categories.objects.exists():
             print("Categories already exist, skip CRUD")
@@ -88,7 +88,7 @@ class ProductAPITestCase(APITestCase):
             product.slug = "francelli-necklace"
             product.save()
 
-        print("CRUD product:", product)
+        # print("CRUD product:", product)
 
     def test_products_api_uk_language(self):
         # Тест для української мови
@@ -99,6 +99,8 @@ class ProductAPITestCase(APITestCase):
 
         # Перевіряємо, що повертається український переклад
         data = response.json()
+        self.assertIsNotNone(data)
+        data = data.get("results", [])
         self.assertEqual(len(data), 1)  # Очікуємо один продукт
         description = data[0]["description"][0]
         self.assertEqual(description["name"], "Кольє Francelli")
@@ -114,6 +116,8 @@ class ProductAPITestCase(APITestCase):
 
         # Перевіряємо, що повертається англійський переклад
         data = response.json()
+        self.assertIsNotNone(data)
+        data = data.get("results", [])
         self.assertEqual(len(data), 1)
         description = data[0]["description"][0]
         self.assertEqual(description["name"], "Francelli Necklace")

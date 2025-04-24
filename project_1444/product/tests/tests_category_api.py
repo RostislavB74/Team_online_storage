@@ -12,7 +12,7 @@ class CategoriesAPITestCase(APITestCase):
             dump_file = f"test_db_output_{cls.__name__}.json"
             with open(dump_file, "w", encoding="utf-8") as f:
                 call_command("dumpdata", indent=2, stdout=f)
-            print(f"Dumped test data to: {dump_file}")
+            # print(f"Dumped test data to: {dump_file}")
         super().tearDownClass()
 
     def setUp(self):
