@@ -1,8 +1,20 @@
+from django.conf import settings
 from rest_framework.test import APIClient, APITestCase
 from django.urls import reverse
 
 
 class CategoriesAPITestCase(APITestCase):
+    @classmethod
+    def tearDownClass(cls):
+        if getattr(settings, "SAVE_TEST_DB_OUTPUT", False):
+            from django.core.management import call_command
+
+            dump_file = f"test_db_output_{cls.__name__}.json"
+            with open(dump_file, "w", encoding="utf-8") as f:
+                call_command("dumpdata", indent=2, stdout=f)
+            print(f"Dumped test data to: {dump_file}")
+        super().tearDownClass()
+
     def setUp(self):
         # Налаштування клієнта для API-запитів
         self.client = APIClient()

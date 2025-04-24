@@ -238,8 +238,10 @@ if IS_TESTING:
     print("Test mode detected: using a SQLite DB for diagnostics")
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
-        "TEST": {"NAME": "test_db.sqlite3"},
     }
+    SAVE_TEST_DB_OUTPUT = env("SAVE_TEST_DB_OUTPUT", default=False)
+    if SAVE_TEST_DB_OUTPUT:
+        DATABASES["default"]["TEST"] = {"NAME": "test_db.sqlite3"}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
