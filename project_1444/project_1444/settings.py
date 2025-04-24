@@ -328,6 +328,9 @@ else:
 
 if "test" in sys.argv:
     DEFAULT_FILE_STORAGE = "django.core.files.storage.InMemoryStorage"
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
 
 # Налаштування STORAGES
 STORAGES = {
