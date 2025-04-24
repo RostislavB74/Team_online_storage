@@ -326,6 +326,9 @@ else:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
 
+if "test" in sys.argv:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.InMemoryStorage"
+
 # Налаштування STORAGES
 STORAGES = {
     "default": {
@@ -490,6 +493,7 @@ REST_FRAMEWORK = {
 if "test" in sys.argv:
     REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {}
+
 
 CACHES = {
     "default": {
