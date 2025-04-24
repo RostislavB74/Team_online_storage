@@ -1,5 +1,6 @@
 import django_filters
 from django.conf import settings
+from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework import viewsets
@@ -12,6 +13,7 @@ from drf_spectacular.utils import (
     OpenApiTypes,
     extend_schema_view,
 )
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
@@ -36,6 +38,7 @@ from .models import (
     Descriptions,
     SubCategories,
 )
+from .permissions import IsAdminOrReadOnly
 from .serializers import (
     ProductSerializer,
     CategoriesSerializer,
@@ -70,6 +73,7 @@ class SubCategoriesAPIList(MixinCacheHeaders, generics.ListCreateAPIView):
         return result
 
 
+# NOT USED
 @extend_schema_view(
     get=extend_schema(
         parameters=[
@@ -369,13 +373,13 @@ class CategoriesFilter(django_filters.FilterSet):
         fields = ["has_length", "has_width", "has_diameter", "has_weight"]
 
 
-# NOT USED
+# USED
 class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів CategoriesViewSet"""
 
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoriesFilter
 
@@ -386,6 +390,14 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return qs.prefetch_related("translations")
         return qs.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except IntegrityError as e:
+            raise ValidationError(
+                {"detail": "Category already exists or violates unique constraint."}
+            )
 
     # def retrieve(self, request, *args, **kwargs):
     #     """Отримання продукту за slug з урахуванням мови"""
