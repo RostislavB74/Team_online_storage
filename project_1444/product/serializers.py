@@ -218,6 +218,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
         ]
 
 
+
 class SubCategoriesSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
@@ -225,15 +226,16 @@ class SubCategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategories
-        fields = ['id', 'name', 'slug', 'parent']
+        fields = ["id", "name", "slug", "parent"]
 
     @extend_schema_field(str)
     def get_name(self, obj):
-        return obj.safe_translation_getter('name', default='Без назви')
+        return obj.safe_translation_getter("name", default="Без назви")
 
     @extend_schema_field(str)
     def get_slug(self, obj):
-        return obj.safe_translation_getter('slug', default=None)
+        return obj.safe_translation_getter("slug", default=None)
+
 
 class ProductImageSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()

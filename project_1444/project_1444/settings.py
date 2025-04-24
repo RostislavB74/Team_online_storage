@@ -53,6 +53,7 @@ environ.Env.read_env(BASE_DIR.parent / ".env")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
+IS_TESTING = "test" in sys.argv
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY", default=None)
 if not SECRET_KEY or SECRET_KEY.isspace():
@@ -233,12 +234,14 @@ except environ.ImproperlyConfigured:
         )
         raise ValueError(e)
 
-if "test" in sys.argv:
-    print("Test mode detected, using temporary SQLite database in memory")
+if IS_TESTING:
+    print("Test mode detected: using a SQLite DB for diagnostics")
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",  # Використання SQLite в оперативній пам'яті
     }
+    SAVE_TEST_DB_OUTPUT = env("SAVE_TEST_DB_OUTPUT", default=False)
+    if SAVE_TEST_DB_OUTPUT:
+        DATABASES["default"]["TEST"] = {"NAME": "test_db.sqlite3"}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -325,6 +328,12 @@ else:
     # DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
+
+if IS_TESTING:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.InMemoryStorage"
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
 
 # Налаштування STORAGES
 STORAGES = {
@@ -487,9 +496,10 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {"anon": ANON_RATE_THROTTLE, "user": USER_RATE_THROTTLE},
 }
 
-if "test" in sys.argv:
+if IS_TESTING:
     REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {}
+
 
 CACHES = {
     "default": {
