@@ -75,6 +75,19 @@ paths:
   /api/v1/all-products/:
     get:
       operationId: api_v1_all_products_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -88,9 +101,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TotalProducts'
+                $ref: '#/components/schemas/PaginatedTotalProductsList'
           description: ''
   /api/v1/all-products/{id}/:
     get:
@@ -344,7 +355,24 @@ paths:
   /api/v1/categories/:
     get:
       operationId: api_v1_categories_list
-      description: CRUD для продуктів
+      description: CRUD для продуктів CategoriesViewSet
+      parameters:
+      - in: query
+        name: has_diameter
+        schema:
+          type: boolean
+      - in: query
+        name: has_length
+        schema:
+          type: boolean
+      - in: query
+        name: has_weight
+        schema:
+          type: boolean
+      - in: query
+        name: has_width
+        schema:
+          type: boolean
       tags:
       - api
       security:
@@ -364,7 +392,7 @@ paths:
           description: ''
     post:
       operationId: api_v1_categories_create
-      description: CRUD для продуктів
+      description: CRUD для продуктів CategoriesViewSet
       tags:
       - api
       requestBody:
@@ -378,6 +406,7 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Categories'
+        required: true
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -394,7 +423,7 @@ paths:
   /api/v1/categories/{id}/:
     get:
       operationId: api_v1_categories_retrieve
-      description: Отримання продукту за slug з урахуванням мови
+      description: CRUD для продуктів CategoriesViewSet
       parameters:
       - in: path
         name: id
@@ -419,7 +448,7 @@ paths:
           description: ''
     put:
       operationId: api_v1_categories_update
-      description: CRUD для продуктів
+      description: CRUD для продуктів CategoriesViewSet
       parameters:
       - in: path
         name: id
@@ -440,6 +469,7 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Categories'
+        required: true
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -455,7 +485,7 @@ paths:
           description: ''
     patch:
       operationId: api_v1_categories_partial_update
-      description: CRUD для продуктів
+      description: CRUD для продуктів CategoriesViewSet
       parameters:
       - in: path
         name: id
@@ -491,7 +521,7 @@ paths:
           description: ''
     delete:
       operationId: api_v1_categories_destroy
-      description: CRUD для продуктів
+      description: CRUD для продуктів CategoriesViewSet
       parameters:
       - in: path
         name: id
@@ -514,6 +544,19 @@ paths:
     get:
       operationId: api_v1_description_list
       description: CRUD для продуктів
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -527,9 +570,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Descriptions'
+                $ref: '#/components/schemas/PaginatedDescriptionsList'
           description: ''
     post:
       operationId: api_v1_description_create
@@ -925,6 +966,19 @@ paths:
     get:
       operationId: api_v1_product_list
       description: CRUD для продуктів
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -938,9 +992,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/PaginatedProductList'
           description: ''
     post:
       operationId: api_v1_product_create
@@ -1293,6 +1345,19 @@ paths:
     get:
       operationId: api_v1_subproducts_list
       description: CRUD для типорозмірів
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -1306,9 +1371,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SubProductsSizes'
+                $ref: '#/components/schemas/PaginatedSubProductsSizesList'
           description: ''
     post:
       operationId: api_v1_subproducts_create
@@ -1788,10 +1851,8 @@ components:
           readOnly: true
         name:
           type: string
-          readOnly: true
         slug:
           type: string
-          readOnly: true
         updated_at:
           type: string
           format: date-time
@@ -2021,6 +2082,98 @@ components:
       - product_price
       - quantity
       - total_price
+    PaginatedDescriptionsList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Descriptions'
+    PaginatedProductList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    PaginatedSubProductsSizesList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubProductsSizes'
+    PaginatedTotalProductsList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TotalProducts'
     PatchedCart:
       type: object
       properties:
@@ -2060,10 +2213,8 @@ components:
           readOnly: true
         name:
           type: string
-          readOnly: true
         slug:
           type: string
-          readOnly: true
         updated_at:
           type: string
           format: date-time
@@ -2159,7 +2310,8 @@ components:
           type: string
           readOnly: true
         subcategory:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/SubCategories'
           readOnly: true
         name:
           type: string
@@ -2334,7 +2486,8 @@ components:
           type: string
           readOnly: true
         subcategory:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/SubCategories'
           readOnly: true
         name:
           type: string
