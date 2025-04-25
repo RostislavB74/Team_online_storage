@@ -7,12 +7,15 @@ from .utils import *
 
 
 class SubCategoryShortSerializer(serializers.ModelSerializer):
+    name = serializers.CharField()
+    slug = serializers.CharField()
+
     class Meta:
         model = SubCategories
         fields = ["id", "name", "slug"]
 
 
-class CategoriesSerializer(serializers.ModelSerializer):
+class CategoriesTreeSerializer(serializers.ModelSerializer):
     # For translation save on create category via API post
     name = serializers.CharField()
     slug = serializers.CharField()
@@ -32,6 +35,35 @@ class CategoriesSerializer(serializers.ModelSerializer):
             "has_diameter",
             "has_weight",
             "subcategories",
+        ]
+
+    @extend_schema_field(str)
+    def get_name(self, obj):
+        return obj.safe_translation_getter("name", default="Без назви")
+
+    @extend_schema_field(str)
+    def get_slug(self, obj):
+        return obj.safe_translation_getter("slug", default=None)
+
+
+class CategoriesSerializer(serializers.ModelSerializer):
+    # For translation save on create category via API post
+    name = serializers.CharField()
+    slug = serializers.CharField()
+    # name = serializers.SerializerMethodField()
+    # slug = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Categories
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "updated_at",
+            "has_length",
+            "has_width",
+            "has_diameter",
+            "has_weight",
         ]
 
     @extend_schema_field(str)
