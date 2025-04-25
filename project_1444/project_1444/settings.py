@@ -10,34 +10,38 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from django.utils.translation import gettext_lazy as _
-import zoneinfo
+import sys
+
+# from django.utils.translation import gettext_lazy as _
+# import zoneinfo
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from pathlib import Path
-from urllib.parse import urlparse
+
+# from urllib.parse import urlparse
 
 import environ
 from datetime import timedelta
-from pygments.lexer import default
-import os
-from urllib.parse import urlparse
-from dotenv import load_dotenv
-from django.core.exceptions import ImproperlyConfigured
+
+# from pygments.lexer import default
+# import os
+# from urllib.parse import urlparse
+# from dotenv import load_dotenv
+# from django.core.exceptions import ImproperlyConfigured
 
 
 from . import __version__
 
 # from django.utils.translation import gettext_lazy as _
-import os
+# import os
 from urllib.parse import urlparse
 
-from django.conf.global_settings import STATIC_ROOT
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-from cloudinary.utils import cloudinary_url
-from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
+# from django.conf.global_settings import STATIC_ROOT
+# import cloudinary
+# import cloudinary.uploader
+# import cloudinary.api
+# from cloudinary.utils import cloudinary_url
+# from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -49,6 +53,7 @@ environ.Env.read_env(BASE_DIR.parent / ".env")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
+IS_TESTING = "test" in sys.argv
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY", default=None)
 if not SECRET_KEY or SECRET_KEY.isspace():
@@ -80,6 +85,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_celery_beat",
+    "social_django",
     "rest_framework",
     "drf_spectacular",
     "djoser",
@@ -88,7 +94,7 @@ INSTALLED_APPS = [
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
-    'debug_toolbar',
+    "debug_toolbar",
     # "cloudinary_storage",
     # "django_filters",
     # "mptt",
@@ -97,10 +103,10 @@ INSTALLED_APPS = [
     # "django_prices_openexchangerates",
     # "django_prices_vatlayer",
     # "sorl.thumbnail",
-    # 
+    #
     # "django-liqpay",
     "product",
-    'users.apps.UsersConfig',
+    "users.apps.UsersConfig",
     # "users",
     "cart",
     "order",
@@ -108,13 +114,12 @@ INSTALLED_APPS = [
     "discounts",
     # 'versatileimagefield',
     # 'django_ratelimit',
-    
 ]
 # VERSATILEIMAGEFIELD_SETTINGS = {
 #     'create_images_on_demand': True,
 #     'cache_length': 2592000,
 # }
-LANGUAGE_CODE = 'uk'  # Мова за замовчуванням
+LANGUAGE_CODE = "uk"  # Мова за замовчуванням
 
 PARLER_LANGUAGES = {
     None: (
@@ -130,8 +135,8 @@ PARLER_LANGUAGES = {
 PARLER_LANGUAGES_LIST = [lang.get("code") for lang in PARLER_LANGUAGES.get(None, [])]
 
 GLOBAL_LANGUAGES = [
-    ('uk', 'Ukrainian'),
-    ('en', 'English'),
+    ("uk", "Ukrainian"),
+    ("en", "English"),
 ]
 
 LANGUAGES = []
@@ -141,7 +146,7 @@ for lang in GLOBAL_LANGUAGES:
 
 # Для локалізації шаблонів і API
 LOCALE_PATHS = [
-    BASE_DIR / 'locale',
+    BASE_DIR / "locale",
 ]
 
 
@@ -152,11 +157,11 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "social_django.middleware.SocialAuthExceptionMiddleware",
     # 'ratelimit.middleware.RatelimitMiddleware',
 ]
 # RATELIMIT_VIEW = 'yourapp.views.rate_limited'
@@ -167,7 +172,7 @@ ROOT_URLCONF = "project_1444.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -175,6 +180,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
         },
     },
@@ -183,15 +190,16 @@ TEMPLATES = [
 WSGI_APPLICATION = "project_1444.wsgi.application"
 
 # Налаштування автентифікації
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "social_core.backends.google.GoogleOAuth2",
+)
 
 # URL для перенаправлення після логіну/логоуту
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/profile/'
-LOGOUT_REDIRECT_URL = '/admin/login/'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/profile/"
+LOGOUT_REDIRECT_URL = "/admin/login/"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 # DATABASES = {
@@ -231,6 +239,14 @@ except environ.ImproperlyConfigured:
         )
         raise ValueError(e)
 
+if IS_TESTING:
+    print("Test mode detected: using a SQLite DB for diagnostics")
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+    }
+    SAVE_TEST_DB_OUTPUT = env("SAVE_TEST_DB_OUTPUT", default=False)
+    if SAVE_TEST_DB_OUTPUT:
+        DATABASES["default"]["TEST"] = {"NAME": "test_db.sqlite3"}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -255,8 +271,8 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 TIME_ZONE = "Europe/Kyiv"
-RECAPTCHA_PUBLIC_KEY = 'your_public_key'
-RECAPTCHA_PRIVATE_KEY = 'your_private_key'
+RECAPTCHA_PUBLIC_KEY = "your_public_key"
+RECAPTCHA_PRIVATE_KEY = "your_private_key"
 # settings.py
 
 STATIC_URL = env("STATIC_URL", default="/static/")  # 'static/'
@@ -313,10 +329,16 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
 else:
     # Фаллбек на FileSystemStorage, якщо Cloudinary не налаштовано
     print("Cloudinary not configured. Using FileSystemStorage as DEFAULT_FILE_STORAGE")
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
     # DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
+
+if IS_TESTING:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.InMemoryStorage"
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
 
 # Налаштування STORAGES
 STORAGES = {
@@ -334,21 +356,21 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 if DEFAULT_FILE_STORAGE:
     print(f"Using DEFAULT_FILE_STORAGE BACKEND: '{DEFAULT_FILE_STORAGE}'")
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'INFO',
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "INFO",
         },
-        'cloudinary': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
+        "cloudinary": {
+            "handlers": ["console"],
+            "level": "DEBUG",
         },
     },
 }
@@ -401,7 +423,7 @@ LOGGING = {
 #         )
 #         AWS_LOCATION = env("AWS_LOCATION", default="")
 #         AWS_S3_VERIFY = env("AWS_S3_VERIFY", default=None, cast=bool)
-       
+
 #         DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
 #         DEFAULT_FILE_STORAGE_OPTIONS = {
 #             "access_key": AWS_ACCESS_KEY_ID,
@@ -436,7 +458,7 @@ LOGGING = {
 # if not DEFAULT_FILE_STORAGE:
 #     print(f"Using FileSystemStorage as DEFAULT_FILE_STORAGE BACKEND")
 # EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = BASE_DIR / 'emails'
+EMAIL_FILE_PATH = BASE_DIR / "emails"
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -453,6 +475,9 @@ try:
 except (KeyError, environ.ImproperlyConfigured):
     EMAIL_BACKEND = None
 
+ANON_RATE_THROTTLE = env("ANON_RATE_THROTTLE", default="5/minute") or None
+USER_RATE_THROTTLE = env("USER_RATE_THROTTLE", default="10/minute") or None
+print(f"{ANON_RATE_THROTTLE=}, {USER_RATE_THROTTLE=}")
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -469,19 +494,21 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
     ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '5/minute',
-        'user': '10/minute'
-    },
+    "DEFAULT_THROTTLE_RATES": {"anon": ANON_RATE_THROTTLE, "user": USER_RATE_THROTTLE},
 }
 
+if IS_TESTING:
+    REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
+    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {}
+
+
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     }
 }
 
@@ -525,7 +552,9 @@ SIMPLE_JWT = {
 # CELERY_RESULT_SERIALIZER = 'json'
 # CELERY_TIMEZONE = 'Europe/Kyiv'
 
-CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=None)  # Redis як брокер повідомлень
+CELERY_BROKER_URL = env(
+    "CELERY_BROKER_URL", default=None
+)  # Redis як брокер повідомлень
 if not CELERY_BROKER_URL:
     CELERY_BROKER_URL = "redis://localhost:6379/0"
 
@@ -537,7 +566,7 @@ if not CELERY_RESULT_BACKEND:
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
-CELERY_TIMEZONE = 'Europe/Kyiv'
+CELERY_TIMEZONE = "Europe/Kyiv"
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
@@ -567,16 +596,29 @@ if REDIS_URL:
 
 
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")
-LIQPAY_PUBLIC_KEY = env('LIQPAY_PUBLIC_KEY', default='your-public-key')
-LIQPAY_PRIVATE_KEY = env('LIQPAY_PRIVATE_KEY', default='your-private-key')
-LIQPAY_DEFAULT_CURRENCY = env('LIQPAY_DEFAULT_CURRENCY', default='UAH')
-LIQPAY_DEFAULT_LANGUAGE = env('LIQPAY_DEFAULT_LANGUAGE', default='uk')
-LIQPAY_DEFAULT_ACTION = env('LIQPAY_DEFAULT_ACTION', default='pay')
-LIQPAY_SANDBOX_MODE = env('LIQPAY_SANDBOX_MODE', default=True, cast=bool)
+LIQPAY_PUBLIC_KEY = env("LIQPAY_PUBLIC_KEY", default="your-public-key")
+LIQPAY_PRIVATE_KEY = env("LIQPAY_PRIVATE_KEY", default="your-private-key")
+LIQPAY_DEFAULT_CURRENCY = env("LIQPAY_DEFAULT_CURRENCY", default="UAH")
+LIQPAY_DEFAULT_LANGUAGE = env("LIQPAY_DEFAULT_LANGUAGE", default="uk")
+LIQPAY_DEFAULT_ACTION = env("LIQPAY_DEFAULT_ACTION", default="pay")
+LIQPAY_SANDBOX_MODE = env("LIQPAY_SANDBOX_MODE", default=True, cast=bool)
+
+# Google auth
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
+    env("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", default=None) or None
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = (
+    env("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", default=None) or None
+)
+
+SOCIAL_AUTH_LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
+LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
+# SOCIAL_AUTH_REQUIRE_POST = True
 
 
 # Allowed messengers
-ALLOWED_MESSENGERS = ['viber', 'telegram', 'whatsapp', 'signal', 'discord', 'skype']
+ALLOWED_MESSENGERS = ["viber", "telegram", "whatsapp", "signal", "discord", "skype"]
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",
@@ -605,8 +647,6 @@ INTERNAL_IPS = [
 # RATELIMIT_VIEW = 'users.views.rate_limited'
 # RATELIMIT_CACHE_BACKEND = 'default'
 # project_1444/settings.py
-
-
 
 
 # REST_FRAMEWORK = {

@@ -7,8 +7,11 @@ from .utils import *
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-    slug = serializers.SerializerMethodField()
+    # For translation save on create category via API post
+    name = serializers.CharField()
+    slug = serializers.CharField()
+    # name = serializers.SerializerMethodField()
+    # slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Categories
@@ -168,15 +171,16 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
     old_price = serializers.SerializerMethodField()
     discount_applied = serializers.SerializerMethodField()
-    size=serializers.SerializerMethodField()
+    size = serializers.SerializerMethodField()
     # parent_product = serializers.CharField(source='parent_product.name', read_only=True)
     new_price = serializers.SerializerMethodField()
+
     @extend_schema_field(str)
     def get_size(self, obj):
         # Обробка size
         if obj.size:
-            if isinstance(obj.size, dict) and 'value' in obj.size:
-                return obj.size['value']  # Для словника повертаємо значення 'value'
+            if isinstance(obj.size, dict) and "value" in obj.size:
+                return obj.size["value"]  # Для словника повертаємо значення 'value'
             return str(obj.size)  # Для рядка або іншого типу повертаємо як є
 
         # Обробка length і max_length
@@ -187,22 +191,25 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
 
         # Якщо нічого немає, повертаємо порожній рядок
         return ""
-   
+
     @extend_schema_field(str)
     def get_new_price(self, obj):
-        request = self.context.get('request')
-        user = request.user if request and hasattr(request, 'user') else None
-        return get_discounted_price(user, obj)['new_price']
+        request = self.context.get("request")
+        user = request.user if request and hasattr(request, "user") else None
+        return get_discounted_price(user, obj)["new_price"]
+
     @extend_schema_field(str)
     def get_old_price(self, obj):
-        request = self.context.get('request')
-        user = request.user if request and hasattr(request, 'user') else None
-        return get_discounted_price(user, obj)['old_price']
+        request = self.context.get("request")
+        user = request.user if request and hasattr(request, "user") else None
+        return get_discounted_price(user, obj)["old_price"]
+
     @extend_schema_field(str)
     def get_discount_applied(self, obj):
-        request = self.context.get('request')
-        user = request.user if request and hasattr(request, 'user') else None
-        return get_discounted_price(user, obj)['discount_applied']
+        request = self.context.get("request")
+        user = request.user if request and hasattr(request, "user") else None
+        return get_discounted_price(user, obj)["discount_applied"]
+
     class Meta:
         model = SubProducts
         fields = [
@@ -216,14 +223,14 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             "discount_percentage",
             "new_price",
             "old_price",
-            'discount_applied',
+            "discount_applied",
             "status_display",
             "size",
             "length",
             "max_length",
             "width",
         ]
- 
+
 class SubCategoriesSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
@@ -231,15 +238,16 @@ class SubCategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategories
-        fields = ['id', 'name', 'slug', 'parent']
+        fields = ["id", "name", "slug", "parent"]
 
     @extend_schema_field(str)
     def get_name(self, obj):
-        return obj.safe_translation_getter('name', default='Без назви')
+        return obj.safe_translation_getter("name", default="Без назви")
 
     @extend_schema_field(str)
     def get_slug(self, obj):
-        return obj.safe_translation_getter('slug', default=None)
+        return obj.safe_translation_getter("slug", default=None)
+
 
 class ProductImageSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
@@ -381,7 +389,7 @@ class ProductSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         return [str(cert.file) for cert in obj.certificates.all()] if request else []
 
-       
+
 class RingSizeSerializer(serializers.Serializer):
     finger_circumference = serializers.FloatField(help_text="Обхват пальця в мм")
     ring_size = serializers.FloatField(help_text="Розмір кільця за стандартом")
@@ -496,4 +504,4 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     def get_certificates(self, obj):
         request = self.context.get("request")
         return [str(cert.file) for cert in obj.certificates.all()] if request else []
-      
+

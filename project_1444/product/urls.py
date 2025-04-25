@@ -1,8 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import ProductViewSet, RingSizeLookup
+
 from .views import  CategoriesViewSet 
 from .views import SubProductsSizesViewSet, TotalProductsViewSet,DescriptionViewSet, SubCategoriesViewSet
+
 
 router = DefaultRouter()
 
