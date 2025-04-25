@@ -51,7 +51,11 @@ from .serializers import (
     SubCategoriesSerializer,
 )
 
-
+from rest_framework import viewsets
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+from django_filters.rest_framework import DjangoFilterBackend
 class Pagination(LimitOffsetPagination):
     default_limit = 4  # змінюй на потрібне значення
     max_limit = 100
@@ -142,38 +146,64 @@ class CategoriesFilter(django_filters.FilterSet):
 
 # USED
 class CategoriesViewSet(viewsets.ModelViewSet):
-    """CRUD для продуктів CategoriesViewSet"""
+    """CRUD для категорій"""
 
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoriesFilter
+    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
         qs = Categories.objects.language(lang)
         if self.action == "list":
-            return qs.prefetch_related("translations")
-        return qs.all()
+            return qs.prefetch_related("translations", "subcategories")
+        return qs
 
     def create(self, request, *args, **kwargs):
         try:
             return super().create(request, *args, **kwargs)
         except IntegrityError as e:
             raise ValidationError(
-                {"detail": "Category already exists or violates unique constraint."}
+                {"detail": f"Category creation failed: {str(e)}"}
             )
 
+# class CategoriesViewSet(viewsets.ModelViewSet):
+#     """CRUD для продуктів CategoriesViewSet"""
+
+#     queryset = Categories.objects.all()
+#     serializer_class = CategoriesSerializer
+#     permission_classes = (IsAdminOrReadOnly,)
+#     filter_backends = [DjangoFilterBackend]
+#     # filterset_class = CategoriesFilter
+
+#     def get_queryset(self):
+#         """Фільтрація товарів за мовою"""
+#         lang = get_language_code(self.request)
+#         qs = Categories.objects.language(lang)
+#         if self.action == "list":
+#             return qs.prefetch_related("translations")
+#         return qs.all()
+
+#     def create(self, request, *args, **kwargs):
+#         try:
+#             return super().create(request, *args, **kwargs)
+#         except IntegrityError as e:
+#             raise ValidationError(
+#                 {"detail": "Category already exists or violates unique constraint."}
+#             )
+
   
-    @extend_schema(
-        summary="Get example data",
-        description="Returns an example response with some data.",
-        responses={200: dict},
-    )
-    def get(self, request):
-        return Response({"message": "Hello, API!"})
+    # @extend_schema(
+    #     summary="Get example data",
+    #     description="Returns an example response with some data.",
+    #     responses={200: dict},
+    # )
+    # def get(self, request):
+    #     return Response({"message": "Hello, API!"})
 
 
 class SubCategoriesViewSet(viewsets.ModelViewSet):
