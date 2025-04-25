@@ -1,4 +1,6 @@
 {% extends "admin/login.html" %}
+{% load social_extras %}
+{% load static %}
 
 {% block content %}
 <div class="login-container">
@@ -6,13 +8,14 @@
     {{ block.super }}
 
     {% if request.GET.auth_error %}
-        <p style="color:red;">Google login was canceled or failed. Please try again.</p>
+        <p style="color:red;">Auth login was canceled or failed. Please try again.</p>
     {% endif %}
-
-    <div class="row text-center">
-        <div class="col-md-8 mx-auto social-container my-3 text-center">
-            <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}"
-               style="
+    {% if backends.backends %}
+        <h4>Available Sign-in Options</h4>
+        <ul>
+            {% for backend_name in backends.backends %}
+                <li>
+                    <a href="{% url 'social:begin' backend_name %}?next={{ request.GET.next|default:'/admin/' }}"  style="
                     margin-top: 15px;
                     display: inline-flex;
                     align-items: center;
@@ -26,11 +29,11 @@
                     text-decoration: none;
                     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
                ">
-                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo"
-                     style="width: 20px; height: 20px; margin-right: 10px;">
-                Увійти через Google
-            </a>
-        </div>
-    </div>
-</div>
+                    <img src="{% static backend_name|get_friendly_icon %}" width="20" height="20" style="margin-right:5px">
+                        Sign in with {{ backend_name|get_friendly_name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}
