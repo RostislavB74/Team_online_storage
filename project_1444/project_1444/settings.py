@@ -190,10 +190,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "project_1444.wsgi.application"
 
 # Налаштування автентифікації
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "social_core.backends.google.GoogleOAuth2",
-)
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = "/login/"
@@ -603,22 +600,100 @@ LIQPAY_DEFAULT_LANGUAGE = env("LIQPAY_DEFAULT_LANGUAGE", default="uk")
 LIQPAY_DEFAULT_ACTION = env("LIQPAY_DEFAULT_ACTION", default="pay")
 LIQPAY_SANDBOX_MODE = env("LIQPAY_SANDBOX_MODE", default=True, cast=bool)
 
-# Google auth
+# Social external auth
+# Google Auth
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
     env("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", default=None) or None
 )
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = (
     env("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", default=None) or None
 )
+if all([SOCIAL_AUTH_GOOGLE_OAUTH2_KEY, SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET]):
+    AUTHENTICATION_BACKENDS.append("social_core.backends.google.GoogleOAuth2")
+
+# Apple ID Auth, Cost $99 per year
+SOCIAL_AUTH_APPLE_ID_CLIENT = env("SOCIAL_AUTH_APPLE_ID_CLIENT", default=None) or None
+SOCIAL_AUTH_APPLE_ID_TEAM = env("SOCIAL_AUTH_APPLE_ID_TEAM", default=None) or None
+SOCIAL_AUTH_APPLE_ID_KEY = env("SOCIAL_AUTH_APPLE_ID_KEY", default=None) or None
+SOCIAL_AUTH_APPLE_ID_SECRET = env("SOCIAL_AUTH_APPLE_ID_SECRET", default=None) or None
+SOCIAL_AUTH_APPLE_ID_SCOPE = ["name", "email"]
+if all([SOCIAL_AUTH_APPLE_ID_CLIENT, SOCIAL_AUTH_APPLE_ID_SECRET]):
+    AUTHENTICATION_BACKENDS.append("social_core.backends.apple.AppleIdAuth")
+# GitHub auth
+SOCIAL_AUTH_GITHUB_KEY = env("SOCIAL_AUTH_GITHUB_KEY", default=None) or None
+SOCIAL_AUTH_GITHUB_SECRET = env("SOCIAL_AUTH_GITHUB_SECRET", default=None) or None
+if all([SOCIAL_AUTH_GITHUB_KEY, SOCIAL_AUTH_GITHUB_SECRET]):
+    AUTHENTICATION_BACKENDS.append("social_core.backends.github.GithubOAuth2")
+# Linkedin auth
+SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY = (
+    env("SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY", default=None) or None
+)
+SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET = (
+    env("SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET", default=None) or None
+)
+SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_USERNAME_IS_FULL_EMAIL = True
+if all(
+    [SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY, SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET]
+):
+    AUTHENTICATION_BACKENDS.append(
+        "social_core.backends.linkedin.LinkedinOpenIdConnect"
+    )
+# Facebook auth
+SOCIAL_AUTH_FACEBOOK_KEY = env("SOCIAL_AUTH_FACEBOOK_KEY", default=None) or None
+SOCIAL_AUTH_FACEBOOK_SECRET = env("SOCIAL_AUTH_FACEBOOK_SECRET", default=None) or None
+SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
+if all([SOCIAL_AUTH_FACEBOOK_KEY, SOCIAL_AUTH_FACEBOOK_SECRET]):
+    AUTHENTICATION_BACKENDS.append("social_core.backends.facebook.FacebookOAuth2")
 
 SOCIAL_AUTH_LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
 LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 # SOCIAL_AUTH_REQUIRE_POST = True
+# SOCIAL_AUTH_PIPELINE = (
+#     "social_core.pipeline.social_auth.social_user",  # Link social user to Django user
+#     "social_core.pipeline.social_auth.associate_by_email",  # Associate by email if available
+#     "social_core.pipeline.social_auth.load_extra_data",  # Load extra data from the social provider
+#     "social_core.pipeline.user.user_details",  # Update user details (name, etc.)
+#     "users.signals.set_username_from_email",  # Custom step to set email as the username
+# )
+SOCIAL_AUTH_PIPELINE = (
+    # Get the information we can about the user and return it in a simple
+    # format to create the user instance later. In some cases the details are
+    # already part of the auth response from the provider, but sometimes this
+    # could hit a provider API.
+    "social_core.pipeline.social_auth.social_details",
+    # Get the social uid from whichever service we're authing thru. The uid is
+    # the unique identifier of the given user in the provider.
+    "social_core.pipeline.social_auth.social_uid",
+    # Verifies that the current auth process is valid within the current
+    # project, this is where emails and domains whitelists are applied (if
+    # defined).
+    "social_core.pipeline.social_auth.auth_allowed",
+    # Checks if the current social-account is already associated in the site.
+    "social_core.pipeline.social_auth.social_user",
+    # Make up a username for this person, appends a random string at the end if
+    # there's any collision.
+    "social_core.pipeline.user.get_username",
+    # Send a validation email to the user to verify its email address.
+    # Disabled by default.
+    # 'social_core.pipeline.mail.mail_validation',
+    # Associates the current social details with another user account with
+    # a similar email address. Disabled by default.
+    "social_core.pipeline.social_auth.associate_by_email",
+    # Create a user account if we haven't found one yet.
+    "social_core.pipeline.user.create_user",
+    # Create the record that associates the social account with the user.
+    "social_core.pipeline.social_auth.associate_user",
+    # Populate the extra_data field in the social record with the values
+    # specified by settings (and the default ones like access_token, etc).
+    "social_core.pipeline.social_auth.load_extra_data",
+    # Update the user record with any changed info from the auth service.
+    "social_core.pipeline.user.user_details",
+)
 
 
 # Allowed messengers
-ALLOWED_MESSENGERS = ["viber", "telegram", "whatsapp", "signal", "discord", "skype"]
+ALLOWED_MESSENGERS = ["viber", "telegram", "whatsapp", "signal", "discord"]
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",

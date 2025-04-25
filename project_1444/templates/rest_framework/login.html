@@ -1,5 +1,7 @@
 <!-- templates/rest_framework/login.html -->
 {% extends "rest_framework/base.html" %}
+{% load social_extras %}
+{% load static %}
 
 {% block content %}
 <div class="container" style="max-width: 400px; margin: 0 auto;">
@@ -20,18 +22,20 @@
         
         <button type="submit" class="btn btn-primary" style="width: 100%;">Log in</button>
     </form>
+    {% if backends.backends %}
+        <h4>Available Sign-in Options</h4>
+        <ul>
+            {% for backend_name in backends.backends %}
+                <li>
+                    <a href="{% url 'social:begin' backend_name %}?next={{ request.GET.next|default:'/profile/' }}" >
+                        <img src="{% static backend_name|get_friendly_icon %}" width="20" height="20">
+                        Sign in with {{ backend_name|get_friendly_name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-    <!-- Google Auth Button -->
-    <div style="margin: 20px 0; text-align: center;">
-        <p>Or sign in with:</p>
-        <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ next }}" 
-           class="btn" 
-           style="background: #DB4437; color: white; width: 100%;">
-            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo"
-                     style="width: 20px; height: 20px; margin-right: 10px;">
-            <i class="fa fa-google"></i> Sign in with Google
-        </a>
-    </div>
 
     {% if form.errors %}
         <div class="alert alert-danger" style="margin-top: 20px;">
