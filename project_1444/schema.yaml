@@ -380,7 +380,6 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -412,7 +411,6 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '201':
           content:
@@ -438,7 +436,6 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -475,7 +472,6 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -511,7 +507,6 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -536,7 +531,6 @@ paths:
       - tokenAuth: []
       - basicAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '204':
           description: No response body
@@ -1862,22 +1856,6 @@ components:
       - name
       - slug
       - updated_at
-    Category:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-        slug:
-          type: string
-          readOnly: true
-      required:
-      - id
-      - name
-      - slug
     DeliveryMethodEnum:
       enum:
       - pickup
@@ -2397,7 +2375,7 @@ components:
           type: string
           readOnly: true
         parent:
-          $ref: '#/components/schemas/Category'
+          $ref: '#/components/schemas/Categories'
     PatchedSubProductsSizes:
       type: object
       properties:
@@ -2698,7 +2676,7 @@ components:
           type: string
           readOnly: true
         parent:
-          $ref: '#/components/schemas/Category'
+          $ref: '#/components/schemas/Categories'
       required:
       - id
       - name
