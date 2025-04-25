@@ -584,13 +584,17 @@ if REDIS_URL:
         r.ping()
         CACHES = {
             "default": {
-                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                # "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "BACKEND": "django_redis.cache.RedisCache",
                 "LOCATION": REDIS_URL,
             }
         }
     except redis.ConnectionError as e:
         print(f"Can't connect to Redis {REDIS_URL}, skip of use Redis: {e}")
 
+SQL_CACHE_TIMEOUT_DEFAULT = env(
+    "SQL_CACHE_TIMEOUT_DEFAULT", default=60 * 60 * 1
+)  # 1 hour
 
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")
 LIQPAY_PUBLIC_KEY = env("LIQPAY_PUBLIC_KEY", default="your-public-key")
