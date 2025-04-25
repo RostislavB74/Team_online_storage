@@ -6,10 +6,10 @@ from django.utils.translation import gettext_lazy as _
 from .utils import *
 
 
-class SubCategorySerializer(serializers.ModelSerializer):
+class SubCategoryShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategories
-        fields = ["id", "name", "slug", "updated_at"]
+        fields = ["id", "name", "slug"]
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
     slug = serializers.CharField()
     # name = serializers.SerializerMethodField()
     # slug = serializers.SerializerMethodField()
-    subcategories = SubCategorySerializer(many=True, read_only=True)
+    subcategories = SubCategoryShortSerializer(many=True, read_only=True)
 
     class Meta:
         model = Categories
@@ -250,7 +250,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
 class SubCategoriesSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
-    parent = CategoriesSerializer()
+    # parent = CategoriesSerializer()
 
     class Meta:
         model = SubCategories
