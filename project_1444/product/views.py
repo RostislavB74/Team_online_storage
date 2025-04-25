@@ -49,6 +49,7 @@ from .serializers import (
     DescriptionsSerializer,
     TotalProductsSerializer,
     SubCategoriesSerializer,
+    CategoriesTreeSerializer,
 )
 
 from rest_framework import viewsets
@@ -151,7 +152,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для категорій"""
 
     queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
+    serializer_class = CategoriesTreeSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoriesFilter
