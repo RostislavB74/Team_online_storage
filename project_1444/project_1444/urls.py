@@ -26,7 +26,18 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
-from utils.views import HealthCheckView, VersionView
+
+# from product.views import (
+    # ProductAPIList,
+    # ProductAPIUpdate,
+    # CategoriesAPIList,
+    # CategoriesAPIDetail,
+    # ProductAPIDetail,
+    # SubProductsSizesViewSet,
+    # TotalProductsViewSet,
+# )
+# from product.views import RingSizeLookup
+# from discounts.views import AvailableDiscountsView
 
 from .views import ApiRootView
 
