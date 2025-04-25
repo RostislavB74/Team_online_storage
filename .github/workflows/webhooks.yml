@@ -28,7 +28,7 @@ jobs:
           fi
           if [ -n "$deploy_static_url" ]; then
             echo "Deploying to deploy_static_url"
-            curl "$deploy_static_url"
+            # curl "$deploy_static_url"
           else
             echo "No deploy static url found"
           fi
