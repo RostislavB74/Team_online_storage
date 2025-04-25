@@ -619,11 +619,14 @@ SOCIAL_AUTH_APPLE_ID_SECRET = env("SOCIAL_AUTH_APPLE_ID_SECRET", default=None) o
 SOCIAL_AUTH_APPLE_ID_SCOPE = ["name", "email"]
 if all([SOCIAL_AUTH_APPLE_ID_CLIENT, SOCIAL_AUTH_APPLE_ID_SECRET]):
     AUTHENTICATION_BACKENDS.append("social_core.backends.apple.AppleIdAuth")
+
 # GitHub auth
 SOCIAL_AUTH_GITHUB_KEY = env("SOCIAL_AUTH_GITHUB_KEY", default=None) or None
 SOCIAL_AUTH_GITHUB_SECRET = env("SOCIAL_AUTH_GITHUB_SECRET", default=None) or None
+SOCIAL_AUTH_GITHUB_SCOPE = ["user:email", "read:user"]
 if all([SOCIAL_AUTH_GITHUB_KEY, SOCIAL_AUTH_GITHUB_SECRET]):
     AUTHENTICATION_BACKENDS.append("social_core.backends.github.GithubOAuth2")
+
 # Linkedin auth
 SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY = (
     env("SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY", default=None) or None
