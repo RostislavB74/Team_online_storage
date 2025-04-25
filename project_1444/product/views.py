@@ -1,5 +1,9 @@
+import hashlib
+from urllib.parse import urlencode
+
 import django_filters
 from django.conf import settings
+from django.core.cache import cache
 from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
@@ -173,6 +177,33 @@ class CategoriesViewSet(viewsets.ModelViewSet):
             return super().create(request, *args, **kwargs)
         except IntegrityError as e:
             raise ValidationError({"detail": f"Category creation failed: {str(e)}"})
+
+    def get_cache_key(self):
+        """
+        Build cache key based on request path, language, and ALL query parameters.
+        This automatically includes any filter parameters since they come via GET.
+        """
+        components = [
+            self.request.path,
+            get_language_code(self.request),
+            urlencode(sorted(self.request.GET.items())),  # All sorted params
+        ]
+
+        # Create hash-based key
+        key_string = "|".join(str(c) for c in components)
+        return f"category_tree_{hashlib.md5(key_string.encode()).hexdigest()}"
+
+    def list(self, request, *args, **kwargs):
+        cache_key = self.get_cache_key()
+        cached_response = cache.get(cache_key)
+        if cached_response is not None:
+            print("Using cached response", cache_key)
+            return Response(cached_response)
+
+        response = super().list(request, *args, **kwargs)
+        cache.set(cache_key, response.data, settings.SQL_CACHE_TIMEOUT_DEFAULT)
+        print("Added cached response", cache_key)
+        return response
 
 
 # class CategoriesViewSet(viewsets.ModelViewSet):
