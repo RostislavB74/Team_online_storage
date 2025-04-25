@@ -6,39 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from .utils import *
 
 
-class ProductGemstoneSerializer(serializers.ModelSerializer):
-    status_display = serializers.CharField(source="get_status_display", read_only=True)
-    gemstone = serializers.CharField(source="gemstone.name", read_only=True)
-    color = serializers.CharField(source="color.name", read_only=True)
-
-    class Meta:
-        model = ProductGemstone
-        fields = ["id", "status_display", "gemstone", "color"]
-
-
-class ProductMaterialSerializer(serializers.ModelSerializer):
-    material = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ProductMaterial
-        fields = ["id", "is_primary", "set_included", "material"]
-
-    @extend_schema_field(str)
-    def get_material(self, obj):
-        if not obj.material:
-            return None
-
-        material_obj = obj.material
-
-        return {
-            "material": material_obj.get_material_display(),  # "Золото"
-            "assay": material_obj.assay,  # "585"
-            "color": material_obj.get_color_display(),  # "Червоний"
-            "slug": material_obj.safe_translation_getter("slug", default=None),
-            "label": f"{material_obj.get_material_display()} {material_obj.assay} {material_obj.get_color_display()}",
-        }
-
-
 class CategoriesSerializer(serializers.ModelSerializer):
     # For translation save on create category via API post
     name = serializers.CharField()
@@ -102,6 +69,53 @@ class DescriptionsSerializer(serializers.ModelSerializer):
     @extend_schema_field(str)
     def get_keywords(self, obj):
         return obj.safe_translation_getter("keywords", default="Без назви")
+
+
+
+class MaterialSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Material
+        fields = ["material", "assay", "color", "slug", "name"]
+
+    @extend_schema_field(str)
+    def get_name(self, obj):
+        return f"{obj.get_material_display()} {obj.assay} {obj.get_color_display()}"
+
+
+class ProductGemstoneSerializer(serializers.ModelSerializer):
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    gemstone = serializers.CharField(source="gemstone.name", read_only=True)
+    color = serializers.CharField(source="color.name", read_only=True)
+
+    class Meta:
+        model = ProductGemstone
+        fields = ["id", "status_display", "gemstone", "color"]
+
+
+class ProductMaterialSerializer(serializers.ModelSerializer):
+    material = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductMaterial
+        fields = ["id", "is_primary", "set_included", "material"]
+
+    @extend_schema_field(str)
+    def get_material(self, obj):
+        if not obj.material:
+            return None
+
+        material_obj = obj.material
+
+        return {
+            "material": material_obj.get_material_display(),  # "Золото"
+            "assay": material_obj.assay,  # "585"
+            "color": material_obj.get_color_display(),  # "Червоний"
+            "slug": material_obj.safe_translation_getter("slug", default=None),
+            "label": f"{material_obj.get_material_display()} {material_obj.assay} {material_obj.get_color_display()}",
+        }
+
 
 
 class ProductStatusSerializer(serializers.ModelSerializer):
@@ -216,8 +230,6 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             "max_length",
             "width",
         ]
-
-
 
 class SubCategoriesSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
@@ -334,13 +346,6 @@ class ProductSerializer(serializers.ModelSerializer):
             else None
         )
 
-    # @extend_schema_field(str)
-    # def get_subcategory(self, obj):
-    #     return (
-    #         obj.subcategory.safe_translation_getter("name", default="Без назви")
-    #         if obj.subcategory
-    #         else None
-    #     )
 
     @extend_schema_field(str)
     def get_name(self, obj):
@@ -483,13 +488,7 @@ class TotalProductsSerializer(serializers.ModelSerializer):
             else None
         )
 
-    # @extend_schema_field(str)
-    # def get_subcategory(self, obj):
-    #     return (
-    #         obj.subcategory.safe_translation_getter("name", default="Без назви")
-    #         if obj.subcategory
-    #         else None
-    #     )
+   
 
     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
     def get_images(self, obj):
@@ -506,14 +505,3 @@ class TotalProductsSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         return [str(cert.file) for cert in obj.certificates.all()] if request else []
 
-
-class MaterialSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Material
-        fields = ["material", "assay", "color", "slug", "name"]
-
-    @extend_schema_field(str)
-    def get_name(self, obj):
-        return f"{obj.get_material_display()} {obj.assay} {obj.get_color_display()}"
