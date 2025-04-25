@@ -190,10 +190,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "project_1444.wsgi.application"
 
 # Налаштування автентифікації
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "social_core.backends.google.GoogleOAuth2",
-)
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = "/login/"
@@ -603,13 +600,49 @@ LIQPAY_DEFAULT_LANGUAGE = env("LIQPAY_DEFAULT_LANGUAGE", default="uk")
 LIQPAY_DEFAULT_ACTION = env("LIQPAY_DEFAULT_ACTION", default="pay")
 LIQPAY_SANDBOX_MODE = env("LIQPAY_SANDBOX_MODE", default=True, cast=bool)
 
-# Google auth
+# Social external auth
+# Google Auth
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
     env("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", default=None) or None
 )
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = (
     env("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", default=None) or None
 )
+if all([SOCIAL_AUTH_GOOGLE_OAUTH2_KEY, SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET]):
+    AUTHENTICATION_BACKENDS.append("social_core.backends.google.GoogleOAuth2")
+
+# Apple ID Auth, Cost $99 per year
+SOCIAL_AUTH_APPLE_ID_CLIENT = env("SOCIAL_AUTH_APPLE_ID_CLIENT", default=None) or None
+SOCIAL_AUTH_APPLE_ID_TEAM = env("SOCIAL_AUTH_APPLE_ID_TEAM", default=None) or None
+SOCIAL_AUTH_APPLE_ID_KEY = env("SOCIAL_AUTH_APPLE_ID_KEY", default=None) or None
+SOCIAL_AUTH_APPLE_ID_SECRET = env("SOCIAL_AUTH_APPLE_ID_SECRET", default=None) or None
+SOCIAL_AUTH_APPLE_ID_SCOPE = ["name", "email"]
+if all([SOCIAL_AUTH_APPLE_ID_CLIENT, SOCIAL_AUTH_APPLE_ID_SECRET]):
+    AUTHENTICATION_BACKENDS.append("social_core.backends.apple.AppleIdAuth")
+# GitHub auth
+SOCIAL_AUTH_GITHUB_KEY = env("SOCIAL_AUTH_GITHUB_KEY", default=None) or None
+SOCIAL_AUTH_GITHUB_SECRET = env("SOCIAL_AUTH_GITHUB_SECRET", default=None) or None
+if all([SOCIAL_AUTH_GITHUB_KEY, SOCIAL_AUTH_GITHUB_SECRET]):
+    AUTHENTICATION_BACKENDS.append("social_core.backends.github.GithubOAuth2")
+# Linkedin auth
+SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY = (
+    env("SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY", default=None) or None
+)
+SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET = (
+    env("SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET", default=None) or None
+)
+if all(
+    [SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY, SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET]
+):
+    AUTHENTICATION_BACKENDS.append(
+        "social_core.backends.linkedin.LinkedinOpenIdConnect"
+    )
+# Facebook auth
+SOCIAL_AUTH_FACEBOOK_KEY = env("SOCIAL_AUTH_FACEBOOK_KEY", default=None) or None
+SOCIAL_AUTH_FACEBOOK_SECRET = env("SOCIAL_AUTH_FACEBOOK_SECRET", default=None) or None
+SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
+if all([SOCIAL_AUTH_FACEBOOK_KEY, SOCIAL_AUTH_FACEBOOK_SECRET]):
+    AUTHENTICATION_BACKENDS.append("social_core.backends.facebook.FacebookOAuth2")
 
 SOCIAL_AUTH_LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
 LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
@@ -618,7 +651,7 @@ SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 
 # Allowed messengers
-ALLOWED_MESSENGERS = ["viber", "telegram", "whatsapp", "signal", "discord", "skype"]
+ALLOWED_MESSENGERS = ["viber", "telegram", "whatsapp", "signal", "discord"]
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",
