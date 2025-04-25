@@ -6,16 +6,33 @@ from django.utils.translation import gettext_lazy as _
 from .utils import *
 
 
+class SubCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategories
+        fields = ["id", "name", "slug", "updated_at"]
+
+
 class CategoriesSerializer(serializers.ModelSerializer):
     # For translation save on create category via API post
     name = serializers.CharField()
     slug = serializers.CharField()
     # name = serializers.SerializerMethodField()
     # slug = serializers.SerializerMethodField()
+    subcategories = SubCategorySerializer(many=True, read_only=True)
 
     class Meta:
         model = Categories
-        fields = ["id", "name", "slug", "updated_at"]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "updated_at",
+            "has_length",
+            "has_width",
+            "has_diameter",
+            "has_weight",
+            "subcategories",
+        ]
 
     @extend_schema_field(str)
     def get_name(self, obj):
@@ -71,7 +88,6 @@ class DescriptionsSerializer(serializers.ModelSerializer):
         return obj.safe_translation_getter("keywords", default="Без назви")
 
 
-
 class MaterialSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
 
@@ -115,7 +131,6 @@ class ProductMaterialSerializer(serializers.ModelSerializer):
             "slug": material_obj.safe_translation_getter("slug", default=None),
             "label": f"{material_obj.get_material_display()} {material_obj.assay} {material_obj.get_color_display()}",
         }
-
 
 
 class ProductStatusSerializer(serializers.ModelSerializer):
@@ -231,6 +246,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             "width",
         ]
 
+
 class SubCategoriesSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
@@ -345,7 +361,6 @@ class ProductSerializer(serializers.ModelSerializer):
             if obj.category
             else None
         )
-
 
     @extend_schema_field(str)
     def get_name(self, obj):
@@ -488,8 +503,6 @@ class TotalProductsSerializer(serializers.ModelSerializer):
             else None
         )
 
-   
-
     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
     def get_images(self, obj):
         request = self.context.get("request")
@@ -504,4 +517,3 @@ class TotalProductsSerializer(serializers.ModelSerializer):
     def get_certificates(self, obj):
         request = self.context.get("request")
         return [str(cert.file) for cert in obj.certificates.all()] if request else []
-
