@@ -27,6 +27,11 @@ from drf_spectacular.views import (
 )
 
 
+from utils.views import HealthCheckView, VersionView
+
+from .views import ApiRootView
+
+from debug_toolbar.toolbar import debug_toolbar_urls
 # from product.views import (
     # ProductAPIList,
     # ProductAPIUpdate,
