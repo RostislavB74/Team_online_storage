@@ -57,6 +57,7 @@ admin.site.login_template = "custom_admin/login.html"
 urlpatterns = [
     path("api/", ApiRootView.as_view(), name="api-root"),
     path("admin/", admin.site.urls, name="admin"),
+    path("auth/", include("social_django.urls", namespace="social")),
     path("", include("users.urls")),
     path("api/v0/", include("mock.urls")),
     path("api/v1/", include("order.urls")),
@@ -92,7 +93,7 @@ urlpatterns = [
             ]
         ),
     ),
-    path("auth/", include("social_django.urls", namespace="social")),
+   
 ]
 # Додаємо debug_toolbar, якщо в дебаг-режимі
 if "debug_toolbar" in settings.INSTALLED_APPS:
