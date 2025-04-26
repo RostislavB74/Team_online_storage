@@ -355,7 +355,7 @@ paths:
   /api/v1/categories/:
     get:
       operationId: api_v1_categories_list
-      description: CRUD для продуктів CategoriesViewSet
+      description: CRUD для категорій
       parameters:
       - in: query
         name: has_diameter
@@ -387,24 +387,24 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Categories'
+                  $ref: '#/components/schemas/CategoriesTree'
           description: ''
     post:
       operationId: api_v1_categories_create
-      description: CRUD для продуктів CategoriesViewSet
+      description: CRUD для категорій
       tags:
       - api
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Categories'
+              $ref: '#/components/schemas/CategoriesTree'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Categories'
+              $ref: '#/components/schemas/CategoriesTree'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Categories'
+              $ref: '#/components/schemas/CategoriesTree'
         required: true
       security:
       - jwtAuth: []
@@ -416,12 +416,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Categories'
+                $ref: '#/components/schemas/CategoriesTree'
           description: ''
   /api/v1/categories/{id}/:
     get:
       operationId: api_v1_categories_retrieve
-      description: CRUD для продуктів CategoriesViewSet
+      description: CRUD для категорій
       parameters:
       - in: path
         name: id
@@ -441,11 +441,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Categories'
+                $ref: '#/components/schemas/CategoriesTree'
           description: ''
     put:
       operationId: api_v1_categories_update
-      description: CRUD для продуктів CategoriesViewSet
+      description: CRUD для категорій
       parameters:
       - in: path
         name: id
@@ -459,13 +459,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Categories'
+              $ref: '#/components/schemas/CategoriesTree'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Categories'
+              $ref: '#/components/schemas/CategoriesTree'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Categories'
+              $ref: '#/components/schemas/CategoriesTree'
         required: true
       security:
       - jwtAuth: []
@@ -477,11 +477,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Categories'
+                $ref: '#/components/schemas/CategoriesTree'
           description: ''
     patch:
       operationId: api_v1_categories_partial_update
-      description: CRUD для продуктів CategoriesViewSet
+      description: CRUD для категорій
       parameters:
       - in: path
         name: id
@@ -495,13 +495,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCategories'
+              $ref: '#/components/schemas/PatchedCategoriesTree'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCategories'
+              $ref: '#/components/schemas/PatchedCategoriesTree'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCategories'
+              $ref: '#/components/schemas/PatchedCategoriesTree'
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -512,11 +512,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Categories'
+                $ref: '#/components/schemas/CategoriesTree'
           description: ''
     delete:
       operationId: api_v1_categories_destroy
-      description: CRUD для продуктів CategoriesViewSet
+      description: CRUD для категорій
       parameters:
       - in: path
         name: id
@@ -1201,7 +1201,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/SubCategories'
-        required: true
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -1264,7 +1263,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/SubCategories'
-        required: true
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -1535,55 +1533,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Version'
           description: ''
-  /auth/login/:
-    post:
-      operationId: auth_login_create
-      description: Аутентифікація користувача та генерація OTP
-      tags:
-      - auth
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Login'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Login'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Login'
-        required: true
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Token'
-          description: ''
-  /auth/logout/:
-    post:
-      operationId: auth_logout_create
-      description: Вихід користувача та видалення токена
-      tags:
-      - auth
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Logout'
-          description: ''
   /auth/register/:
     post:
       operationId: auth_register_create
@@ -1614,35 +1563,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Token'
-          description: ''
-  /auth/token/:
-    post:
-      operationId: auth_token_create
-      tags:
-      - auth
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/AuthToken'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/AuthToken'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthToken'
-        required: true
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthToken'
           description: ''
   /notifications/:
     get:
@@ -1777,25 +1697,6 @@ components:
             format: uri
       required:
       - endpoints
-    AuthToken:
-      type: object
-      properties:
-        username:
-          type: string
-          writeOnly: true
-          title: Ім'я користувача
-        password:
-          type: string
-          writeOnly: true
-          title: Пароль
-        token:
-          type: string
-          readOnly: true
-          title: Токен
-      required:
-      - password
-      - token
-      - username
     BlankEnum:
       enum:
       - ''
@@ -1851,10 +1752,59 @@ components:
           type: string
           format: date-time
           readOnly: true
+        has_length:
+          type: boolean
+          title: Має довжину (см)
+        has_width:
+          type: boolean
+          title: Має ширину (см)
+        has_diameter:
+          type: boolean
+          title: Має діаметр (мм)
+        has_weight:
+          type: boolean
+          title: Має вагу (г)
       required:
       - id
       - name
       - slug
+      - updated_at
+    CategoriesTree:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        slug:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        has_length:
+          type: boolean
+          title: Має довжину (см)
+        has_width:
+          type: boolean
+          title: Має ширину (см)
+        has_diameter:
+          type: boolean
+          title: Має діаметр (мм)
+        has_weight:
+          type: boolean
+          title: Має вагу (г)
+        subcategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubCategoryShort'
+          readOnly: true
+      required:
+      - id
+      - name
+      - slug
+      - subcategories
       - updated_at
     DeliveryMethodEnum:
       enum:
@@ -1903,28 +1853,6 @@ components:
           type: string
           maxLength: 10
       required:
-      - status
-    Login:
-      type: object
-      properties:
-        username:
-          type: string
-          maxLength: 150
-        password:
-          type: string
-          writeOnly: true
-      required:
-      - password
-      - username
-    Logout:
-      type: object
-      properties:
-        status:
-          type: string
-        message:
-          type: string
-      required:
-      - message
       - status
     NullEnum:
       enum:
@@ -2183,7 +2111,7 @@ components:
           format: date-time
           readOnly: true
           title: Дата додавання
-    PatchedCategories:
+    PatchedCategoriesTree:
       type: object
       properties:
         id:
@@ -2196,6 +2124,23 @@ components:
         updated_at:
           type: string
           format: date-time
+          readOnly: true
+        has_length:
+          type: boolean
+          title: Має довжину (см)
+        has_width:
+          type: boolean
+          title: Має ширину (см)
+        has_diameter:
+          type: boolean
+          title: Має діаметр (мм)
+        has_weight:
+          type: boolean
+          title: Має вагу (г)
+        subcategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubCategoryShort'
           readOnly: true
     PatchedDescriptions:
       type: object
@@ -2375,7 +2320,8 @@ components:
           type: string
           readOnly: true
         parent:
-          $ref: '#/components/schemas/Categories'
+          type: integer
+          nullable: true
     PatchedSubProductsSizes:
       type: object
       properties:
@@ -2676,11 +2622,25 @@ components:
           type: string
           readOnly: true
         parent:
-          $ref: '#/components/schemas/Categories'
+          type: integer
+          nullable: true
       required:
       - id
       - name
-      - parent
+      - slug
+    SubCategoryShort:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        slug:
+          type: string
+      required:
+      - id
+      - name
       - slug
     SubProductsSizes:
       type: object
