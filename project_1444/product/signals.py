@@ -22,7 +22,8 @@ def clear_category_tree_cache():
             # django-redis provides a delete_pattern method
             cache.delete_pattern(pattern)
         else:
-            raise NotImplementedError(f"Redis cache backend {cache.__class__.__name__}")
+            print("Clearing cache fully since django-redis is not used")
+            cache.clear()
     except Exception as e:
         print(f"Error clearing cache: {e}")
 
