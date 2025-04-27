@@ -138,6 +138,9 @@ GLOBAL_LANGUAGES = [
     ("uk", "Ukrainian"),
     ("en", "English"),
 ]
+# USE_I18N = True
+# USE_L10N = True
+# LOCALE_PATHS = [BASE_DIR / 'locale']
 
 LANGUAGES = []
 for lang in GLOBAL_LANGUAGES:

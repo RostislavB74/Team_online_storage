@@ -196,10 +196,7 @@ class Styles(TranslatableModel):
     def __str__(self):
         return self.safe_translation_getter("name", default="Без назви")
 
-
-# Матеріали
 class Material(TranslatableModel):
-
     PROBE_CHOICES = [
         ("0", "0"),
         ("585", "585"),
@@ -209,20 +206,22 @@ class Material(TranslatableModel):
     ]
 
     COLOR_CHOICES = [
-        ("white", "Білий"),
-        ("yellow", "Жовтий"),
-        ("red", "Червоний"),
-        ("brown", "Коричневий"),
-        ("rhodium_plating", "Родіювання"),
-        ("black", "Чорний"),
-        ("blackening", "Чорніння"),
+        ("white", "white"),
+        ("yellow", "yellow"),
+        ("red", "red"),
+        ("brown", "brown"),
+        ("rhodium_plating", "rhodium_plating"),
+        ("black", "black"),
+        ("blackening", "blackening"),
     ]
+
     METAL_CHOICES = [
-        ("gold", "Золото"),
-        ("silver", "Срібло"),
-        ("platinum", "Платина"),
-        ("steel", "Сталь"),
+        ("gold", "gold"),
+        ("silver", "silver"),
+        ("platinum", "platinum"),
+        ("steel", "steel"),
     ]
+
     material = models.CharField(
         max_length=50, choices=METAL_CHOICES, null=True, blank=True
     )
@@ -235,16 +234,107 @@ class Material(TranslatableModel):
     article = models.CharField(max_length=20, unique=True, blank=True, null=True)
     translations = TranslatedFields(
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
+        material_name=models.CharField(max_length=50),
+        color_name=models.CharField(max_length=50),
     )
 
     class Meta:
         verbose_name = "Матеріал"
         verbose_name_plural = "Матеріали"
 
-    def __str__(self):
-        material = f"{self.material} | {self.assay} | {self.color}"
-        return material
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Оновлюємо перекладені поля при збереженні
+        self.set_current_language('uk')
+        self.material_name = {
+            "gold": "Золото",
+            "silver": "Срібло",
+            "platinum": "Платина",
+            "steel": "Сталь",
+        }.get(self.material, self.material)
+        self.color_name = {
+            "white": "Білий",
+            "yellow": "Жовтий",
+            "red": "Червоний",
+            "brown": "Коричневий",
+            "rhodium_plating": "Родіювання",
+            "black": "Чорний",
+            "blackening": "Чорніння",
+        }.get(self.color, self.color)
+        self.set_current_language('en')
+        self.material_name = self.material
+        self.color_name = self.color
+        super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"{self.material_name} | {self.assay} | {self.color_name}"
+# Матеріали
+# class Material(TranslatableModel):
+
+#     PROBE_CHOICES = [
+#         ("0", "0"),
+#         ("585", "585"),
+#         ("750", "750"),
+#         ("925", "925"),
+#         ("950", "950"),
+#     ]
+#     COLOR_CHOICES = [
+#         ("white", _("White")),  # Переклад буде в .po файлах
+#         ("yellow", _("Yellow")),
+#         ("red", _("Red")),
+#         ("brown", _("Brown")),
+#         ("rhodium_plating", _("Rhodium Plating")),
+#         ("black", _("Black")),
+#         ("blackening", _("Blackening")),
+#     ]
+
+#     METAL_CHOICES = [
+#         ("gold", _("Gold")),
+#         ("silver", _("Silver")),
+#         ("platinum", _("Platinum")),
+#         ("steel", _("Steel")),
+#     ]
+#     # COLOR_CHOICES = [
+#     #     ("white", "Білий"),
+#     #     ("yellow", "Жовтий"),
+#     #     ("red", "Червоний"),
+#     #     ("brown", "Коричневий"),
+#     #     ("rhodium_plating", "Родіювання"),
+#     #     ("black", "Чорний"),
+#     #     ("blackening", "Чорніння"),
+#     # ]
+#     # METAL_CHOICES = [
+#     #     ("gold", "Золото"),
+#     #     ("silver", "Срібло"),
+#     #     ("platinum", "Платина"),
+#     #     ("steel", "Сталь"),
+#     # ]
+#     material = models.CharField(
+#         max_length=50, choices=METAL_CHOICES, null=True, blank=True
+#     )
+#     assay = models.CharField(
+#         max_length=20, choices=PROBE_CHOICES, null=True, blank=True
+#     )
+#     color = models.CharField(
+#         max_length=50, choices=COLOR_CHOICES, null=True, blank=True
+#     )
+#     article = models.CharField(max_length=20, unique=True, blank=True, null=True)
+#     translations = TranslatedFields(
+#         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
+#     )
+
+#     class Meta:
+#         verbose_name = "Матеріал"
+#         verbose_name_plural = "Матеріали"
+
+#     # def __str__(self):
+#     #     material = f"{self.material} | {self.assay} | {self.color}"
+#     #     return material
+#     def __str__(self):
+#         # Отримуємо перекладені значення
+#         material_display = self.get_material_display()
+#         color_display = self.get_color_display()
+#         return f"{material_display} | {self.assay} | {color_display}"
 
 # Функція для генерації артикула перед збереженням
 @receiver(pre_save, sender=Material)

@@ -121,3 +121,35 @@ msgstr ""
 #, python-brace-format
 msgid "Preferred language for the response. Allowed values: {languages_list}."
 msgstr ""
+msgid "Gold"
+msgstr "Gold"
+
+msgid "Silver"
+msgstr "Silver"
+
+msgid "Platinum"
+msgstr "Platinum"
+
+msgid "Steel"
+msgstr "Steel"
+
+msgid "White"
+msgstr "White"
+
+msgid "Yellow"
+msgstr "Yellow"
+
+msgid "Red"
+msgstr "Red"
+
+msgid "Brown"
+msgstr "Brown"
+
+msgid "Rhodium Plating"
+msgstr "Rhodium Plating"
+
+msgid "Black"
+msgstr "Black"
+
+msgid "Blackening"
+msgstr "Blackening"
