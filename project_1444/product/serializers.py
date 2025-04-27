@@ -119,13 +119,20 @@ class DescriptionsSerializer(serializers.ModelSerializer):
     def get_keywords(self, obj):
         return obj.safe_translation_getter("keywords", default="Без назви")
 
-
 class MaterialSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
+    material = serializers.CharField(source='material_name')
+    color = serializers.CharField(source='color_name')
 
     class Meta:
         model = Material
-        fields = ["material", "assay", "color", "slug", "name"]
+        fields = ['id', 'material', 'assay', 'color', 'article']
+
+# class MaterialSerializer(serializers.ModelSerializer):
+#     name = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Material
+#         fields = ["material", "assay", "color", "slug", "name"]
 
     @extend_schema_field(str)
     def get_name(self, obj):
