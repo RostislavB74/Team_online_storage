@@ -4,7 +4,7 @@ from product.models import SubProducts
 from decimal import Decimal
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='orders')
     payment_method = models.CharField(
         max_length=20,
         choices=[('cash', 'Cash'), ('liqpay', 'LiqPay'), ('googlepay', 'GooglePay')],

@@ -140,7 +140,6 @@ GLOBAL_LANGUAGES = [
 ]
 # USE_I18N = True
 # USE_L10N = True
-# LOCALE_PATHS = [BASE_DIR / 'locale']
 
 LANGUAGES = []
 for lang in GLOBAL_LANGUAGES:
@@ -282,7 +281,6 @@ STATIC_ROOT = BASE_DIR / "static"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-LOCALE_PATHS = [BASE_DIR / "locale"]
 
 for lang in PARLER_LANGUAGES_LIST:
     for locale in LOCALE_PATHS:
