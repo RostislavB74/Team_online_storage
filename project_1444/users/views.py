@@ -176,7 +176,6 @@ class RegisterAPIView(APIView):
             'user_id': user.pk,
             'username': user.username
         }, status=status.HTTP_201_CREATED)
-
 class ProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -190,6 +189,12 @@ class ProfileAPIView(APIView):
             profile = request.user.profile
         except UserProfile.DoesNotExist:
             profile = UserProfile.objects.create(user=request.user)
+
+        # Оптимізуємо запит із prefetch_related для замовлень
+        profile = UserProfile.objects.prefetch_related(
+            'user__orders__items__product'
+        ).get(user=request.user)
+
         serializer = UserProfileSerializer(profile, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -215,6 +220,44 @@ class ProfileAPIView(APIView):
             'message': 'Invalid profile data',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+# class ProfileAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     @extend_schema(
+#         request=UserProfileSerializer,
+#         responses={200: UserProfileSerializer},
+#         description="Отримання або оновлення профілю користувача"
+#     )
+#     def get(self, request):
+#         try:
+#             profile = request.user.profile
+#         except UserProfile.DoesNotExist:
+#             profile = UserProfile.objects.create(user=request.user)
+#         serializer = UserProfileSerializer(profile, context={'request': request})
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+#     @extend_schema(
+#         request=UserProfileSerializer,
+#         responses={200: UserProfileSerializer}
+#     )
+#     def post(self, request):
+#         try:
+#             profile = request.user.profile
+#         except UserProfile.DoesNotExist:
+#             profile = UserProfile.objects.create(user=request.user)
+#         serializer = UserProfileSerializer(profile, data=request.data, context={'request': request})
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({
+#                 'status': 'success',
+#                 'message': 'Profile updated',
+#                 'data': serializer.data
+#             }, status=status.HTTP_200_OK)
+#         return Response({
+#             'status': 'error',
+#             'message': 'Invalid profile data',
+#             'errors': serializer.errors
+#         }, status=status.HTTP_400_BAD_REQUEST)
 
 class NotificationSettingsAPIView(APIView):
     permission_classes = [IsAuthenticated]
