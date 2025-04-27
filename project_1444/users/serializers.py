@@ -2,6 +2,14 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from .models import UserProfile, OTP, UserNotificationSettings
+from order.serializers import OrderSerializer
+from rest_framework import serializers
+import re
+import json
+from django.conf import settings
+from .models import UserProfile
+from order.models import Order, OrderItem  # Імпортуємо із orders
+from product.serializers import ProductSerializer
 import re
 
 class LoginSerializer(serializers.Serializer):
@@ -52,15 +60,15 @@ class RegisterSerializer(serializers.ModelSerializer):
 class OTPSerializer(serializers.Serializer):
     otp_code = serializers.CharField(max_length=6, min_length=6)
     otp_user_id = serializers.IntegerField(required=False)
-
 class UserProfileSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
     avatar = serializers.ImageField(allow_null=True, required=False)
     messengers = serializers.JSONField(default=dict, source='get_messengers_for_admin')
+    orders = OrderSerializer(many=True, source='user.orders', read_only=True)
 
     class Meta:
         model = UserProfile
-        fields = ["id", "user", "gender", "messengers", "avatar"]
+        fields = ["id", "user", "gender", "messengers", "avatar", "orders"]
 
     def validate_messengers(self, value):
         if not isinstance(value, dict):
@@ -71,7 +79,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             if key not in allowed_messengers:
                 raise serializers.ValidationError(f"Unsupported messenger: {key}")
             
-            # Валідація формату
             if key in {'viber', 'whatsapp'} and value[key]:
                 if not re.match(r'^\+?\d{10,15}$', value[key]):
                     raise serializers.ValidationError(f"Invalid {key} format. Must be a phone number (e.g., +380123456789)")
@@ -93,6 +100,47 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if value and value.size > 2 * 1024 * 1024:
             raise serializers.ValidationError("Image size must be under 2MB.")
         return value
+# class UserProfileSerializer(serializers.ModelSerializer):
+#     user = serializers.CharField(source='user.username', read_only=True)
+#     avatar = serializers.ImageField(allow_null=True, required=False)
+#     messengers = serializers.JSONField(default=dict, source='get_messengers_for_admin')
+#     orders = OrderSerializer(many=True, source='user.orders', read_only=True)
+
+#     class Meta:
+#         model = UserProfile
+#         fields = ["id", "user", "gender", "messengers", "avatar"]
+
+#     def validate_messengers(self, value):
+#         if not isinstance(value, dict):
+#             raise serializers.ValidationError("Messengers must be a dictionary")
+        
+#         allowed_messengers = set(settings.ALLOWED_MESSENGERS)
+#         for key in value:
+#             if key not in allowed_messengers:
+#                 raise serializers.ValidationError(f"Unsupported messenger: {key}")
+            
+#             # Валідація формату
+#             if key in {'viber', 'whatsapp'} and value[key]:
+#                 if not re.match(r'^\+?\d{10,15}$', value[key]):
+#                     raise serializers.ValidationError(f"Invalid {key} format. Must be a phone number (e.g., +380123456789)")
+#             if key == 'telegram' and value[key]:
+#                 if not value[key].startswith('@'):
+#                     raise serializers.ValidationError("Telegram ID must start with @")
+#             if key == 'signal' and value[key] == '':
+#                 raise serializers.ValidationError("Signal ID cannot be empty")
+
+#         return value
+
+#     def validate_user(self, value):
+#         request = self.context.get("request")
+#         if request and not request.user.is_staff:
+#             raise serializers.ValidationError("Ви не можете змінювати це поле.")
+#         return value
+
+#     def validate_avatar(self, value):
+#         if value and value.size > 2 * 1024 * 1024:
+#             raise serializers.ValidationError("Image size must be under 2MB.")
+#         return value
 
 class UserNotificationSettingsSerializer(serializers.ModelSerializer):
     class Meta:

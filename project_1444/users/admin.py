@@ -13,7 +13,9 @@ import json
 import re
 from django.conf import settings
 from django.template.loader import get_template
-
+from django.utils.translation import gettext_lazy as _
+from order.models import Order
+from django.template.loader import get_template
 
 User = get_user_model()
 
@@ -50,13 +52,6 @@ class BonusAccountInline(admin.StackedInline):
     verbose_name_plural = 'Бонусний рахунок'
     readonly_fields = ('balance',)
 
-from django.contrib import admin
-from django import forms
-from django.conf import settings
-from django.template.loader import get_template
-from .models import UserProfile, OTP, UserNotificationSettings, UserAddress
-import json
-import re
 
 class MessengerFieldWidget(forms.Widget):
     template_name = 'admin/messenger_field.html'
@@ -130,11 +125,10 @@ class UserProfileAdminForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
-
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     form = UserProfileAdminForm
-    list_display = ('user', 'gender', 'get_messengers_display')
+    list_display = ('user', 'gender', 'get_messengers_display', 'get_orders_display')
     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
     fields = (
         'user', 'gender', 'messengers',
@@ -146,9 +140,65 @@ class UserProfileAdmin(admin.ModelAdmin):
         return json.dumps(obj._messengers, indent=2, ensure_ascii=False)
     get_messengers_display.short_description = 'Messengers'
 
+    def get_orders_display(self, obj):
+        if not obj.user:  # Перевіряємо, чи є користувач
+            return "No user associated"
+        orders = obj.user.orders.all()  # Тепер orders доступний завдяки related_name
+        if not orders:
+            return "No orders"
+        return ", ".join([f"Order #{order.id} ({order.status})" for order in orders])
+    get_orders_display.short_description = 'Orders'
+
     class Media:
         js = ('admin/js/messenger_field.js',)
         css = {'all': ('admin/css/messenger_field.css',)}
+# @admin.register(UserProfile)
+# class UserProfileAdmin(admin.ModelAdmin):
+#     form = UserProfileAdminForm
+#     list_display = ('user', 'gender', 'get_messengers_display', 'get_orders_display')
+#     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
+#     fields = (
+#         'user', 'gender', 'messengers',
+#         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
+#         'address', 'wedding_date', 'ocassions_personal', 'ocassions_date'
+#     )
+
+#     def get_messengers_display(self, obj):
+#         return json.dumps(obj._messengers, indent=2, ensure_ascii=False)
+#     get_messengers_display.short_description = 'Messengers'
+
+#     def get_orders_display(self, obj):
+#         orders = obj.user.orders.all()
+#         return ", ".join([f"Order #{order.id} ({order.status})" for order in orders])
+#     get_orders_display.short_description = 'Orders'
+
+#     class Media:
+#         js = ('admin/js/messenger_field.js',)
+#         css = {'all': ('admin/css/messenger_field.css',)}
+
+# @admin.register(Order)
+# class OrderAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'user', 'status', 'total_price', 'created_at')
+#     list_filter = ('status', 'created_at')
+#     search_fields = ('user__username',)
+# @admin.register(UserProfile)
+# class UserProfileAdmin(admin.ModelAdmin):
+#     form = UserProfileAdminForm
+#     list_display = ('user', 'gender', 'get_messengers_display')
+#     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
+#     fields = (
+#         'user', 'gender', 'messengers',
+#         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
+#         'address', 'wedding_date', 'ocassions_personal', 'ocassions_date'
+#     )
+
+#     def get_messengers_display(self, obj):
+#         return json.dumps(obj._messengers, indent=2, ensure_ascii=False)
+#     get_messengers_display.short_description = 'Messengers'
+
+#     class Media:
+#         js = ('admin/js/messenger_field.js',)
+#         css = {'all': ('admin/css/messenger_field.css',)}
 
 @admin.register(OTP)
 class OTPAdmin(admin.ModelAdmin):
