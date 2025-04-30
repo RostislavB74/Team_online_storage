@@ -224,7 +224,7 @@ class BirthdayDiscount(models.Model):
 
     @property
     def is_valid(self):
-        if self.profile.date_of_birth:
+        if self.profile.birthday:
             today = now().date()
             birthday_this_year = self.profile.birthday.replace(year=today.year)
             start_date = birthday_this_year
