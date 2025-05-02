@@ -54,7 +54,6 @@ def merge_carts(user, session_key):
     guest_carts.delete()
 
 
-# @method_decorator(csrf_exempt, name="dispatch")
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     throttle_classes = [AnonRateThrottle]
@@ -64,14 +63,16 @@ class LoginAPIView(APIView):
         responses={200: TokenSerializer},
         description=_("Аутентифікація користувача та генерація OTP"),
     )
-    @method_decorator(csrf_exempt)
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data["username"]
-        password = serializer.validated_data["password"]
-        user = authenticate(username=username, password=password)
-        if not user:
+        try:
+            serializer.is_valid(raise_exception=True)
+            username = serializer.validated_data["username"]
+            password = serializer.validated_data["password"]
+            user = authenticate(username=username, password=password)
+            if not user:
+                raise Exception("Invalid credentials")
+        except Exception:
             return Response(
                 {"status": "error", "message": _("Invalid credentials")},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -96,7 +97,11 @@ class LoginAPIView(APIView):
         # Відправка OTP на email
         try:
             html_message = render_to_string(
-                "emails/otp_email.html", {"otp_code": otp_code}
+                "emails/otp_email.html",
+                {
+                    "otp_code": otp_code,
+                    "expiration_time": getattr(settings, "OTP_EXPIRATION_TIME", 15),
+                },
             )
             send_email_in_background(
                 subject=_("Your OTP Code"),
