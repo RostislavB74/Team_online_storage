@@ -5,6 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 from django.utils.translation import gettext_lazy as _
+from djoser.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -73,7 +74,8 @@ class LoginAPIView(APIView):
             OTP.objects.create(
                 user=user,
                 code=otp_code,
-                expires_at=timezone.now() + timedelta(minutes=5),
+                expires_at=timezone.now()
+                + timedelta(minutes=getattr(settings, "OTP_EXPIRATION_TIME", 15)),
             )
 
             # Відправка OTP на email
