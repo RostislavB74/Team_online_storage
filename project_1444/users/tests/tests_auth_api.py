@@ -85,9 +85,10 @@ class AuthAPITest(TestCase):
             "password": self.user_test["password"],
         }
         otp_code = None
-        with mock.patch("users.views.send_mail") as mock_send_mail:
+        with mock.patch("users.views.send_email_in_background") as mock_send_mail:
             mock_send_mail.return_value = None
             response = self.client.post(reverse("api_login"), data, format="json")
+            assert mock_send_mail.called, "Email was not sent!"
             # print("Mock args:", mock_send_mail.call_args)
             # Unpack arguments
             kwargs = mock_send_mail.call_args.kwargs  # or call_args[1]

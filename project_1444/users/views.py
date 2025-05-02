@@ -27,8 +27,11 @@ from cart.models import Cart
 from django.core.mail import send_mail
 import logging
 
-logger = logging.getLogger(__name__)
 from django.template.loader import render_to_string
+
+from .utils import send_email_in_background
+
+logger = logging.getLogger(__name__)
 
 
 def merge_carts(user, session_key):
@@ -83,7 +86,7 @@ class LoginAPIView(APIView):
                 html_message = render_to_string(
                     "emails/otp_email.html", {"otp_code": otp_code}
                 )
-                send_mail(
+                send_email_in_background(
                     subject=_("Your OTP Code"),
                     message=_("Your verification code is ") + otp_code,
                     from_email=None,
