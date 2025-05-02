@@ -23,8 +23,6 @@ from pathlib import Path
 import environ
 from datetime import timedelta
 
-from django.urls import reverse
-
 # from pygments.lexer import default
 # import os
 # from urllib.parse import urlparse
@@ -197,8 +195,8 @@ WSGI_APPLICATION = "project_1444.wsgi.application"
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # URL для перенаправлення після логіну/логоуту
-LOGIN_URL = reverse("api_login")
-LOGIN_REDIRECT_URL = reverse("api_profile")
+LOGIN_URL = "auth/login/"
+LOGIN_REDIRECT_URL = "user/profile/"
 LOGOUT_REDIRECT_URL = "/admin/login/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Database
