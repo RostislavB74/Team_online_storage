@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <h1>Ваш код підтвердження</h1>
-    <p>Ваш код: <strong>{{ otp_code }}</strong></p>
-    <p>Код дійсний 5 хвилин.</p>
+    <h1>{% trans "Ваш код підтвердження" %}</h1>
+    <p>{% trans "Ваш код" %}: <strong>{{ otp_code }}</strong></p>
+    <p>
+        {% blocktrans with expiration_time=expiration_time %}
+            Код дійсний {{ expiration_time }} хвилин.
+        {% endblocktrans %}
+    </p>
 </body>
 </html>
