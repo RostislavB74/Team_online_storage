@@ -3,10 +3,13 @@ import random
 from datetime import timedelta
 
 from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from djoser.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -31,6 +34,13 @@ from .utils import send_email_in_background
 logger = logging.getLogger(__name__)
 
 
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    if request.method != "GET":
+        return JsonResponse({"message": "Method not allowed"}, status=405)
+    return JsonResponse({"message": "CSRF cookie set"})
+
+
 def merge_carts(user, session_key):
     guest_carts = Cart.objects.filter(session_key=session_key)
     for guest_cart in guest_carts:
@@ -45,6 +55,7 @@ def merge_carts(user, session_key):
     guest_carts.delete()
 
 
+# @method_decorator(csrf_exempt, name="dispatch")
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     throttle_classes = [AnonRateThrottle]
@@ -54,6 +65,7 @@ class LoginAPIView(APIView):
         responses={200: TokenSerializer},
         description=_("Аутентифікація користувача та генерація OTP"),
     )
+    @method_decorator(csrf_exempt)
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
