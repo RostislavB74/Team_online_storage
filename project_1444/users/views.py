@@ -1,9 +1,11 @@
+import logging
 import random
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
-from django.utils import timezone
 from datetime import timedelta
 
+from django.contrib.auth import authenticate, login
+from django.template.loader import render_to_string
+from django.contrib.auth.models import User
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from djoser.conf import settings
 from rest_framework.views import APIView
@@ -13,6 +15,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.throttling import AnonRateThrottle
 from drf_spectacular.utils import extend_schema
+from cart.models import Cart
 from .models import UserProfile, OTP, UserNotificationSettings
 from .serializers import (
     LoginSerializer,
@@ -23,12 +26,6 @@ from .serializers import (
     LogoutSerializer,
     UserNotificationSettingsSerializer,
 )
-from cart.models import Cart
-from django.core.mail import send_mail
-import logging
-
-from django.template.loader import render_to_string
-
 from .utils import send_email_in_background
 
 logger = logging.getLogger(__name__)
@@ -196,7 +193,7 @@ class RegisterAPIView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        login(request, user)
+        login(request, user, "django.contrib.auth.backends.ModelBackend")
         token, created = Token.objects.get_or_create(user=user)
         return Response(
             {
