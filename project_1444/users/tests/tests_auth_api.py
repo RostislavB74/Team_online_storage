@@ -1,3 +1,4 @@
+import logging
 import random
 from unittest import mock
 
@@ -8,6 +9,7 @@ from django.utils.crypto import get_random_string
 from rest_framework import status
 from rest_framework.test import APIClient
 
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -25,13 +27,13 @@ class AuthAPITest(TestCase):
             "password": get_random_string(10),
             "email": f"test_user{random.randint(1, 100)}@test.com",
         }
-        print("Generated test user:", cls.user_test)
+        logger.debug("Generated test user:", cls.user_test)
         cls.crud()
 
     @classmethod
     def create_superuser(cls):
         cls.user = User.objects.create_superuser(username="admin", password="admin")
-        print("Created superuser:", cls.user)
+        logger.debug("Created superuser:", cls.user)
 
     @classmethod
     def crud(cls):
@@ -51,7 +53,7 @@ class AuthAPITest(TestCase):
         user = User.objects.create_user(
             username=username, email=email, password=password
         )
-        print("Created user:", user)
+        logger.debug("Created user:", user)
         return user
 
     def setUp(self):
@@ -64,13 +66,13 @@ class AuthAPITest(TestCase):
         otp_code_match = message.split()[-1]
         if otp_code_match.isnumeric():
             otp_code = otp_code_match
-            print("Extracted OTP:", otp_code)
+            # print("Extracted OTP:", otp_code)
         return otp_code
 
     def verify_otp_code_request(self, otp_code: str, otp_user_id: int) -> bool:
         data: dict = {"otp_code": otp_code, "otp_user_id": otp_user_id}
         response = self.client.post(reverse("api_verify_otp"), data, format="json")
-        print("POST", response.data)
+        # print("POST", response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("status"), "success")
         assert response.data.get("token"), "Token should not be returned"
@@ -109,3 +111,26 @@ class AuthAPITest(TestCase):
         self.assertEqual(response.data["status"], "otp_sent")
         self.assertEqual(response.data["message"], "OTP sent to your email")
         self.assertEqual(response.data["otp_user_id"], user.pk)
+
+    def test_register_user(self):
+        data: dict = {
+            "username": self.user_test["username"],
+            "password": self.user_test["password"],
+            "password_confirm": self.user_test["password"],
+            "email": self.user_test["email"],
+        }
+        response = self.client.post(reverse("api_register"), data, format="json")
+        # print("POST", response.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            response.data.get("status"), "success", "Status should be success"
+        )
+        self.assertEqual(
+            response.data.get("username"),
+            self.user_test["username"],
+            "Username should be the same",
+        )
+        self.assertGreater(
+            response.data.get("user_id"), 1, "User ID should be greater than 1"
+        )
+        assert response.data.get("token"), "Token should not be returned"
