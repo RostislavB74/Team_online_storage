@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.crypto import get_random_string
+from rest_framework import status
 from rest_framework.test import APIClient
 
 
@@ -66,6 +67,16 @@ class AuthAPITest(TestCase):
             print("Extracted OTP:", otp_code)
         return otp_code
 
+    def verify_otp_code_request(self, otp_code: str, otp_user_id: int) -> bool:
+        data: dict = {"otp_code": otp_code, "otp_user_id": otp_user_id}
+        response = self.client.post(reverse("api_verify_otp"), data, format="json")
+        print("POST", response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("status"), "success")
+        assert response.data.get("token"), "Token should not be returned"
+        self.assertEqual(response.data.get("user_id"), otp_user_id)
+        return True
+
     def test_login_user(self):
         user = self.create_user_unit(**self.user_test)
         assert user, "Test user is not created"
@@ -77,8 +88,7 @@ class AuthAPITest(TestCase):
         with mock.patch("users.views.send_mail") as mock_send_mail:
             mock_send_mail.return_value = None
             response = self.client.post(reverse("api_login"), data, format="json")
-
-            print("Mock args:", mock_send_mail.call_args)
+            # print("Mock args:", mock_send_mail.call_args)
             # Unpack arguments
             kwargs = mock_send_mail.call_args.kwargs  # or call_args[1]
             subject = kwargs["subject"]
@@ -89,9 +99,11 @@ class AuthAPITest(TestCase):
             assert "otp" in subject.lower()
             assert otp_code, "OTP code is not extracted"
             self.assertEqual(len(otp_code), 6, "OTP code should be 6 digits")
-            assert user.email in recipient_list, "Email is not in recipient list"
+            self.assertIn(user.email, recipient_list, "Email is not in recipient list")
 
-        print("POST", response.data)
+        verified_otp = self.verify_otp_code_request(otp_code, user.pk)
+        self.assertTrue(verified_otp, "OTP code is not valid")
+        # print("POST", response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["status"], "otp_sent")
         self.assertEqual(response.data["message"], "OTP sent to your email")
