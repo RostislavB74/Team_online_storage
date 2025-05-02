@@ -64,4 +64,8 @@ class AuthAPITest(TestCase):
             "password": self.user_test["password"],
         }
         response = self.client.post(reverse("api_login"), data, format="json")
+        print("POST", response.data)
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["status"], "otp_sent")
+        self.assertEqual(response.data["message"], "OTP sent to your email")
+        self.assertEqual(response.data["otp_user_id"], user.pk)
