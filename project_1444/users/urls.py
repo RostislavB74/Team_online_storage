@@ -11,7 +11,7 @@ from .views import (
 from rest_framework.authtoken.views import ObtainAuthToken
 
 urlpatterns = [
-    path("auth/csrf/", CSRFAPIView.as_view(), name="api_get_csrf_token"),
+    # path("auth/csrf/", CSRFAPIView.as_view(), name="api_get_csrf_token"),
     path("auth/login/", LoginAPIView.as_view(), name="api_login"),
     path("auth/register/", RegisterAPIView.as_view(), name="api_register"),
     path("auth/verify-otp/", VerifyOTPAPIView.as_view(), name="api_verify_otp"),
