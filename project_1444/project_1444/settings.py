@@ -468,6 +468,7 @@ try:
     EMAIL_USE_SSL = env("EMAIL_USE_SSL", cast=bool, default=True)
     EMAIL_HOST_USER = env("EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
     if not EMAIL_HOST:
         EMAIL_BACKEND = None
 except (KeyError, environ.ImproperlyConfigured):
