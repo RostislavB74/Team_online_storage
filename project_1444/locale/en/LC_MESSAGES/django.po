@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-14 01:35+0200\n"
+"POT-Creation-Date: 2025-05-03 01:55+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,139 +17,407 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: .\discounts\models.py:16
-msgid "Промокод"
-msgstr ""
 
-#: .\discounts\models.py:17 .\discounts\models.py:47 .\discounts\models.py:139
-msgid "Знижка, %"
-msgstr ""
-
-#: .\discounts\models.py:18 .\discounts\models.py:48 .\discounts\models.py:120
-#: .\discounts\models.py:140
+#: .\discounts\models.py:34
 msgid "Початок дії"
 msgstr ""
 
-#: .\discounts\models.py:19 .\discounts\models.py:49 .\discounts\models.py:121
-#: .\discounts\models.py:141
+#: .\discounts\models.py:35
 msgid "Кінець дії"
 msgstr ""
 
-#: .\discounts\models.py:20 .\discounts\models.py:50 .\discounts\models.py:122
-#: .\discounts\models.py:142
+#: .\discounts\models.py:36
 msgid "Активний"
-msgstr ""
+msgstr "Active"
 
-#: .\discounts\models.py:21
+#: .\discounts\models.py:107
+msgid "Промокод"
+msgstr "Promocode"
+
+#: .\discounts\models.py:108 .\discounts\models.py:149
+#: .\discounts\models.py:243
+msgid "Знижка, %"
+msgstr "Discount, %"
+
+#: .\discounts\models.py:109
 msgid "Ліміт використання"
-msgstr ""
+msgstr "Limit usage"
 
-#: .\discounts\models.py:22
+#: .\discounts\models.py:110
 msgid "Використано"
-msgstr ""
+msgstr "Used"
 
-#: .\discounts\models.py:23 .\discounts\models.py:123
+#: .\discounts\models.py:111 .\discounts\models.py:189
 msgid "Застосовується до товарів"
-msgstr ""
+msgstr "Applied to products"
 
-#: .\discounts\models.py:24 .\discounts\models.py:124
+#: .\discounts\models.py:112 .\discounts\models.py:191
 msgid "Застосовується до категорій"
-msgstr ""
+msgstr "Applied to categories"
 
-#: .\discounts\models.py:46 .\discounts\models.py:85 .\discounts\models.py:117
+#: .\discounts\models.py:147 .\discounts\models.py:178
+#: .\discounts\models.py:186 .\discounts\models.py:219
 msgid "Користувач"
-msgstr ""
+msgstr "User"
 
-#: .\discounts\models.py:63 .\discounts\models.py:138
+#: .\discounts\models.py:167 .\discounts\models.py:257
 msgid "Товар"
-msgstr ""
+msgstr "Product"
 
-#: .\discounts\models.py:64
+#: .\discounts\models.py:168
 msgid "Стара ціна"
-msgstr ""
+msgstr "Previous price"
 
-#: .\discounts\models.py:65
+#: .\discounts\models.py:169
 msgid "Нова ціна"
-msgstr ""
+msgstr "New price"
 
-#: .\discounts\models.py:66
+#: .\discounts\models.py:170
 msgid "Застосована знижка"
-msgstr ""
+msgstr "Applied discount"
 
-#: .\discounts\models.py:67
+#: .\discounts\models.py:171
 msgid "Дата зміни"
-msgstr ""
+msgstr "Date of change"
 
-#: .\discounts\models.py:86
-msgid "Знижка на день народження, %"
-msgstr ""
+#: .\discounts\models.py:180
+msgid "Баланс бонусів"
+msgstr "Bonus balance"
 
-#: .\discounts\models.py:87
-msgid "Дійсна кількість днів"
-msgstr ""
-
-#: .\discounts\models.py:118
+#: .\discounts\models.py:187
 msgid "Призначив"
-msgstr ""
+msgstr "Assigned"
 
-#: .\discounts\models.py:119
+#: .\discounts\models.py:188
 msgid "Персональна знижка, %"
-msgstr ""
+msgstr "Personal discount, %"
 
-#: .\discounts\models.py:125
+#: .\discounts\models.py:190
+msgid "Застосовується до субпродуктів"
+msgstr "Applied to subproducts"
+
+#: .\discounts\models.py:192
 msgid "Групи користувачів"
+msgstr "Groups of users"
+
+#: .\discounts\models.py:194
+msgid "Активна"
+msgstr "Active"
+
+#: .\discounts\models.py:195
+msgid "Дійсна з"
+msgstr "Valid from"
+
+#: .\discounts\models.py:196
+msgid "Дійсна до"
+msgstr "Valid to"
+
+#: .\discounts\models.py:214
+msgid "Персональна знижка"
+msgstr "Personal discount"
+
+#: .\discounts\models.py:215
+msgid "Персональні знижки"
+msgstr "Personal discounts"
+
+#: .\discounts\models.py:221
+msgid "Знижка на день народження, %"
+msgstr "Discount on birthday, %"
+
+#: .\discounts\models.py:222
+msgid "Дійсна кількість днів"
+msgstr "Valid number of days"
+
+#: .\discounts\models.py:263
+msgid "Матеріал"
+msgstr "Material"
+
+#: .\discounts\models.py:268
+msgid "Статус"
+msgstr "Status"
+
+#: .\discounts\models.py:273
+msgid "Каміння"
+msgstr "Stone"
+
+#: .\discounts\models.py:280
+msgid "Категорії"
+msgstr "Categories"
+
+#: .\discounts\models.py:285
+msgid "Підкатегорії"
+msgstr "Subcategories"
+
+#: .\discounts\models.py:292
+msgid "Колекції"
+msgstr "Collections"
+
+#: .\discounts\models.py:298
+msgid "Стилі"
+msgstr "Styles"
+
+#: .\discounts\models.py:303
+msgid "Привід"
+msgstr "Trim"
+
+#: .\product\admin.py:56 .\product\admin.py:105
+msgid "Unnamed"
 msgstr ""
 
-#: .\product\models.py:138
-msgid "Bestseller"
+#: .\product\admin.py:59
+msgid "No slug"
 msgstr ""
 
-#: .\product\models.py:139
-msgid "New"
+#: .\product\admin.py:62
+msgid "No text"
 msgstr ""
 
-#: .\product\models.py:140
-msgid "Classic"
+#: .\product\admin.py:65
+msgid "No SEO title"
 msgstr ""
 
-#: .\product\models.py:141
-msgid "Stock"
+#: .\product\admin.py:68
+msgid "No SEO description"
 msgstr ""
 
-#: .\product\views.py:69 .\product\views.py:90 .\product\views.py:125
-#: .\product\views.py:167 .\product\views.py:188 .\product\views.py:222
-#, python-brace-format
-msgid "Preferred language for the response. Allowed values: {languages_list}."
+#: .\product\admin.py:71
+msgid "No keywords"
 msgstr ""
-msgid "Gold"
-msgstr "Gold"
 
-msgid "Silver"
-msgstr "Silver"
+#: .\product\admin.py:74 .\product\admin.py:108
+msgid "Name"
+msgstr ""
 
-msgid "Platinum"
-msgstr "Platinum"
+#: .\product\admin.py:77
+msgid "Slug"
+msgstr ""
 
-msgid "Steel"
-msgstr "Steel"
+#: .\product\admin.py:80
+msgid "Text"
+msgstr ""
 
-msgid "White"
-msgstr "White"
+#: .\product\admin.py:83
+msgid "SEO Title"
+msgstr ""
 
-msgid "Yellow"
-msgstr "Yellow"
+#: .\product\admin.py:86
+msgid "SEO Description"
+msgstr ""
 
-msgid "Red"
-msgstr "Red"
+#: .\product\admin.py:89
+msgid "Keywords"
+msgstr ""
 
-msgid "Brown"
-msgstr "Brown"
+#: .\product\admin.py:111 .\product\admin.py:116
+msgid "Unknown"
+msgstr ""
 
-msgid "Rhodium Plating"
-msgstr "Rhodium Plating"
+#: .\product\admin.py:113
+msgid "Type"
+msgstr ""
 
-msgid "Black"
-msgstr "Black"
+#: .\product\admin.py:118
+msgid "Origin"
+msgstr ""
 
-msgid "Blackening"
-msgstr "Blackening"
+#: .\product\models.py:367
+msgid "Precious"
+msgstr ""
+
+#: .\product\models.py:368
+msgid "Semi-Precious"
+msgstr ""
+
+#: .\product\models.py:369
+msgid "NonPrecious"
+msgstr ""
+
+#: .\product\models.py:373
+msgid "Natural"
+msgstr ""
+
+#: .\product\models.py:374
+msgid "Synthetic"
+msgstr ""
+
+#: .\product\models.py:378
+msgid "Precious I Order"
+msgstr ""
+
+#: .\product\models.py:379
+msgid "Precious II Order"
+msgstr ""
+
+#: .\product\models.py:380
+msgid "Precious III Order"
+msgstr ""
+
+#: .\product\models.py:381
+msgid "Precious IV Order"
+msgstr ""
+
+#: .\product\models.py:383
+msgid "Semi-Precious I Order"
+msgstr ""
+
+#: .\product\models.py:384
+msgid "Semi-Precious II Order"
+msgstr ""
+
+#: .\product\models.py:414
+msgid "Синтетичні камені не мають порядку."
+msgstr "Synthetic stones don't have order."
+
+#: .\product\models.py:423
+msgid "Дорогоцінні камені мають рівні I-IV порядку."
+msgstr "Precious stones have I-IV order."
+
+#: .\product\models.py:431
+msgid "Напівкоштовні камені мають рівні I-II порядку."
+msgstr "Semi-Precious stones have I-II order."
+
+#: .\product\models.py:481
+msgid "Продукт"
+msgstr "Product"
+
+#: .\users\models.py:42
+msgid "Male"
+msgstr ""
+
+#: .\users\models.py:42
+msgid "Female"
+msgstr ""
+
+#: .\users\templates\admin\messenger_field.html:10
+#: .\users\templates\admin\messenger_field.html:22
+msgid "Select messenger"
+msgstr ""
+
+#: .\users\templates\admin\messenger_field.html:16
+#: .\users\templates\admin\messenger_field.html:28
+msgid "Remove"
+msgstr ""
+
+#: .\users\templates\admin\messenger_field.html:32
+msgid "Add Messenger"
+msgstr ""
+
+#: .\users\templates\emails\otp_email.html:5
+msgid "Ваш код підтвердження"
+msgstr "Your verification code"
+
+#: .\users\templates\emails\otp_email.html:6
+msgid "Ваш код"
+msgstr "Your code"
+
+#: .\users\templates\emails\otp_email.html:8
+#, python-format
+msgid ""
+"\n"
+"            Код дійсний %(expiration_time)s хвилин.\n"
+"        "
+msgstr ""
+"\n"
+"            Code valid %(expiration_time)s minutes.\n"
+"        "
+
+#: .\users\views.py:64
+msgid "Аутентифікація користувача та генерація OTP"
+msgstr "Authenticate user and generate OTP"
+
+#: .\users\views.py:77
+msgid "Invalid credentials"
+msgstr ""
+
+#: .\users\views.py:84
+msgid "Email address is required for OTP verification"
+msgstr ""
+
+#: .\users\views.py:107
+msgid "Your OTP Code"
+msgstr ""
+
+#: .\users\views.py:108
+msgid "Your verification code is "
+msgstr ""
+
+#: .\users\views.py:127
+msgid "Failed to send OTP. Please try again."
+msgstr ""
+
+#: .\users\views.py:136
+msgid "OTP sent to your email"
+msgstr ""
+
+#: .\users\views.py:150
+msgid "Верифікація OTP та видача токена"
+msgstr "Verify OTP and issue token"
+
+#: .\users\views.py:161
+msgid "Invalid session"
+msgstr ""
+
+#: .\users\views.py:169
+msgid "User not found"
+msgstr ""
+
+#: .\users\views.py:186
+msgid "Welcome, "
+msgstr ""
+
+#: .\users\views.py:194
+msgid "Invalid or expired OTP"
+msgstr ""
+
+#: .\users\views.py:206
+msgid "Реєстрація нового користувача"
+msgstr "Register new user"
+
+#: .\users\views.py:217
+msgid "Registration successful"
+msgstr ""
+
+#: .\users\views.py:232
+msgid "Отримання або оновлення профілю користувача"
+msgstr "Retrieve or update user profile"
+
+#: .\users\views.py:264
+msgid "Profile updated"
+msgstr ""
+
+#: .\users\views.py:272
+msgid "Invalid profile data"
+msgstr ""
+
+#~ msgid "Gold"
+#~ msgstr "Gold"
+
+#~ msgid "Silver"
+#~ msgstr "Silver"
+
+#~ msgid "Platinum"
+#~ msgstr "Platinum"
+
+#~ msgid "Steel"
+#~ msgstr "Steel"
+
+#~ msgid "White"
+#~ msgstr "White"
+
+#~ msgid "Yellow"
+#~ msgstr "Yellow"
+
+#~ msgid "Red"
+#~ msgstr "Red"
+
+#~ msgid "Brown"
+#~ msgstr "Brown"
+
+#~ msgid "Rhodium Plating"
+#~ msgstr "Rhodium Plating"
+
+#~ msgid "Black"
+#~ msgstr "Black"
+
+#~ msgid "Blackening"
+#~ msgstr "Blackening"
