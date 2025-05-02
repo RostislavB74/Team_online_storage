@@ -2,7 +2,7 @@ import logging
 import random
 from datetime import timedelta
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
@@ -372,6 +372,7 @@ class LogoutAPIView(APIView):
     )
     def post(self, request):
         try:
+            logout(request)
             request.user.auth_token.delete()
         except (AttributeError, Token.DoesNotExist):
             pass
