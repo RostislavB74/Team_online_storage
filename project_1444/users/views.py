@@ -34,11 +34,10 @@ from .utils import send_email_in_background
 logger = logging.getLogger(__name__)
 
 
-@ensure_csrf_cookie
-def get_csrf_token(request):
-    if request.method != "GET":
-        return JsonResponse({"message": "Method not allowed"}, status=405)
-    return JsonResponse({"message": "CSRF cookie set"})
+class CSRFAPIView(APIView):
+    @method_decorator(ensure_csrf_cookie)
+    def get(self, request):
+        return JsonResponse({"message": "CSRF cookie set"})
 
 
 def merge_carts(user, session_key):
@@ -71,68 +70,68 @@ class LoginAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data["username"]
         password = serializer.validated_data["password"]
-        user = authenticate(request, username=username, password=password)
-        if user:
-            if not user.email:
-                return Response(
-                    {
-                        "status": "error",
-                        "message": _("Email address is required for OTP verification"),
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            otp_code = "".join(random.choices("0123456789", k=6))
-            OTP.objects.create(
-                user=user,
-                code=otp_code,
-                expires_at=timezone.now()
-                + timedelta(minutes=getattr(settings, "OTP_EXPIRATION_TIME", 15)),
+        user = authenticate(username=username, password=password)
+        if not user:
+            return Response(
+                {"status": "error", "message": _("Invalid credentials")},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-
-            # Відправка OTP на email
-            try:
-                html_message = render_to_string(
-                    "emails/otp_email.html", {"otp_code": otp_code}
-                )
-                send_email_in_background(
-                    subject=_("Your OTP Code"),
-                    message=_("Your verification code is ") + otp_code,
-                    from_email=None,
-                    recipient_list=[user.email],
-                    html_message=html_message,
-                    fail_silently=False,
-                )
-                # send_mail(
-                #     subject='Your OTP Code',
-                #     message=f'Your verification code is {otp_code}. It is valid for 5 minutes.',
-                #     from_email=None,  # Використовує DEFAULT_FROM_EMAIL
-                #     recipient_list=[user.email],
-                #     fail_silently=False,
-                # )
-                logger.info(f"OTP sent to {user.email}: {otp_code}")
-            except Exception as e:
-                logger.error(f"Failed to send OTP to {user.email}: {str(e)}")
-                return Response(
-                    {
-                        "status": "error",
-                        "message": _("Failed to send OTP. Please try again."),
-                    },
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-            request.session["otp_user_id"] = user.id
+        if not user.email:
             return Response(
                 {
-                    "status": "otp_sent",
-                    "message": _("OTP sent to your email"),
-                    "otp_user_id": user.id,
+                    "status": "error",
+                    "message": _("Email address is required for OTP verification"),
                 },
-                status=status.HTTP_200_OK,
+                status=status.HTTP_400_BAD_REQUEST,
             )
+
+        otp_code = "".join(random.choices("0123456789", k=6))
+        OTP.objects.create(
+            user=user,
+            code=otp_code,
+            expires_at=timezone.now()
+            + timedelta(minutes=getattr(settings, "OTP_EXPIRATION_TIME", 15)),
+        )
+
+        # Відправка OTP на email
+        try:
+            html_message = render_to_string(
+                "emails/otp_email.html", {"otp_code": otp_code}
+            )
+            send_email_in_background(
+                subject=_("Your OTP Code"),
+                message=_("Your verification code is ") + otp_code,
+                from_email=None,
+                recipient_list=[user.email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            # send_mail(
+            #     subject='Your OTP Code',
+            #     message=f'Your verification code is {otp_code}. It is valid for 5 minutes.',
+            #     from_email=None,  # Використовує DEFAULT_FROM_EMAIL
+            #     recipient_list=[user.email],
+            #     fail_silently=False,
+            # )
+            logger.info(f"OTP sent to {user.email}: {otp_code}")
+        except Exception as e:
+            logger.error(f"Failed to send OTP to {user.email}: {str(e)}")
+            return Response(
+                {
+                    "status": "error",
+                    "message": _("Failed to send OTP. Please try again."),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        request.session["otp_user_id"] = user.id
         return Response(
-            {"status": "error", "message": _("Invalid credentials")},
-            status=status.HTTP_400_BAD_REQUEST,
+            {
+                "status": "otp_sent",
+                "message": _("OTP sent to your email"),
+                "otp_user_id": user.id,
+            },
+            status=status.HTTP_200_OK,
         )
 
 
