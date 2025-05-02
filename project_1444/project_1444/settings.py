@@ -707,6 +707,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+OTP_EXPIRATION_TIME = 15  # minutes
 # INSTALLED_APPS = [
 #     ...,
 #     'django_ratelimit',
