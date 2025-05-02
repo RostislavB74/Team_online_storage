@@ -32,14 +32,15 @@ from utils.views import HealthCheckView, VersionView
 from .views import ApiRootView
 
 from debug_toolbar.toolbar import debug_toolbar_urls
+
 # from product.views import (
-    # ProductAPIList,
-    # ProductAPIUpdate,
-    # CategoriesAPIList,
-    # CategoriesAPIDetail,
-    # ProductAPIDetail,
-    # SubProductsSizesViewSet,
-    # TotalProductsViewSet,
+# ProductAPIList,
+# ProductAPIUpdate,
+# CategoriesAPIList,
+# CategoriesAPIDetail,
+# ProductAPIDetail,
+# SubProductsSizesViewSet,
+# TotalProductsViewSet,
 # )
 # from product.views import RingSizeLookup
 # from discounts.views import AvailableDiscountsView
@@ -57,13 +58,12 @@ admin.site.login_template = "custom_admin/login.html"
 urlpatterns = [
     path("api/", ApiRootView.as_view(), name="api-root"),
     path("admin/", admin.site.urls, name="admin"),
-    path("auth/", include("social_django.urls", namespace="social")),
     path("", include("users.urls")),
+    path("social-auth/", include("social_django.urls", namespace="social")),
     path("api/v0/", include("mock.urls")),
     path("api/v1/", include("order.urls")),
     path("api/v1/", include("cart.urls")),
     path("api/v1/", include("product.urls")),
-    
     path("api/v1/auth/", include("rest_framework.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
@@ -94,7 +94,6 @@ urlpatterns = [
             ]
         ),
     ),
-   
 ]
 # Додаємо debug_toolbar, якщо в дебаг-режимі
 if "debug_toolbar" in settings.INSTALLED_APPS:

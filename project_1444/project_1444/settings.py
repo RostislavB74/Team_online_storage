@@ -501,7 +501,7 @@ REST_FRAMEWORK = {
 
 if IS_TESTING:
     REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
-    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {}
+    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {"anon": None, "user": None}
 
 
 CACHES = {
@@ -707,6 +707,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+OTP_EXPIRATION_TIME = 15  # minutes
 # INSTALLED_APPS = [
 #     ...,
 #     'django_ratelimit',

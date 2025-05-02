@@ -161,6 +161,8 @@ class Collections(TranslatableModel):
         return self.safe_translation_getter(
             "name", default="Без назви"
         )  # Бере name із перекладу
+
+
 class Designs(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(max_length=255, unique=True, verbose_name="Designs"),
@@ -195,6 +197,7 @@ class Styles(TranslatableModel):
 
     def __str__(self):
         return self.safe_translation_getter("name", default="Без назви")
+
 
 class Material(TranslatableModel):
     PROBE_CHOICES = [
@@ -245,7 +248,7 @@ class Material(TranslatableModel):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # Оновлюємо перекладені поля при збереженні
-        self.set_current_language('uk')
+        self.set_current_language("uk")
         self.material_name = {
             "gold": "Золото",
             "silver": "Срібло",
@@ -261,13 +264,15 @@ class Material(TranslatableModel):
             "black": "Чорний",
             "blackening": "Чорніння",
         }.get(self.color, self.color)
-        self.set_current_language('en')
+        self.set_current_language("en")
         self.material_name = self.material
         self.color_name = self.color
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.material_name} | {self.assay} | {self.color_name}"
+
+
 # Матеріали
 # class Material(TranslatableModel):
 
@@ -335,6 +340,7 @@ class Material(TranslatableModel):
 #         material_display = self.get_material_display()
 #         color_display = self.get_color_display()
 #         return f"{material_display} | {self.assay} | {color_display}"
+
 
 # Функція для генерації артикула перед збереженням
 @receiver(pre_save, sender=Material)
@@ -525,8 +531,9 @@ class SubProducts(models.Model):
         elif self.length:
             return f"{self.length} см"
         return "Невідомо"
+
     def save(self, *args, **kwargs):
-    # Автоматично встановлює порядковий номер для кожного продукту
+        # Автоматично встановлює порядковий номер для кожного продукту
         if not self.pk:  # Якщо створюється новий запис
             last_subproduct = (
                 SubProducts.objects.filter(parent_product=self.parent_product)
@@ -545,7 +552,6 @@ class SubProducts(models.Model):
             self.new_price = None
 
         super().save(*args, **kwargs)
-    
 
     def __str__(self):
         details = []
@@ -714,6 +720,7 @@ class ProductCertificate(models.Model):
 
     def __str__(self):
         return f"{self.product.article} - Certificate"
+
 
 class Descriptions(TranslatableModel):
     translations = TranslatedFields(
