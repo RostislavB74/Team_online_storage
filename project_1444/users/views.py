@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
+
+from django.utils.translation import gettext_lazy as _
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,9 +14,13 @@ from rest_framework.throttling import AnonRateThrottle
 from drf_spectacular.utils import extend_schema
 from .models import UserProfile, OTP, UserNotificationSettings
 from .serializers import (
-    LoginSerializer, RegisterSerializer, OTPSerializer,
-    UserProfileSerializer, TokenSerializer, LogoutSerializer,
-    UserNotificationSettingsSerializer
+    LoginSerializer,
+    RegisterSerializer,
+    OTPSerializer,
+    UserProfileSerializer,
+    TokenSerializer,
+    LogoutSerializer,
+    UserNotificationSettingsSerializer,
 )
 from cart.models import Cart
 from django.core.mail import send_mail
@@ -23,18 +29,20 @@ import logging
 logger = logging.getLogger(__name__)
 from django.template.loader import render_to_string
 
+
 def merge_carts(user, session_key):
     guest_carts = Cart.objects.filter(session_key=session_key)
     for guest_cart in guest_carts:
         user_cart, created = Cart.objects.get_or_create(
             user=user,
             product=guest_cart.product,
-            defaults={'quantity': guest_cart.quantity}
+            defaults={"quantity": guest_cart.quantity},
         )
         if not created:
             user_cart.quantity += guest_cart.quantity
             user_cart.save()
     guest_carts.delete()
+
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
@@ -43,34 +51,39 @@ class LoginAPIView(APIView):
     @extend_schema(
         request=LoginSerializer,
         responses={200: TokenSerializer},
-        description="Аутентифікація користувача та генерація OTP"
+        description=_("Аутентифікація користувача та генерація OTP"),
     )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
-        password = serializer.validated_data['password']
+        username = serializer.validated_data["username"]
+        password = serializer.validated_data["password"]
         user = authenticate(request, username=username, password=password)
         if user:
             if not user.email:
-                return Response({
-                    'status': 'error',
-                    'message': 'Email address is required for OTP verification'
-                }, status=status.HTTP_400_BAD_REQUEST)
-                
-            otp_code = ''.join(random.choices('0123456789', k=6))
+                return Response(
+                    {
+                        "status": "error",
+                        "message": _("Email address is required for OTP verification"),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            otp_code = "".join(random.choices("0123456789", k=6))
             OTP.objects.create(
                 user=user,
                 code=otp_code,
-                expires_at=timezone.now() + timedelta(minutes=5)
+                expires_at=timezone.now() + timedelta(minutes=5),
             )
-            
+
             # Відправка OTP на email
             try:
-                html_message = render_to_string('emails/otp_email.html', {'otp_code': otp_code})
+                html_message = render_to_string(
+                    "emails/otp_email.html", {"otp_code": otp_code}
+                )
                 send_mail(
-                    subject='Your OTP Code',
-                    message='Your verification code is ' + otp_code,
+                    subject=_("Your OTP Code"),
+                    message=_("Your verification code is ") + otp_code,
                     from_email=None,
                     recipient_list=[user.email],
                     html_message=html_message,
@@ -86,21 +99,28 @@ class LoginAPIView(APIView):
                 logger.info(f"OTP sent to {user.email}: {otp_code}")
             except Exception as e:
                 logger.error(f"Failed to send OTP to {user.email}: {str(e)}")
-                return Response({
-                    'status': 'error',
-                    'message': 'Failed to send OTP. Please try again.'
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(
+                    {
+                        "status": "error",
+                        "message": _("Failed to send OTP. Please try again."),
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
-            request.session['otp_user_id'] = user.id
-            return Response({
-                'status': 'otp_sent',
-                'message': 'OTP sent to your email',
-                'otp_user_id': user.id
-            }, status=status.HTTP_200_OK)
-        return Response({
-            'status': 'error',
-            'message': 'Invalid credentials'
-        }, status=status.HTTP_400_BAD_REQUEST)
+            request.session["otp_user_id"] = user.id
+            return Response(
+                {
+                    "status": "otp_sent",
+                    "message": _("OTP sent to your email"),
+                    "otp_user_id": user.id,
+                },
+                status=status.HTTP_200_OK,
+            )
+        return Response(
+            {"status": "error", "message": _("Invalid credentials")},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
 
 class VerifyOTPAPIView(APIView):
     permission_classes = [AllowAny]
@@ -109,50 +129,54 @@ class VerifyOTPAPIView(APIView):
     @extend_schema(
         request=OTPSerializer,
         responses={200: TokenSerializer},
-        description="Верифікація OTP та видача токена"
+        description=_("Верифікація OTP та видача токена"),
     )
     def post(self, request):
         serializer = OTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        otp_code = serializer.validated_data['otp_code']
-        user_id = serializer.validated_data.get('otp_user_id') or request.session.get('otp_user_id')
+        otp_code = serializer.validated_data["otp_code"]
+        user_id = serializer.validated_data.get("otp_user_id") or request.session.get(
+            "otp_user_id"
+        )
         if not user_id:
-            return Response({
-                'status': 'error',
-                'message': 'Invalid session'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"status": "error", "message": _("Invalid session")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response({
-                'status': 'error',
-                'message': 'User not found'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"status": "error", "message": _("User not found")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         otp = OTP.objects.filter(
-            user=user,
-            code=otp_code,
-            expires_at__gte=timezone.now()
+            user=user, code=otp_code, expires_at__gte=timezone.now()
         ).first()
         if otp:
             login(request, user)
             otp.delete()
             merge_carts(user, request.session.session_key)
             token, created = Token.objects.get_or_create(user=user)
-            if 'otp_user_id' in request.session:
-                del request.session['otp_user_id']
-            return Response({
-                'status': 'success',
-                'message': f'Welcome, {user.username}!',
-                'token': token.key,
-                'user_id': user.pk,
-                'username': user.username
-            }, status=status.HTTP_200_OK)
-        return Response({
-            'status': 'error',
-            'message': 'Invalid or expired OTP'
-        }, status=status.HTTP_400_BAD_REQUEST)
+            if "otp_user_id" in request.session:
+                del request.session["otp_user_id"]
+            return Response(
+                {
+                    "status": "success",
+                    "message": _("Welcome, ") + user.username + "!",
+                    "token": token.key,
+                    "user_id": user.pk,
+                    "username": user.username,
+                },
+                status=status.HTTP_200_OK,
+            )
+        return Response(
+            {"status": "error", "message": _("Invalid or expired OTP")},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
 
 class RegisterAPIView(APIView):
     permission_classes = [AllowAny]
@@ -161,7 +185,7 @@ class RegisterAPIView(APIView):
     @extend_schema(
         request=RegisterSerializer,
         responses={201: TokenSerializer},
-        description="Реєстрація нового користувача"
+        description=_("Реєстрація нового користувача"),
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -169,20 +193,25 @@ class RegisterAPIView(APIView):
         user = serializer.save()
         login(request, user)
         token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'status': 'success',
-            'message': 'Registration successful',
-            'token': token.key,
-            'user_id': user.pk,
-            'username': user.username
-        }, status=status.HTTP_201_CREATED)
+        return Response(
+            {
+                "status": "success",
+                "message": _("Registration successful"),
+                "token": token.key,
+                "user_id": user.pk,
+                "username": user.username,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
 class ProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
         request=UserProfileSerializer,
         responses={200: UserProfileSerializer},
-        description="Отримання або оновлення профілю користувача"
+        description=_("Отримання або оновлення профілю користувача"),
     )
     def get(self, request):
         try:
@@ -192,34 +221,43 @@ class ProfileAPIView(APIView):
 
         # Оптимізуємо запит із prefetch_related для замовлень
         profile = UserProfile.objects.prefetch_related(
-            'user__orders__items__product'
+            "user__orders__items__product"
         ).get(user=request.user)
 
-        serializer = UserProfileSerializer(profile, context={'request': request})
+        serializer = UserProfileSerializer(profile, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
-        request=UserProfileSerializer,
-        responses={200: UserProfileSerializer}
+        request=UserProfileSerializer, responses={200: UserProfileSerializer}
     )
     def post(self, request):
         try:
             profile = request.user.profile
         except UserProfile.DoesNotExist:
             profile = UserProfile.objects.create(user=request.user)
-        serializer = UserProfileSerializer(profile, data=request.data, context={'request': request})
+        serializer = UserProfileSerializer(
+            profile, data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save()
-            return Response({
-                'status': 'success',
-                'message': 'Profile updated',
-                'data': serializer.data
-            }, status=status.HTTP_200_OK)
-        return Response({
-            'status': 'error',
-            'message': 'Invalid profile data',
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "status": "success",
+                    "message": _("Profile updated"),
+                    "data": serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        return Response(
+            {
+                "status": "error",
+                "message": _("Invalid profile data"),
+                "errors": serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
 # class ProfileAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 
@@ -259,13 +297,14 @@ class ProfileAPIView(APIView):
 #             'errors': serializer.errors
 #         }, status=status.HTTP_400_BAD_REQUEST)
 
+
 class NotificationSettingsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
         request=UserNotificationSettingsSerializer,
         responses={200: UserNotificationSettingsSerializer},
-        description="Отримання або оновлення налаштувань сповіщень"
+        description="Отримання або оновлення налаштувань сповіщень",
     )
     def get(self, request):
         try:
@@ -277,7 +316,7 @@ class NotificationSettingsAPIView(APIView):
 
     @extend_schema(
         request=UserNotificationSettingsSerializer,
-        responses={200: UserNotificationSettingsSerializer}
+        responses={200: UserNotificationSettingsSerializer},
     )
     def post(self, request):
         try:
@@ -287,16 +326,23 @@ class NotificationSettingsAPIView(APIView):
         serializer = UserNotificationSettingsSerializer(settings, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({
-                'status': 'success',
-                'message': 'Notification settings updated',
-                'data': serializer.data
-            }, status=status.HTTP_200_OK)
-        return Response({
-            'status': 'error',
-            'message': 'Invalid notification settings',
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "status": "success",
+                    "message": "Notification settings updated",
+                    "data": serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        return Response(
+            {
+                "status": "error",
+                "message": "Invalid notification settings",
+                "errors": serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
 
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -304,17 +350,19 @@ class LogoutAPIView(APIView):
     @extend_schema(
         request=None,
         responses={200: LogoutSerializer},
-        description="Вихід користувача та видалення токена"
+        description="Вихід користувача та видалення токена",
     )
     def post(self, request):
         try:
             request.user.auth_token.delete()
         except (AttributeError, Token.DoesNotExist):
             pass
-        return Response({
-            'status': 'success',
-            'message': 'Successfully logged out'
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {"status": "success", "message": "Successfully logged out"},
+            status=status.HTTP_200_OK,
+        )
+
+
 # import random
 # from django.contrib.auth import authenticate, login
 # from django.contrib.auth.models import User
@@ -404,7 +452,7 @@ class LogoutAPIView(APIView):
 #                 'status': 'error',
 #                 'message': 'Invalid session'
 #             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 #         try:
 #             user = User.objects.get(id=user_id)
 #         except User.DoesNotExist:
@@ -412,7 +460,7 @@ class LogoutAPIView(APIView):
 #                 'status': 'error',
 #                 'message': 'User not found'
 #             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 #         otp = OTP.objects.filter(
 #             user=user,
 #             code=otp_code,
@@ -643,7 +691,7 @@ class LogoutAPIView(APIView):
 #                 'status': 'error',
 #                 'message': 'Invalid session'
 #             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 #         try:
 #             user = User.objects.get(id=user_id)
 #         except User.DoesNotExist:
@@ -651,7 +699,7 @@ class LogoutAPIView(APIView):
 #                 'status': 'error',
 #                 'message': 'User not found'
 #             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 #         otp = OTP.objects.filter(
 #             user=user,
 #             code=otp_code,
@@ -844,7 +892,7 @@ class LogoutAPIView(APIView):
 #                 'status': 'error',
 #                 'message': 'Invalid session'
 #             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 #         try:
 #             user = User.objects.get(id=user_id)
 #         except User.DoesNotExist:
@@ -852,7 +900,7 @@ class LogoutAPIView(APIView):
 #                 'status': 'error',
 #                 'message': 'User not found'
 #             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 #         otp = OTP.objects.filter(
 #             user=user,
 #             code=otp_code,
@@ -993,8 +1041,6 @@ class LogoutAPIView(APIView):
 #     guest_carts.delete()
 
 
-
-    
 # class LoginAPIView(APIView):
 #     permission_classes = [AllowAny]
 
@@ -1047,7 +1093,7 @@ class LogoutAPIView(APIView):
 #                 'status': 'error',
 #                 'message': 'Invalid session'
 #             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 #         try:
 #             user = User.objects.get(id=user_id)
 #         except User.DoesNotExist:
@@ -1055,7 +1101,7 @@ class LogoutAPIView(APIView):
 #                 'status': 'error',
 #                 'message': 'User not found'
 #             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 #         otp = OTP.objects.filter(
 #             user=user,
 #             code=otp_code,
