@@ -158,7 +158,7 @@ class VerifyOTPAPIView(APIView):
             user=user, code=otp_code, expires_at__gte=timezone.now()
         ).first()
         if otp:
-            login(request, user)
+            login(request, user, "django.contrib.auth.backends.ModelBackend")
             otp.delete()
             merge_carts(user, request.session.session_key)
             token, created = Token.objects.get_or_create(user=user)
