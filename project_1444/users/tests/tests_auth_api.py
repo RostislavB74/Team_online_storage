@@ -1,4 +1,5 @@
 import random
+from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -56,6 +57,15 @@ class AuthAPITest(TestCase):
         # Logout before each test
         self.logout()
 
+    def extract_otp_code(self, message) -> str | None:
+        # Extract from plain text message
+        otp_code = None
+        otp_code_match = message.split()[-1]
+        if otp_code_match.isnumeric():
+            otp_code = otp_code_match
+            print("Extracted OTP:", otp_code)
+        return otp_code
+
     def test_login_user(self):
         user = self.create_user_unit(**self.user_test)
         assert user, "Test user is not created"
@@ -63,7 +73,24 @@ class AuthAPITest(TestCase):
             "username": self.user_test["username"],
             "password": self.user_test["password"],
         }
-        response = self.client.post(reverse("api_login"), data, format="json")
+        otp_code = None
+        with mock.patch("users.views.send_mail") as mock_send_mail:
+            mock_send_mail.return_value = None
+            response = self.client.post(reverse("api_login"), data, format="json")
+
+            print("Mock args:", mock_send_mail.call_args)
+            # Unpack arguments
+            kwargs = mock_send_mail.call_args.kwargs  # or call_args[1]
+            subject = kwargs["subject"]
+            message = kwargs["message"]
+            from_email = kwargs["from_email"]
+            recipient_list = kwargs["recipient_list"]
+            otp_code = self.extract_otp_code(message)
+            assert "otp" in subject.lower()
+            assert otp_code, "OTP code is not extracted"
+            self.assertEqual(len(otp_code), 6, "OTP code should be 6 digits")
+            assert user.email in recipient_list, "Email is not in recipient list"
+
         print("POST", response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["status"], "otp_sent")
