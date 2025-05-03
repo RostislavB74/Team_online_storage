@@ -364,10 +364,10 @@ class StylesDiscount(AbstractDiscount):
     def __str__(self):
         return f"{self.style.name} | {self.discount_percentage}%"
 class OccasionsDiscount(AbstractDiscount):
-    ocassions=models.ForeignKey('product.Occasion', on_delete=models.CASCADE, related_name="occasions_discounts", verbose_name=_("Привід"))
+    occasions=models.ForeignKey('product.Occasion', on_delete=models.CASCADE, related_name="occasions_discounts", verbose_name=_("Привід"))
     
     def __str__(self):
-        return f"{self.ocassions.name} | {self.discount_percentage}%"
+        return f"{self.occasions.name} | {self.discount_percentage}%"
 class SeasonDiscount(AbstractDiscount):
     name = models.CharField(max_length=255)  # Наприклад, "Зимова акція"
     categories = models.ManyToManyField(Categories, blank=True)  # або products
