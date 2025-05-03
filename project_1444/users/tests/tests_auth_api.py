@@ -145,3 +145,18 @@ class AuthAPITest(TestCase):
         )
 
         self.assertIsNone(response.data.get("token"), "Token should not be returned")
+
+    def test_get_token(self):
+        user = self.create_user_unit(**self.user_test)
+        assert user, "Test user is not created"
+        data = {
+            "username": self.user_test["username"],
+            "password": self.user_test["password"],
+        }
+
+        response = self.client.post(reverse("api_token"), data, format="json")
+        # print("POST", response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        token = response.data.get("token")
+        assert token, "Token shouldbe returned"
+        assert len(token) > 30, "Token should be not shorter than 30 characters"
