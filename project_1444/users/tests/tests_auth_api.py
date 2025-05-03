@@ -46,12 +46,25 @@ class AuthAPITest(TestCase):
     def logout(self):
         self.client.logout()
 
+    def get_user_by_id(self, user_id: int) -> User | None:
+        try:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return None
+
     def create_user_unit(
-        self, username: str, password: str | None = None, email: str = None
+        self,
+        username: str,
+        password: str | None = None,
+        email: str = None,
+        is_active: bool = True,
     ):
         assert username, "Username is required"
         user = User.objects.create_user(
-            username=username, email=email, password=password
+            username=username,
+            email=email,
+            password=password,
+            is_active=is_active,
         )
         logger.debug("Created user:", user)
         return user
@@ -103,7 +116,6 @@ class AuthAPITest(TestCase):
             assert otp_code, "OTP code is not extracted"
             self.assertEqual(len(otp_code), 6, "OTP code should be 6 digits")
             self.assertIn(user.email, recipient_list, "Email is not in recipient list")
-
         verified_otp = self.verify_otp_code_request(otp_code, user.pk)
         self.assertTrue(verified_otp, "OTP code is not valid")
         # print("POST", response.data)
@@ -131,8 +143,12 @@ class AuthAPITest(TestCase):
             message = kwargs["message"]
             otp_code = self.extract_otp_code(message)
             assert otp_code, "OTP code is not extracted"
-            verified_otp = self.verify_otp_code_request(otp_code, user_id)
-            self.assertTrue(verified_otp, "OTP code is not valid")
+            user = self.get_user_by_id(user_id)
+            self.assertIsNotNone(user, "User is not created")
+            self.assertEqual(user.username, self.user_test["username"])
+            self.assertEqual(user.email, self.user_test["email"])
+            self.assertFalse(user.is_active, "User should not be active")
+
         # print("POST", response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
@@ -143,8 +159,12 @@ class AuthAPITest(TestCase):
             self.user_test["username"],
             "Username should be the same",
         )
-
         self.assertIsNone(response.data.get("token"), "Token should not be returned")
+        # Verify OTP
+        verified_otp = self.verify_otp_code_request(otp_code, user_id)
+        self.assertTrue(verified_otp, "OTP code is not valid")
+        user = self.get_user_by_id(user_id)
+        self.assertTrue(user.is_active, "User should be active")
 
     def test_get_token(self):
         user = self.create_user_unit(**self.user_test)
