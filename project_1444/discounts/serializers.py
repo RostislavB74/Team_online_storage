@@ -6,7 +6,9 @@ from .models import (
 )
 from product.serializers import ProductSerializer, CategoriesSerializer
 from users.serializers import UserProfileSerializer
-
+from datetime import timedelta
+from django.utils import timezone
+from django.utils.timezone import now
 class DiscountSerializer(serializers.ModelSerializer):
     discount_type = serializers.ChoiceField(choices=Discount.DiscountType.choices)
     products = ProductSerializer(many=True, read_only=True)
