@@ -214,28 +214,92 @@ class PersonalDiscount(BaseDiscount):
         verbose_name = _("Персональна знижка")
         verbose_name_plural = _("Персональні знижки")
 
-
 class BirthdayDiscount(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='birthday_discount', verbose_name=_("Користувач"))
-    # user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="birthday_discount", verbose_name=_("Користувач"))
-    discount_percentage = models.DecimalField(max_digits=4, decimal_places=2, default=Decimal('10.00'), verbose_name=_("Знижка на день народження, %"))
-    valid_days = models.PositiveIntegerField(default=7, verbose_name=_("Дійсна кількість днів"))
+    profile = models.ForeignKey(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name='birthday_discounts',  # Змінюємо related_name на множину, якщо кілька знижок
+        verbose_name=_("Користувач")
+    )
+    discount_percentage = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        default=Decimal('10.00'),
+        verbose_name=_("Знижка на день народження, %")
+    )
+    valid_days = models.PositiveIntegerField(
+        default=7,
+        verbose_name=_("Дійсна кількість днів")
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+    used_year = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_("Рік використання знижки")
+    )
+    birthday_at_creation = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_("Дата народження на момент створення")
+    )
+
+    def save(self, *args, **kwargs):
+        # Зберігаємо дату народження на момент створення, якщо вона ще не встановлена
+        if not self.pk and self.profile.birthday:
+            self.birthday_at_creation = self.profile.birthday
+        super().save(*args, **kwargs)
 
     @property
     def is_valid(self):
-        if self.profile.birthday:
-            today = now().date()
-            birthday_this_year = self.profile.birthday.replace(year=today.year)
-            start_date = birthday_this_year
-            end_date = birthday_this_year + timedelta(days=self.valid_days)
-            return start_date <= today <= end_date
-        return False
+        today = now().date()
+        
+        # Перевіряємо, чи знижка вже використана в цьому році
+        if self.used_year and self.used_year == today.year:
+            return False
+
+        # Використовуємо збережену дату народження
+        if not self.birthday_at_creation:
+            return False
+
+        # Формуємо період дії знижки
+        birthday_this_year = self.birthday_at_creation.replace(year=today.year)
+        start_date = birthday_this_year
+        end_date = birthday_this_year + timedelta(days=self.valid_days)
+
+        # Перевіряємо, чи сьогодні входить у період дії знижки
+        return start_date <= today <= end_date
+
     @property
     def email(self):
         return self.profile.user.email
+
     def __str__(self):
         return f"Знижка {self.discount_percentage}% для {self.email} на день народження"
+
+    class Meta:
+        verbose_name = _("Знижка на день народження")
+        verbose_name_plural = _("Знижки на день народження")
+# class BirthdayDiscount(models.Model):
+#     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='birthday_discount', verbose_name=_("Користувач"))
+#     # user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="birthday_discount", verbose_name=_("Користувач"))
+#     discount_percentage = models.DecimalField(max_digits=4, decimal_places=2, default=Decimal('10.00'), verbose_name=_("Знижка на день народження, %"))
+#     valid_days = models.PositiveIntegerField(default=7, verbose_name=_("Дійсна кількість днів"))
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     @property
+#     def is_valid(self):
+#         if self.profile.birthday:
+#             today = now().date()
+#             birthday_this_year = self.profile.birthday.replace(year=today.year)
+#             start_date = birthday_this_year
+#             end_date = birthday_this_year + timedelta(days=self.valid_days)
+#             return start_date <= today <= end_date
+#         return False
+#     @property
+#     def email(self):
+#         return self.profile.user.email
+#     def __str__(self):
+#         return f"Знижка {self.discount_percentage}% для {self.email} на день народження"
 
 
 

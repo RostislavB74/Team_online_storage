@@ -714,6 +714,46 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/discounts/apply/:
+    post:
+      operationId: api_v1_discounts_apply_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: BIRTHDAY10
+              required:
+              - code
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyDiscountResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyDiscountResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyDiscountResponse'
+          description: ''
   /api/v1/discounts/available/:
     get:
       operationId: api_v1_discounts_available_retrieve
@@ -1697,6 +1737,27 @@ components:
             format: uri
       required:
       - endpoints
+    ApplyDiscountResponse:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ApplyDiscountResponseStatusEnum'
+        message:
+          type: string
+        discount:
+          type: number
+          format: double
+      required:
+      - message
+      - status
+    ApplyDiscountResponseStatusEnum:
+      enum:
+      - success
+      - error
+      type: string
+      description: |-
+        * `success` - success
+        * `error` - error
     BlankEnum:
       enum:
       - ''
@@ -1893,9 +1954,8 @@ components:
           type: string
           nullable: true
         coupon:
-          type: string
+          type: integer
           nullable: true
-          maxLength: 50
         call_me:
           type: boolean
         total_price:
@@ -1911,7 +1971,7 @@ components:
           format: decimal
           pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: '#/components/schemas/OrderStatusEnum'
         created_at:
           type: string
           format: date-time
@@ -1988,6 +2048,18 @@ components:
       - product_price
       - quantity
       - total_price
+    OrderStatusEnum:
+      enum:
+      - new
+      - paid
+      - failed
+      - reversed
+      type: string
+      description: |-
+        * `new` - New
+        * `paid` - Paid
+        * `failed` - Failed
+        * `reversed` - Reversed
     PaginatedDescriptionsList:
       type: object
       required:
@@ -2191,9 +2263,8 @@ components:
           type: string
           nullable: true
         coupon:
-          type: string
+          type: integer
           nullable: true
-          maxLength: 50
         call_me:
           type: boolean
         total_price:
@@ -2209,7 +2280,7 @@ components:
           format: decimal
           pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: '#/components/schemas/OrderStatusEnum'
         created_at:
           type: string
           format: date-time
@@ -2597,18 +2668,6 @@ components:
       required:
       - finger_circumference
       - ring_size
-    StatusEnum:
-      enum:
-      - new
-      - paid
-      - failed
-      - reversed
-      type: string
-      description: |-
-        * `new` - New
-        * `paid` - Paid
-        * `failed` - Failed
-        * `reversed` - Reversed
     SubCategories:
       type: object
       properties:
@@ -2851,8 +2910,14 @@ components:
           type: string
           format: uri
           nullable: true
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+          readOnly: true
       required:
       - id
+      - orders
       - user
     UserProfileGenderEnum:
       enum:
