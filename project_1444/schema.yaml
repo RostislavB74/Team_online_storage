@@ -11,7 +11,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -49,7 +48,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -93,7 +91,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -119,7 +116,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -138,7 +134,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -179,7 +174,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '201':
@@ -203,7 +197,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -239,7 +232,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -273,7 +265,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -296,7 +287,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '204':
@@ -317,7 +307,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '204':
@@ -343,7 +332,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -378,7 +366,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -409,7 +396,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '201':
@@ -434,7 +420,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -470,7 +455,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -505,7 +489,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -529,7 +512,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '204':
@@ -556,7 +538,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -585,7 +566,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -611,7 +591,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -647,7 +626,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -683,7 +661,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -708,7 +685,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -733,7 +709,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       responses:
         '200':
@@ -771,7 +746,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -792,7 +766,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -810,7 +783,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -840,7 +812,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -865,7 +836,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -900,7 +870,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -935,7 +904,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -959,7 +927,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -986,7 +953,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1018,7 +984,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1047,7 +1012,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1073,7 +1037,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1109,7 +1072,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1145,7 +1107,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1170,7 +1131,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1194,7 +1154,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1213,7 +1172,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1244,7 +1202,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1270,7 +1227,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1306,7 +1262,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1342,7 +1297,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1367,7 +1321,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1395,7 +1348,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1425,7 +1377,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1451,7 +1402,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1488,7 +1438,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1524,7 +1473,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1549,7 +1497,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1563,7 +1510,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1572,6 +1518,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Version'
+          description: ''
+  /auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Аутентифікація користувача та генерація OTP
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: ''
+  /auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Вихід користувача та видалення токена
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Logout'
           description: ''
   /auth/register/:
     post:
@@ -1594,7 +1587,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1604,102 +1596,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Token'
           description: ''
-  /notifications/:
-    get:
-      operationId: notifications_retrieve
-      description: Отримання або оновлення налаштувань сповіщень
-      tags:
-      - notifications
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserNotificationSettings'
-          description: ''
+  /auth/verify-otp/:
     post:
-      operationId: notifications_create
-      tags:
-      - notifications
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserNotificationSettings'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/UserNotificationSettings'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/UserNotificationSettings'
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserNotificationSettings'
-          description: ''
-  /profile/:
-    get:
-      operationId: profile_retrieve
-      description: Отримання або оновлення профілю користувача
-      tags:
-      - profile
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserProfile'
-          description: ''
-    post:
-      operationId: profile_create
-      tags:
-      - profile
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserProfile'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/UserProfile'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/UserProfile'
-      security:
-      - jwtAuth: []
-      - tokenAuth: []
-      - basicAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserProfile'
-          description: ''
-  /verify-otp/:
-    post:
-      operationId: verify_otp_create
+      operationId: auth_verify_otp_create
       description: Верифікація OTP та видача токена
       tags:
-      - verify-otp
+      - auth
       requestBody:
         content:
           application/json:
@@ -1715,7 +1617,6 @@ paths:
       security:
       - jwtAuth: []
       - tokenAuth: []
-      - basicAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -1724,6 +1625,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Token'
+          description: ''
+  /user/notifications/:
+    get:
+      operationId: user_notifications_retrieve
+      description: Отримання або оновлення налаштувань сповіщень
+      tags:
+      - user
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserNotificationSettings'
+          description: ''
+    post:
+      operationId: user_notifications_create
+      tags:
+      - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNotificationSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserNotificationSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserNotificationSettings'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserNotificationSettings'
+          description: ''
+  /user/profile/:
+    get:
+      operationId: user_profile_retrieve
+      description: Отримання або оновлення профілю користувача
+      tags:
+      - user
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    post:
+      operationId: user_profile_create
+      tags:
+      - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
           description: ''
 components:
   schemas:
@@ -1914,6 +1901,28 @@ components:
           type: string
           maxLength: 10
       required:
+      - status
+    Login:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    Logout:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      required:
+      - message
       - status
     NullEnum:
       enum:
@@ -2925,8 +2934,8 @@ components:
       - F
       type: string
       description: |-
-        * `M` - Male
-        * `F` - Female
+        * `M` - Чоловічий
+        * `F` - Жіночий
     Version:
       type: object
       properties:
@@ -2940,9 +2949,6 @@ components:
       - git_version
       - version
   securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
     cookieAuth:
       type: apiKey
       in: cookie
