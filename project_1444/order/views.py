@@ -12,9 +12,102 @@ from product.utils import get_discounted_price
 from users.models import UserProfile
 from decimal import Decimal
 import logging
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 logger = logging.getLogger(__name__)
+class CreateOrderAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request):
+        user = request.user
+        serializer = OrderSerializer(data=request.data)
+        if serializer.is_valid():
+            # Створюємо замовлення
+            order = serializer.save(user=user)
+
+            # Обчислюємо total_price
+            total_price = Decimal('0.00')
+            for item in order.items.all():
+                total_price += Decimal(item.quantity) * Decimal(item.product_price)
+            order.total_price = total_price
+
+            # Перевіряємо, чи є застосована BirthdayDiscount у сесії
+            discount_amount = Decimal('0.00')
+            birthday_discount_id = request.session.get('applied_birthday_discount')
+            if birthday_discount_id:
+                try:
+                    birthday_discount = BirthdayDiscount.objects.get(id=birthday_discount_id)
+                    discount_percentage = Decimal(birthday_discount.discount_percentage)
+                    discount_amount = (total_price * discount_percentage) / Decimal('100.0')
+                    order.birthday_discount = birthday_discount
+                except BirthdayDiscount.DoesNotExist:
+                    pass
+
+            # Враховуємо знижку
+            order.discount = discount_amount
+            order.final_price = total_price - discount_amount
+            order.save()
+
+            # Очищаємо сесію
+            request.session.pop('applied_birthday_discount', None)
+
+            response_serializer = OrderSerializer(order)
+            return Response({
+                "payment_url": f"/api/payment/pay/{order.id}/",
+                "order": response_serializer.data
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class CreateOrderAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request):
+#         user = request.user
+#         serializer = OrderSerializer(data=request.data)
+#         if serializer.is_valid():
+#             # Створюємо замовлення
+#             order = serializer.save(user=user)
+
+#             # Обчислюємо total_price на основі товарів
+#             total_price = Decimal('0.00')
+#             for item in order.items.all():
+#                 total_price += Decimal(item.quantity) * Decimal(item.product_price)
+#             order.total_price = total_price
+
+#             # Перевіряємо, чи є доступна BirthdayDiscount
+#             discount_amount = Decimal('0.00')
+#             birthday_discount = None
+#             if hasattr(user, 'profile'):
+#                 birthday_qs = BirthdayDiscount.objects.filter(
+#                     profile__user=user,
+#                     used_year__isnull=True
+#                 )
+#                 for bd in birthday_qs:
+#                     if bd.is_valid:
+#                         birthday_discount = bd
+#                         break
+
+#             # Застосовуємо BirthdayDiscount, якщо є
+#             if birthday_discount:
+#                 discount_percentage = Decimal(birthday_discount.discount_percentage)
+#                 discount_amount = (total_price * discount_percentage) / Decimal('100.0')
+#                 birthday_discount.used_year = now().year
+#                 birthday_discount.save()
+
+#             # Враховуємо знижку
+#             order.discount = discount_amount
+#             order.final_price = total_price - discount_amount
+#             order.save()
+
+#             # Серіалізуємо і повертаємо відповідь
+#             response_serializer = OrderSerializer(order)
+#             return Response({
+#                 "payment_url": f"/api/payment/pay/{order.id}/",
+#                 "order": response_serializer.data
+#             }, status=status.HTTP_201_CREATED)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer

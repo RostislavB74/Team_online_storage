@@ -7,7 +7,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 
 from django.urls import path
-from .views import AvailableDiscountsView
+from .views import AvailableDiscountsView, ApplyDiscountAPIView
 
 app_name = "discounts"
 
@@ -21,4 +21,5 @@ app_name = "discounts"
 urlpatterns = [
     path('', include(router.urls)),
     path("available/", AvailableDiscountsView.as_view(), name="available-discounts"),
+    path('apply/', ApplyDiscountAPIView.as_view(), name='apply-discount'),
 ]
