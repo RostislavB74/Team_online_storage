@@ -86,9 +86,9 @@ class CollectionDiscountAdmin(admin.ModelAdmin):
 
 @admin.register(OccasionsDiscount)
 class OccasionsDiscountAdmin(admin.ModelAdmin):
-    list_display = ("ocassions", "discount_percentage", "valid_from", "valid_to", "is_active")
+    list_display = ("occasions", "discount_percentage", "valid_from", "valid_to", "is_active")
     list_filter = ("is_active", "valid_from", "valid_to")
-    search_fields = ("ocassions__name",)
+    search_fields = ("occasions__name",)
 
     verbose_name = "Знижки з приводу"
     verbose_name_plural = "Знижки з приводів"

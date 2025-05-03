@@ -65,8 +65,8 @@ class UserProfile(models.Model):
     partner_birthday = models.DateField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     wedding_date = models.DateField(blank=True, null=True)
-    occassions_personal = models.CharField(max_length=100, blank=True, null=True)
-    occassions_date = models.DateField(blank=True, null=True)
+    occasions_personal = models.CharField(max_length=100, blank=True, null=True)
+    occasions_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return self.user.username
