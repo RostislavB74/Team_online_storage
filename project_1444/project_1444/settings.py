@@ -184,6 +184,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "social_django.context_processors.backends",
                 "social_django.context_processors.login_redirect",
+                "django.template.context_processors.i18n",
             ],
         },
     },
@@ -195,8 +196,8 @@ WSGI_APPLICATION = "project_1444.wsgi.application"
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # URL для перенаправлення після логіну/логоуту
-LOGIN_URL = "/login/"
-LOGIN_REDIRECT_URL = "/profile/"
+LOGIN_URL = "auth/login/"
+LOGIN_REDIRECT_URL = "user/profile/"
 LOGOUT_REDIRECT_URL = "/admin/login/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Database
@@ -468,6 +469,7 @@ try:
     EMAIL_USE_SSL = env("EMAIL_USE_SSL", cast=bool, default=True)
     EMAIL_HOST_USER = env("EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
     if not EMAIL_HOST:
         EMAIL_BACKEND = None
 except (KeyError, environ.ImproperlyConfigured):
@@ -489,7 +491,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.TokenAuthentication",
-        "rest_framework.authentication.BasicAuthentication",
+        # "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_THROTTLE_CLASSES": [

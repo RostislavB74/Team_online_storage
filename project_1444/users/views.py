@@ -2,11 +2,14 @@ import logging
 import random
 from datetime import timedelta
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from djoser.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -31,6 +34,12 @@ from .utils import send_email_in_background
 logger = logging.getLogger(__name__)
 
 
+class CSRFAPIView(APIView):
+    @method_decorator(ensure_csrf_cookie)
+    def get(self, request):
+        return JsonResponse({"message": "CSRF cookie set"})
+
+
 def merge_carts(user, session_key):
     guest_carts = Cart.objects.filter(session_key=session_key)
     for guest_cart in guest_carts:
@@ -45,6 +54,56 @@ def merge_carts(user, session_key):
     guest_carts.delete()
 
 
+def send_otp_by_email(request, user):
+    otp_code = "".join(random.choices("0123456789", k=6))
+    expires_at = timezone.now() + timedelta(
+        minutes=getattr(settings, "OTP_EXPIRATION_TIME", 15)
+    )
+
+    OTP.objects.update_or_create(
+        user=user,
+        defaults={
+            "code": otp_code,
+            "expires_at": expires_at,
+        },
+    )
+
+    # Відправка OTP на email
+    try:
+        html_message = render_to_string(
+            "emails/otp_email.html",
+            {
+                "otp_code": otp_code,
+                "expiration_time": getattr(settings, "OTP_EXPIRATION_TIME", 15),
+            },
+        )
+        send_email_in_background(
+            subject=_("Your OTP Code"),
+            message=_("Your verification code is ") + otp_code,
+            from_email=None,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        logger.info(f"OTP sent to {user.email}: {otp_code}")
+    except Exception as e:
+        logger.error(f"Failed to send OTP to {user.email}: {str(e)}")
+        return Response(
+            {
+                "status": "error",
+                "message": _("Failed to send OTP. Please try again."),
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    request.session["otp_user_id"] = user.id
+    return {
+        "status": "otp_sent",
+        "message": _("OTP sent to your email"),
+        "otp_user_id": user.id,
+    }
+
+
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     throttle_classes = [AnonRateThrottle]
@@ -56,72 +115,30 @@ class LoginAPIView(APIView):
     )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data["username"]
-        password = serializer.validated_data["password"]
-        user = authenticate(request, username=username, password=password)
-        if user:
-            if not user.email:
-                return Response(
-                    {
-                        "status": "error",
-                        "message": _("Email address is required for OTP verification"),
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            otp_code = "".join(random.choices("0123456789", k=6))
-            OTP.objects.create(
-                user=user,
-                code=otp_code,
-                expires_at=timezone.now()
-                + timedelta(minutes=getattr(settings, "OTP_EXPIRATION_TIME", 15)),
+        try:
+            serializer.is_valid(raise_exception=True)
+            username = serializer.validated_data["username"]
+            password = serializer.validated_data["password"]
+            user = authenticate(username=username, password=password)
+            if not user:
+                raise Exception("Invalid credentials")
+        except Exception:
+            return Response(
+                {"status": "error", "message": _("Invalid credentials")},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-
-            # Відправка OTP на email
-            try:
-                html_message = render_to_string(
-                    "emails/otp_email.html", {"otp_code": otp_code}
-                )
-                send_email_in_background(
-                    subject=_("Your OTP Code"),
-                    message=_("Your verification code is ") + otp_code,
-                    from_email=None,
-                    recipient_list=[user.email],
-                    html_message=html_message,
-                    fail_silently=False,
-                )
-                # send_mail(
-                #     subject='Your OTP Code',
-                #     message=f'Your verification code is {otp_code}. It is valid for 5 minutes.',
-                #     from_email=None,  # Використовує DEFAULT_FROM_EMAIL
-                #     recipient_list=[user.email],
-                #     fail_silently=False,
-                # )
-                logger.info(f"OTP sent to {user.email}: {otp_code}")
-            except Exception as e:
-                logger.error(f"Failed to send OTP to {user.email}: {str(e)}")
-                return Response(
-                    {
-                        "status": "error",
-                        "message": _("Failed to send OTP. Please try again."),
-                    },
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-
-            request.session["otp_user_id"] = user.id
+        if not user.email:
             return Response(
                 {
-                    "status": "otp_sent",
-                    "message": _("OTP sent to your email"),
-                    "otp_user_id": user.id,
+                    "status": "error",
+                    "message": _("Email address is required for OTP verification"),
                 },
-                status=status.HTTP_200_OK,
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        return Response(
-            {"status": "error", "message": _("Invalid credentials")},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+
+        data = send_otp_by_email(request, user)
+
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 class VerifyOTPAPIView(APIView):
@@ -193,13 +210,32 @@ class RegisterAPIView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        login(request, user, "django.contrib.auth.backends.ModelBackend")
-        token, created = Token.objects.get_or_create(user=user)
+        # login(request, user, "django.contrib.auth.backends.ModelBackend")
+        if not user.email:
+            return Response(
+                {
+                    "status": "error",
+                    "message": _("Email address is required for OTP verification"),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        data = send_otp_by_email(request, user)
+        otp_status = data.get("status")
+        if otp_status == "error":
+            user.delete()
+            return Response(
+                {
+                    "status": otp_status,
+                    "message": _("Failed to send OTP. Please try again."),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        # token, created = Token.objects.get_or_create(user=user)
         return Response(
             {
-                "status": "success",
-                "message": _("Registration successful"),
-                "token": token.key,
+                "status": otp_status,
+                "message": _("Registration successful") + ". " + data.get("message"),
+                # "token": token.key,
                 "user_id": user.pk,
                 "username": user.username,
             },
@@ -306,7 +342,7 @@ class NotificationSettingsAPIView(APIView):
     @extend_schema(
         request=UserNotificationSettingsSerializer,
         responses={200: UserNotificationSettingsSerializer},
-        description="Отримання або оновлення налаштувань сповіщень",
+        description=_("Отримання або оновлення налаштувань сповіщень"),
     )
     def get(self, request):
         try:
@@ -356,11 +392,12 @@ class LogoutAPIView(APIView):
     )
     def post(self, request):
         try:
+            logout(request)
             request.user.auth_token.delete()
         except (AttributeError, Token.DoesNotExist):
             pass
         return Response(
-            {"status": "success", "message": "Successfully logged out"},
+            {"status": "success", "message": _("Successfully logged out")},
             status=status.HTTP_200_OK,
         )
 

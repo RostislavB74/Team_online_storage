@@ -8,12 +8,12 @@ logger = logging.getLogger(__name__)
 
 
 # Відправка OTP на email
-def send_otp_via_email(email, otp):
-    subject = "Ваш код підтвердження"
-    message = f"Ваш код підтвердження: {otp}"
-    from_email = "your_email@gmail.com"
-    recipient_list = [email]
-    send_mail(subject, message, from_email, recipient_list)
+# def send_otp_via_email(email, otp):
+#     subject = "Ваш код підтвердження"
+#     message = f"Ваш код підтвердження: {otp}"
+#     from_email = "your_email@gmail.com"
+#     recipient_list = [email]
+#     send_mail(subject, message, from_email, recipient_list)
 
 
 # Відправка OTP через SMS (замінити на реальний API)

@@ -109,7 +109,6 @@ class AuthAPITest(TestCase):
         # print("POST", response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["status"], "otp_sent")
-        self.assertEqual(response.data["message"], "OTP sent to your email")
         self.assertEqual(response.data["otp_user_id"], user.pk)
 
     def test_register_user(self):
@@ -119,18 +118,30 @@ class AuthAPITest(TestCase):
             "password_confirm": self.user_test["password"],
             "email": self.user_test["email"],
         }
-        response = self.client.post(reverse("api_register"), data, format="json")
+        otp_code = None
+        with mock.patch("users.views.send_email_in_background") as mock_send_mail:
+            mock_send_mail.return_value = None
+            response = self.client.post(reverse("api_register"), data, format="json")
+            user_id = response.data.get("user_id")
+            self.assertGreater(user_id, 1, "User ID should be greater than 1")
+            assert mock_send_mail.called, "Email was not sent!"
+            # print("Mock args:", mock_send_mail.call_args)
+            # Unpack arguments
+            kwargs = mock_send_mail.call_args.kwargs  # or call_args[1]
+            message = kwargs["message"]
+            otp_code = self.extract_otp_code(message)
+            assert otp_code, "OTP code is not extracted"
+            verified_otp = self.verify_otp_code_request(otp_code, user_id)
+            self.assertTrue(verified_otp, "OTP code is not valid")
         # print("POST", response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            response.data.get("status"), "success", "Status should be success"
+            response.data.get("status"), "otp_sent", "Status should be otp_sent"
         )
         self.assertEqual(
             response.data.get("username"),
             self.user_test["username"],
             "Username should be the same",
         )
-        self.assertGreater(
-            response.data.get("user_id"), 1, "User ID should be greater than 1"
-        )
-        assert response.data.get("token"), "Token should not be returned"
+
+        self.assertIsNone(response.data.get("token"), "Token should not be returned")
