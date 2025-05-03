@@ -179,6 +179,10 @@ class VerifyOTPAPIView(APIView):
             otp.delete()
             merge_carts(user, request.session.session_key)
             token, created = Token.objects.get_or_create(user=user)
+            if created and user.is_active is False:
+                user.is_active = True
+                user.save()
+
             if "otp_user_id" in request.session:
                 del request.session["otp_user_id"]
             return Response(
@@ -212,6 +216,7 @@ class RegisterAPIView(APIView):
         user = serializer.save()
         # login(request, user, "django.contrib.auth.backends.ModelBackend")
         if not user.email:
+            user.delete()
             return Response(
                 {
                     "status": "error",
