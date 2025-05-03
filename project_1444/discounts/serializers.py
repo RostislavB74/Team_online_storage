@@ -72,14 +72,48 @@ class PersonalDiscountSerializer(serializers.ModelSerializer):
             "applicable_categories", "user_groups", "created_at", "is_valid", "email"
         ]
 
+# class BirthdayDiscountSerializer(serializers.ModelSerializer):
+#     profile = UserProfileSerializer(read_only=True)
+#     is_valid = serializers.BooleanField(read_only=True)
+#     email = serializers.CharField(read_only=True)
+
+#     class Meta:
+#         model = BirthdayDiscount
+#         fields = [
+#             "id", "profile", "discount_percentage", "valid_days", "created_at",
+#             "is_valid", "email"
+#         ]
 class BirthdayDiscountSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(read_only=True)
     is_valid = serializers.BooleanField(read_only=True)
     email = serializers.CharField(read_only=True)
+    code = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
+    valid_until = serializers.SerializerMethodField()
 
     class Meta:
         model = BirthdayDiscount
         fields = [
             "id", "profile", "discount_percentage", "valid_days", "created_at",
-            "is_valid", "email"
+            "is_valid", "email", "code", "description", "discount", "valid_until"
         ]
+
+    def get_code(self, obj):
+        return f"BIRTHDAY{obj.discount_percentage}"
+
+    def get_description(self, obj):
+        return f"{obj.discount_percentage}% off for your birthday"
+
+    def get_discount(self, obj):
+        return float(obj.discount_percentage)
+
+    def get_valid_until(self, obj):
+        if obj.birthday_at_creation:
+            return obj.birthday_at_creation.replace(year=now().year) + timedelta(days=obj.valid_days)
+        return None
+
+class ApplyDiscountResponseSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=["success", "error"])
+    message = serializers.CharField()
+    discount = serializers.FloatField(required=False)
