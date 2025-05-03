@@ -133,7 +133,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     fields = (
         'user', 'gender', 'messengers',
         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
-        'address', 'wedding_date', 'ocassions_personal', 'ocassions_date',
+        'address', 'wedding_date', 'occasions_personal', 'occasions_date',
         'orders_display'
     )
     readonly_fields = ('orders_display',)
