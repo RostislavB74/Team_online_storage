@@ -12,25 +12,27 @@ from order.models import Order, OrderItem  # Імпортуємо із orders
 from product.serializers import ProductSerializer
 import re
 
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        username = data.get('username')
-        password = data.get('password')
+        username = data.get("username")
+        password = data.get("password")
         if username and password:
             user = authenticate(
-                request=self.context.get('request'),
+                request=self.context.get("request"),
                 username=username,
-                password=password
+                password=password,
             )
             if not user:
-                raise serializers.ValidationError('Invalid credentials')
+                raise serializers.ValidationError("Invalid credentials")
         else:
-            raise serializers.ValidationError('Must include username and password')
-        data['user'] = user
+            raise serializers.ValidationError("Must include username and password")
+        data["user"] = user
         return data
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -39,32 +41,36 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password_confirm']
+        fields = ["username", "email", "password", "password_confirm"]
 
     def validate(self, data):
-        if data['password'] != data['password_confirm']:
-            raise serializers.ValidationError({'password': 'Passwords must match'})
-        if User.objects.filter(email=data['email']).exists():
-            raise serializers.ValidationError({'email': 'Email already exists'})
+        if data["password"] != data["password_confirm"]:
+            raise serializers.ValidationError({"password": "Passwords must match"})
+        if User.objects.filter(email=data["email"]).exists():
+            raise serializers.ValidationError({"email": "Email already exists"})
         return data
 
     def create(self, validated_data):
-        validated_data.pop('password_confirm')
+        validated_data.pop("password_confirm")
         user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+            is_active=False,
         )
         return user
+
 
 class OTPSerializer(serializers.Serializer):
     otp_code = serializers.CharField(max_length=6, min_length=6)
     otp_user_id = serializers.IntegerField(required=False)
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
-    user = serializers.CharField(source='user.username', read_only=True)
+    user = serializers.CharField(source="user.username", read_only=True)
     avatar = serializers.ImageField(allow_null=True, required=False)
-    messengers = serializers.JSONField(default=dict, source='get_messengers_for_admin')
-    orders = OrderSerializer(many=True, source='user.orders', read_only=True)
+    messengers = serializers.JSONField(default=dict, source="get_messengers_for_admin")
+    orders = OrderSerializer(many=True, source="user.orders", read_only=True)
 
     class Meta:
         model = UserProfile
@@ -73,19 +79,21 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def validate_messengers(self, value):
         if not isinstance(value, dict):
             raise serializers.ValidationError("Messengers must be a dictionary")
-        
+
         allowed_messengers = set(settings.ALLOWED_MESSENGERS)
         for key in value:
             if key not in allowed_messengers:
                 raise serializers.ValidationError(f"Unsupported messenger: {key}")
-            
-            if key in {'viber', 'whatsapp'} and value[key]:
-                if not re.match(r'^\+?\d{10,15}$', value[key]):
-                    raise serializers.ValidationError(f"Invalid {key} format. Must be a phone number (e.g., +380123456789)")
-            if key == 'telegram' and value[key]:
-                if not value[key].startswith('@'):
+
+            if key in {"viber", "whatsapp"} and value[key]:
+                if not re.match(r"^\+?\d{10,15}$", value[key]):
+                    raise serializers.ValidationError(
+                        f"Invalid {key} format. Must be a phone number (e.g., +380123456789)"
+                    )
+            if key == "telegram" and value[key]:
+                if not value[key].startswith("@"):
                     raise serializers.ValidationError("Telegram ID must start with @")
-            if key == 'signal' and value[key] == '':
+            if key == "signal" and value[key] == "":
                 raise serializers.ValidationError("Signal ID cannot be empty")
 
         return value
@@ -100,6 +108,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if value and value.size > 2 * 1024 * 1024:
             raise serializers.ValidationError("Image size must be under 2MB.")
         return value
+
+
 # class UserProfileSerializer(serializers.ModelSerializer):
 #     user = serializers.CharField(source='user.username', read_only=True)
 #     avatar = serializers.ImageField(allow_null=True, required=False)
@@ -113,12 +123,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
 #     def validate_messengers(self, value):
 #         if not isinstance(value, dict):
 #             raise serializers.ValidationError("Messengers must be a dictionary")
-        
+
 #         allowed_messengers = set(settings.ALLOWED_MESSENGERS)
 #         for key in value:
 #             if key not in allowed_messengers:
 #                 raise serializers.ValidationError(f"Unsupported messenger: {key}")
-            
+
 #             # Валідація формату
 #             if key in {'viber', 'whatsapp'} and value[key]:
 #                 if not re.match(r'^\+?\d{10,15}$', value[key]):
@@ -142,15 +152,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
 #             raise serializers.ValidationError("Image size must be under 2MB.")
 #         return value
 
+
 class UserNotificationSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserNotificationSettings
-        fields = ['email_notifications', 'sms_notifications', 'viber_notifications']
+        fields = ["email_notifications", "sms_notifications", "viber_notifications"]
+
 
 class TokenSerializer(serializers.Serializer):
     token = serializers.CharField()
     user_id = serializers.IntegerField()
     username = serializers.CharField()
+
 
 class LogoutSerializer(serializers.Serializer):
     status = serializers.CharField()
