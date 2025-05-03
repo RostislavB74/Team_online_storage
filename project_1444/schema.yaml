@@ -723,14 +723,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ApplyDiscountResponse'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ApplyDiscountResponse'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ApplyDiscountResponse'
-        required: true
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: BIRTHDAY10
+              required:
+              - code
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -738,6 +737,18 @@ paths:
       - cookieAuth: []
       responses:
         '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyDiscountResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyDiscountResponse'
+          description: ''
+        '404':
           content:
             application/json:
               schema:
@@ -1943,9 +1954,8 @@ components:
           type: string
           nullable: true
         coupon:
-          type: string
+          type: integer
           nullable: true
-          maxLength: 50
         call_me:
           type: boolean
         total_price:
@@ -2253,9 +2263,8 @@ components:
           type: string
           nullable: true
         coupon:
-          type: string
+          type: integer
           nullable: true
-          maxLength: 50
         call_me:
           type: boolean
         total_price:
