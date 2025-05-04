@@ -172,6 +172,9 @@ class UserProfileAdmin(admin.ModelAdmin):
             for order in orders
         ]
 
+        # Обчислимо об'єднання рядків окремо
+        rows_html = ' '.join(table_rows)
+
         table_html = (
             '<table class="orders-table">'
             '<thead>'
@@ -184,7 +187,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             '</tr>'
             '</thead>'
             '<tbody>'
-            f'{' '.join(table_rows)}'
+            f'{rows_html}'
             '</tbody>'
             '</table>'
         )
@@ -204,7 +207,155 @@ class UserProfileAdmin(admin.ModelAdmin):
                 'admin/css/orders_table.css',
             )
         }
+# @admin.register(UserProfile)
+# class UserProfileAdmin(admin.ModelAdmin):
+#     form = UserProfileAdminForm
+#     list_display = ('user', 'gender', 'get_messengers_display', 'get_orders_display')
+#     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
+#     fields = (
+#         'user', 'gender', 'messengers',
+#         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
+#         'address', 'wedding_date', 'occasions_personal', 'occasions_date',
+#         'orders_display'
+#     )
+#     readonly_fields = ('orders_display',)
 
+#     def get_messengers_display(self, obj):
+#         return json.dumps(obj._messengers, indent=2, ensure_ascii=False)
+#     get_messengers_display.short_description = 'Messengers'
+
+#     def get_orders_display(self, obj):
+#         if not obj.user:
+#             return "No user associated"
+#         orders = obj.user.orders.all()
+#         if not orders:
+#             return "No orders"
+#         return ", ".join([f"Order #{order.id} ({order.status})" for order in orders])
+#     get_orders_display.short_description = 'Orders'
+
+#     def orders_display(self, obj):
+#         """Відображає замовлення у вигляді таблиці на сторінці редагування профілю"""
+#         if not obj.user:
+#             return "No user associated"
+#         orders = obj.user.orders.all()
+#         if not orders:
+#             return "No orders"
+
+#         # Формуємо HTML-таблицю
+#         table_rows = [
+#             f'<tr>'
+#             f'<td><a href="/admin/order/order/{order.id}/change/">Order #{order.id}</a></td>'
+#             f'<td>{order.status}</td>'
+#             f'<td>{order.total_price}</td>'
+#             f'<td>{order.final_price}</td>'
+#             f'<td>{order.created_at.strftime("%Y-%m-%d %H:%M")}</td>'
+#             f'</tr>'
+#             for order in orders
+#         ]
+
+#         table_html = (
+#             '<table class="orders-table">'
+#             '<thead>'
+#             '<tr>'
+#             '<th>Order ID</th>'
+#             '<th>Status</th>'
+#             '<th>Total Price</th>'
+#             '<th>Final Price</th>'
+#             '<th>Created At</th>'
+#             '</tr>'
+#             '</thead>'
+#             '<tbody>'
+#             f'{"".join(table_rows)}'
+#             '</tbody>'
+#             '</table>'
+#         )
+
+#         return format_html(table_html)
+#     orders_display.short_description = 'User Orders'
+
+#     class Media:
+#         js = ('admin/js/messenger_field.js',)
+#         css = {
+#             'all': (
+#                 'admin/css/messenger_field.css',
+#                 # Додаємо кастомний CSS для таблиці
+#                 'admin/css/orders_table.css',
+#             )
+#         }
+# @admin.register(UserProfile)
+# class UserProfileAdmin(admin.ModelAdmin):
+#     form = UserProfileAdminForm
+#     list_display = ('user', 'gender', 'get_messengers_display', 'get_orders_display')
+#     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
+#     fields = (
+#         'user', 'gender', 'messengers',
+#         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
+#         'address', 'wedding_date', 'ocassions_personal', 'ocassions_date'
+#     )
+
+#     def get_messengers_display(self, obj):
+#         return json.dumps(obj._messengers, indent=2, ensure_ascii=False)
+#     get_messengers_display.short_description = 'Messengers'
+
+#     def get_orders_display(self, obj):
+#         if not obj.user:  # Перевіряємо, чи є користувач
+#             return "No user associated"
+#         orders = obj.user.orders.all()  # Тепер orders доступний завдяки related_name
+#         if not orders:
+#             return "No orders"
+#         return ", ".join([f"Order #{order.id} ({order.status})" for order in orders])
+#     get_orders_display.short_description = 'Orders'
+
+#     class Media:
+#         js = ('admin/js/messenger_field.js',)
+#         css = {'all': ('admin/css/messenger_field.css',)}
+# @admin.register(UserProfile)
+# class UserProfileAdmin(admin.ModelAdmin):
+#     form = UserProfileAdminForm
+#     list_display = ('user', 'gender', 'get_messengers_display', 'get_orders_display')
+#     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
+#     fields = (
+#         'user', 'gender', 'messengers',
+#         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
+#         'address', 'wedding_date', 'ocassions_personal', 'ocassions_date'
+#     )
+
+#     def get_messengers_display(self, obj):
+#         return json.dumps(obj._messengers, indent=2, ensure_ascii=False)
+#     get_messengers_display.short_description = 'Messengers'
+
+#     def get_orders_display(self, obj):
+#         orders = obj.user.orders.all()
+#         return ", ".join([f"Order #{order.id} ({order.status})" for order in orders])
+#     get_orders_display.short_description = 'Orders'
+
+#     class Media:
+#         js = ('admin/js/messenger_field.js',)
+#         css = {'all': ('admin/css/messenger_field.css',)}
+
+# @admin.register(Order)
+# class OrderAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'user', 'status', 'total_price', 'created_at')
+#     list_filter = ('status', 'created_at')
+#     search_fields = ('user__username',)
+# @admin.register(UserProfile)
+# class UserProfileAdmin(admin.ModelAdmin):
+#     form = UserProfileAdminForm
+#     list_display = ('user', 'gender', 'get_messengers_display')
+#     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
+#     fields = (
+#         'user', 'gender', 'messengers',
+#         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
+#         'address', 'wedding_date', 'ocassions_personal', 'ocassions_date'
+#     )
+
+#     def get_messengers_display(self, obj):
+#         return json.dumps(obj._messengers, indent=2, ensure_ascii=False)
+#     get_messengers_display.short_description = 'Messengers'
+
+#     class Media:
+#         js = ('admin/js/messenger_field.js',)
+#         css = {'all': ('admin/css/messenger_field.css',)}
 
 @admin.register(OTP)
 class OTPAdmin(admin.ModelAdmin):
