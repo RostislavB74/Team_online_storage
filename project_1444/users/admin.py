@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 from order.models import Order
 from django.template.loader import get_template
 from django.utils.html import format_html
+from django.urls import reverse
 User = get_user_model()
 
 
@@ -162,7 +163,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         # Формуємо HTML-таблицю
         table_rows = [
             f'<tr>'
-            f'<td><a href="/admin/orders/order/{order.id}/change/">Order #{order.id}</a></td>'
+            f'<td><a href="{reverse("admin:order_order_change", args=[order.id])}">Order #{order.id}</a></td>'
             f'<td>{order.status}</td>'
             f'<td>{order.total_price}</td>'
             f'<td>{order.final_price}</td>'
@@ -170,6 +171,9 @@ class UserProfileAdmin(admin.ModelAdmin):
             f'</tr>'
             for order in orders
         ]
+
+        # Обчислимо об'єднання рядків окремо
+        rows_html = ' '.join(table_rows)
 
         table_html = (
             '<table class="orders-table">'
@@ -183,7 +187,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             '</tr>'
             '</thead>'
             '<tbody>'
-            f'{"".join(table_rows)}'
+            f'{rows_html}'
             '</tbody>'
             '</table>'
         )
@@ -191,15 +195,93 @@ class UserProfileAdmin(admin.ModelAdmin):
         return format_html(table_html)
     orders_display.short_description = 'User Orders'
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('user').prefetch_related('user__orders')
+
     class Media:
         js = ('admin/js/messenger_field.js',)
         css = {
             'all': (
                 'admin/css/messenger_field.css',
-                # Додаємо кастомний CSS для таблиці
                 'admin/css/orders_table.css',
             )
         }
+# @admin.register(UserProfile)
+# class UserProfileAdmin(admin.ModelAdmin):
+#     form = UserProfileAdminForm
+#     list_display = ('user', 'gender', 'get_messengers_display', 'get_orders_display')
+#     search_fields = ('user__username', 'messengers__viber', 'messengers__telegram')
+#     fields = (
+#         'user', 'gender', 'messengers',
+#         'phone', 'avatar', 'birthday', 'partner_name', 'partner_birthday',
+#         'address', 'wedding_date', 'occasions_personal', 'occasions_date',
+#         'orders_display'
+#     )
+#     readonly_fields = ('orders_display',)
+
+#     def get_messengers_display(self, obj):
+#         return json.dumps(obj._messengers, indent=2, ensure_ascii=False)
+#     get_messengers_display.short_description = 'Messengers'
+
+#     def get_orders_display(self, obj):
+#         if not obj.user:
+#             return "No user associated"
+#         orders = obj.user.orders.all()
+#         if not orders:
+#             return "No orders"
+#         return ", ".join([f"Order #{order.id} ({order.status})" for order in orders])
+#     get_orders_display.short_description = 'Orders'
+
+#     def orders_display(self, obj):
+#         """Відображає замовлення у вигляді таблиці на сторінці редагування профілю"""
+#         if not obj.user:
+#             return "No user associated"
+#         orders = obj.user.orders.all()
+#         if not orders:
+#             return "No orders"
+
+#         # Формуємо HTML-таблицю
+#         table_rows = [
+#             f'<tr>'
+#             f'<td><a href="/admin/order/order/{order.id}/change/">Order #{order.id}</a></td>'
+#             f'<td>{order.status}</td>'
+#             f'<td>{order.total_price}</td>'
+#             f'<td>{order.final_price}</td>'
+#             f'<td>{order.created_at.strftime("%Y-%m-%d %H:%M")}</td>'
+#             f'</tr>'
+#             for order in orders
+#         ]
+
+#         table_html = (
+#             '<table class="orders-table">'
+#             '<thead>'
+#             '<tr>'
+#             '<th>Order ID</th>'
+#             '<th>Status</th>'
+#             '<th>Total Price</th>'
+#             '<th>Final Price</th>'
+#             '<th>Created At</th>'
+#             '</tr>'
+#             '</thead>'
+#             '<tbody>'
+#             f'{"".join(table_rows)}'
+#             '</tbody>'
+#             '</table>'
+#         )
+
+#         return format_html(table_html)
+#     orders_display.short_description = 'User Orders'
+
+#     class Media:
+#         js = ('admin/js/messenger_field.js',)
+#         css = {
+#             'all': (
+#                 'admin/css/messenger_field.css',
+#                 # Додаємо кастомний CSS для таблиці
+#                 'admin/css/orders_table.css',
+#             )
+#         }
 # @admin.register(UserProfile)
 # class UserProfileAdmin(admin.ModelAdmin):
 #     form = UserProfileAdminForm
