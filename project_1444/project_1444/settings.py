@@ -369,9 +369,16 @@ if DEFAULT_FILE_STORAGE:
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "[{asctime}] {levelname} {name}: {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "default",
         },
     },
     "loggers": {
@@ -380,6 +387,10 @@ LOGGING = {
             "level": "INFO",
         },
         "cloudinary": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+        "users": {
             "handlers": ["console"],
             "level": "DEBUG",
         },
