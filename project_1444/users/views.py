@@ -11,13 +11,15 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from djoser.conf import settings
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.parsers import JSONParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.throttling import AnonRateThrottle
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from cart.models import Cart
 from .models import UserProfile, OTP, UserNotificationSettings
 from .serializers import (
@@ -32,6 +34,16 @@ from .serializers import (
 from .utils import send_email_in_background
 
 logger = logging.getLogger(__name__)
+
+
+@extend_schema_view(
+    post=extend_schema(
+        description=_("Get the authentication token for the user"),
+        tags=["auth"],
+    )
+)
+class JsonObtainAuthToken(ObtainAuthToken):
+    parser_classes = (JSONParser,)
 
 
 class CSRFAPIView(APIView):
