@@ -138,8 +138,6 @@ GLOBAL_LANGUAGES = [
     ("uk", "Ukrainian"),
     ("en", "English"),
 ]
-# USE_I18N = True
-# USE_L10N = True
 
 LANGUAGES = []
 for lang in GLOBAL_LANGUAGES:
@@ -271,8 +269,9 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 TIME_ZONE = "Europe/Kyiv"
-RECAPTCHA_PUBLIC_KEY = "your_public_key"
-RECAPTCHA_PRIVATE_KEY = "your_private_key"
+
+RECAPTCHA_PUBLIC_KEY = env("RECAPTCHA_PUBLIC_KEY", default=None)
+RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY", default=None)
 # settings.py
 
 STATIC_URL = env("STATIC_URL", default="/static/")  # 'static/'
@@ -489,7 +488,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.TokenAuthentication",
         # "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
@@ -545,28 +544,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
-# CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
-# CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TIMEZONE = 'Europe/Kyiv'
 
-CELERY_BROKER_URL = env(
-    "CELERY_BROKER_URL", default=None
-)  # Redis як брокер повідомлень
-if not CELERY_BROKER_URL:
-    CELERY_BROKER_URL = "redis://localhost:6379/0"
-
-CELERY_RESULT_BACKEND = env(
-    "CELERY_RESULT_BACKEND", default=None
-)  # Redis як брокер повідомлень
-if not CELERY_RESULT_BACKEND:
-    CELERY_RESULT_BACKEND = CELERY_BROKER_URL or "redis://localhost:6379/0"
-
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_TIMEZONE = "Europe/Kyiv"
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
@@ -601,6 +579,29 @@ if REDIS_URL:
         }
     except redis.ConnectionError as e:
         print(f"Can't connect to Redis {REDIS_URL}, skip of use Redis: {e}")
+
+# CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+# CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TIMEZONE = 'Europe/Kyiv'
+
+CELERY_BROKER_URL = env(
+    "CELERY_BROKER_URL", default=None
+)  # Redis як брокер повідомлень
+if not CELERY_BROKER_URL:
+    CELERY_BROKER_URL = REDIS_URL or "redis://localhost:6379/0"
+
+CELERY_RESULT_BACKEND = env(
+    "CELERY_RESULT_BACKEND", default=None
+)  # Redis як брокер повідомлень
+if not CELERY_RESULT_BACKEND:
+    CELERY_RESULT_BACKEND = CELERY_BROKER_URL or REDIS_URL or "redis://localhost:6379/0"
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE or "Europe/Kyiv"
 
 SQL_CACHE_TIMEOUT_DEFAULT = env(
     "SQL_CACHE_TIMEOUT_DEFAULT", default=60 * 60 * 1
