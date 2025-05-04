@@ -59,25 +59,27 @@ class SocialAuthSuccessToken(APIView):
                 {"error": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
             )
         if not request.session.get("is_social_login"):
-            JsonResponse(
+            return JsonResponse(
                 {"error": "This endpoint is only for social login users."},
                 status=status.HTTP_403_FORBIDDEN,
             )
         referer = request.META.get("HTTP_REFERER")
-        # print("REFERER", referer)
-        if referer and settings.CSRF_TRUSTED_ORIGINS:
+        print(f"REFERER: {referer}")
+        CSRF_TRUSTED_ORIGINS = getattr(settings, "CSRF_TRUSTED_ORIGINS", [])
+        if referer and len(CSRF_TRUSTED_ORIGINS) > 0:
             from urllib.parse import urlparse
 
             parsed = urlparse(referer)
             referer_origin = f"{parsed.scheme}://{parsed.netloc}"
-            # print("referer_origin", referer_origin)
-            if referer_origin not in settings.CSRF_TRUSTED_ORIGINS:
+            print(f"{referer_origin=}")
+            if referer_origin not in CSRF_TRUSTED_ORIGINS:
                 return JsonResponse(
                     {"error": "Invalid referer domain."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
         request.session.pop("is_social_login", None)
+        request.session.modified = True  # this forces save
         token, created = Token.objects.get_or_create(user=request.user)
         return JsonResponse({"token": token.key})
 
