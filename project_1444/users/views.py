@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.throttling import AnonRateThrottle
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from cart.models import Cart
 from .models import UserProfile, OTP, UserNotificationSettings
@@ -36,7 +36,13 @@ from .utils import send_email_in_background
 logger = logging.getLogger(__name__)
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class SocialAuthSuccessToken(APIView):
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
+    def __init__(self):
+        super().__init__()
+        self.force_logout = None
 
     @extend_schema(
         responses={
@@ -52,7 +58,6 @@ class SocialAuthSuccessToken(APIView):
         ),
         tags=["auth"],
     )
-    @csrf_exempt
     def get(self, request):
         if not request.user.is_authenticated:
             return JsonResponse(
@@ -64,14 +69,14 @@ class SocialAuthSuccessToken(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
         referer = request.META.get("HTTP_REFERER")
-        print(f"REFERER: {referer}")
+        logger.debug(f"REFERER: {referer}")
         CSRF_TRUSTED_ORIGINS = getattr(settings, "CSRF_TRUSTED_ORIGINS", [])
         if referer and len(CSRF_TRUSTED_ORIGINS) > 0:
             from urllib.parse import urlparse
 
             parsed = urlparse(referer)
             referer_origin = f"{parsed.scheme}://{parsed.netloc}"
-            print(f"{referer_origin=}")
+            logger.debug(f"{referer_origin=}")
             if referer_origin not in CSRF_TRUSTED_ORIGINS:
                 return JsonResponse(
                     {"error": "Invalid referer domain."},
@@ -81,6 +86,8 @@ class SocialAuthSuccessToken(APIView):
         request.session.pop("is_social_login", None)
         request.session.modified = True  # this forces save
         token, created = Token.objects.get_or_create(user=request.user)
+        if self.force_logout:
+            logout(request)
         return JsonResponse({"token": token.key})
 
 
