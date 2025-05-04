@@ -23,6 +23,9 @@ from pathlib import Path
 import environ
 from datetime import timedelta
 
+from django.shortcuts import resolve_url
+from django.urls import reverse_lazy
+
 # from pygments.lexer import default
 # import os
 # from urllib.parse import urlparse
@@ -205,7 +208,7 @@ AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = "auth/login/"
-LOGIN_REDIRECT_URL = "user/profile/"
+# LOGIN_REDIRECT_URL = "user/profile/"
 LOGOUT_REDIRECT_URL = "/admin/login/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Database
@@ -674,8 +677,8 @@ SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
 if all([SOCIAL_AUTH_FACEBOOK_KEY, SOCIAL_AUTH_FACEBOOK_SECRET]):
     AUTHENTICATION_BACKENDS.append("social_core.backends.facebook.FacebookOAuth2")
 
-SOCIAL_AUTH_LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
-LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
+SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy("admin:login")
+# LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 # SOCIAL_AUTH_REQUIRE_POST = True
 # SOCIAL_AUTH_PIPELINE = (
@@ -686,6 +689,7 @@ SOCIAL_AUTH_JSONFIELD_ENABLED = True
 #     "users.signals.set_username_from_email",  # Custom step to set email as the username
 # )
 SOCIAL_AUTH_PIPELINE = (
+    "users.utils.mark_social_login",
     # Get the information we can about the user and return it in a simple
     # format to create the user instance later. In some cases the details are
     # already part of the auth response from the provider, but sometimes this
@@ -719,6 +723,9 @@ SOCIAL_AUTH_PIPELINE = (
     # Update the user record with any changed info from the auth service.
     "social_core.pipeline.user.user_details",
 )
+SOCIAL_AUTH_SANITIZE_REDIRECTS = True
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy("social_auth_success_token")
 
 
 # Allowed messengers
