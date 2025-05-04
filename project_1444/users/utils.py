@@ -51,3 +51,8 @@ def send_otp_via_telegram(username, otp):
 def send_email_in_background(*args, **kwargs):
     logger.debug("Sending email in background...")
     return send_mail(*args, **kwargs)
+
+
+def mark_social_login(strategy, backend, user=None, *args, **kwargs):
+    if user:
+        strategy.session_set("is_social_login", True)

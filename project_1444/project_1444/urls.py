@@ -26,7 +26,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
-
+from users.views import SocialAuthSuccessToken
 from utils.views import HealthCheckView, VersionView
 
 from .views import ApiRootView
@@ -60,6 +60,11 @@ urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
     path("", include("users.urls")),
     path("", RedirectView.as_view(url="api/docs/", permanent=False), name="index"),
+    path(
+        "social-auth/token/",
+        SocialAuthSuccessToken.as_view(),
+        name="social_auth_success_token",
+    ),
     path("social-auth/", include("social_django.urls", namespace="social")),
     path("api/v0/", include("mock.urls")),
     path("api/v1/", include("order.urls")),

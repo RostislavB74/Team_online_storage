@@ -3,7 +3,7 @@ import random
 from datetime import timedelta
 
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -34,6 +34,52 @@ from .serializers import (
 from .utils import send_email_in_background
 
 logger = logging.getLogger(__name__)
+
+
+class SocialAuthSuccessToken(APIView):
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: {
+                "type": "object",
+                "properties": {
+                    "token": {"type": "string", "example": "3234373847856878436"}
+                },
+            }
+        },
+        description=_(
+            "Get the authentication token for the user only after successful social login."
+        ),
+        tags=["auth"],
+    )
+    @csrf_exempt
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return JsonResponse(
+                {"error": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+        if not request.session.get("is_social_login"):
+            JsonResponse(
+                {"error": "This endpoint is only for social login users."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        referer = request.META.get("HTTP_REFERER")
+        # print("REFERER", referer)
+        if referer and settings.CSRF_TRUSTED_ORIGINS:
+            from urllib.parse import urlparse
+
+            parsed = urlparse(referer)
+            referer_origin = f"{parsed.scheme}://{parsed.netloc}"
+            # print("referer_origin", referer_origin)
+            if referer_origin not in settings.CSRF_TRUSTED_ORIGINS:
+                return JsonResponse(
+                    {"error": "Invalid referer domain."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+        request.session.pop("is_social_login", None)
+        token, created = Token.objects.get_or_create(user=request.user)
+        return JsonResponse({"token": token.key})
 
 
 @extend_schema_view(
