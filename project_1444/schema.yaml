@@ -1519,6 +1519,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/Version'
           description: ''
+  /auth/csrf/:
+    get:
+      operationId: auth_csrf_retrieve
+      description: Sets the CSRF cookie and returns a confirmation message.
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: CSRF cookie set
+          description: ''
   /auth/login/:
     post:
       operationId: auth_login_create
@@ -1595,6 +1617,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Token'
+          description: ''
+  /auth/token/:
+    post:
+      operationId: auth_token_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
           description: ''
   /auth/verify-otp/:
     post:
@@ -1745,6 +1795,25 @@ components:
       description: |-
         * `success` - success
         * `error` - error
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          title: Ім'я користувача
+        password:
+          type: string
+          writeOnly: true
+          title: Пароль
+        token:
+          type: string
+          readOnly: true
+          title: Токен
+      required:
+      - password
+      - token
+      - username
     BlankEnum:
       enum:
       - ''

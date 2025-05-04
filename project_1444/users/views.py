@@ -32,12 +32,26 @@ from .serializers import (
 from .utils import send_email_in_background
 
 logger = logging.getLogger(__name__)
-
-
 class CSRFAPIView(APIView):
     @method_decorator(ensure_csrf_cookie)
+    @extend_schema(
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "message": {"type": "string", "example": "CSRF cookie set"}
+                }
+            }
+        },
+        description="Sets the CSRF cookie and returns a confirmation message."
+    )
     def get(self, request):
         return JsonResponse({"message": "CSRF cookie set"})
+
+# class CSRFAPIView(APIView):
+#     @method_decorator(ensure_csrf_cookie)
+#     def get(self, request):
+#         return JsonResponse({"message": "CSRF cookie set"})
 
 
 def merge_carts(user, session_key):
