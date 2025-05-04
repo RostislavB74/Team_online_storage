@@ -821,6 +821,75 @@ paths:
               schema:
                 $ref: '#/components/schemas/Order'
           description: ''
+  /api/v1/orders/{order_id}/update-status/:
+    post:
+      operationId: api_v1_orders_update_status_create
+      description: Update the status of an order with optional payment status.
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - awaiting_payment
+                  - paid
+                  - shipped
+                  - delivered
+                  - failed
+                  - reversed
+                  - cancelled
+                payment_status:
+                  type: string
+                  enum:
+                  - success
+                  - failed
+                  - reversed
+                  nullable: true
+              required:
+              - status
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+          description: ''
   /api/v1/orders/{id}/:
     get:
       operationId: api_v1_orders_retrieve
@@ -961,6 +1030,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+          description: ''
+  /api/v1/orders/liqpay/callback/:
+    post:
+      operationId: api_v1_orders_liqpay_callback_create
+      description: Handle LiqPay payment callback.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order_id:
+                  type: integer
+                status:
+                  type: string
+                  enum:
+                  - success
+                  - failure
+                  - reversed
+              required:
+              - order_id
+              - status
+      security:
+      - jwtAuth: []
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
           description: ''
   /api/v1/product/:
     get:
@@ -2129,15 +2245,25 @@ components:
     OrderStatusEnum:
       enum:
       - new
+      - awaiting_payment
       - paid
+      - in_transit
+      - shipped
+      - delivered
       - failed
       - reversed
+      - cancelled
       type: string
       description: |-
         * `new` - New
+        * `awaiting_payment` - Awaiting Payment
         * `paid` - Paid
+        * `in_transit` - In Transit
+        * `shipped` - Shipped
+        * `delivered` - Delivered
         * `failed` - Failed
         * `reversed` - Reversed
+        * `cancelled` - Cancelled
     PaginatedDescriptionsList:
       type: object
       required:
