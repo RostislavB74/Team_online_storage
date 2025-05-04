@@ -148,11 +148,21 @@ for lang in GLOBAL_LANGUAGES:
 LOCALE_PATHS = [
     BASE_DIR / "locale",
 ]
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE", default=True, cast=bool)
+SESSION_COOKIE_HTTPONLY = env("SESSION_COOKIE_HTTPONLY", default=True, cast=bool)
+SESSION_COOKIE_SAMESITE = env(
+    "SESSION_COOKIE_SAMESITE", default="Lax", cast=str
+)  # Lax for same-origin requests, None for cross-origin
+SESSION_COOKIE_AGE = env(
+    "SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30, cast=int
+)  # 30 days
 
 
 MIDDLEWARE = [
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "utils.middleware.AdminOnlySessionMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -577,6 +587,7 @@ if REDIS_URL:
                 "LOCATION": REDIS_URL,
             }
         }
+        SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
     except redis.ConnectionError as e:
         print(f"Can't connect to Redis {REDIS_URL}, skip of use Redis: {e}")
 
