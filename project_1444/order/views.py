@@ -236,3 +236,79 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer = OrderSerializer(order, context={'request': request})
         logger.info("Order created successfully")
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+class UpdateOrderStatusAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "status": {"type": "string", "enum": ["awaiting_payment", "paid", "shipped", "delivered", "failed", "reversed", "cancelled"]},
+                    "payment_status": {"type": "string", "enum": ["success", "failed", "reversed"], "nullable": True}
+                },
+                "required": ["status"]
+            }
+        },
+        responses={
+            200: {"type": "object", "properties": {"message": {"type": "string"}}},
+            400: {"type": "object", "properties": {"error": {"type": "string"}}},
+            404: {"type": "object", "properties": {"error": {"type": "string"}}}
+        },
+        description="Update the status of an order with optional payment status."
+    )
+    def post(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id, user=request.user)
+            new_status = request.data.get('status')
+            payment_status = request.data.get('payment_status')
+            order.update_status(new_status, payment_status)
+            return Response({"message": f"Order #{order_id} status updated to {new_status}"}, status=status.HTTP_200_OK)
+        except Order.DoesNotExist:
+            return Response({"error": "Order not found or access denied"}, status=status.HTTP_404_NOT_FOUND)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    # order/views.py
+class LiqPayCallbackAPIView(APIView):
+    @extend_schema(
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "order_id": {"type": "integer"},
+                    "status": {"type": "string", "enum": ["success", "failure", "reversed"]}
+                },
+                "required": ["order_id", "status"]
+            }
+        },
+        responses={
+            200: {"type": "object", "properties": {"message": {"type": "string"}}},
+            400: {"type": "object", "properties": {"error": {"type": "string"}}}
+        },
+        description="Handle LiqPay payment callback."
+    )
+    def post(self, request):
+        order_id = request.data.get('order_id')
+        payment_status = request.data.get('status')
+
+        try:
+            order = Order.objects.get(id=order_id)
+            if order.status != 'awaiting_payment':
+                return Response({"error": "Order is not awaiting payment"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if payment_status == 'success':
+                order.update_status('paid', payment_status='success')
+                if order.status == 'in_transit':
+                    return Response({"message": f"Order #{order_id} paid, awaiting stock replenishment"}, status=status.HTTP_200_OK)
+            elif payment_status == 'failure':
+                order.update_status('failed', payment_status='failed')
+            elif payment_status == 'reversed':
+                order.update_status('reversed', payment_status='reversed')
+            else:
+                return Response({"error": "Invalid payment status"}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({"message": f"Order #{order_id} payment status updated"}, status=status.HTTP_200_OK)
+        except Order.DoesNotExist:
+            return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
