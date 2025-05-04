@@ -32,26 +32,23 @@ from .serializers import (
 from .utils import send_email_in_background
 
 logger = logging.getLogger(__name__)
+
+
 class CSRFAPIView(APIView):
     @method_decorator(ensure_csrf_cookie)
     @extend_schema(
         responses={
-            200: {
+            status.HTTP_200_OK: {
                 "type": "object",
                 "properties": {
                     "message": {"type": "string", "example": "CSRF cookie set"}
-                }
+                },
             }
         },
-        description="Sets the CSRF cookie and returns a confirmation message."
+        description="Sets the CSRF cookie and returns a confirmation message.",
     )
     def get(self, request):
         return JsonResponse({"message": "CSRF cookie set"})
-
-# class CSRFAPIView(APIView):
-#     @method_decorator(ensure_csrf_cookie)
-#     def get(self, request):
-#         return JsonResponse({"message": "CSRF cookie set"})
 
 
 def merge_carts(user, session_key):
@@ -124,7 +121,7 @@ class LoginAPIView(APIView):
 
     @extend_schema(
         request=LoginSerializer,
-        responses={200: TokenSerializer},
+        responses={status.HTTP_200_OK: TokenSerializer},
         description=_("Аутентифікація користувача та генерація OTP"),
     )
     def post(self, request):
@@ -161,7 +158,7 @@ class VerifyOTPAPIView(APIView):
 
     @extend_schema(
         request=OTPSerializer,
-        responses={200: TokenSerializer},
+        responses={status.HTTP_200_OK: TokenSerializer},
         description=_("Верифікація OTP та видача токена"),
     )
     def post(self, request):
@@ -267,7 +264,7 @@ class ProfileAPIView(APIView):
 
     @extend_schema(
         request=UserProfileSerializer,
-        responses={200: UserProfileSerializer},
+        responses={status.HTTP_200_OK: UserProfileSerializer},
         description=_("Отримання або оновлення профілю користувача"),
     )
     def get(self, request):
@@ -285,7 +282,8 @@ class ProfileAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
-        request=UserProfileSerializer, responses={200: UserProfileSerializer}
+        request=UserProfileSerializer,
+        responses={status.HTTP_200_OK: UserProfileSerializer},
     )
     def post(self, request):
         try:
@@ -320,7 +318,7 @@ class ProfileAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer},
+#         responses={status.HTTP_200_OK: UserProfileSerializer},
 #         description="Отримання або оновлення профілю користувача"
 #     )
 #     def get(self, request):
@@ -333,7 +331,7 @@ class ProfileAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer}
+#         responses={status.HTTP_200_OK: UserProfileSerializer}
 #     )
 #     def post(self, request):
 #         try:
@@ -360,7 +358,7 @@ class NotificationSettingsAPIView(APIView):
 
     @extend_schema(
         request=UserNotificationSettingsSerializer,
-        responses={200: UserNotificationSettingsSerializer},
+        responses={status.HTTP_200_OK: UserNotificationSettingsSerializer},
         description=_("Отримання або оновлення налаштувань сповіщень"),
     )
     def get(self, request):
@@ -373,7 +371,7 @@ class NotificationSettingsAPIView(APIView):
 
     @extend_schema(
         request=UserNotificationSettingsSerializer,
-        responses={200: UserNotificationSettingsSerializer},
+        responses={status.HTTP_200_OK: UserNotificationSettingsSerializer},
     )
     def post(self, request):
         try:
@@ -406,7 +404,7 @@ class LogoutAPIView(APIView):
 
     @extend_schema(
         request=None,
-        responses={200: LogoutSerializer},
+        responses={status.HTTP_200_OK: LogoutSerializer},
         description="Вихід користувача та видалення токена",
     )
     def post(self, request):
@@ -463,7 +461,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=LoginSerializer,
-#         responses={200: TokenSerializer},
+#         responses={status.HTTP_200_OK: TokenSerializer},
 #         description="Аутентифікація користувача та генерація OTP"
 #     )
 #     def post(self, request):
@@ -497,7 +495,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=OTPSerializer,
-#         responses={200: TokenSerializer},
+#         responses={status.HTTP_200_OK: TokenSerializer},
 #         description="Верифікація OTP та видача токена"
 #     )
 #     def post(self, request):
@@ -571,7 +569,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer},
+#         responses={status.HTTP_200_OK: UserProfileSerializer},
 #         description="Отримання або оновлення профілю користувача"
 #     )
 #     def get(self, request):
@@ -584,7 +582,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer}
+#         responses={status.HTTP_200_OK: UserProfileSerializer}
 #     )
 #     def post(self, request):
 #         try:
@@ -610,7 +608,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserNotificationSettingsSerializer,
-#         responses={200: UserNotificationSettingsSerializer},
+#         responses={status.HTTP_200_OK: UserNotificationSettingsSerializer},
 #         description="Отримання або оновлення налаштувань сповіщень"
 #     )
 #     def get(self, request):
@@ -623,7 +621,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserNotificationSettingsSerializer,
-#         responses={200: UserNotificationSettingsSerializer}
+#         responses={status.HTTP_200_OK: UserNotificationSettingsSerializer}
 #     )
 #     def post(self, request):
 #         try:
@@ -649,7 +647,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=None,
-#         responses={200: LogoutSerializer},
+#         responses={status.HTTP_200_OK: LogoutSerializer},
 #         description="Вихід користувача та видалення токена"
 #     )
 #     def post(self, request):
@@ -702,7 +700,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=LoginSerializer,
-#         responses={200: TokenSerializer},
+#         responses={status.HTTP_200_OK: TokenSerializer},
 #         description="Аутентифікація користувача та генерація OTP"
 #     )
 #     def post(self, request):
@@ -736,7 +734,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=OTPSerializer,
-#         responses={200: TokenSerializer},
+#         responses={status.HTTP_200_OK: TokenSerializer},
 #         description="Верифікація OTP та видача токена"
 #     )
 #     def post(self, request):
@@ -810,7 +808,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer},
+#         responses={status.HTTP_200_OK: UserProfileSerializer},
 #         description="Отримання або оновлення профілю користувача"
 #     )
 #     def get(self, request):
@@ -823,7 +821,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer}
+#         responses={status.HTTP_200_OK: UserProfileSerializer}
 #     )
 #     def post(self, request):
 #         try:
@@ -849,7 +847,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=None,
-#         responses={200: LogoutSerializer},
+#         responses={status.HTTP_200_OK: LogoutSerializer},
 #         description="Вихід користувача та видалення токена"
 #     )
 #     def post(self, request):
@@ -903,7 +901,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=LoginSerializer,
-#         responses={200: TokenSerializer},
+#         responses={status.HTTP_200_OK: TokenSerializer},
 #         description="Аутентифікація користувача та генерація OTP"
 #     )
 #     def post(self, request):
@@ -937,7 +935,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=OTPSerializer,
-#         responses={200: TokenSerializer},
+#         responses={status.HTTP_200_OK: TokenSerializer},
 #         description="Верифікація OTP та видача токена"
 #     )
 #     def post(self, request):
@@ -1011,7 +1009,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer},
+#         responses={status.HTTP_200_OK: UserProfileSerializer},
 #         description="Отримання або оновлення профілю користувача"
 #     )
 #     def get(self, request):
@@ -1024,7 +1022,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer}
+#         responses={status.HTTP_200_OK: UserProfileSerializer}
 #     )
 #     def post(self, request):
 #         try:
@@ -1050,7 +1048,7 @@ class LogoutAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 
 #     @extend_schema(
-#         responses={200: None},
+#         responses={status.HTTP_200_OK: None},
 #         description="Вихід користувача та видалення токена"
 #     )
 #     def post(self, request):
@@ -1104,7 +1102,7 @@ class LogoutAPIView(APIView):
 
 #     # @extend_schema(
 #     #     request=LoginSerializer,
-#     #     responses={200: TokenSerializer},
+#     #     responses={status.HTTP_200_OK: TokenSerializer},
 #     #     description="Аутентифікація користувача та генерація OTP"
 #     # )
 #     @ratelimit(key='ip', rate='5/m', method='POST')
@@ -1138,7 +1136,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=OTPSerializer,
-#         responses={200: TokenSerializer},
+#         responses={status.HTTP_200_OK: TokenSerializer},
 #         description="Верифікація OTP та видача токена"
 #     )
 #     def post(self, request):
@@ -1211,7 +1209,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer},
+#         responses={status.HTTP_200_OK: UserProfileSerializer},
 #         description="Отримання або оновлення профілю користувача"
 #     )
 #     def get(self, request):
@@ -1224,7 +1222,7 @@ class LogoutAPIView(APIView):
 
 #     @extend_schema(
 #         request=UserProfileSerializer,
-#         responses={200: UserProfileSerializer}
+#         responses={status.HTTP_200_OK: UserProfileSerializer}
 #     )
 #     def post(self, request):
 #         try:
@@ -1249,7 +1247,7 @@ class LogoutAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 
 #     @extend_schema(
-#         responses={200: None},
+#         responses={status.HTTP_200_OK: None},
 #         description="Вихід користувача та видалення токена"
 #     )
 #     def post(self, request):
