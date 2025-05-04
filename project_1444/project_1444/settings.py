@@ -116,7 +116,7 @@ INSTALLED_APPS = [
     "warehouse",
     "discounts",
     # 'versatileimagefield',
-    # 'django_ratelimit',
+    # "django_ratelimit",
 ]
 # VERSATILEIMAGEFIELD_SETTINGS = {
 #     'create_images_on_demand': True,
@@ -175,7 +175,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
-    # 'ratelimit.middleware.RatelimitMiddleware',
+    # "django_ratelimit.middleware.RatelimitMiddleware",
 ]
 # RATELIMIT_VIEW = 'yourapp.views.rate_limited'
 

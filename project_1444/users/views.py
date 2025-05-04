@@ -69,14 +69,14 @@ class SocialAuthSuccessToken(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
         referer = request.META.get("HTTP_REFERER")
-        print(f"REFERER: {referer}")
+        logger.debug(f"REFERER: {referer}")
         CSRF_TRUSTED_ORIGINS = getattr(settings, "CSRF_TRUSTED_ORIGINS", [])
         if referer and len(CSRF_TRUSTED_ORIGINS) > 0:
             from urllib.parse import urlparse
 
             parsed = urlparse(referer)
             referer_origin = f"{parsed.scheme}://{parsed.netloc}"
-            print(f"{referer_origin=}")
+            logger.debug(f"{referer_origin=}")
             if referer_origin not in CSRF_TRUSTED_ORIGINS:
                 return JsonResponse(
                     {"error": "Invalid referer domain."},
