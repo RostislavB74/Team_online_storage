@@ -59,6 +59,7 @@ urlpatterns = [
     path("api/", ApiRootView.as_view(), name="api-root"),
     path("admin/", admin.site.urls, name="admin"),
     path("", include("users.urls")),
+    path("", RedirectView.as_view(url="api/docs/", permanent=False), name="index"),
     path("social-auth/", include("social_django.urls", namespace="social")),
     path("api/v0/", include("mock.urls")),
     path("api/v1/", include("order.urls")),

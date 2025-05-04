@@ -22,6 +22,10 @@ class AuthAPITest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = APIClient()
+        cls.user_admin = {
+            "username": "admin",
+            "password": get_random_string(10),
+        }
         cls.user_test = {
             "username": "test_user",
             "password": get_random_string(10),
@@ -32,8 +36,8 @@ class AuthAPITest(TestCase):
 
     @classmethod
     def create_superuser(cls):
-        cls.user = User.objects.create_superuser(username="admin", password="admin")
-        logger.debug("Created superuser:", cls.user)
+        cls.superuser = User.objects.create_superuser(**cls.user_admin)
+        logger.debug("Created superuser:", cls.superuser)
 
     @classmethod
     def crud(cls):
@@ -174,9 +178,17 @@ class AuthAPITest(TestCase):
             "password": self.user_test["password"],
         }
 
-        response = self.client.post(reverse("api_token"), data, format="json")
+        response = self.client.post(
+            reverse("api_token"), data, format="json", content_type="application/json"
+        )
         # print("POST", response.data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+            "Status code should be OK, but got: {} with error: {}".format(
+                response.status_code, response.data.get("detail")
+            ),
+        )
         token = response.data.get("token")
         assert token, "Token shouldbe returned"
         assert len(token) > 30, "Token should be not shorter than 30 characters"
