@@ -1,52 +1,49 @@
-import logging
 import time
 
 from django.contrib.sessions.backends.base import UpdateError
 from django.contrib.sessions.exceptions import SessionInterrupted
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.urls import reverse
 from django.utils.cache import patch_vary_headers
-from django.utils.functional import SimpleLazyObject
 from django.conf import settings
 from django.utils.http import http_date
-from rest_framework.reverse import reverse_lazy
-
-logger = logging.getLogger(__name__)
 
 
 class AdminSplitterSessionMiddleware(SessionMiddleware):
     def __init__(self, get_response):
         super().__init__(get_response)
-        self.SESSION_COOKIE_NAME = "adminsessionid"
-        self.ADMIN_PREFIX = reverse_lazy("admin:index").rstrip("/")
-        # self.ADMIN_LOGOUT_PREFIX = reverse_lazy("admin:logout").rstrip("/")
-        self.SESSION_COOKIE_SAMESITE = "lax"
-        self.SESSION_COOKIE_HTTPONLY = True
+        self.ADMIN_SESSION_COOKIE_NAME = "adminsessionid"
+        self.ADMIN_PREFIX = reverse("admin:index").rstrip("/")
+        self.ADMIN_SESSION_COOKIE_SAMESITE = "lax"
+        self.ADMIN_SESSION_COOKIE_HTTPONLY = True
 
-    def is_admin(self, request):
+    def get_is_admin(self, request):
         return request.path.startswith(self.ADMIN_PREFIX)
 
     def get_session_cookie_name(self, is_admin: bool):
-        return self.SESSION_COOKIE_NAME if is_admin else settings.SESSION_COOKIE_NAME
+        return (
+            self.ADMIN_SESSION_COOKIE_NAME if is_admin else settings.SESSION_COOKIE_NAME
+        )
 
     def get_session_cookie_path(self, is_admin: bool):
         return self.ADMIN_PREFIX if is_admin else settings.SESSION_COOKIE_PATH
 
     def get_session_cookie_samesite(self, is_admin: bool):
         return (
-            self.SESSION_COOKIE_SAMESITE
+            self.ADMIN_SESSION_COOKIE_SAMESITE
             if is_admin
             else settings.SESSION_COOKIE_SAMESITE
         )
 
     def get_session_cookie_httponly(self, is_admin: bool):
         return (
-            self.SESSION_COOKIE_HTTPONLY
+            self.ADMIN_SESSION_COOKIE_HTTPONLY
             if is_admin
             else settings.SESSION_COOKIE_HTTPONLY
         )
 
     def process_request(self, request):
-        session_cookie_name = self.get_session_cookie_name(self.is_admin(request))
+        session_cookie_name = self.get_session_cookie_name(self.get_is_admin(request))
         session_key = request.COOKIES.get(session_cookie_name)
         request.session = self.SessionStore(session_key)
 
@@ -62,7 +59,7 @@ class AdminSplitterSessionMiddleware(SessionMiddleware):
             empty = request.session.is_empty()
         except AttributeError:
             return response
-        is_admin = self.is_admin(request)
+        is_admin = self.get_is_admin(request)
         session_cookie_name = self.get_session_cookie_name(is_admin)
         session_cookie_path = self.get_session_cookie_path(is_admin)
         session_cookie_samesite = self.get_session_cookie_samesite(is_admin)
