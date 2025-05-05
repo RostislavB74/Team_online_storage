@@ -42,7 +42,9 @@ class SocialAuthSuccessToken(APIView):
 
     def __init__(self):
         super().__init__()
-        self.force_logout = None
+        self.force_logout = getattr(
+            settings, "SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN", True
+        )
 
     @extend_schema(
         responses={

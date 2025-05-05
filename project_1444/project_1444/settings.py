@@ -741,9 +741,10 @@ SOCIAL_AUTH_PIPELINE = (
     "users.utils.mark_social_login",
 )
 SOCIAL_AUTH_SANITIZE_REDIRECTS = True
-
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy("social_auth_success_token")
-
+SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN = env(
+    "SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN", default=True
+)
 
 # Allowed messengers
 ALLOWED_MESSENGERS = ["viber", "telegram", "whatsapp", "signal", "discord"]
