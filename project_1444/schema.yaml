@@ -9,7 +9,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -46,7 +45,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -89,7 +87,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -114,7 +111,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -132,7 +128,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -172,7 +167,6 @@ paths:
               $ref: '#/components/schemas/Cart'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -195,7 +189,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -230,7 +223,6 @@ paths:
               $ref: '#/components/schemas/Cart'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -263,7 +255,6 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedCart'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -285,7 +276,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -305,7 +295,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -330,7 +319,6 @@ paths:
               $ref: '#/components/schemas/Cart'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -364,7 +352,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -394,7 +381,6 @@ paths:
               $ref: '#/components/schemas/CategoriesTree'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -418,7 +404,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -453,7 +438,6 @@ paths:
               $ref: '#/components/schemas/CategoriesTree'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -487,7 +471,6 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedCategoriesTree'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -510,7 +493,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -536,7 +518,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -564,7 +545,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Descriptions'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -589,7 +569,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -624,7 +603,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Descriptions'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -659,7 +637,6 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedDescriptions'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -683,7 +660,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -707,7 +683,6 @@ paths:
               required:
               - code
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -744,7 +719,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -764,7 +738,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -781,7 +754,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -811,7 +783,6 @@ paths:
               $ref: '#/components/schemas/Order'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -860,7 +831,6 @@ paths:
               required:
               - status
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -904,7 +874,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -939,7 +908,6 @@ paths:
               $ref: '#/components/schemas/Order'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -973,7 +941,6 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedOrder'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -996,7 +963,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1022,7 +988,6 @@ paths:
               $ref: '#/components/schemas/OrderCreate'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1057,7 +1022,6 @@ paths:
               - order_id
               - status
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1100,7 +1064,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1128,7 +1091,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Product'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1153,7 +1115,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1188,7 +1149,6 @@ paths:
             schema:
               $ref: '#/components/schemas/Product'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1223,7 +1183,6 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedProduct'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1247,7 +1206,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1270,7 +1228,6 @@ paths:
       tags:
       - Tools API
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1288,7 +1245,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1318,7 +1274,6 @@ paths:
             schema:
               $ref: '#/components/schemas/SubCategories'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1343,7 +1298,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1378,7 +1332,6 @@ paths:
             schema:
               $ref: '#/components/schemas/SubCategories'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1413,7 +1366,6 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedSubCategories'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1437,7 +1389,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1464,7 +1415,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1493,7 +1443,6 @@ paths:
               $ref: '#/components/schemas/SubProductsSizes'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1518,7 +1467,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1554,7 +1502,6 @@ paths:
               $ref: '#/components/schemas/SubProductsSizes'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1589,7 +1536,6 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedSubProductsSizes'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1613,7 +1559,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1626,7 +1571,6 @@ paths:
       tags:
       - api
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1644,7 +1588,6 @@ paths:
       tags:
       - auth
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1678,7 +1621,6 @@ paths:
               $ref: '#/components/schemas/Login'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1696,7 +1638,6 @@ paths:
       tags:
       - auth
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -1725,7 +1666,6 @@ paths:
               $ref: '#/components/schemas/Register'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1739,22 +1679,16 @@ paths:
   /auth/token/:
     post:
       operationId: auth_token_create
+      description: Get the authentication token for the user
       tags:
       - auth
       requestBody:
         content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/AuthToken'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/AuthToken'
           application/json:
             schema:
               $ref: '#/components/schemas/AuthToken'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -1783,7 +1717,6 @@ paths:
               $ref: '#/components/schemas/OTP'
         required: true
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       - {}
@@ -1794,6 +1727,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/Token'
           description: ''
+  /social-auth/token/:
+    get:
+      operationId: social_auth_token_retrieve
+      description: Get the authentication token for the user only after successful
+        social login.
+      tags:
+      - auth
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: '3234373847856878436'
+          description: ''
   /user/notifications/:
     get:
       operationId: user_notifications_retrieve
@@ -1801,7 +1756,6 @@ paths:
       tags:
       - user
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -1827,7 +1781,6 @@ paths:
             schema:
               $ref: '#/components/schemas/UserNotificationSettings'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -1844,7 +1797,6 @@ paths:
       tags:
       - user
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -1870,7 +1822,6 @@ paths:
             schema:
               $ref: '#/components/schemas/UserProfile'
       security:
-      - jwtAuth: []
       - tokenAuth: []
       - cookieAuth: []
       responses:
@@ -3277,10 +3228,6 @@ components:
       type: apiKey
       in: cookie
       name: sessionid
-    jwtAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
     tokenAuth:
       type: apiKey
       in: header
