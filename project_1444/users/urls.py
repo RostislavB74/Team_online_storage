@@ -7,8 +7,10 @@ from .views import (
     LogoutAPIView,
     NotificationSettingsAPIView,
     CSRFAPIView,
+    JsonObtainAuthToken,
 )
-from rest_framework.authtoken.views import ObtainAuthToken
+
+# from rest_framework.authtoken.views import ObtainAuthToken
 
 urlpatterns = [
     path("auth/csrf/", CSRFAPIView.as_view(), name="api_get_csrf_token"),
@@ -16,7 +18,7 @@ urlpatterns = [
     path("auth/register/", RegisterAPIView.as_view(), name="api_register"),
     path("auth/verify-otp/", VerifyOTPAPIView.as_view(), name="api_verify_otp"),
     path("auth/logout/", LogoutAPIView.as_view(), name="api_logout"),
-    path("auth/token/", ObtainAuthToken.as_view(), name="api_token"),
+    path("auth/token/", JsonObtainAuthToken.as_view(), name="api_token"),
     path("user/profile/", ProfileAPIView.as_view(), name="api_profile"),
     path(
         "user/notifications/",

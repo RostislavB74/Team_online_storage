@@ -23,6 +23,9 @@ from pathlib import Path
 import environ
 from datetime import timedelta
 
+from django.shortcuts import resolve_url
+from django.urls import reverse_lazy
+
 # from pygments.lexer import default
 # import os
 # from urllib.parse import urlparse
@@ -113,7 +116,7 @@ INSTALLED_APPS = [
     "warehouse",
     "discounts",
     # 'versatileimagefield',
-    # 'django_ratelimit',
+    # "django_ratelimit",
 ]
 # VERSATILEIMAGEFIELD_SETTINGS = {
 #     'create_images_on_demand': True,
@@ -141,6 +144,7 @@ GLOBAL_LANGUAGES = [
 USE_I18N = True
 USE_L10N = True
 
+
 LANGUAGES = []
 for lang in GLOBAL_LANGUAGES:
     if lang[0] in PARLER_LANGUAGES_LIST:
@@ -150,11 +154,21 @@ for lang in GLOBAL_LANGUAGES:
 LOCALE_PATHS = [
     BASE_DIR / "locale",
 ]
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE", default=True, cast=bool)
+SESSION_COOKIE_HTTPONLY = env("SESSION_COOKIE_HTTPONLY", default=True, cast=bool)
+SESSION_COOKIE_SAMESITE = env(
+    "SESSION_COOKIE_SAMESITE", default="Lax", cast=str
+)  # Lax for same-origin requests, None for cross-origin
+SESSION_COOKIE_AGE = env(
+    "SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30, cast=int
+)  # 30 days
 
 
 MIDDLEWARE = [
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "utils.middleware.AdminOnlySessionMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -164,7 +178,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
-    # 'ratelimit.middleware.RatelimitMiddleware',
+    # "django_ratelimit.middleware.RatelimitMiddleware",
 ]
 # RATELIMIT_VIEW = 'yourapp.views.rate_limited'
 
@@ -197,7 +211,7 @@ AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = "auth/login/"
-LOGIN_REDIRECT_URL = "user/profile/"
+# LOGIN_REDIRECT_URL = "user/profile/"
 LOGOUT_REDIRECT_URL = "/admin/login/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Database
@@ -271,8 +285,9 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 TIME_ZONE = "Europe/Kyiv"
-RECAPTCHA_PUBLIC_KEY = "your_public_key"
-RECAPTCHA_PRIVATE_KEY = "your_private_key"
+
+RECAPTCHA_PUBLIC_KEY = env("RECAPTCHA_PUBLIC_KEY", default=None)
+RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY", default=None)
 # settings.py
 
 STATIC_URL = env("STATIC_URL", default="/static/")  # 'static/'
@@ -357,9 +372,16 @@ if DEFAULT_FILE_STORAGE:
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "[{asctime}] {levelname} {name}: {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "default",
         },
     },
     "loggers": {
@@ -368,6 +390,10 @@ LOGGING = {
             "level": "INFO",
         },
         "cloudinary": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+        "users": {
             "handlers": ["console"],
             "level": "DEBUG",
         },
@@ -489,7 +515,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.TokenAuthentication",
         # "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
@@ -545,28 +571,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
-# CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
-# CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TIMEZONE = 'Europe/Kyiv'
 
-CELERY_BROKER_URL = env(
-    "CELERY_BROKER_URL", default=None
-)  # Redis як брокер повідомлень
-if not CELERY_BROKER_URL:
-    CELERY_BROKER_URL = "redis://localhost:6379/0"
-
-CELERY_RESULT_BACKEND = env(
-    "CELERY_RESULT_BACKEND", default=None
-)  # Redis як брокер повідомлень
-if not CELERY_RESULT_BACKEND:
-    CELERY_RESULT_BACKEND = CELERY_BROKER_URL or "redis://localhost:6379/0"
-
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_TIMEZONE = "Europe/Kyiv"
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
@@ -599,8 +604,32 @@ if REDIS_URL:
                 "LOCATION": REDIS_URL,
             }
         }
+        SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
     except redis.ConnectionError as e:
         print(f"Can't connect to Redis {REDIS_URL}, skip of use Redis: {e}")
+
+# CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+# CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TIMEZONE = 'Europe/Kyiv'
+
+CELERY_BROKER_URL = env(
+    "CELERY_BROKER_URL", default=None
+)  # Redis як брокер повідомлень
+if not CELERY_BROKER_URL:
+    CELERY_BROKER_URL = REDIS_URL or "redis://localhost:6379/0"
+
+CELERY_RESULT_BACKEND = env(
+    "CELERY_RESULT_BACKEND", default=None
+)  # Redis як брокер повідомлень
+if not CELERY_RESULT_BACKEND:
+    CELERY_RESULT_BACKEND = CELERY_BROKER_URL or REDIS_URL or "redis://localhost:6379/0"
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE or "Europe/Kyiv"
 
 SQL_CACHE_TIMEOUT_DEFAULT = env(
     "SQL_CACHE_TIMEOUT_DEFAULT", default=60 * 60 * 1
@@ -662,8 +691,8 @@ SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
 if all([SOCIAL_AUTH_FACEBOOK_KEY, SOCIAL_AUTH_FACEBOOK_SECRET]):
     AUTHENTICATION_BACKENDS.append("social_core.backends.facebook.FacebookOAuth2")
 
-SOCIAL_AUTH_LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
-LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
+SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy("admin:login")
+# LOGIN_ERROR_URL = "/admin/login/?auth_error=1"
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 # SOCIAL_AUTH_REQUIRE_POST = True
 # SOCIAL_AUTH_PIPELINE = (
@@ -674,6 +703,7 @@ SOCIAL_AUTH_JSONFIELD_ENABLED = True
 #     "users.signals.set_username_from_email",  # Custom step to set email as the username
 # )
 SOCIAL_AUTH_PIPELINE = (
+    "users.utils.mark_social_login",
     # Get the information we can about the user and return it in a simple
     # format to create the user instance later. In some cases the details are
     # already part of the auth response from the provider, but sometimes this
@@ -707,6 +737,9 @@ SOCIAL_AUTH_PIPELINE = (
     # Update the user record with any changed info from the auth service.
     "social_core.pipeline.user.user_details",
 )
+SOCIAL_AUTH_SANITIZE_REDIRECTS = True
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy("social_auth_success_token")
 
 
 # Allowed messengers
