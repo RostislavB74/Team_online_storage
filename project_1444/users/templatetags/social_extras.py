@@ -20,6 +20,17 @@ def get_social_auth_backend_name_map() -> dict:
     }
 
 
+def get_social_auth_backend_icon_map() -> dict:
+    return {
+        "google-oauth2": "users/icons/google.svg",
+        "apple-id": "users/icons/apple.svg",
+        "github": "users/icons/github.svg",
+        "facebook": "users/icons/facebook.svg",
+        "linkedin-openidconnect": "users/icons/linkedin.svg",
+        "default": "users/icons/password.png",
+    }
+
+
 @register.filter
 def get_friendly_name(backend_name):
     mapping = get_social_auth_backend_name_map()
@@ -28,13 +39,5 @@ def get_friendly_name(backend_name):
 
 @register.filter
 def get_friendly_icon(backend_name):
-    icons = {
-        "google-oauth2": "users/icons/google.svg",
-        "apple-id": "users/icons/apple.svg",
-        "github": "users/icons/github.svg",
-        "facebook": "users/icons/facebook.svg",
-        "linkedin-openidconnect": "users/icons/linkedin.svg",
-    }
-    return icons.get(
-        backend_name, "users/icons/password.png"
-    )  # Default icon if none match
+    icons = get_social_auth_backend_icon_map()
+    return icons.get(backend_name, icons.get("default"))  # Default icon if none match
