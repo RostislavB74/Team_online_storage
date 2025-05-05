@@ -94,19 +94,7 @@ def set_profile_avatar_from_social(
     elif backend.name == "github":
         url = response.get("avatar_url")
     elif backend.name == "linkedin-openidconnect":
-        try:
-            elements = (
-                response.get("profilePicture", {})
-                .get("displayImage~", {})
-                .get("elements", [])
-            )
-            if elements:
-                identifiers = elements[-1].get("identifiers", [])
-                if identifiers:
-                    url = identifiers[0].get("identifier")
-        except Exception as e:
-            logger.error(f"Get Avatar url from LinkedIn. {e}")
-
+        url = response.get("picture")
     if url:
         try:
             profile = getattr(user, "profile", None)
