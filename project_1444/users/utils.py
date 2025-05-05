@@ -1,5 +1,7 @@
 import logging
+import mimetypes
 
+from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 import requests  # Для Telegram API або SMS-сервісу
 
@@ -61,6 +63,22 @@ def mark_social_login(strategy, backend, user=None, *args, **kwargs):
             strategy.request.session.modified = True
 
 
+def set_avatar_from_url(user, url):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            content_type = response.headers.get("Content-Type", "")
+            extension = mimetypes.guess_extension(content_type.split(";")[0].strip())
+
+            # Fallback to .jpg if extension couldn't be guessed
+            extension = extension or ".jpg"
+
+            filename = f"{user.username}_avatar{extension}"
+            user.profile.avatar.save(filename, ContentFile(response.content), save=True)
+    except Exception as e:
+        logger.error(f"Set Avatar from URL: {e}")
+
+
 def set_profile_avatar_from_social(
     backend, user, response, is_new=False, *args, **kwargs
 ):
@@ -93,7 +111,6 @@ def set_profile_avatar_from_social(
         try:
             profile = getattr(user, "profile", None)
             if profile and hasattr(profile, "avatar"):
-                profile.avatar = url
-                profile.save()
+                set_avatar_from_url(user, url)
         except Exception as e:
             logger.error(f"Save Avatar to profile. {e}")
