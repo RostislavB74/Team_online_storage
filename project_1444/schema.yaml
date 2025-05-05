@@ -809,6 +809,7 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Order'
+        required: true
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -936,6 +937,7 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Order'
+        required: true
       security:
       - jwtAuth: []
       - tokenAuth: []
@@ -2039,14 +2041,6 @@ components:
       - slug
       - subcategories
       - updated_at
-    DeliveryMethodEnum:
-      enum:
-      - pickup
-      - delivery
-      type: string
-      description: |-
-        * `pickup` - Pickup
-        * `delivery` - Delivery
     Descriptions:
       type: object
       properties:
@@ -2133,9 +2127,13 @@ components:
           type: integer
           nullable: true
         payment_method:
-          $ref: '#/components/schemas/PaymentMethodEnum'
+          allOf:
+          - $ref: '#/components/schemas/OrderPaymentMethodEnum'
+          default: cash
         delivery_method:
-          $ref: '#/components/schemas/DeliveryMethodEnum'
+          allOf:
+          - $ref: '#/components/schemas/OrderDeliveryMethodEnum'
+          default: pickup
         recipient_name:
           type: string
           nullable: true
@@ -2166,6 +2164,14 @@ components:
           pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         status:
           $ref: '#/components/schemas/OrderStatusEnum'
+        status_pay:
+          type: string
+          nullable: true
+          maxLength: 20
+        tracking_number:
+          type: string
+          nullable: true
+          maxLength: 50
         created_at:
           type: string
           format: date-time
@@ -2179,34 +2185,43 @@ components:
           items:
             $ref: '#/components/schemas/OrderItem'
           readOnly: true
+        stocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderStock'
+          readOnly: true
       required:
       - created_at
       - id
       - items
+      - status
+      - stocks
       - updated_at
     OrderCreate:
       type: object
       properties:
         payment_method:
           allOf:
-          - $ref: '#/components/schemas/PaymentMethodEnum'
+          - $ref: '#/components/schemas/OrderCreatePaymentMethodEnum'
           default: cash
         delivery_method:
           allOf:
-          - $ref: '#/components/schemas/DeliveryMethodEnum'
+          - $ref: '#/components/schemas/OrderCreateDeliveryMethodEnum'
           default: pickup
         recipient_name:
           type: string
+          nullable: true
           maxLength: 100
         recipient_phone:
           type: string
+          nullable: true
           maxLength: 20
         address:
           type: string
-        coupon:
-          type: string
           nullable: true
-          maxLength: 50
+        coupon:
+          type: integer
+          nullable: true
         call_me:
           type: boolean
           default: false
@@ -2215,15 +2230,81 @@ components:
           format: decimal
           pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
           default: '0.00'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemCreate'
       required:
-      - address
-      - recipient_name
-      - recipient_phone
+      - items
+    OrderCreateDeliveryMethodEnum:
+      enum:
+      - pickup
+      - delivery
+      type: string
+      description: |-
+        * `pickup` - pickup
+        * `delivery` - delivery
+    OrderCreatePaymentMethodEnum:
+      enum:
+      - cash
+      - liqpay
+      - googlepay
+      type: string
+      description: |-
+        * `cash` - cash
+        * `liqpay` - liqpay
+        * `googlepay` - googlepay
+    OrderDeliveryMethodEnum:
+      enum:
+      - pickup
+      - delivery
+      type: string
+      description: |-
+        * `pickup` - Pickup
+        * `delivery` - Delivery
     OrderItem:
       type: object
       properties:
         product:
-          type: string
+          type: object
+          properties:
+            id:
+              type: integer
+            position:
+              type: integer
+            ean_13:
+              type: string
+              nullable: true
+            sku:
+              type: string
+            article:
+              type: string
+            weight:
+              type: number
+              nullable: true
+            price:
+              type: string
+            discount_percentage:
+              type: string
+              nullable: true
+            new_price:
+              type: number
+            old_price:
+              type: number
+            discount_applied:
+              type: number
+            size:
+              type: string
+              nullable: true
+            length:
+              type: number
+              nullable: true
+            max_length:
+              type: number
+              nullable: true
+            width:
+              type: number
+              nullable: true
           readOnly: true
         quantity:
           type: integer
@@ -2242,6 +2323,32 @@ components:
       - product_price
       - quantity
       - total_price
+    OrderItemCreate:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        quantity:
+          type: integer
+          minimum: 1
+        product_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+      required:
+      - product_id
+      - product_price
+      - quantity
+    OrderPaymentMethodEnum:
+      enum:
+      - cash
+      - liqpay
+      - googlepay
+      type: string
+      description: |-
+        * `cash` - Cash
+        * `liqpay` - LiqPay
+        * `googlepay` - GooglePay
     OrderStatusEnum:
       enum:
       - new
@@ -2264,6 +2371,21 @@ components:
         * `failed` - Failed
         * `reversed` - Reversed
         * `cancelled` - Cancelled
+    OrderStock:
+      type: object
+      properties:
+        warehouse:
+          type: string
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        in_transit:
+          type: boolean
+      required:
+      - quantity
+      - warehouse
     PaginatedDescriptionsList:
       type: object
       required:
@@ -2452,9 +2574,13 @@ components:
           type: integer
           nullable: true
         payment_method:
-          $ref: '#/components/schemas/PaymentMethodEnum'
+          allOf:
+          - $ref: '#/components/schemas/OrderPaymentMethodEnum'
+          default: cash
         delivery_method:
-          $ref: '#/components/schemas/DeliveryMethodEnum'
+          allOf:
+          - $ref: '#/components/schemas/OrderDeliveryMethodEnum'
+          default: pickup
         recipient_name:
           type: string
           nullable: true
@@ -2485,6 +2611,14 @@ components:
           pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         status:
           $ref: '#/components/schemas/OrderStatusEnum'
+        status_pay:
+          type: string
+          nullable: true
+          maxLength: 20
+        tracking_number:
+          type: string
+          nullable: true
+          maxLength: 50
         created_at:
           type: string
           format: date-time
@@ -2497,6 +2631,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrderItem'
+          readOnly: true
+        stocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderStock'
           readOnly: true
     PatchedProduct:
       type: object
@@ -2665,16 +2804,6 @@ components:
           format: double
           nullable: true
           title: Ширина (см)
-    PaymentMethodEnum:
-      enum:
-      - cash
-      - liqpay
-      - googlepay
-      type: string
-      description: |-
-        * `cash` - Cash
-        * `liqpay` - LiqPay
-        * `googlepay` - GooglePay
     Product:
       type: object
       properties:

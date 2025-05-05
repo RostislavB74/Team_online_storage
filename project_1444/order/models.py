@@ -7,22 +7,24 @@ from product.utils import get_discounted_price
 from warehouse.models import WarehouseStock, Warehouse
 from discounts.models import BirthdayDiscount, Coupon
 from decimal import Decimal
-class Order(models.Model):
+from parler.models import TranslatableModel, TranslatedFields
+from django.utils.translation import gettext_lazy as _
+class Order(TranslatableModel):
     STATUS_CHOICES = (
-        ('new', 'New'),
-        ('awaiting_payment', 'Awaiting Payment'),
-        ('paid', 'Paid'),
-        ('in_transit', 'In Transit'),  # Додаємо
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
-        ('failed', 'Failed'),
-        ('reversed', 'Reversed'),
-        ('cancelled', 'Cancelled'),
+        ('new', _('New')),
+        ('awaiting_payment', _('Awaiting Payment')),
+        ('paid', _('Paid')),
+        ('in_transit', _('In Transit')),  # Додаємо
+        ('shipped', _('Shipped')),
+        ('delivered', _('Delivered')),
+        ('failed', _('Failed')),
+        ('reversed', _('Reversed')),
+        ('cancelled', _('Cancelled')),
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='orders')
-    payment_method = models.CharField(max_length=20, choices=[('cash', 'Cash'), ('liqpay', 'LiqPay'), ('googlepay', 'GooglePay')], default='cash')
-    delivery_method = models.CharField(max_length=20, choices=[('pickup', 'Pickup'), ('delivery', 'Delivery')], default='pickup')
+    payment_method = models.CharField(max_length=20, choices=[('cash', _('Cash')), ('liqpay', 'LiqPay'), ('googlepay', 'GooglePay')], default='cash')
+    delivery_method = models.CharField(max_length=20, choices=[('pickup', _('Pickup')), ('delivery', _('Delivery'))], default='pickup')
     recipient_name = models.CharField(max_length=100, blank=True, null=True)
     recipient_phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
