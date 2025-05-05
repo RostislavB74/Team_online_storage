@@ -1731,7 +1731,7 @@ paths:
     get:
       operationId: social_auth_backends_retrieve
       description: 'List of Active Social Auth Backends names for later use in API
-        URL for social auth like: /social-auth/login/{backend}/'
+        URL for social auth like: `/social-auth/login/{backend}/`'
       tags:
       - auth
       security:
@@ -1746,19 +1746,23 @@ paths:
                 type: object
                 additionalProperties: {}
               examples:
-                ExampleBackends:
+                SocialBackendsExample:
                   value:
-                    google-oauth2: Google
-                    apple-id: Apple
-                    github: GitHub
-                    facebook: Facebook
-                    linkedin-openidconnect: LinkedIn
+                    google-oauth2:
+                      name: Google
+                      icon: https://static.example.com/users/icons/google.svg
+                    github:
+                      name: GitHub
+                      icon: https://static.example.com/users/icons/github.svg
+                    linkedin-openidconnect:
+                      name: LinkedIn
+                      icon: https://static.example.com/users/icons/linkedin.svg
           description: ''
   /social-auth/token/:
     get:
       operationId: social_auth_token_retrieve
       description: 'Retrieves the authentication token for the user after a successful
-        social login. This is the default callback for the Social Auth URL: /social-auth/login/{backend}/.
+        social login. This is the default callback for the Social Auth URL: `/social-auth/login/{backend}/`.
         Appending a custom `?next={callback}` is optional and only required if you
         want to override the default redirect.'
       tags:
