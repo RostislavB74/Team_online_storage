@@ -168,3 +168,8 @@ class TokenSerializer(serializers.Serializer):
 class LogoutSerializer(serializers.Serializer):
     status = serializers.CharField()
     message = serializers.CharField()
+
+
+class SocialBackendSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    icon = serializers.CharField()
