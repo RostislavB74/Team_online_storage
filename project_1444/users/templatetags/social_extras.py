@@ -1,6 +1,13 @@
 from django import template
+from django.conf import settings
+from social_core.backends.utils import load_backends
 
 register = template.Library()
+
+
+def get_active_social_backends():
+    """Return a list of backend names that are enabled in settings."""
+    return load_backends(settings.AUTHENTICATION_BACKENDS)
 
 
 def get_social_auth_backend_name_map() -> dict:
