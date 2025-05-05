@@ -27,7 +27,10 @@
         <ul>
             {% for backend_name in backends.backends %}
                 <li>
-                    <a href="{% url 'social:begin' backend_name %}?next={{ request.GET.next|default:'/profile/' }}" >
+                {% url 'api_profile' as default_next %}
+                {% with request.GET.next|default:default_next as next_url %}
+                    <a href="{% url 'social:begin' backend_name %}?next={{ next_url }}">
+                {% endwith %}
                         <img src="{% static backend_name|get_friendly_icon %}" width="20" height="20">
                         Sign in with {{ backend_name|get_friendly_name }}
                     </a>

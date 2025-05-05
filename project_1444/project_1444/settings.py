@@ -168,8 +168,8 @@ SESSION_COOKIE_AGE = env(
 MIDDLEWARE = [
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "utils.middleware.AdminOnlySessionMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    "utils.middleware.AdminSplitterSessionMiddleware",
+    # "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -394,6 +394,10 @@ LOGGING = {
             "level": "DEBUG",
         },
         "users": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+        "utils": {
             "handlers": ["console"],
             "level": "DEBUG",
         },
@@ -703,7 +707,6 @@ SOCIAL_AUTH_JSONFIELD_ENABLED = True
 #     "users.signals.set_username_from_email",  # Custom step to set email as the username
 # )
 SOCIAL_AUTH_PIPELINE = (
-    "users.utils.mark_social_login",
     # Get the information we can about the user and return it in a simple
     # format to create the user instance later. In some cases the details are
     # already part of the auth response from the provider, but sometimes this
@@ -729,6 +732,8 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.associate_by_email",
     # Create a user account if we haven't found one yet.
     "social_core.pipeline.user.create_user",
+    # For new users copy avatar url to profile of user
+    "users.utils.set_profile_avatar_from_social",
     # Create the record that associates the social account with the user.
     "social_core.pipeline.social_auth.associate_user",
     # Populate the extra_data field in the social record with the values
@@ -736,11 +741,13 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.load_extra_data",
     # Update the user record with any changed info from the auth service.
     "social_core.pipeline.user.user_details",
+    "users.utils.mark_social_login",
 )
 SOCIAL_AUTH_SANITIZE_REDIRECTS = True
-
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy("social_auth_success_token")
-
+SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN = env(
+    "SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN", default=True
+)
 
 # Allowed messengers
 ALLOWED_MESSENGERS = ["viber", "telegram", "whatsapp", "signal", "discord"]
