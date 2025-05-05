@@ -165,8 +165,8 @@ SESSION_COOKIE_AGE = env(
 MIDDLEWARE = [
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "utils.middleware.AdminOnlySessionMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    "utils.middleware.AdminSplitterSessionMiddleware",
+    # "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -391,6 +391,10 @@ LOGGING = {
             "level": "DEBUG",
         },
         "users": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+        "utils": {
             "handlers": ["console"],
             "level": "DEBUG",
         },
