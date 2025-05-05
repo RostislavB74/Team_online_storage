@@ -3,15 +3,19 @@ from django import template
 register = template.Library()
 
 
-@register.filter
-def get_friendly_name(backend_name):
-    mapping = {
+def get_social_auth_backend_name_map() -> dict:
+    return {
         "google-oauth2": "Google",
         "apple-id": "Apple",
         "github": "GitHub",
         "facebook": "Facebook",
         "linkedin-openidconnect": "LinkedIn",
     }
+
+
+@register.filter
+def get_friendly_name(backend_name):
+    mapping = get_social_auth_backend_name_map()
     return mapping.get(backend_name, backend_name)
 
 
