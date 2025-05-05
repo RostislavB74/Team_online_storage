@@ -1731,7 +1731,7 @@ paths:
     get:
       operationId: social_auth_backends_retrieve
       description: 'List of Active Social Auth Backends names for later use in API
-        URL like for social auth: /social-auth/login/{backend}/'
+        URL for social auth like: /social-auth/login/{backend}/'
       tags:
       - auth
       security:
@@ -1757,8 +1757,10 @@ paths:
   /social-auth/token/:
     get:
       operationId: social_auth_token_retrieve
-      description: Get the authentication token for the user only after successful
-        social login.
+      description: 'Retrieves the authentication token for the user after a successful
+        social login. This is the default callback for the Social Auth URL: /social-auth/login/{backend}/.
+        Appending a custom `?next={callback}` is optional and only required if you
+        want to override the default redirect.'
       tags:
       - auth
       security:
