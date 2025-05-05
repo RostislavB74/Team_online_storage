@@ -56,3 +56,44 @@ def send_email_in_background(*args, **kwargs):
 def mark_social_login(strategy, backend, user=None, *args, **kwargs):
     if user:
         strategy.session_set("is_social_login", True)
+        # Force session to be saved
+        if hasattr(strategy, "request") and hasattr(strategy.request, "session"):
+            strategy.request.session.modified = True
+
+
+def set_profile_avatar_from_social(
+    backend, user, response, is_new=False, *args, **kwargs
+):
+    if not is_new:
+        return  # Skip for existing users
+
+    url = None
+
+    if backend.name == "google-oauth2":
+        url = response.get("picture")
+    elif backend.name == "facebook":
+        url = f"https://graph.facebook.com/{response.get('id')}/picture?type=large"
+    elif backend.name == "github":
+        url = response.get("avatar_url")
+    elif backend.name == "linkedin-openidconnect":
+        try:
+            elements = (
+                response.get("profilePicture", {})
+                .get("displayImage~", {})
+                .get("elements", [])
+            )
+            if elements:
+                identifiers = elements[-1].get("identifiers", [])
+                if identifiers:
+                    url = identifiers[0].get("identifier")
+        except Exception as e:
+            logger.error(f"Get Avatar url from LinkedIn. {e}")
+
+    if url:
+        try:
+            profile = getattr(user, "profile", None)
+            if profile and hasattr(profile, "avatar"):
+                profile.avatar = url
+                profile.save()
+        except Exception as e:
+            logger.error(f"Save Avatar to profile. {e}")
