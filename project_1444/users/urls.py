@@ -8,6 +8,8 @@ from .views import (
     NotificationSettingsAPIView,
     CSRFAPIView,
     JsonObtainAuthToken,
+    ListSocialBackends,
+    SocialAuthSuccessToken,
 )
 
 # from rest_framework.authtoken.views import ObtainAuthToken
@@ -24,5 +26,15 @@ urlpatterns = [
         "user/notifications/",
         NotificationSettingsAPIView.as_view(),
         name="api_notifications",
+    ),
+    path(
+        "social-auth/backends/",
+        ListSocialBackends.as_view(),
+        name="social_auth_backends",
+    ),
+    path(
+        "social-auth/token/",
+        SocialAuthSuccessToken.as_view(),
+        name="social_auth_success_token",
     ),
 ]

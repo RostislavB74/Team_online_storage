@@ -8,9 +8,11 @@ from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from djoser.conf import settings
+from drf_spectacular.types import OpenApiTypes
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.parsers import JSONParser
 from rest_framework.views import APIView
@@ -19,7 +21,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
 from cart.models import Cart
 from .models import UserProfile, OTP, UserNotificationSettings
 from .serializers import (
@@ -31,9 +33,48 @@ from .serializers import (
     LogoutSerializer,
     UserNotificationSettingsSerializer,
 )
+from .templatetags.social_extras import (
+    get_social_auth_backend_name_map,
+    get_active_social_backends,
+)
 from .utils import send_email_in_background
 
 logger = logging.getLogger(__name__)
+
+
+class ListSocialBackends(APIView):
+    @extend_schema(
+        responses={status.HTTP_200_OK: OpenApiTypes.OBJECT},
+        examples=[
+            OpenApiExample(
+                name="ExampleBackends",
+                value={
+                    "google-oauth2": "Google",
+                    "apple-id": "Apple",
+                    "github": "GitHub",
+                    "facebook": "Facebook",
+                    "linkedin-openidconnect": "LinkedIn",
+                },
+                response_only=True,
+            )
+        ],
+        description=format_lazy(
+            _(
+                "List of Active Social Auth Backends names for later use in API URL for social auth like: {}"
+            ),
+            "/social-auth/login/{backend}/",
+        ),
+        tags=["auth"],
+    )
+    def get(self, request):
+        friendly_names = get_social_auth_backend_name_map()
+        active_backend_names = get_active_social_backends().keys()
+        result = {
+            key: friendly_names[key]
+            for key in active_backend_names
+            if key in friendly_names
+        }
+        return Response(result)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -56,7 +97,9 @@ class SocialAuthSuccessToken(APIView):
             }
         },
         description=_(
-            "Get the authentication token for the user only after successful social login."
+            "Retrieves the authentication token for the user after a successful social login. "
+            "This is the default callback for the Social Auth URL: /social-auth/login/{backend}/. "
+            "Appending a custom `?next={callback}` is optional and only required if you want to override the default redirect."
         ),
         tags=["auth"],
     )

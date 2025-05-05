@@ -25,8 +25,8 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
+from django.utils.translation import gettext_lazy as _
 
-from users.views import SocialAuthSuccessToken
 from utils.views import HealthCheckView, VersionView
 
 from .views import ApiRootView
@@ -51,8 +51,8 @@ from debug_toolbar.toolbar import debug_toolbar_urls
 
 # urls.py
 admin.site.site_header = "VEVELLY"
-admin.site.site_title = "Адмінка"
-admin.site.index_title = "Ласкаво просимо"
+admin.site.site_title = _("Адмінка")
+admin.site.index_title = _("Ласкаво просимо")
 admin.site.login_template = "custom_admin/login.html"
 
 urlpatterns = [
@@ -60,11 +60,6 @@ urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
     path("", include("users.urls")),
     path("", RedirectView.as_view(url="api/docs/", permanent=False), name="index"),
-    path(
-        "social-auth/token/",
-        SocialAuthSuccessToken.as_view(),
-        name="social_auth_success_token",
-    ),
     path("social-auth/", include("social_django.urls", namespace="social")),
     path("api/v0/", include("mock.urls")),
     path("api/v1/", include("order.urls")),
