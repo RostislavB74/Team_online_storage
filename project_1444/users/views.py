@@ -2,8 +2,9 @@ import logging
 import random
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -11,7 +12,6 @@ from django.utils.decorators import method_decorator
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
-from djoser.conf import settings
 from drf_spectacular.types import OpenApiTypes
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.parsers import JSONParser
@@ -21,7 +21,11 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    OpenApiExample,
+)
 from cart.models import Cart
 from .models import UserProfile, OTP, UserNotificationSettings
 from .serializers import (
@@ -32,35 +36,52 @@ from .serializers import (
     TokenSerializer,
     LogoutSerializer,
     UserNotificationSettingsSerializer,
+    SocialBackendSerializer,
 )
 from .templatetags.social_extras import (
     get_social_auth_backend_name_map,
     get_active_social_backends,
+    get_social_auth_backend_icon_map,
 )
 from .utils import send_email_in_background
 
 logger = logging.getLogger(__name__)
 
+STATIC_PREFIX_EXAMPLE = "https://static.example.com/"
+
 
 class ListSocialBackends(APIView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.STATIC_PREFIX = getattr(settings, "STATIC_URL", "")
+
     @extend_schema(
-        responses={status.HTTP_200_OK: OpenApiTypes.OBJECT},
+        responses={
+            status.HTTP_200_OK: OpenApiTypes.OBJECT,
+        },
         examples=[
             OpenApiExample(
-                name="ExampleBackends",
+                name="SocialBackendsExample",
                 value={
-                    "google-oauth2": "Google",
-                    "apple-id": "Apple",
-                    "github": "GitHub",
-                    "facebook": "Facebook",
-                    "linkedin-openidconnect": "LinkedIn",
+                    "google-oauth2": {
+                        "name": "Google",
+                        "icon": STATIC_PREFIX_EXAMPLE + "users/icons/google.svg",
+                    },
+                    "github": {
+                        "name": "GitHub",
+                        "icon": STATIC_PREFIX_EXAMPLE + "users/icons/github.svg",
+                    },
+                    "linkedin-openidconnect": {
+                        "name": "LinkedIn",
+                        "icon": STATIC_PREFIX_EXAMPLE + "users/icons/linkedin.svg",
+                    },
                 },
                 response_only=True,
             )
         ],
         description=format_lazy(
             _(
-                "List of Active Social Auth Backends names for later use in API URL for social auth like: {}"
+                "List of Active Social Auth Backends names for later use in API URL for social auth like: `{}`"
             ),
             "/social-auth/login/{backend}/",
         ),
@@ -68,13 +89,21 @@ class ListSocialBackends(APIView):
     )
     def get(self, request):
         friendly_names = get_social_auth_backend_name_map()
+        friendly_icons = get_social_auth_backend_icon_map()
         active_backend_names = get_active_social_backends().keys()
         result = {
-            key: friendly_names[key]
+            key: {
+                "name": friendly_names[key],
+                "icon": self.STATIC_PREFIX + friendly_icons.get(key),
+            }
             for key in active_backend_names
             if key in friendly_names
         }
-        return Response(result)
+        serialized_data = {
+            backend: SocialBackendSerializer(value).data
+            for backend, value in result.items()
+        }
+        return Response(serialized_data)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -98,7 +127,7 @@ class SocialAuthSuccessToken(APIView):
         },
         description=_(
             "Retrieves the authentication token for the user after a successful social login. "
-            "This is the default callback for the Social Auth URL: /social-auth/login/{backend}/. "
+            "This is the default callback for the Social Auth URL: `/social-auth/login/{backend}/`. "
             "Appending a custom `?next={callback}` is optional and only required if you want to override the default redirect."
         ),
         tags=["auth"],
