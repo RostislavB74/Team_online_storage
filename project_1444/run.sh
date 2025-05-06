@@ -19,7 +19,7 @@ DEBUG=${DEBUG:-False}
 
 # Start Celery worker in background
 echo "Starting Celery worker..."
-celery -A project_1444 worker --loglevel=info  -c 1 --max-memory-per-child 128M --max-tasks-per-child 50 &
+celery -A project_1444 worker --loglevel=info  -c 1 --max-memory-per-child 131072 --max-tasks-per-child 50 &
 
 # Optional: Start Celery beat (for scheduled tasks)
 #echo "Starting Celery beat..."
