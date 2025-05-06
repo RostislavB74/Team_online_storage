@@ -166,10 +166,10 @@ SESSION_COOKIE_AGE = env(
 
 
 MIDDLEWARE = [
-    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "utils.middleware.AdminSplitterSessionMiddleware",
     # "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -579,10 +579,10 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
+CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
-CORS_ALLOW_CREDENTIALS = True
 CSRF_COOKIE_HTTPONLY = False  # needed so JS can read the cookie
 CSRF_COOKIE_SAMESITE = "None"
 CSRF_COOKIE_SECURE = True
@@ -741,6 +741,8 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.load_extra_data",
     # Update the user record with any changed info from the auth service.
     "social_core.pipeline.user.user_details",
+    "users.utils.mark_social_login",
+    "users.utils.mark_social_login",
     "users.utils.mark_social_login",
 )
 SOCIAL_AUTH_SANITIZE_REDIRECTS = True
