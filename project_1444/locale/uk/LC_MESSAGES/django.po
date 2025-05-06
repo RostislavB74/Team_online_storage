@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 01:55+0300\n"
+"POT-Creation-Date: 2025-05-05 21:04+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,7 +38,7 @@ msgid "Промокод"
 msgstr ""
 
 #: .\discounts\models.py:108 .\discounts\models.py:149
-#: .\discounts\models.py:243
+#: .\discounts\models.py:307
 msgid "Знижка, %"
 msgstr ""
 
@@ -59,11 +59,11 @@ msgid "Застосовується до категорій"
 msgstr ""
 
 #: .\discounts\models.py:147 .\discounts\models.py:178
-#: .\discounts\models.py:186 .\discounts\models.py:219
+#: .\discounts\models.py:186 .\discounts\models.py:222
 msgid "Користувач"
 msgstr ""
 
-#: .\discounts\models.py:167 .\discounts\models.py:257
+#: .\discounts\models.py:167 .\discounts\models.py:321
 msgid "Товар"
 msgstr ""
 
@@ -123,44 +123,124 @@ msgstr ""
 msgid "Персональні знижки"
 msgstr ""
 
-#: .\discounts\models.py:221
+#: .\discounts\models.py:228
 msgid "Знижка на день народження, %"
 msgstr ""
 
-#: .\discounts\models.py:222
+#: .\discounts\models.py:232
 msgid "Дійсна кількість днів"
 msgstr ""
 
-#: .\discounts\models.py:263
-msgid "Матеріал"
+#: .\discounts\models.py:238
+msgid "Рік використання знижки"
 msgstr ""
 
-#: .\discounts\models.py:268
-msgid "Статус"
-msgstr ""
-
-#: .\discounts\models.py:273
-msgid "Каміння"
+#: .\discounts\models.py:243
+msgid "Дата народження на момент створення"
 msgstr ""
 
 #: .\discounts\models.py:280
+msgid "Знижка на день народження"
+msgstr ""
+
+#: .\discounts\models.py:281
+msgid "Знижки на день народження"
+msgstr ""
+
+#: .\discounts\models.py:327
+msgid "Матеріал"
+msgstr ""
+
+#: .\discounts\models.py:332
+msgid "Статус"
+msgstr ""
+
+#: .\discounts\models.py:337
+msgid "Каміння"
+msgstr ""
+
+#: .\discounts\models.py:344
 msgid "Категорії"
 msgstr ""
 
-#: .\discounts\models.py:285
+#: .\discounts\models.py:349
 msgid "Підкатегорії"
 msgstr ""
 
-#: .\discounts\models.py:292
+#: .\discounts\models.py:356
 msgid "Колекції"
 msgstr ""
 
-#: .\discounts\models.py:298
+#: .\discounts\models.py:362
 msgid "Стилі"
 msgstr ""
 
-#: .\discounts\models.py:303
+#: .\discounts\models.py:367
 msgid "Привід"
+msgstr ""
+
+#: .\order\models.py:14
+msgid "New"
+msgstr "Нове"
+
+#: .\order\models.py:15
+msgid "Awaiting Payment"
+msgstr "Очікує оплати"
+
+#: .\order\models.py:16
+msgid "Paid"
+msgstr "Оплачено"
+
+#: .\order\models.py:17
+msgid "In Transit"
+msgstr "В дорозі"
+
+#: .\order\models.py:18
+msgid "Shipped"
+msgstr "Прибуло"
+
+#: .\order\models.py:19
+msgid "Delivered"
+msgstr "Доставлено"
+
+#: .\order\models.py:20
+msgid "Failed"
+msgstr "Недоставлено"
+
+#: .\order\models.py:21
+msgid "Reversed"
+msgstr "Повернено"
+
+#: .\order\models.py:22
+msgid "Cancelled"
+msgstr "Скасовано"
+
+#: .\order\models.py:26 .\order\serializers.py:160
+msgid "Cash"
+msgstr "Готівка"
+
+#: .\order\models.py:27 .\order\serializers.py:164
+msgid "Pickup"
+msgstr "Самовивіз"
+
+#: .\order\models.py:27 .\order\serializers.py:164
+msgid "Delivery"
+msgstr "Доставка"
+
+#: .\order\serializers.py:32
+msgid "Продукт з таким ID не існує"
+msgstr ""
+
+#: .\order\serializers.py:64
+msgid "Ім’я, телефон і адреса отримувача обов’язкові для доставки"
+msgstr ""
+
+#: .\order\serializers.py:69
+msgid "Ім’я і телефон отримувача обов’язкові для самовивозу"
+msgstr ""
+
+#: .\order\serializers.py:75
+msgid "Замовлення повинно містити хоча б один товар"
 msgstr ""
 
 #: .\product\admin.py:56 .\product\admin.py:105
@@ -253,7 +333,7 @@ msgstr "Коштовні II порядок"
 
 #: .\product\models.py:380
 msgid "Precious III Order"
-msgstr ""
+msgstr "Коштовні III порядок"
 
 #: .\product\models.py:381
 msgid "Precious IV Order"
@@ -283,13 +363,51 @@ msgstr ""
 msgid "Продукт"
 msgstr ""
 
-#: .\users\models.py:42
-msgid "Male"
-msgstr "Чоловічий"
+#: .\project_1444\urls.py:54
+msgid "Адмінка"
+msgstr ""
 
-#: .\users\models.py:42
+#: .\project_1444\urls.py:55
+msgid "Ласкаво просимо"
+msgstr ""
+
+#: .\users\models.py:46
+msgid "Male"
+msgstr "Чоловічa"
+
+#: .\users\models.py:46
 msgid "Female"
-msgstr "Жіночий"
+msgstr "Жіночa"
+
+#: .\users\models.py:59
+msgid "Messengers must be a dictionary"
+msgstr "Повідомлення мусять бути словником"
+
+#: .\users\models.py:79
+msgid "User Profile"
+msgstr "Профіль користувача"
+
+#: .\users\models.py:80
+msgid "User Profiles"
+msgstr "Профілі користувачів"
+
+#: .\users\models.py:92
+msgid "Звичайна адреса"
+msgstr ""
+
+#: .\users\models.py:93
+msgid "Нова Пошта"
+msgstr ""
+
+#: .\users\models.py:108
+#, python-brace-format
+msgid "Нова Пошта - {city}, Відділення {branch}"
+msgstr ""
+
+#: .\users\models.py:123
+#, python-brace-format
+msgid "Notifications for {username}"
+msgstr "Сповіщення для {username}"
 
 #: .\users\templates\admin\messenger_field.html:10
 #: .\users\templates\admin\messenger_field.html:22
@@ -321,73 +439,106 @@ msgid ""
 "        "
 msgstr ""
 
-#: .\users\views.py:64
-msgid "Аутентифікація користувача та генерація OTP"
-msgstr ""
-
-#: .\users\views.py:77
-msgid "Invalid credentials"
-msgstr "Невірні дані"
-
 #: .\users\views.py:84
-msgid "Email address is required for OTP verification"
-msgstr "Потрібна електронна адреса для верифікації OTP"
+msgid ""
+"List of Active Social Auth Backends names for later use in API URL for "
+"social auth like: `{}`"
+msgstr ""
+"Список імен активних бекендів Social Auth для подальшого використання в URL-адресі API для"
+"social авторизації на кшталт: `{}`"
 
-#: .\users\views.py:107
+#: .\users\views.py:129
+#, python-brace-format
+msgid ""
+"Retrieves the authentication token for the user after a successful social "
+"login. This is the default callback for the Social Auth URL: `/social-auth/"
+"login/{backend}/`. Appending a custom `?next={callback}` is optional and "
+"only required if you want to override the default redirect."
+msgstr ""
+"Отримання токену аутентифікації користувача після успішної social "
+"авторизації. Це є за замовчуванням callback  для URL-адреси Social Auth: `/social-auth/"
+"login/{backend}/`. Додавання власного `?next={callback}` є необов'язковим і "
+"тільки потрібним, якщо ви хочете перевизначити переадресацію за замовчуванням."
+
+#: .\users\views.py:170
+msgid "Get the authentication token for the user"
+msgstr "Отримати токен аутентифікації користувача"
+
+#: .\users\views.py:233
 msgid "Your OTP Code"
 msgstr "Ваш код OTP"
 
-#: .\users\views.py:108
+#: .\users\views.py:234
 msgid "Your verification code is "
 msgstr "Ваш код верифікації: "
 
-#: .\users\views.py:127
+#: .\users\views.py:246 .\users\views.py:386
 msgid "Failed to send OTP. Please try again."
 msgstr "Помилка при віправленні OTP. Спробуєте ще раз."
 
-#: .\users\views.py:136
+#: .\users\views.py:254
 msgid "OTP sent to your email"
 msgstr "На електронну адресу відправлено OTP"
 
-#: .\users\views.py:150
+#: .\users\views.py:266
+msgid "Аутентифікація користувача та генерація OTP"
+msgstr ""
+
+#: .\users\views.py:279
+msgid "Invalid credentials"
+msgstr "Невірні дані"
+
+#: .\users\views.py:286 .\users\views.py:375
+msgid "Email address is required for OTP verification"
+msgstr "Потрібна електронна адреса для верифікації OTP"
+
+#: .\users\views.py:303
 msgid "Верифікація OTP та видача токена"
 msgstr ""
 
-#: .\users\views.py:161
+#: .\users\views.py:314
 msgid "Invalid session"
 msgstr "Невірна сесія"
 
-#: .\users\views.py:169
+#: .\users\views.py:322
 msgid "User not found"
 msgstr "Користувача не знайдено"
 
-#: .\users\views.py:186
+#: .\users\views.py:343
 msgid "Welcome, "
 msgstr "Вітаємо, "
 
-#: .\users\views.py:194
+#: .\users\views.py:351
 msgid "Invalid or expired OTP"
 msgstr "Невірний або протермінований OTP"
 
-#: .\users\views.py:206
+#: .\users\views.py:363
 msgid "Реєстрація нового користувача"
 msgstr ""
 
-#: .\users\views.py:217
+#: .\users\views.py:394
 msgid "Registration successful"
 msgstr "Реєстрація успішна"
 
-#: .\users\views.py:232
+#: .\users\views.py:409
 msgid "Отримання або оновлення профілю користувача"
 msgstr ""
 
-#: .\users\views.py:264
+#: .\users\views.py:442
 msgid "Profile updated"
 msgstr "Профіль оновлено"
 
-#: .\users\views.py:272
+#: .\users\views.py:450
 msgid "Invalid profile data"
 msgstr "Невірні дані профілю"
+
+#: .\users\views.py:503
+msgid "Отримання або оновлення налаштувань сповіщень"
+msgstr ""
+
+#: .\users\views.py:558
+msgid "Successfully logged out"
+msgstr "Ви успішно вийшли з системи"
 
 #, python-brace-format
 #~ msgid ""
@@ -426,31 +577,3 @@ msgstr "Невірні дані профілю"
 
 #~ msgid "Blackening"
 #~ msgstr "Чорніння"
-
-
-#~ msgid "New"
-#~ msgstr "Нове"
-
-
-#~ msgid "Awaiting Payment"
-#~ msgstr "Очікує оплати"
-#~ msgid "Paid"
-#~ msgstr "Оплачено"
-#~ msgid "In Transit"
-#~ msgstr "В дорозі"
-#~ msgid "Shipped"
-#~ msgstr "Прибуло"
-#~ msgid "Delivered"
-#~ msgstr "Доставлено"
-#~ msgid "Failed"
-#~ msgstr "Недоставлено"
-#~ msgid "Reversed"
-#~ msgstr "Повернено"
-#~ msgid "Cancelled"
-#~ msgstr "Скасовано"
-#~ msgid "Cash"
-#~ msgstr "Готівка"
-#~ msgid "Pickup"
-#~ msgstr "Самовивіз"
-#~ msgid "Delivery"
-#~ msgstr "Доставка"
