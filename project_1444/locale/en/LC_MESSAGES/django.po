@@ -1,18 +1,18 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 00:51+0300\n"
+"POT-Creation-Date: 2025-05-07 01:17+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: LeX Xai <lexxai@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,12 +30,12 @@ msgstr "Total cost of the basket"
 msgid "Анонімний користувач"
 msgstr "Anonymous user"
 
-#: .\cart\admin.py:56 .\discounts\models.py:194 .\discounts\models.py:245
-#: .\discounts\models.py:264 .\discounts\models.py:334
+#: .\cart\admin.py:56 .\discounts\models.py:192 .\discounts\models.py:243
+#: .\discounts\models.py:262 .\discounts\models.py:332
 msgid "Користувач"
 msgstr "User"
 
-#: .\cart\admin.py:57 .\discounts\models.py:223 .\discounts\models.py:437
+#: .\cart\admin.py:57 .\discounts\models.py:221 .\discounts\models.py:435
 msgid "Товар"
 msgstr "Product"
 
@@ -63,11 +63,11 @@ msgstr "Promo codes"
 msgid "Купони на знижку"
 msgstr "Discount coupons"
 
-#: .\discounts\admin.py:68 .\discounts\admin.py:69 .\discounts\models.py:326
+#: .\discounts\admin.py:68 .\discounts\admin.py:69 .\discounts\models.py:324
 msgid "Персональні знижки"
 msgstr "Personal discounts"
 
-#: .\discounts\admin.py:83 .\discounts\admin.py:84 .\discounts\models.py:390
+#: .\discounts\admin.py:83 .\discounts\admin.py:84 .\discounts\models.py:388
 msgid "Знижки на день народження"
 msgstr "Birthday discounts"
 
@@ -179,8 +179,8 @@ msgstr "On the collection"
 msgid "На стиль"
 msgstr "On style"
 
-#: .\discounts\models.py:123 .\discounts\models.py:198
-#: .\discounts\models.py:418
+#: .\discounts\models.py:123 .\discounts\models.py:196
+#: .\discounts\models.py:416
 msgid "Знижка, %"
 msgstr "Discount, %"
 
@@ -192,11 +192,11 @@ msgstr "Limit of use"
 msgid "Використано"
 msgstr "Used"
 
-#: .\discounts\models.py:133 .\discounts\models.py:280
+#: .\discounts\models.py:133 .\discounts\models.py:278
 msgid "Застосовується до товарів"
 msgstr "Applied to products"
 
-#: .\discounts\models.py:139 .\discounts\models.py:292
+#: .\discounts\models.py:139 .\discounts\models.py:290
 msgid "Застосовується до категорій"
 msgstr "Applied to categories"
 
@@ -204,123 +204,123 @@ msgstr "Applied to categories"
 msgid "Promo code {} used for {}"
 msgstr ""
 
-#: .\discounts\models.py:215
+#: .\discounts\models.py:213
 msgid "Купон {}% для {}"
 msgstr "Coupon {}% for {}"
 
-#: .\discounts\models.py:226
+#: .\discounts\models.py:224
 msgid "Стара ціна"
 msgstr "Previous price"
 
-#: .\discounts\models.py:229
+#: .\discounts\models.py:227
 msgid "Нова ціна"
 msgstr "New price"
 
-#: .\discounts\models.py:232
+#: .\discounts\models.py:230
 msgid "Застосована знижка"
 msgstr "Applied discount"
 
-#: .\discounts\models.py:234
+#: .\discounts\models.py:232
 msgid "Дата зміни"
 msgstr "Date of change"
 
-#: .\discounts\models.py:252
+#: .\discounts\models.py:250
 msgid "Баланс бонусів"
 msgstr "Bonus balance"
 
-#: .\discounts\models.py:256
+#: .\discounts\models.py:254
 msgid "{} - {} бонусів"
 msgstr "{} - {} bonuses"
 
-#: .\discounts\models.py:271
+#: .\discounts\models.py:269
 msgid "Призначив"
 msgstr "Assigned"
 
-#: .\discounts\models.py:274
+#: .\discounts\models.py:272
 msgid "Персональна знижка, %"
 msgstr "Personal discount, %"
 
-#: .\discounts\models.py:286
+#: .\discounts\models.py:284
 msgid "Застосовується до субпродуктів"
 msgstr "Applied to subproducts"
 
-#: .\discounts\models.py:298
+#: .\discounts\models.py:296
 msgid "Групи користувачів"
 msgstr "Groups of users"
 
-#: .\discounts\models.py:301
+#: .\discounts\models.py:299
 msgid "Активна"
 msgstr "Active"
 
-#: .\discounts\models.py:302
+#: .\discounts\models.py:300
 msgid "Дійсна з"
 msgstr "Valid from"
 
-#: .\discounts\models.py:304
+#: .\discounts\models.py:302
 msgid "Дійсна до"
 msgstr "Valid to"
 
-#: .\discounts\models.py:320
+#: .\discounts\models.py:318
 msgid "{}% персональна знижка для {}"
 msgstr "{}% personalized znizka for {}"
 
-#: .\discounts\models.py:325
+#: .\discounts\models.py:323
 msgid "Персональна знижка"
 msgstr "Personal discount"
 
-#: .\discounts\models.py:340
+#: .\discounts\models.py:338
 msgid "Знижка на день народження, %"
 msgstr "Discount on birthday, %"
 
-#: .\discounts\models.py:343
+#: .\discounts\models.py:341
 msgid "Дійсна кількість днів"
 msgstr "Valid number of days"
 
-#: .\discounts\models.py:347
+#: .\discounts\models.py:345
 msgid "Рік використання знижки"
 msgstr "Year of using the discount"
 
-#: .\discounts\models.py:350
+#: .\discounts\models.py:348
 msgid "Дата народження на момент створення"
 msgstr "Date of birth at the time of creation"
 
-#: .\discounts\models.py:384
+#: .\discounts\models.py:382
 msgid "Знижка {}% для {} на день народження"
 msgstr "{}% discount for {} for his/her birthday"
 
-#: .\discounts\models.py:389
+#: .\discounts\models.py:387
 msgid "Знижка на день народження"
 msgstr "Birthday discount"
 
-#: .\discounts\models.py:449 .\product\admin.py:289 .\product\models.py:247
+#: .\discounts\models.py:447 .\product\admin.py:289 .\product\models.py:247
 msgid "Матеріал"
 msgstr "Material"
 
-#: .\discounts\models.py:461
+#: .\discounts\models.py:459
 msgid "Статус"
 msgstr "Status"
 
-#: .\discounts\models.py:473
+#: .\discounts\models.py:471
 msgid "Каміння"
 msgstr "Stone"
 
-#: .\discounts\models.py:485
+#: .\discounts\models.py:483
 msgid "Категорії"
 msgstr "Categories"
 
-#: .\discounts\models.py:497
+#: .\discounts\models.py:495
 msgid "Підкатегорії"
 msgstr "Subcategories"
 
-#: .\discounts\models.py:509 .\product\models.py:160
+#: .\discounts\models.py:507 .\product\models.py:160
 msgid "Колекції"
 msgstr "Collections"
 
-#: .\discounts\models.py:521 .\product\models.py:198
+#: .\discounts\models.py:519 .\product\models.py:198
 msgid "Стилі"
 msgstr "Styles"
 
-#: .\discounts\models.py:533 .\product\models.py:448
+#: .\discounts\models.py:531 .\product\models.py:448
 msgid "Привід"
 msgstr "Trim"
 
@@ -466,7 +466,7 @@ msgstr ""
 
 #: .\product\admin.py:273 .\product\admin.py:274
 msgid "Характеристики"
-msgstr “Characteristics”
+msgstr "Characteristics"
 
 #: .\product\admin.py:281
 msgid "Камінь"
@@ -522,11 +522,11 @@ msgstr "No images"
 
 #: .\product\admin.py:493 .\product\admin.py:566
 msgid "Зображення"
-msgstr “Image”
+msgstr "Image"
 
 #: .\product\admin.py:502 .\product\admin.py:591
 msgid "Сертифікат"
-msgstr  "Certificate"
+msgstr "Certificate"
 
 #: .\product\admin.py:504
 msgid "Немає сертифікатів"
@@ -549,8 +549,10 @@ msgid "Статуси"
 msgstr "Status"
 
 #: .\product\admin.py:521
-msgid "Mark as a bestseller"
-msgstr ""
+#, fuzzy
+#| msgid "Позначити товари як бестселери"
+msgid "Позначити як бестселер"
+msgstr "Mark products as bestsellers"
 
 #: .\product\admin.py:526
 msgid "Вибрані товари отримали статус 'bestseller'."
@@ -772,7 +774,6 @@ msgid "Ширина (см)"
 msgstr "Width (cm)"
 
 #: .\product\models.py:512
-
 msgid "Розмір(мм) "
 msgstr "For size"
 
