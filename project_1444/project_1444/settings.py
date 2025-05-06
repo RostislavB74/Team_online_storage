@@ -744,7 +744,7 @@ SOCIAL_AUTH_PIPELINE = (
     "users.utils.mark_social_login",
 )
 SOCIAL_AUTH_SANITIZE_REDIRECTS = True
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/social-auth/token/"
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = f"{SITE_URL}/social-auth/token/"
 SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN = env(
     "SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN", default=True
 )
