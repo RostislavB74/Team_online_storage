@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 21:04+0300\n"
+"POT-Creation-Date: 2025-05-06 23:25+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,161 +21,242 @@ msgstr ""
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
-#: .\discounts\models.py:34
+#: .\discounts\models.py:41
 msgid "Початок дії"
 msgstr ""
 
-#: .\discounts\models.py:35
+#: .\discounts\models.py:42
 msgid "Кінець дії"
 msgstr ""
 
-#: .\discounts\models.py:36
+#: .\discounts\models.py:43
 msgid "Активний"
 msgstr ""
 
-#: .\discounts\models.py:107
+#: .\discounts\models.py:57
+msgid "Сезонна"
+msgstr ""
+
+#: .\discounts\models.py:58
+msgid "День народження"
+msgstr ""
+
+#: .\discounts\models.py:59
+msgid "Персональна"
+msgstr ""
+
+#: .\discounts\models.py:60
+msgid "Ручна"
+msgstr ""
+
+#: .\discounts\models.py:61 .\discounts\models.py:120
 msgid "Промокод"
 msgstr ""
 
-#: .\discounts\models.py:108 .\discounts\models.py:149
-#: .\discounts\models.py:307
+#: .\discounts\models.py:62
+msgid "По категоріях"
+msgstr ""
+
+#: .\discounts\models.py:63
+msgid "На продукт"
+msgstr ""
+
+#: .\discounts\models.py:64
+msgid "З приводу"
+msgstr ""
+
+#: .\discounts\models.py:65
+msgid "Купон"
+msgstr ""
+
+#: .\discounts\models.py:66
+msgid "На матеріал"
+msgstr ""
+
+#: .\discounts\models.py:67
+msgid "На статус"
+msgstr ""
+
+#: .\discounts\models.py:68
+msgid "На камінь"
+msgstr ""
+
+#: .\discounts\models.py:69
+msgid "На розмір"
+msgstr ""
+
+#: .\discounts\models.py:70
+msgid "На стать"
+msgstr ""
+
+#: .\discounts\models.py:71
+msgid "На колекцію"
+msgstr ""
+
+#: .\discounts\models.py:72
+msgid "На стиль"
+msgstr ""
+
+#: .\discounts\models.py:123 .\discounts\models.py:199
+#: .\discounts\models.py:419
 msgid "Знижка, %"
 msgstr ""
 
-#: .\discounts\models.py:109
+#: .\discounts\models.py:126
 msgid "Ліміт використання"
 msgstr ""
 
-#: .\discounts\models.py:110
+#: .\discounts\models.py:128
 msgid "Використано"
 msgstr ""
 
-#: .\discounts\models.py:111 .\discounts\models.py:189
+#: .\discounts\models.py:133 .\discounts\models.py:281
 msgid "Застосовується до товарів"
 msgstr ""
 
-#: .\discounts\models.py:112 .\discounts\models.py:191
+#: .\discounts\models.py:139 .\discounts\models.py:293
 msgid "Застосовується до категорій"
 msgstr ""
 
-#: .\discounts\models.py:147 .\discounts\models.py:178
-#: .\discounts\models.py:186 .\discounts\models.py:222
+#: .\discounts\models.py:184
+#, python-format
+msgid "Promo code %(code)s used for %(user)s"
+msgstr ""
+
+#: .\discounts\models.py:195 .\discounts\models.py:246
+#: .\discounts\models.py:265 .\discounts\models.py:335
 msgid "Користувач"
 msgstr ""
 
-#: .\discounts\models.py:167 .\discounts\models.py:321
+#: .\discounts\models.py:216
+msgid "Купон {}% для {}"
+msgstr ""
+
+#: .\discounts\models.py:224 .\discounts\models.py:438
 msgid "Товар"
 msgstr ""
 
-#: .\discounts\models.py:168
+#: .\discounts\models.py:227
 msgid "Стара ціна"
 msgstr ""
 
-#: .\discounts\models.py:169
+#: .\discounts\models.py:230
 msgid "Нова ціна"
 msgstr ""
 
-#: .\discounts\models.py:170
+#: .\discounts\models.py:233
 msgid "Застосована знижка"
 msgstr ""
 
-#: .\discounts\models.py:171
+#: .\discounts\models.py:235
 msgid "Дата зміни"
 msgstr ""
 
-#: .\discounts\models.py:180
+#: .\discounts\models.py:253
 msgid "Баланс бонусів"
 msgstr ""
 
-#: .\discounts\models.py:187
+#: .\discounts\models.py:257
+msgid "{} - {} бонусів"
+msgstr ""
+
+#: .\discounts\models.py:272
 msgid "Призначив"
 msgstr ""
 
-#: .\discounts\models.py:188
+#: .\discounts\models.py:275
 msgid "Персональна знижка, %"
 msgstr ""
 
-#: .\discounts\models.py:190
+#: .\discounts\models.py:287
 msgid "Застосовується до субпродуктів"
 msgstr ""
 
-#: .\discounts\models.py:192
+#: .\discounts\models.py:299
 msgid "Групи користувачів"
 msgstr ""
 
-#: .\discounts\models.py:194
+#: .\discounts\models.py:302
 msgid "Активна"
 msgstr ""
 
-#: .\discounts\models.py:195
+#: .\discounts\models.py:303
 msgid "Дійсна з"
 msgstr ""
 
-#: .\discounts\models.py:196
+#: .\discounts\models.py:305
 msgid "Дійсна до"
 msgstr ""
 
-#: .\discounts\models.py:214
+#: .\discounts\models.py:321
+msgid "{}% персональна знижка для {}"
+msgstr ""
+
+#: .\discounts\models.py:326
 msgid "Персональна знижка"
 msgstr ""
 
-#: .\discounts\models.py:215
+#: .\discounts\models.py:327
 msgid "Персональні знижки"
 msgstr ""
 
-#: .\discounts\models.py:228
+#: .\discounts\models.py:341
 msgid "Знижка на день народження, %"
 msgstr ""
 
-#: .\discounts\models.py:232
+#: .\discounts\models.py:344
 msgid "Дійсна кількість днів"
 msgstr ""
 
-#: .\discounts\models.py:238
+#: .\discounts\models.py:348
 msgid "Рік використання знижки"
 msgstr ""
 
-#: .\discounts\models.py:243
+#: .\discounts\models.py:351
 msgid "Дата народження на момент створення"
 msgstr ""
 
-#: .\discounts\models.py:280
+#: .\discounts\models.py:385
+msgid "Знижка {}% для {} на день народження"
+msgstr ""
+
+#: .\discounts\models.py:390
 msgid "Знижка на день народження"
 msgstr ""
 
-#: .\discounts\models.py:281
+#: .\discounts\models.py:391
 msgid "Знижки на день народження"
 msgstr ""
 
-#: .\discounts\models.py:327
+#: .\discounts\models.py:450
 msgid "Матеріал"
 msgstr ""
 
-#: .\discounts\models.py:332
+#: .\discounts\models.py:462
 msgid "Статус"
 msgstr ""
 
-#: .\discounts\models.py:337
+#: .\discounts\models.py:474
 msgid "Каміння"
 msgstr ""
 
-#: .\discounts\models.py:344
+#: .\discounts\models.py:486
 msgid "Категорії"
 msgstr ""
 
-#: .\discounts\models.py:349
+#: .\discounts\models.py:498
 msgid "Підкатегорії"
 msgstr ""
 
-#: .\discounts\models.py:356
+#: .\discounts\models.py:510
 msgid "Колекції"
 msgstr ""
 
-#: .\discounts\models.py:362
+#: .\discounts\models.py:522
 msgid "Стилі"
 msgstr ""
 
-#: .\discounts\models.py:367
+#: .\discounts\models.py:534
 msgid "Привід"
 msgstr ""
 
@@ -439,15 +520,15 @@ msgid ""
 "        "
 msgstr ""
 
-#: .\users\views.py:84
+#: .\users\views.py:87
 msgid ""
 "List of Active Social Auth Backends names for later use in API URL for "
 "social auth like: `{}`"
 msgstr ""
-"Список імен активних бекендів Social Auth для подальшого використання в URL-адресі API для"
-"social авторизації на кшталт: `{}`"
+"Список імен активних бекендів Social Auth для подальшого використання в URL-"
+"адресі API для social авторизації на кшталт: `{}`"
 
-#: .\users\views.py:129
+#: .\users\views.py:132
 #, python-brace-format
 msgid ""
 "Retrieves the authentication token for the user after a successful social "
@@ -456,89 +537,138 @@ msgid ""
 "only required if you want to override the default redirect."
 msgstr ""
 "Отримання токену аутентифікації користувача після успішної social "
-"авторизації. Це є за замовчуванням callback  для URL-адреси Social Auth: `/social-auth/"
-"login/{backend}/`. Додавання власного `?next={callback}` є необов'язковим і "
-"тільки потрібним, якщо ви хочете перевизначити переадресацію за замовчуванням."
+"авторизації. Це є за замовчуванням callback  для URL-адреси Social Auth: `/"
+"social-auth/login/{backend}/`. Додавання власного `?next={callback}` є "
+"необов'язковим і тільки потрібним, якщо ви хочете перевизначити "
+"переадресацію за замовчуванням."
 
-#: .\users\views.py:170
+#: .\users\views.py:173
 msgid "Get the authentication token for the user"
 msgstr "Отримати токен аутентифікації користувача"
 
-#: .\users\views.py:233
+#: .\users\views.py:236
 msgid "Your OTP Code"
 msgstr "Ваш код OTP"
 
-#: .\users\views.py:234
+#: .\users\views.py:237
 msgid "Your verification code is "
 msgstr "Ваш код верифікації: "
 
-#: .\users\views.py:246 .\users\views.py:386
+#: .\users\views.py:249 .\users\views.py:389 .\users\views.py:616
 msgid "Failed to send OTP. Please try again."
 msgstr "Помилка при віправленні OTP. Спробуєте ще раз."
 
-#: .\users\views.py:254
+#: .\users\views.py:257
 msgid "OTP sent to your email"
 msgstr "На електронну адресу відправлено OTP"
 
-#: .\users\views.py:266
+#: .\users\views.py:269
 msgid "Аутентифікація користувача та генерація OTP"
 msgstr ""
 
-#: .\users\views.py:279
+#: .\users\views.py:282
 msgid "Invalid credentials"
 msgstr "Невірні дані"
 
-#: .\users\views.py:286 .\users\views.py:375
+#: .\users\views.py:289 .\users\views.py:378 .\users\views.py:606
 msgid "Email address is required for OTP verification"
 msgstr "Потрібна електронна адреса для верифікації OTP"
 
-#: .\users\views.py:303
+#: .\users\views.py:306
 msgid "Верифікація OTP та видача токена"
 msgstr ""
 
-#: .\users\views.py:314
+#: .\users\views.py:317 .\users\views.py:671
 msgid "Invalid session"
 msgstr "Невірна сесія"
 
-#: .\users\views.py:322
+#: .\users\views.py:325
 msgid "User not found"
 msgstr "Користувача не знайдено"
 
-#: .\users\views.py:343
+#: .\users\views.py:346
 msgid "Welcome, "
 msgstr "Вітаємо, "
 
-#: .\users\views.py:351
+#: .\users\views.py:354 .\users\views.py:687
 msgid "Invalid or expired OTP"
 msgstr "Невірний або протермінований OTP"
 
-#: .\users\views.py:363
+#: .\users\views.py:366
 msgid "Реєстрація нового користувача"
 msgstr ""
 
-#: .\users\views.py:394
+#: .\users\views.py:397
 msgid "Registration successful"
 msgstr "Реєстрація успішна"
 
-#: .\users\views.py:409
+#: .\users\views.py:412
 msgid "Отримання або оновлення профілю користувача"
 msgstr ""
 
-#: .\users\views.py:442
+#: .\users\views.py:445
 msgid "Profile updated"
 msgstr "Профіль оновлено"
 
-#: .\users\views.py:450
+#: .\users\views.py:453
 msgid "Invalid profile data"
 msgstr "Невірні дані профілю"
 
-#: .\users\views.py:503
+#: .\users\views.py:506
 msgid "Отримання або оновлення налаштувань сповіщень"
 msgstr ""
 
-#: .\users\views.py:558
+#: .\users\views.py:552
+msgid "Вихід користувача та видалення токена"
+msgstr ""
+
+#: .\users\views.py:561
 msgid "Successfully logged out"
 msgstr "Ви успішно вийшли з системи"
+
+#: .\users\views.py:572
+msgid "Запит на видалення користувача (надсилається OTP)"
+msgstr ""
+
+#: .\users\views.py:576
+msgid "OTP code was sent successfully"
+msgstr "OTP-код успішно надіслано"
+
+#: .\users\views.py:580
+msgid "Missing email address or invalid input"
+msgstr "Відсутня адреса електронної пошти або невірне введення"
+
+#: .\users\views.py:584
+msgid "User is not authenticated"
+msgstr "Користувач не автентифікований"
+
+#: .\users\views.py:587
+msgid "Failed to send OTP"
+msgstr "Не вдалося надіслати OTP"
+
+#: .\users\views.py:597 .\users\views.py:659
+msgid "Unauthorized"
+msgstr "Неавторизований"
+
+#: .\users\views.py:623
+msgid "OTP code was sent for continue UnRegistration"
+msgstr "Надіслано OTP-код для продовження скасування реєстрації"
+
+#: .\users\views.py:640
+msgid "Користувача успішно видалено після верифікації OTP"
+msgstr ""
+
+#: .\users\views.py:644
+msgid "Невірний або прострочений OTP, або помилка сесії"
+msgstr ""
+
+#: .\users\views.py:648
+msgid "Користувач не автентифікований"
+msgstr ""
+
+#: .\users\views.py:651
+msgid "Верифікація OTP та остаточне видалення користувача"
+msgstr ""
 
 #, python-brace-format
 #~ msgid ""
