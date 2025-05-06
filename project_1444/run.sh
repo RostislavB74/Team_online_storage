@@ -21,9 +21,9 @@ DEBUG=${DEBUG:-False}
 echo "Starting Celery worker..."
 celery -A project_1444 worker --loglevel=info &
 
- Optional: Start Celery beat (for scheduled tasks)
- echo "Starting Celery beat..."
- celery -A project_1444 beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler &
+# Optional: Start Celery beat (for scheduled tasks)
+echo "Starting Celery beat..."
+celery -A project_1444 beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler &
 
 # Start Gunicorn
 echo "Starting Gunicorn..."
@@ -38,4 +38,4 @@ gunicorn --bind "0.0.0.0:8000" "project_1444.wsgi:application"
 #  python manage.py runserver 0.0.0.0:8000 --noreload --insecure --no-color
 #fi
 
-gunicorn --bind "0.0.0.0:8000" "project_1444.wsgi:application"
+#gunicorn --bind "0.0.0.0:8000" "project_1444.wsgi:application"
