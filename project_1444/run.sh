@@ -17,6 +17,18 @@ python manage.py collectstatic --noinput
 # Ensure DEBUG is set
 DEBUG=${DEBUG:-False}
 
+# Start Celery worker in background
+echo "Starting Celery worker..."
+celery -A project_1444 worker --loglevel=info &
+
+# Optional: Start Celery beat (for scheduled tasks)
+echo "Starting Celery beat..."
+celery -A project_1444 beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler &
+
+# Start Gunicorn
+echo "Starting Gunicorn..."
+gunicorn --bind "0.0.0.0:8000" "project_1444.wsgi:application"
+
 #if [ "$DEBUG" = "False" ]; then
 #  # python manage.py runserver 0.0.0.0:8000 --noreload --insecure --no-color
 #  # Run Gunicorn in production
@@ -26,4 +38,4 @@ DEBUG=${DEBUG:-False}
 #  python manage.py runserver 0.0.0.0:8000 --noreload --insecure --no-color
 #fi
 
-gunicorn --bind "0.0.0.0:8000" "project_1444.wsgi:application"
+#gunicorn --bind "0.0.0.0:8000" "project_1444.wsgi:application"
