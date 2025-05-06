@@ -1676,31 +1676,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Token'
           description: ''
-  /auth/token/:
+  /auth/register/verify/:
     post:
-      operationId: auth_token_create
-      description: Get the authentication token for the user
-      tags:
-      - auth
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthToken'
-        required: true
-      security:
-      - tokenAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthToken'
-          description: ''
-  /auth/verify-otp/:
-    post:
-      operationId: auth_verify_otp_create
+      operationId: auth_register_verify_create
       description: Верифікація OTP та видача токена
       tags:
       - auth
@@ -1727,11 +1705,103 @@ paths:
               schema:
                 $ref: '#/components/schemas/Token'
           description: ''
+  /auth/token/:
+    post:
+      operationId: auth_token_create
+      description: Отримати токен аутентифікації користувача
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /auth/unregister/:
+    post:
+      operationId: auth_unregister_create
+      description: Запит на видалення користувача (надсилається OTP)
+      tags:
+      - auth
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OTPResponse'
+          description: OTP code was sent successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Missing email address or invalid input
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: User is not authenticated
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to send OTP
+  /auth/unregister/verify/:
+    post:
+      operationId: auth_unregister_verify_create
+      description: Верифікація OTP та остаточне видалення користувача
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OTP'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Користувача успішно видалено після верифікації OTP
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Невірний або прострочений OTP, або помилка сесії
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Користувач не автентифікований
   /social-auth/backends/:
     get:
       operationId: social_auth_backends_retrieve
-      description: 'List of Active Social Auth Backends names for later use in API
-        URL for social auth like: `/social-auth/login/{backend}/`'
+      description: 'Список імен активних бекендів Social Auth для подальшого використання
+        в URL-адресі API дляsocial авторизації на кшталт: `/social-auth/login/{backend}/`'
       tags:
       - auth
       security:
@@ -1761,10 +1831,10 @@ paths:
   /social-auth/token/:
     get:
       operationId: social_auth_token_retrieve
-      description: 'Retrieves the authentication token for the user after a successful
-        social login. This is the default callback for the Social Auth URL: `/social-auth/login/{backend}/`.
-        Appending a custom `?next={callback}` is optional and only required if you
-        want to override the default redirect.'
+      description: 'Отримання токену аутентифікації користувача після успішної social
+        авторизації. Це є за замовчуванням callback  для URL-адреси Social Auth: `/social-auth/login/{backend}/`.
+        Додавання власного `?next={callback}` є необов''язковим і тільки потрібним,
+        якщо ви хочете перевизначити переадресацію за замовчуванням.'
       tags:
       - auth
       security:
@@ -2057,6 +2127,16 @@ components:
       - seo_title
       - slug
       - text
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      required:
+      - message
+      - status
     HealthCheck:
       type: object
       properties:
@@ -2101,6 +2181,19 @@ components:
           type: integer
       required:
       - otp_code
+    OTPResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        user_id:
+          type: integer
+      required:
+      - message
+      - status
+      - user_id
     Order:
       type: object
       properties:
@@ -2244,8 +2337,8 @@ components:
       - delivery
       type: string
       description: |-
-        * `pickup` - Pickup
-        * `delivery` - Delivery
+        * `pickup` - Самовивіз
+        * `delivery` - Доставка
     OrderItem:
       type: object
       properties:
@@ -2330,7 +2423,7 @@ components:
       - googlepay
       type: string
       description: |-
-        * `cash` - Cash
+        * `cash` - Готівка
         * `liqpay` - LiqPay
         * `googlepay` - GooglePay
     OrderStatusEnum:
@@ -2346,15 +2439,15 @@ components:
       - cancelled
       type: string
       description: |-
-        * `new` - New
-        * `awaiting_payment` - Awaiting Payment
-        * `paid` - Paid
-        * `in_transit` - In Transit
-        * `shipped` - Shipped
-        * `delivered` - Delivered
-        * `failed` - Failed
-        * `reversed` - Reversed
-        * `cancelled` - Cancelled
+        * `new` - Нове
+        * `awaiting_payment` - Очікує оплати
+        * `paid` - Оплачено
+        * `in_transit` - В дорозі
+        * `shipped` - Прибуло
+        * `delivered` - Доставлено
+        * `failed` - Недоставлено
+        * `reversed` - Повернено
+        * `cancelled` - Скасовано
     OrderStock:
       type: object
       properties:
@@ -3242,8 +3335,8 @@ components:
       - F
       type: string
       description: |-
-        * `M` - Чоловічий
-        * `F` - Жіночий
+        * `M` - Чоловічa
+        * `F` - Жіночa
     Version:
       type: object
       properties:

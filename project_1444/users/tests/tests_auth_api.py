@@ -31,13 +31,13 @@ class AuthAPITest(TestCase):
             "password": get_random_string(10),
             "email": f"test_user{random.randint(1, 100)}@test.com",
         }
-        logger.debug("Generated test user:", cls.user_test)
+        # logger.debug("Generated test user:", cls.user_test)
         cls.crud()
 
     @classmethod
     def create_superuser(cls):
         cls.superuser = User.objects.create_superuser(**cls.user_admin)
-        logger.debug("Created superuser:", cls.superuser)
+        # logger.debug(f"Created superuser: {cls.superuser}")
 
     @classmethod
     def crud(cls):
@@ -70,7 +70,7 @@ class AuthAPITest(TestCase):
             password=password,
             is_active=is_active,
         )
-        logger.debug("Created user:", user)
+        # logger.debug(f"Created user: {user}")
         return user
 
     def setUp(self):
@@ -88,12 +88,26 @@ class AuthAPITest(TestCase):
 
     def verify_otp_code_request(self, otp_code: str, otp_user_id: int) -> bool:
         data: dict = {"otp_code": otp_code, "otp_user_id": otp_user_id}
-        response = self.client.post(reverse("api_verify_otp"), data, format="json")
+        response = self.client.post(
+            reverse("api_register_verify_otp"), data, format="json"
+        )
         # print("POST", response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("status"), "success")
         assert response.data.get("token"), "Token should not be returned"
         self.assertEqual(response.data.get("user_id"), otp_user_id)
+        return True
+
+    def verify_otp_code_unregister_request(
+        self, otp_code: str, otp_user_id: int
+    ) -> bool:
+        data: dict = {"otp_code": otp_code, "otp_user_id": otp_user_id}
+        response = self.client.post(
+            reverse("api_unregister_verify_otp"), data, format="json"
+        )
+        # print("POST", response.data)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data, None)
         return True
 
     def test_login_user(self):
@@ -192,3 +206,33 @@ class AuthAPITest(TestCase):
         token = response.data.get("token")
         assert token, "Token shouldbe returned"
         assert len(token) > 30, "Token should be not shorter than 30 characters"
+
+    def test_unregister_user(self):
+        user = self.create_user_unit(**self.user_test)
+        self.assertIsNotNone(user, "Test User is not created")
+        self.assertTrue(user.is_active, "User should be active")
+        self.login(user)
+        otp_code = None
+        data = None
+        with mock.patch("users.views.send_email_in_background") as mock_send_mail:
+            mock_send_mail.return_value = None
+            response = self.client.post(reverse("api_unregister"), data, format="json")
+            user_id = response.data.get("user_id")
+            self.assertGreater(user_id, 1, "User ID should be greater than 1")
+            assert mock_send_mail.called, "Email was not sent!"
+            # print("Mock args:", mock_send_mail.call_args)
+            # Unpack arguments
+            kwargs = mock_send_mail.call_args.kwargs  # or call_args[1]
+            message = kwargs["message"]
+            otp_code = self.extract_otp_code(message)
+            assert otp_code, "OTP code is not extracted"
+            self.assertEqual(user.pk, user_id, "User_id  must be same")
+
+        # print("POST", response.data)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(
+            response.data.get("status"), "otp_sent", "Status should be otp_sent"
+        )
+        # Verify OTP
+        verified_otp = self.verify_otp_code_unregister_request(otp_code, user_id)
+        self.assertTrue(verified_otp, "OTP code is not valid")

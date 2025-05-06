@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 01:55+0300\n"
+"POT-Creation-Date: 2025-05-05 21:04+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,7 +35,7 @@ msgid "Промокод"
 msgstr "Promocode"
 
 #: .\discounts\models.py:108 .\discounts\models.py:149
-#: .\discounts\models.py:243
+#: .\discounts\models.py:307
 msgid "Знижка, %"
 msgstr "Discount, %"
 
@@ -56,11 +56,11 @@ msgid "Застосовується до категорій"
 msgstr "Applied to categories"
 
 #: .\discounts\models.py:147 .\discounts\models.py:178
-#: .\discounts\models.py:186 .\discounts\models.py:219
+#: .\discounts\models.py:186 .\discounts\models.py:222
 msgid "Користувач"
 msgstr "User"
 
-#: .\discounts\models.py:167 .\discounts\models.py:257
+#: .\discounts\models.py:167 .\discounts\models.py:321
 msgid "Товар"
 msgstr "Product"
 
@@ -120,45 +120,131 @@ msgstr "Personal discount"
 msgid "Персональні знижки"
 msgstr "Personal discounts"
 
-#: .\discounts\models.py:221
+#: .\discounts\models.py:228
 msgid "Знижка на день народження, %"
 msgstr "Discount on birthday, %"
 
-#: .\discounts\models.py:222
+#: .\discounts\models.py:232
 msgid "Дійсна кількість днів"
 msgstr "Valid number of days"
 
-#: .\discounts\models.py:263
+#: .\discounts\models.py:238
+#, fuzzy
+#| msgid "Ліміт використання"
+msgid "Рік використання знижки"
+msgstr "Limit usage"
+
+#: .\discounts\models.py:243
+msgid "Дата народження на момент створення"
+msgstr ""
+
+#: .\discounts\models.py:280
+#, fuzzy
+#| msgid "Знижка на день народження, %"
+msgid "Знижка на день народження"
+msgstr "Discount on birthday, %"
+
+#: .\discounts\models.py:281
+#, fuzzy
+#| msgid "Знижка на день народження, %"
+msgid "Знижки на день народження"
+msgstr "Discount on birthday, %"
+
+#: .\discounts\models.py:327
 msgid "Матеріал"
 msgstr "Material"
 
-#: .\discounts\models.py:268
+#: .\discounts\models.py:332
 msgid "Статус"
 msgstr "Status"
 
-#: .\discounts\models.py:273
+#: .\discounts\models.py:337
 msgid "Каміння"
 msgstr "Stone"
 
-#: .\discounts\models.py:280
+#: .\discounts\models.py:344
 msgid "Категорії"
 msgstr "Categories"
 
-#: .\discounts\models.py:285
+#: .\discounts\models.py:349
 msgid "Підкатегорії"
 msgstr "Subcategories"
 
-#: .\discounts\models.py:292
+#: .\discounts\models.py:356
 msgid "Колекції"
 msgstr "Collections"
 
-#: .\discounts\models.py:298
+#: .\discounts\models.py:362
 msgid "Стилі"
 msgstr "Styles"
 
-#: .\discounts\models.py:303
+#: .\discounts\models.py:367
 msgid "Привід"
 msgstr "Trim"
+
+#: .\order\models.py:14
+msgid "New"
+msgstr ""
+
+#: .\order\models.py:15
+msgid "Awaiting Payment"
+msgstr ""
+
+#: .\order\models.py:16
+msgid "Paid"
+msgstr ""
+
+#: .\order\models.py:17
+msgid "In Transit"
+msgstr ""
+
+#: .\order\models.py:18
+msgid "Shipped"
+msgstr ""
+
+#: .\order\models.py:19
+msgid "Delivered"
+msgstr ""
+
+#: .\order\models.py:20
+msgid "Failed"
+msgstr ""
+
+#: .\order\models.py:21
+msgid "Reversed"
+msgstr ""
+
+#: .\order\models.py:22
+msgid "Cancelled"
+msgstr ""
+
+#: .\order\models.py:26 .\order\serializers.py:160
+msgid "Cash"
+msgstr ""
+
+#: .\order\models.py:27 .\order\serializers.py:164
+msgid "Pickup"
+msgstr ""
+
+#: .\order\models.py:27 .\order\serializers.py:164
+msgid "Delivery"
+msgstr ""
+
+#: .\order\serializers.py:32
+msgid "Продукт з таким ID не існує"
+msgstr "Product with this ID does not exist"
+
+#: .\order\serializers.py:64
+msgid "Ім’я, телефон і адреса отримувача обов’язкові для доставки"
+msgstr "Name, phone and address are required for delivery"
+
+#: .\order\serializers.py:69
+msgid "Ім’я і телефон отримувача обов’язкові для самовивозу"
+msgstr "Name and phone are required for pickup"
+
+#: .\order\serializers.py:75
+msgid "Замовлення повинно містити хоча б один товар"
+msgstr "Must contain at least one product"
 
 #: .\product\admin.py:56 .\product\admin.py:105
 msgid "Unnamed"
@@ -280,12 +366,52 @@ msgstr "Semi-Precious stones have I-II order."
 msgid "Продукт"
 msgstr "Product"
 
-#: .\users\models.py:42
+#: .\project_1444\urls.py:54
+msgid "Адмінка"
+msgstr "Administrative tool"
+
+#: .\project_1444\urls.py:55
+msgid "Ласкаво просимо"
+msgstr "Welcome"
+
+#: .\users\models.py:46
 msgid "Male"
 msgstr ""
 
-#: .\users\models.py:42
+#: .\users\models.py:46
 msgid "Female"
+msgstr ""
+
+#: .\users\models.py:59
+msgid "Messengers must be a dictionary"
+msgstr ""
+
+#: .\users\models.py:79
+msgid "User Profile"
+msgstr ""
+
+#: .\users\models.py:80
+msgid "User Profiles"
+msgstr ""
+
+#: .\users\models.py:92
+msgid "Звичайна адреса"
+msgstr "General address"
+
+#: .\users\models.py:93
+#, fuzzy
+#| msgid "Нова ціна"
+msgid "Нова Пошта"
+msgstr "Nova Poshta"
+
+#: .\users\models.py:108
+#, python-brace-format
+msgid "Нова Пошта - {city}, Відділення {branch}"
+msgstr "Nova Poshta - {city}, Branch {branch}"
+
+#: .\users\models.py:123
+#, python-brace-format
+msgid "Notifications for {username}"
 msgstr ""
 
 #: .\users\templates\admin\messenger_field.html:10
@@ -321,72 +447,101 @@ msgstr ""
 "            Code valid %(expiration_time)s minutes.\n"
 "        "
 
-#: .\users\views.py:64
-msgid "Аутентифікація користувача та генерація OTP"
-msgstr "Authenticate user and generate OTP"
-
-#: .\users\views.py:77
-msgid "Invalid credentials"
-msgstr ""
-
 #: .\users\views.py:84
-msgid "Email address is required for OTP verification"
+msgid ""
+"List of Active Social Auth Backends names for later use in API URL for "
+"social auth like: `{}`"
 msgstr ""
 
-#: .\users\views.py:107
+#: .\users\views.py:129
+#, python-brace-format
+msgid ""
+"Retrieves the authentication token for the user after a successful social "
+"login. This is the default callback for the Social Auth URL: `/social-auth/"
+"login/{backend}/`. Appending a custom `?next={callback}` is optional and "
+"only required if you want to override the default redirect."
+msgstr ""
+
+#: .\users\views.py:170
+msgid "Get the authentication token for the user"
+msgstr ""
+
+#: .\users\views.py:233
 msgid "Your OTP Code"
 msgstr ""
 
-#: .\users\views.py:108
+#: .\users\views.py:234
 msgid "Your verification code is "
 msgstr ""
 
-#: .\users\views.py:127
+#: .\users\views.py:246 .\users\views.py:386
 msgid "Failed to send OTP. Please try again."
 msgstr ""
 
-#: .\users\views.py:136
+#: .\users\views.py:254
 msgid "OTP sent to your email"
 msgstr ""
 
-#: .\users\views.py:150
+#: .\users\views.py:266
+msgid "Аутентифікація користувача та генерація OTP"
+msgstr "Authenticate user and generate OTP"
+
+#: .\users\views.py:279
+msgid "Invalid credentials"
+msgstr ""
+
+#: .\users\views.py:286 .\users\views.py:375
+msgid "Email address is required for OTP verification"
+msgstr ""
+
+#: .\users\views.py:303
 msgid "Верифікація OTP та видача токена"
 msgstr "Verify OTP and issue token"
 
-#: .\users\views.py:161
+#: .\users\views.py:314
 msgid "Invalid session"
 msgstr ""
 
-#: .\users\views.py:169
+#: .\users\views.py:322
 msgid "User not found"
 msgstr ""
 
-#: .\users\views.py:186
+#: .\users\views.py:343
 msgid "Welcome, "
 msgstr ""
 
-#: .\users\views.py:194
+#: .\users\views.py:351
 msgid "Invalid or expired OTP"
 msgstr ""
 
-#: .\users\views.py:206
+#: .\users\views.py:363
 msgid "Реєстрація нового користувача"
 msgstr "Register new user"
 
-#: .\users\views.py:217
+#: .\users\views.py:394
 msgid "Registration successful"
 msgstr ""
 
-#: .\users\views.py:232
+#: .\users\views.py:409
 msgid "Отримання або оновлення профілю користувача"
 msgstr "Retrieve or update user profile"
 
-#: .\users\views.py:264
+#: .\users\views.py:442
 msgid "Profile updated"
 msgstr ""
 
-#: .\users\views.py:272
+#: .\users\views.py:450
 msgid "Invalid profile data"
+msgstr ""
+
+#: .\users\views.py:503
+#, fuzzy
+#| msgid "Отримання або оновлення профілю користувача"
+msgid "Отримання або оновлення налаштувань сповіщень"
+msgstr "Retrieve or update user profile"
+
+#: .\users\views.py:558
+msgid "Successfully logged out"
 msgstr ""
 
 #~ msgid "Gold"
@@ -424,23 +579,33 @@ msgstr ""
 
 #~ msgid "Очікує оплати"
 #~ msgstr "Awaiting Payment"
+
 #~ msgid "Оплачено"
 #~ msgstr "Paid"
+
 #~ msgid "В дорозі"
 #~ msgstr "In Transit"
+
 #~ msgid "Прибуло"
 #~ msgstr "Shipped"
+
 #~ msgid "Доставлено"
 #~ msgstr "Delivered"
+
 #~ msgid "Недоставлено"
 #~ msgstr "Failed"
+
 #~ msgid "Повернено"
 #~ msgstr "Reversed"
+
 #~ msgid "Скасовано"
 #~ msgstr "Cancelled"
+
 #~ msgid "Готівка"
 #~ msgstr "Cash"
+
 #~ msgid "Самовивіз"
 #~ msgstr "Pickup"
+
 #~ msgid "Доставка"
 #~ msgstr "Delivery"
