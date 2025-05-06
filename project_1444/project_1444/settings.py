@@ -62,7 +62,7 @@ SECRET_KEY = env("SECRET_KEY", default=None)
 if not SECRET_KEY or SECRET_KEY.isspace():
     SECRET_KEY = "django-insecure-i&eu1qndfw3ooc#3@01b8)0(6z4yr(jfjh+=p1rk&@+j^o(m^i"
 
-
+SITE_URL = env("SITE_URL", default="")
 PROJECT_NAME = env("PROJECT_NAME", default=Path(__file__).resolve().parent.name)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=False, cast=bool)
@@ -744,7 +744,7 @@ SOCIAL_AUTH_PIPELINE = (
     "users.utils.mark_social_login",
 )
 SOCIAL_AUTH_SANITIZE_REDIRECTS = True
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy("social_auth_success_token")
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/social-auth/token/"
 SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN = env(
     "SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN", default=True
 )
