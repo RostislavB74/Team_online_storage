@@ -2,7 +2,7 @@
 PUSHD "../project_1444"
 echo .
 echo "Starting Celery worker..."
-poetry run celery -A project_1444 worker --loglevel=info
+poetry run celery -A project_1444 worker -l info -P solo
 
 REM Optional: Start Celery beat (for scheduled tasks)
 REM echo "Starting Celery beat..."
