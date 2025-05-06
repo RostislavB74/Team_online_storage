@@ -28,8 +28,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Discount, PromoCode, Coupon, PersonalDiscount, BirthdayDiscount
 from .serializers import (
-    DiscountSerializer, PromoCodeSerializer, CouponSerializer,
-    PersonalDiscountSerializer, BirthdayDiscountSerializer, ApplyDiscountResponseSerializer
+    DiscountSerializer,
+    PromoCodeSerializer,
+    CouponSerializer,
+    PersonalDiscountSerializer,
+    BirthdayDiscountSerializer,
+    ApplyDiscountResponseSerializer,
 )
 from django.db import models  # Додаємо цей імпорт
 from django.utils.timezone import now
@@ -37,6 +41,8 @@ from product.models import Product, Categories
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import GenericAPIView
+from django.utils.translation import gettext_lazy as _
+
 
 class ApplyDiscountAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -45,26 +51,30 @@ class ApplyDiscountAPIView(APIView):
         request={
             "application/json": {
                 "type": "object",
-                "properties": {
-                    "code": {"type": "string", "example": "BIRTHDAY10"}
-                },
-                "required": ["code"]
+                "properties": {"code": {"type": "string", "example": "BIRTHDAY10"}},
+                "required": ["code"],
             }
         },
         responses={
-            200: ApplyDiscountResponseSerializer,
-            400: ApplyDiscountResponseSerializer,
-            404: ApplyDiscountResponseSerializer
-        }
+            status.HTTP_200_OK: ApplyDiscountResponseSerializer,
+            status.HTTP_400_BAD_REQUEST: ApplyDiscountResponseSerializer,
+            status.HTTP_404_NOT_FOUND: ApplyDiscountResponseSerializer,
+        },
     )
     def post(self, request):
-        code = request.data.get('code')
+        code = request.data.get("code")
         if not code:
-            return Response({"status": "error", "message": "Discount code is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": "error", "message": _("Discount code is required")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = request.user
-        if not hasattr(user, 'profile'):
-            return Response({"status": "error", "message": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        if not hasattr(user, "profile"):
+            return Response(
+                {"status": "error", "message": _("User profile not found")},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         discount = None
 
@@ -76,19 +86,27 @@ class ApplyDiscountAPIView(APIView):
                 break
 
         if not discount:
-            return Response({"status": "error", "message": "Invalid or expired discount code"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": "error", "message": _("Invalid or expired discount code")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         discount.used_year = now().year
         discount.save()
 
         # Зберігаємо ID BirthdayDiscount у сесії
-        request.session['applied_birthday_discount'] = discount.id
+        request.session["applied_birthday_discount"] = discount.id
 
-        return Response({
-            "status": "success",
-            "message": f"Discount {code} applied successfully",
-            "discount": float(discount.discount_percentage)
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "status": "success",
+                "message": _("Discount {} applied successfully").format(code),
+                "discount": float(discount.discount_percentage),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 # class ApplyDiscountAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
 
@@ -111,11 +129,11 @@ class ApplyDiscountAPIView(APIView):
 #     def post(self, request):
 #         code = request.data.get('code')
 #         if not code:
-#             return Response({"status": "error", "message": "Discount code is required"}, status=status.HTTP_400_BAD_REQUEST)
+#             return Response({"status": "error", "message": _("Discount code is required")}, status=status.HTTP_400_BAD_REQUEST)
 
 #         user = request.user
 #         if not hasattr(user, 'profile'):
-#             return Response({"status": "error", "message": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+#             return Response({"status": "error", "message": _("User profile not found")}, status=status.HTTP_404_NOT_FOUND)
 
 #         # Перевіряємо всі типи знижок
 #         discount = None
@@ -129,7 +147,7 @@ class ApplyDiscountAPIView(APIView):
 #                 break
 
 #         if not discount:
-#             return Response({"status": "error", "message": "Invalid or expired discount code"}, status=status.HTTP_400_BAD_REQUEST)
+#             return Response({"status": "error", "message": _("Invalid or expired discount code")}, status=status.HTTP_400_BAD_REQUEST)
 
 #         # Позначаємо знижку як використану
 #         discount.used_year = now().year
@@ -141,15 +159,17 @@ class ApplyDiscountAPIView(APIView):
 #             "discount": float(discount.discount_percentage)
 #         }, status=status.HTTP_200_OK)
 
+
 class AvailableDiscountsView(APIView):
     @extend_schema(
         parameters=[
             OpenApiParameter(name="product_id", type=int, required=False),
             OpenApiParameter(name="category_id", type=int, required=False),
         ],
-        responses={200: {"type": "object", "properties": {"discounts": {"type": "array"}}}}
+        responses={
+            200: {"type": "object", "properties": {"discounts": {"type": "array"}}}
+        },
     )
-    
     def get(self, request):
         user = request.user if request.user.is_authenticated else None
         product_id = request.query_params.get("product_id")
@@ -159,42 +179,49 @@ class AvailableDiscountsView(APIView):
         discounts = []
 
         # 1. Discount
-        discount_qs = Discount.objects.filter(is_active=True, valid_from__lte=now(), valid_to__gte=now())
+        discount_qs = Discount.objects.filter(
+            is_active=True, valid_from__lte=now(), valid_to__gte=now()
+        )
         if user:
-            discount_qs = discount_qs.filter(profile__user=user) | discount_qs.filter(profile__isnull=True)
+            discount_qs = discount_qs.filter(profile__user=user) | discount_qs.filter(
+                profile__isnull=True
+            )
         if product_id:
             discount_qs = discount_qs.filter(products__id=product_id)
         if category_id:
             discount_qs = discount_qs.filter(categories__id=category_id)
-        discounts.extend(
-            DiscountSerializer(discount_qs.distinct(), many=True).data
-        )
+        discounts.extend(DiscountSerializer(discount_qs.distinct(), many=True).data)
 
         # 2. PromoCode
         promo_qs = PromoCode.objects.filter(
-            is_active=True, valid_from__lte=now(), valid_to__gte=now(), used_count__lt=models.F("usage_limit")
+            is_active=True,
+            valid_from__lte=now(),
+            valid_to__gte=now(),
+            used_count__lt=models.F("usage_limit"),
         )
         if product_id:
             promo_qs = promo_qs.filter(applicable_products__id=product_id)
         if category_id:
             promo_qs = promo_qs.filter(applicable_categories__id=category_id)
-        discounts.extend(
-            PromoCodeSerializer(promo_qs.distinct(), many=True).data
-        )
+        discounts.extend(PromoCodeSerializer(promo_qs.distinct(), many=True).data)
 
         # 3. Coupon
         if user:
             coupon_qs = Coupon.objects.filter(
-                profile__user=user, is_active=True, valid_from__lte=now(), valid_to__gte=now()
+                profile__user=user,
+                is_active=True,
+                valid_from__lte=now(),
+                valid_to__gte=now(),
             )
-            discounts.extend(
-                CouponSerializer(coupon_qs.distinct(), many=True).data
-            )
+            discounts.extend(CouponSerializer(coupon_qs.distinct(), many=True).data)
 
         # 4. PersonalDiscount
         if user:
             personal_qs = PersonalDiscount.objects.filter(
-                profile__user=user, is_active=True, valid_from__lte=now(), valid_to__gte=now()
+                profile__user=user,
+                is_active=True,
+                valid_from__lte=now(),
+                valid_to__gte=now(),
             )
             if product_id:
                 personal_qs = personal_qs.filter(applicable_products__id=product_id)
@@ -205,14 +232,13 @@ class AvailableDiscountsView(APIView):
             )
 
         # 5. BirthdayDiscount
-        if user and hasattr(user, 'profile'):
+        if user and hasattr(user, "profile"):
             birthday_qs = BirthdayDiscount.objects.filter(profile__user=user)
             birthday_qs = [bd for bd in birthday_qs if bd.is_valid]
-            discounts.extend(
-                BirthdayDiscountSerializer(birthday_qs, many=True).data
-            )
+            discounts.extend(BirthdayDiscountSerializer(birthday_qs, many=True).data)
 
         return Response({"discounts": discounts}, status=status.HTTP_200_OK)
+
 
 # class ApplyDiscountAPIView(APIView):
 #     permission_classes = [IsAuthenticated]
@@ -220,11 +246,11 @@ class AvailableDiscountsView(APIView):
 #     def post(self, request):
 #         code = request.data.get('code')
 #         if not code:
-#             return Response({"status": "error", "message": "Discount code is required"}, status=status.HTTP_400_BAD_REQUEST)
+#             return Response({"status": "error", "message": _("Discount code is required")}, status=status.HTTP_400_BAD_REQUEST)
 
 #         user = request.user
 #         if not hasattr(user, 'profile'):
-#             return Response({"status": "error", "message": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+#             return Response({"status": "error", "message": _("User profile not found")}, status=status.HTTP_404_NOT_FOUND)
 
 #         # Перевіряємо всі типи знижок
 #         discount = None
@@ -238,7 +264,7 @@ class AvailableDiscountsView(APIView):
 #                 break
 
 #         if not discount:
-#             return Response({"status": "error", "message": "Invalid or expired discount code"}, status=status.HTTP_400_BAD_REQUEST)
+#             return Response({"status": "error", "message": _("Invalid or expired discount code")}, status=status.HTTP_400_BAD_REQUEST)
 
 #         # Позначаємо знижку як використану
 #         discount.used_year = now().year
@@ -251,9 +277,6 @@ class AvailableDiscountsView(APIView):
 #         }, status=status.HTTP_200_OK)
 
 
-
-
-
 # class AvailableDiscountsView(APIView):
 #     @extend_schema(
 #         parameters=[
@@ -262,7 +285,7 @@ class AvailableDiscountsView(APIView):
 #         ],
 #         responses={200: {"type": "object", "properties": {"discounts": {"type": "array"}}}}
 #     )
-    
+
 #     def get(self, request):
 #         user = request.user if request.user.is_authenticated else None
 #         product_id = request.query_params.get("product_id")
