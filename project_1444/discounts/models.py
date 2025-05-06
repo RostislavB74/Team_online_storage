@@ -181,10 +181,7 @@ class DiscountUsageHistory(models.Model):
         ordering = ["-used_at"]
 
     def __str__(self):
-        return _("Promo code %(code)s used for %(user)s") % {
-            "code": self.promo_code,
-            "user": self.user.email,
-        }
+        return _("Promo code {} used for {}").format(self.promo_code, self.user.email)
 
 
 class Coupon(BaseDiscount):
