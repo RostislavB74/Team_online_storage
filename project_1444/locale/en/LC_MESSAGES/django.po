@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 23:59+0300\n"
+"POT-Creation-Date: 2025-05-07 00:51+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,20 +18,56 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\discounts\admin.py:36 .\discounts\admin.py:37
+#: .\cart\admin.py:23
+msgid "Товари в корзині"
+msgstr "Goods in a basket"
 
+#: .\cart\admin.py:28
+msgid "Загальна вартість корзини"
+msgstr "Total cost of the basket"
+
+#: .\cart\admin.py:45
+msgid "Анонімний користувач"
+msgstr "Anonymous user"
+
+#: .\cart\admin.py:56 .\discounts\models.py:194 .\discounts\models.py:245
+#: .\discounts\models.py:264 .\discounts\models.py:334
+msgid "Користувач"
+msgstr "User"
+
+#: .\cart\admin.py:57 .\discounts\models.py:223 .\discounts\models.py:437
+msgid "Товар"
+msgstr "Product"
+
+#: .\cart\admin.py:58
+msgid "Ціна товару"
+msgstr ""
+
+#: .\cart\admin.py:59
+msgid "Сума"
+msgstr "Total"
+
+#: .\cart\views.py:43
+msgid "Список елементів кошика, загальна сума і кількість"
+msgstr "List of cart items, total amount and quantity"
+
+#: .\cart\views.py:95
+msgid "Товар видалено з корзини"
+msgstr "Item removed from cart"
+
+#: .\discounts\admin.py:36 .\discounts\admin.py:37
 msgid "Промокоди"
-msgstr “Promo codes”
+msgstr "Promo codes"
 
 #: .\discounts\admin.py:52 .\discounts\admin.py:53
 msgid "Купони на знижку"
 msgstr "Discount coupons"
 
-#: .\discounts\admin.py:68 .\discounts\admin.py:69 .\discounts\models.py:327
+#: .\discounts\admin.py:68 .\discounts\admin.py:69 .\discounts\models.py:326
 msgid "Персональні знижки"
 msgstr "Personal discounts"
 
-#: .\discounts\admin.py:83 .\discounts\admin.py:84 .\discounts\models.py:391
+#: .\discounts\admin.py:83 .\discounts\admin.py:84 .\discounts\models.py:390
 msgid "Знижки на день народження"
 msgstr "Birthday discounts"
 
@@ -143,8 +179,8 @@ msgstr "On the collection"
 msgid "На стиль"
 msgstr "On style"
 
-#: .\discounts\models.py:123 .\discounts\models.py:199
-#: .\discounts\models.py:419
+#: .\discounts\models.py:123 .\discounts\models.py:198
+#: .\discounts\models.py:418
 msgid "Знижка, %"
 msgstr "Discount, %"
 
@@ -156,145 +192,135 @@ msgstr "Limit of use"
 msgid "Використано"
 msgstr "Used"
 
-#: .\discounts\models.py:133 .\discounts\models.py:281
+#: .\discounts\models.py:133 .\discounts\models.py:280
 msgid "Застосовується до товарів"
 msgstr "Applied to products"
 
-#: .\discounts\models.py:139 .\discounts\models.py:293
+#: .\discounts\models.py:139 .\discounts\models.py:292
 msgid "Застосовується до категорій"
 msgstr "Applied to categories"
 
 #: .\discounts\models.py:184
-#, python-format
-msgid "Promo code %(code)s used for %(user)s"
+msgid "Promo code {} used for {}"
 msgstr ""
 
-#: .\discounts\models.py:195 .\discounts\models.py:246
-#: .\discounts\models.py:265 .\discounts\models.py:335
-msgid "Користувач"
-msgstr "User"
-
-#: .\discounts\models.py:216
+#: .\discounts\models.py:215
 msgid "Купон {}% для {}"
 msgstr "Coupon {}% for {}"
 
-#: .\discounts\models.py:224 .\discounts\models.py:438
-msgid "Товар"
-msgstr "Product"
-
-#: .\discounts\models.py:227
+#: .\discounts\models.py:226
 msgid "Стара ціна"
 msgstr "Previous price"
 
-#: .\discounts\models.py:230
+#: .\discounts\models.py:229
 msgid "Нова ціна"
 msgstr "New price"
 
-#: .\discounts\models.py:233
+#: .\discounts\models.py:232
 msgid "Застосована знижка"
 msgstr "Applied discount"
 
-#: .\discounts\models.py:235
+#: .\discounts\models.py:234
 msgid "Дата зміни"
 msgstr "Date of change"
 
-#: .\discounts\models.py:253
+#: .\discounts\models.py:252
 msgid "Баланс бонусів"
 msgstr "Bonus balance"
 
-#: .\discounts\models.py:257
+#: .\discounts\models.py:256
 msgid "{} - {} бонусів"
 msgstr "{} - {} bonuses"
 
-#: .\discounts\models.py:272
+#: .\discounts\models.py:271
 msgid "Призначив"
 msgstr "Assigned"
 
-#: .\discounts\models.py:275
+#: .\discounts\models.py:274
 msgid "Персональна знижка, %"
 msgstr "Personal discount, %"
 
-#: .\discounts\models.py:287
+#: .\discounts\models.py:286
 msgid "Застосовується до субпродуктів"
 msgstr "Applied to subproducts"
 
-#: .\discounts\models.py:299
+#: .\discounts\models.py:298
 msgid "Групи користувачів"
 msgstr "Groups of users"
 
-#: .\discounts\models.py:302
+#: .\discounts\models.py:301
 msgid "Активна"
 msgstr "Active"
 
-#: .\discounts\models.py:303
+#: .\discounts\models.py:302
 msgid "Дійсна з"
 msgstr "Valid from"
 
-#: .\discounts\models.py:305
+#: .\discounts\models.py:304
 msgid "Дійсна до"
 msgstr "Valid to"
 
-#: .\discounts\models.py:321
+#: .\discounts\models.py:320
 msgid "{}% персональна знижка для {}"
 msgstr "{}% personalized znizka for {}"
 
-#: .\discounts\models.py:326
+#: .\discounts\models.py:325
 msgid "Персональна знижка"
 msgstr "Personal discount"
 
-#: .\discounts\models.py:341
+#: .\discounts\models.py:340
 msgid "Знижка на день народження, %"
 msgstr "Discount on birthday, %"
 
-#: .\discounts\models.py:344
+#: .\discounts\models.py:343
 msgid "Дійсна кількість днів"
 msgstr "Valid number of days"
 
-#: .\discounts\models.py:348
+#: .\discounts\models.py:347
 msgid "Рік використання знижки"
 msgstr "Year of using the discount"
 
-#: .\discounts\models.py:351
+#: .\discounts\models.py:350
 msgid "Дата народження на момент створення"
 msgstr "Date of birth at the time of creation"
 
-#: .\discounts\models.py:385
+#: .\discounts\models.py:384
 msgid "Знижка {}% для {} на день народження"
 msgstr "{}% discount for {} for his/her birthday"
 
-#: .\discounts\models.py:390
+#: .\discounts\models.py:389
 msgid "Знижка на день народження"
 msgstr "Birthday discount"
 
-#: .\discounts\models.py:450
+#: .\discounts\models.py:449 .\product\admin.py:289 .\product\models.py:247
 msgid "Матеріал"
 msgstr "Material"
 
-#: .\discounts\models.py:462
+#: .\discounts\models.py:461
 msgid "Статус"
 msgstr "Status"
 
-#: .\discounts\models.py:474
+#: .\discounts\models.py:473
 msgid "Каміння"
 msgstr "Stone"
 
-#: .\discounts\models.py:486
+#: .\discounts\models.py:485
 msgid "Категорії"
 msgstr "Categories"
 
-#: .\discounts\models.py:498
+#: .\discounts\models.py:497
 msgid "Підкатегорії"
 msgstr "Subcategories"
 
-#: .\discounts\models.py:510
+#: .\discounts\models.py:509 .\product\models.py:160
 msgid "Колекції"
 msgstr "Collections"
 
-#: .\discounts\models.py:522
+#: .\discounts\models.py:521 .\product\models.py:198
 msgid "Стилі"
 msgstr "Styles"
 
-#: .\discounts\models.py:534
+#: .\discounts\models.py:533 .\product\models.py:448
 msgid "Привід"
 msgstr "Trim"
 
@@ -378,125 +404,473 @@ msgstr "Name and phone are required for pickup"
 msgid "Замовлення повинно містити хоча б один товар"
 msgstr "Must contain at least one product"
 
-#: .\product\admin.py:56 .\product\admin.py:105
+#: .\product\admin.py:58 .\product\admin.py:109
 msgid "Unnamed"
 msgstr ""
 
-#: .\product\admin.py:59
+#: .\product\admin.py:61
 msgid "No slug"
 msgstr ""
 
-#: .\product\admin.py:62
+#: .\product\admin.py:64
 msgid "No text"
 msgstr ""
 
-#: .\product\admin.py:65
+#: .\product\admin.py:67
 msgid "No SEO title"
 msgstr ""
 
-#: .\product\admin.py:68
+#: .\product\admin.py:71
 msgid "No SEO description"
 msgstr ""
 
-#: .\product\admin.py:71
+#: .\product\admin.py:75
 msgid "No keywords"
 msgstr ""
 
-#: .\product\admin.py:74 .\product\admin.py:108
+#: .\product\admin.py:78 .\product\admin.py:112
 msgid "Name"
 msgstr ""
 
-#: .\product\admin.py:77
+#: .\product\admin.py:81
 msgid "Slug"
 msgstr ""
 
-#: .\product\admin.py:80
+#: .\product\admin.py:84
 msgid "Text"
 msgstr ""
 
-#: .\product\admin.py:83
+#: .\product\admin.py:87
 msgid "SEO Title"
 msgstr ""
 
-#: .\product\admin.py:86
+#: .\product\admin.py:90
 msgid "SEO Description"
 msgstr ""
 
-#: .\product\admin.py:89
+#: .\product\admin.py:93
 msgid "Keywords"
 msgstr ""
 
-#: .\product\admin.py:111 .\product\admin.py:116
+#: .\product\admin.py:115 .\product\admin.py:120
 msgid "Unknown"
 msgstr ""
 
-#: .\product\admin.py:113
+#: .\product\admin.py:117
 msgid "Type"
 msgstr ""
 
-#: .\product\admin.py:118
+#: .\product\admin.py:122
 msgid "Origin"
 msgstr ""
 
-#: .\product\models.py:367
+#: .\product\admin.py:273 .\product\admin.py:274
+msgid "Характеристики"
+msgstr “Characteristics”
+
+#: .\product\admin.py:281
+msgid "Камінь"
+msgstr "Stone"
+
+#: .\product\admin.py:282
+msgid "Камені"
+msgstr "Stones"
+
+#: .\product\admin.py:290 .\product\models.py:248
+msgid "Матеріали"
+msgstr "Materials"
+
+#: .\product\admin.py:339 .\product\admin.py:436
+msgid "Основна інформація"
+msgstr "Basic information"
+
+#: .\product\admin.py:357
+msgid "Ціна та знижки"
+msgstr "Price and discounts"
+
+#: .\product\admin.py:363 .\product\admin.py:476
+msgid "Системні поля"
+msgstr "System fields"
+
+#: .\product\admin.py:371
+msgid "Позначити як знижка"
+msgstr "Mark as discount"
+
+#: .\product\admin.py:376
+msgid "Вибрані товари отримали статус 'discount'."
+msgstr "Selected products have been set to 'discount' status."
+
+#: .\product\admin.py:378
+msgid "Прибрати статус знижки"
+msgstr "Year of using the discount"
+
+#: .\product\admin.py:384
+msgid "Статус 'discount' видалено у вибраних товарів."
+msgstr "The 'discount' status has been removed for selected products."
+
+#: .\product\admin.py:462
+msgid "Опис товару"
+msgstr "Inventory"
+
+#: .\product\admin.py:469
+msgid "Типорозміри товару"
+msgstr "Product sizes"
+
+#: .\product\admin.py:491
+msgid "Немає зображень"
+msgstr "No images"
+
+#: .\product\admin.py:493 .\product\admin.py:566
+msgid "Зображення"
+msgstr “Image”
+
+#: .\product\admin.py:502 .\product\admin.py:591
+msgid "Сертифікат"
+msgstr  "Certificate"
+
+#: .\product\admin.py:504
+msgid "Немає сертифікатів"
+msgstr "No certificates"
+
+#: .\product\admin.py:506
+msgid "Сертифікати"
+msgstr "Certificates"
+
+#: .\product\admin.py:508
+msgid "Позначити товари як бестселери"
+msgstr "Mark products as bestsellers"
+
+#: .\product\admin.py:512
+msgid "Зняти статус бестселера"
+msgstr "Remove bestseller status"
+
+#: .\product\admin.py:519
+msgid "Статуси"
+msgstr "Status"
+
+#: .\product\admin.py:521
+msgid "Mark as a bestseller"
+msgstr ""
+
+#: .\product\admin.py:526
+msgid "Вибрані товари отримали статус 'bestseller'."
+msgstr "Selected products have been given the 'bestseller' status."
+
+#: .\product\admin.py:528
+msgid "Прибрати статус бестселера"
+msgstr "Remove bestseller status"
+
+#: .\product\admin.py:535
+msgid "Статус 'bestseller' видалено у вибраних товарів."
+msgstr "The 'bestseller' status has been removed from selected products."
+
+#: .\product\admin.py:552 .\product\admin.py:578
+msgid "Артикул"
+msgstr "Article no."
+
+#: .\product\admin.py:557 .\product\admin.py:583
+msgid "Назва"
+msgstr "Named"
+
+#: .\product\admin.py:563
+msgid "Немає зображення"
+msgstr "No image available"
+
+#: .\product\admin.py:588
+msgid "Переглянути"
+msgstr "View"
+
+#: .\product\admin.py:588
+msgid "Немає сертифіката"
+msgstr "No certificate"
+
+#: .\product\models.py:32
+msgid "Має довжину (см)"
+msgstr "Length (cm)"
+
+#: .\product\models.py:33
+msgid "Має ширину (см)"
+msgstr "Has a width (cm)"
+
+#: .\product\models.py:35
+msgid "Має діаметр (мм)"
+msgstr "Has a diameter (mm)"
+
+#: .\product\models.py:37
+msgid "Має вагу (г)"
+msgstr "Weight (g)"
+
+#: .\product\models.py:43
+msgid "Категорія виробу"
+msgstr "Product category"
+
+#: .\product\models.py:44
+msgid "Категорії виробів"
+msgstr "Product categories"
+
+#: .\product\models.py:48 .\product\models.py:67 .\product\models.py:85
+#: .\product\models.py:102 .\product\models.py:127 .\product\models.py:145
+#: .\product\models.py:164 .\product\models.py:183 .\product\models.py:201
+#: .\product\models.py:411 .\product\models.py:456 .\product\models.py:802
+msgid "Без назви"
+msgstr "No names"
+
+#: .\product\models.py:62 .\product\models.py:63
+msgid "Плетіння"
+msgstr "Weaving"
+
+#: .\product\models.py:81
+msgid "Застібка"
+msgstr "Clasp"
+
+#: .\product\models.py:82
+msgid "Застібки"
+msgstr "Clasps"
+
+#: .\product\models.py:98 .\product\models.py:99
+msgid "Покриття"
+msgstr "Coverage"
+
+#: .\product\models.py:123
+msgid "Підкатегорія виробу"
+msgstr "Product subcategory"
+
+#: .\product\models.py:124
+msgid "Підкатегорії виробів"
+msgstr "Підкатегорії виробів"
+
+#: .\product\models.py:140
+msgid "Колір"
+msgstr "Color"
+
+#: .\product\models.py:141
+msgid "Кольори"
+msgstr "Colors"
+
+#: .\product\models.py:159
+msgid "Колекція"
+msgstr "Collection"
+
+#: .\product\models.py:178
+msgid "Дизайн"
+msgstr "Design"
+
+#: .\product\models.py:179
+msgid "Дизайни"
+msgstr "Designs"
+
+#: .\product\models.py:197
+msgid "Стиль"
+msgstr "Style"
+
+#: .\product\models.py:369
 msgid "Precious"
 msgstr ""
 
-#: .\product\models.py:368
+#: .\product\models.py:370
 msgid "Semi-Precious"
 msgstr ""
 
-#: .\product\models.py:369
+#: .\product\models.py:371
 msgid "NonPrecious"
 msgstr ""
 
-#: .\product\models.py:373
+#: .\product\models.py:375
 msgid "Natural"
 msgstr ""
 
-#: .\product\models.py:374
+#: .\product\models.py:376
 msgid "Synthetic"
 msgstr ""
 
-#: .\product\models.py:378
+#: .\product\models.py:380
 msgid "Precious I Order"
 msgstr ""
 
-#: .\product\models.py:379
+#: .\product\models.py:381
 msgid "Precious II Order"
 msgstr ""
 
-#: .\product\models.py:380
+#: .\product\models.py:382
 msgid "Precious III Order"
 msgstr ""
 
-#: .\product\models.py:381
+#: .\product\models.py:383
 msgid "Precious IV Order"
 msgstr ""
 
-#: .\product\models.py:383
+#: .\product\models.py:385
 msgid "Semi-Precious I Order"
 msgstr ""
 
-#: .\product\models.py:384
+#: .\product\models.py:386
 msgid "Semi-Precious II Order"
 msgstr ""
 
-#: .\product\models.py:414
+#: .\product\models.py:407
+msgid "Ювелірний камінь"
+msgstr "Jewelry stone"
+
+#: .\product\models.py:408
+msgid "Ювелірне каміння"
+msgstr "Jewelry stones"
+
+#: .\product\models.py:416
 msgid "Синтетичні камені не мають порядку."
 msgstr "Synthetic stones don't have order."
 
-#: .\product\models.py:423
+#: .\product\models.py:425
 msgid "Дорогоцінні камені мають рівні I-IV порядку."
 msgstr "Precious stones have I-IV order."
 
-#: .\product\models.py:431
+#: .\product\models.py:433
 msgid "Напівкоштовні камені мають рівні I-II порядку."
 msgstr "Semi-Precious stones have I-II order."
 
-#: .\product\models.py:481
+#: .\product\models.py:449
+msgid "Приводи"
+msgstr "Bring"
+
+#: .\product\models.py:462
+msgid "Жіноче"
+msgstr "Female"
+
+#: .\product\models.py:463
+msgid "Чоловіче"
+msgstr "Male"
+
+#: .\product\models.py:464
+msgid "Дитяче"
+msgstr "Children's"
+
+#: .\product\models.py:465
+msgid "Унісекс"
+msgstr "Unisex"
+
+#: .\product\models.py:471 .\product\models.py:472
+msgid "Для кого"
+msgstr "For whom"
+
+#: .\product\models.py:483
 msgid "Продукт"
 msgstr "Product"
+
+#: .\product\models.py:489
+msgid "Ціна"
+msgstr "Price"
+
+#: .\product\models.py:507
+msgid "Довжина (см)"
+msgstr "Length (cm)"
+
+#: .\product\models.py:509
+msgid "Макс. довжина (см)"
+msgstr "Max. length (cm)"
+
+#: .\product\models.py:511
+msgid "Ширина (см)"
+msgstr "Width (cm)"
+
+#: .\product\models.py:512
+
+msgid "Розмір(мм) "
+msgstr "For size"
+
+#: .\product\models.py:513
+msgid "Вага (г)"
+msgstr "Weight (g)"
+
+#: .\product\models.py:532 .\product\models.py:534
+msgid "см"
+msgstr "cm"
+
+#: .\product\models.py:535
+msgid "Невідомо"
+msgstr "Unknown"
+
+#: .\product\models.py:569
+msgid "Без характеристик"
+msgstr "Без характеристик"
+
+#: .\product\models.py:685
+msgid "У виробі вже є основний камінь!"
+msgstr "The product already has a foundation stone!"
+
+#: .\product\models.py:692
+msgid "Основний"
+msgstr "Active"
+
+#: .\product\models.py:692
+msgid "Додатковий"
+msgstr "Additional"
+
+#: .\product\models.py:705
+msgid "Фото продукції"
+msgstr "Product photos"
+
+#: .\product\models.py:706
+msgid "Фото продукцій"
+msgstr "Product photos"
+
+#: .\product\models.py:721
+msgid "Сертифікат продукції"
+msgstr "Product certificate"
+
+#: .\product\models.py:722
+msgid "Сертифікати продукцій"
+msgstr "Product certificates"
+
+#: .\product\models.py:742
+msgid "Description"
+msgstr ""
+
+#: .\product\models.py:743
+msgid "Descriptions"
+msgstr ""
+
+#: .\product\models.py:754
+msgid "Description {}"
+msgstr ""
+
+#: .\product\models.py:806
+msgid "Без опису"
+msgstr "No description"
+
+#: .\product\models.py:869
+msgid "Конвертація розмірів"
+msgstr "Size conversion"
+
+#: .\product\models.py:870
+msgid "Конвертер розмірів"
+msgstr "Size converter"
+
+#: .\product\models.py:879
+msgid "каблучки"
+msgstr "heels"
+
+#: .\product\views.py:81
+msgid "Окружність пальця в міліметрах (напр. 60)"
+msgstr "Finger circumference in millimeters (e.g. 60)"
+
+#: .\product\views.py:94
+msgid "Circumference is required"
+msgstr ""
+
+#: .\product\views.py:121
+msgid "No sizes available"
+msgstr ""
+
+#: .\product\views.py:126
+msgid "Invalid circumference value"
+msgstr ""
+
+#: .\product\views.py:235 .\product\views.py:336
+msgid "Get example data"
+msgstr ""
+
+#: .\product\views.py:236 .\product\views.py:337
+msgid "Returns an example response with some data."
+msgstr ""
 
 #: .\project_1444\urls.py:54
 msgid "Адмінка"
