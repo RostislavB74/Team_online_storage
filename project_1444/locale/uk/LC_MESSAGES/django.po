@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 23:25+0300\n"
+"POT-Creation-Date: 2025-05-06 23:59+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,6 +20,54 @@ msgstr ""
 "11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
 "100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
 "(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+
+#: .\discounts\admin.py:36 .\discounts\admin.py:37
+msgid "Промокоди"
+msgstr ""
+
+#: .\discounts\admin.py:52 .\discounts\admin.py:53
+msgid "Купони на знижку"
+msgstr ""
+
+#: .\discounts\admin.py:68 .\discounts\admin.py:69 .\discounts\models.py:327
+msgid "Персональні знижки"
+msgstr ""
+
+#: .\discounts\admin.py:83 .\discounts\admin.py:84 .\discounts\models.py:391
+msgid "Знижки на день народження"
+msgstr ""
+
+#: .\discounts\admin.py:99 .\discounts\admin.py:100
+msgid "Знижки на продукти"
+msgstr ""
+
+#: .\discounts\admin.py:115 .\discounts\admin.py:116
+msgid "Знижки на матеріали"
+msgstr ""
+
+#: .\discounts\admin.py:131 .\discounts\admin.py:132
+msgid "Знижки на статуси"
+msgstr ""
+
+#: .\discounts\admin.py:147
+msgid "Знижки на камінь"
+msgstr ""
+
+#: .\discounts\admin.py:148
+msgid "Знижки на камені"
+msgstr ""
+
+#: .\discounts\admin.py:163 .\discounts\admin.py:164
+msgid "Знижки на колекції"
+msgstr ""
+
+#: .\discounts\admin.py:179
+msgid "Знижки з приводу"
+msgstr ""
+
+#: .\discounts\admin.py:180
+msgid "Знижки з приводів"
+msgstr ""
 
 #: .\discounts\models.py:41
 msgid "Початок дії"
@@ -121,7 +169,7 @@ msgstr ""
 #: .\discounts\models.py:184
 #, python-format
 msgid "Promo code %(code)s used for %(user)s"
-msgstr ""
+msgstr "Промокод %(код)s використано для %(користувача)s"
 
 #: .\discounts\models.py:195 .\discounts\models.py:246
 #: .\discounts\models.py:265 .\discounts\models.py:335
@@ -196,10 +244,6 @@ msgstr ""
 msgid "Персональна знижка"
 msgstr ""
 
-#: .\discounts\models.py:327
-msgid "Персональні знижки"
-msgstr ""
-
 #: .\discounts\models.py:341
 msgid "Знижка на день народження, %"
 msgstr ""
@@ -222,10 +266,6 @@ msgstr ""
 
 #: .\discounts\models.py:390
 msgid "Знижка на день народження"
-msgstr ""
-
-#: .\discounts\models.py:391
-msgid "Знижки на день народження"
 msgstr ""
 
 #: .\discounts\models.py:450
@@ -259,6 +299,22 @@ msgstr ""
 #: .\discounts\models.py:534
 msgid "Привід"
 msgstr ""
+
+#: .\discounts\views.py:68
+msgid "Discount code is required"
+msgstr "Потрібен код знижки"
+
+#: .\discounts\views.py:75
+msgid "User profile not found"
+msgstr "Профіль користувача не знайдено"
+
+#: .\discounts\views.py:90
+msgid "Invalid or expired discount code"
+msgstr  "Недійсний або прострочений код знижки"
+
+#: .\discounts\views.py:103
+msgid "Discount {} applied successfully"
+msgstr "Знижку {} успішно застосовано"
 
 #: .\order\models.py:14
 msgid "New"
