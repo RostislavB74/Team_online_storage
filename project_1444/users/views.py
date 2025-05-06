@@ -25,6 +25,7 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
     OpenApiExample,
+    OpenApiResponse,
 )
 from cart.models import Cart
 from .models import UserProfile, OTP, UserNotificationSettings
@@ -37,6 +38,8 @@ from .serializers import (
     LogoutSerializer,
     UserNotificationSettingsSerializer,
     SocialBackendSerializer,
+    OTPResponseSerializer,
+    ErrorResponseSerializer,
 )
 from .templatetags.social_extras import (
     get_social_auth_backend_name_map,
@@ -359,7 +362,7 @@ class RegisterAPIView(APIView):
 
     @extend_schema(
         request=RegisterSerializer,
-        responses={201: TokenSerializer},
+        responses={status.HTTP_201_CREATED: TokenSerializer},
         description=_("Реєстрація нового користувача"),
     )
     def post(self, request):
@@ -557,6 +560,132 @@ class LogoutAPIView(APIView):
         return Response(
             {"status": "success", "message": _("Successfully logged out")},
             status=status.HTTP_200_OK,
+        )
+
+
+class UnRegisterAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    @extend_schema(
+        request=None,
+        description=_("Запит на видалення користувача (надсилається OTP)"),
+        responses={
+            status.HTTP_202_ACCEPTED: OpenApiResponse(
+                response=OTPResponseSerializer,
+                description=_("OTP code was sent successfully"),
+            ),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description=_("Missing email address or invalid input"),
+            ),
+            status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description=_("User is not authenticated"),
+            ),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: OpenApiResponse(
+                response=ErrorResponseSerializer, description=_("Failed to send OTP")
+            ),
+        },
+    )
+    def post(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response(
+                {
+                    "status": "error",
+                    "message": _("Unauthorized"),
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        # login(request, user, "django.contrib.auth.backends.ModelBackend")
+        if not user.email:
+            return Response(
+                {
+                    "status": "error",
+                    "message": _("Email address is required for OTP verification"),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        data = send_otp_by_email(request, user)
+        otp_status = data.get("status")
+        if otp_status == "error":
+            return Response(
+                {
+                    "status": otp_status,
+                    "message": _("Failed to send OTP. Please try again."),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        return Response(
+            {
+                "status": otp_status,
+                "message": _("OTP code was sent for continue UnRegistration")
+                + ". "
+                + data.get("message"),
+                "user_id": user.pk,
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+
+class VerifyOTPUnRegister(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    @extend_schema(
+        request=OTPSerializer,
+        responses={
+            status.HTTP_204_NO_CONTENT: OpenApiResponse(
+                description=_("Користувача успішно видалено після верифікації OTP")
+            ),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description=_("Невірний або прострочений OTP, або помилка сесії"),
+            ),
+            status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description=_("Користувач не автентифікований"),
+            ),
+        },
+        description=_("Верифікація OTP та остаточне видалення користувача"),
+    )
+    def post(self, request):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return Response(
+                {
+                    "status": "error",
+                    "message": _("Unauthorized"),
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        serializer = OTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        otp_code = serializer.validated_data["otp_code"]
+        user_id = serializer.validated_data.get("otp_user_id") or request.session.get(
+            "otp_user_id"
+        )
+        if not user_id or user_id != user.pk:
+            return Response(
+                {"status": "error", "message": _("Invalid session")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        otp = OTP.objects.filter(
+            user=user, code=otp_code, expires_at__gte=timezone.now()
+        ).first()
+        if otp:
+            otp.delete()
+            if "otp_user_id" in request.session:
+                del request.session["otp_user_id"]
+            logout(request)
+            user.delete()
+            return Response(
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        return Response(
+            {"status": "error", "message": _("Invalid or expired OTP")},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 

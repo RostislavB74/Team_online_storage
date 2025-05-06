@@ -173,3 +173,14 @@ class LogoutSerializer(serializers.Serializer):
 class SocialBackendSerializer(serializers.Serializer):
     name = serializers.CharField()
     icon = serializers.CharField()
+
+
+class OTPResponseSerializer(serializers.Serializer):
+    status = serializers.CharField()
+    message = serializers.CharField()
+    user_id = serializers.IntegerField()
+
+
+class ErrorResponseSerializer(serializers.Serializer):
+    status = serializers.CharField()
+    message = serializers.CharField()
