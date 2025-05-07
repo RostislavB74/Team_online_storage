@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 01:17+0300\n"
+"POT-Creation-Date: 2025-05-07 02:36+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: LeX Xai <lexxai@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,22 +30,52 @@ msgstr "Total cost of the basket"
 msgid "Анонімний користувач"
 msgstr "Anonymous user"
 
-#: .\cart\admin.py:56 .\discounts\models.py:192 .\discounts\models.py:243
-#: .\discounts\models.py:262 .\discounts\models.py:332
+#: .\cart\admin.py:56 .\cart\models.py:25 .\discounts\models.py:192
+#: .\discounts\models.py:243 .\discounts\models.py:262
+#: .\discounts\models.py:332
 msgid "Користувач"
 msgstr "User"
 
-#: .\cart\admin.py:57 .\discounts\models.py:221 .\discounts\models.py:435
+#: .\cart\admin.py:57 .\cart\models.py:28 .\discounts\models.py:221
+#: .\discounts\models.py:435
 msgid "Товар"
 msgstr "Product"
 
 #: .\cart\admin.py:58
 msgid "Ціна товару"
-msgstr ""
+msgstr "Product price"
 
 #: .\cart\admin.py:59
 msgid "Сума"
 msgstr "Total"
+
+#: .\cart\managment\commands\clear_old_carts.py:9
+msgid "Видаляє кошики, які не використовувалися більше 7 днів"
+msgstr "Deletes baskets that have not been used for more than 7 days"
+
+#: .\cart\managment\commands\clear_old_carts.py:14
+msgid "Видалено {} старих кошиків."
+msgstr "Removed {} old baskets."
+
+#: .\cart\models.py:30
+msgid "Кількість"
+msgstr "Quantity"
+
+#: .\cart\models.py:33
+msgid "Дата додавання"
+msgstr "Date of addition"
+
+#: .\cart\models.py:38 .\cart\models.py:39
+msgid "Корзина"
+msgstr "Basket"
+
+#: .\cart\models.py:51
+msgid "Корзина {} | Товар {} | Кількість {}"
+msgstr "Cart {} | Product {} | Quantity {}"
+
+#: .\cart\models.py:54
+msgid "Анонімна корзина | Товар {} | Кількість {}"
+msgstr "Anonymous cart | Product {} | Quantity {}"
 
 #: .\cart\views.py:43
 msgid "Список елементів кошика, загальна сума і кількість"
@@ -64,6 +94,7 @@ msgid "Купони на знижку"
 msgstr "Discount coupons"
 
 #: .\discounts\admin.py:68 .\discounts\admin.py:69 .\discounts\models.py:324
+#: .\users\admin.py:28
 msgid "Персональні знижки"
 msgstr "Personal discounts"
 
@@ -147,7 +178,7 @@ msgstr "On the product"
 msgid "З приводу"
 msgstr "Re."
 
-#: .\discounts\models.py:65
+#: .\discounts\models.py:65 .\users\admin.py:41
 msgid "Купон"
 msgstr "Coupon"
 
@@ -264,7 +295,7 @@ msgstr "Valid to"
 msgid "{}% персональна знижка для {}"
 msgstr "{}% personalized znizka for {}"
 
-#: .\discounts\models.py:323
+#: .\discounts\models.py:323 .\users\admin.py:27
 msgid "Персональна знижка"
 msgstr "Personal discount"
 
@@ -403,6 +434,58 @@ msgstr "Name and phone are required for pickup"
 #: .\order\serializers.py:75
 msgid "Замовлення повинно містити хоча б один товар"
 msgstr "Must contain at least one product"
+
+#: .\order\views.py:138
+msgid "Створити замовлення з корзини користувача з урахуванням знижок"
+msgstr "Create an order from the user's cart with discounts"
+
+#: .\order\views.py:171
+msgid "Сесія не знайдена"
+msgstr "Session not found"
+
+#: .\order\views.py:180
+msgid "Корзина порожня"
+msgstr "Cart is empty"
+
+#: .\order\views.py:228
+msgid "Жоден товар у кошику не доступний"
+msgstr "No products in the cart are available"
+
+#: .\order\views.py:298
+msgid "Update the status of an order with optional payment status."
+msgstr ""
+
+#: .\order\views.py:308
+msgid "Order #{} status updated to {}"
+msgstr ""
+
+#: .\order\views.py:316
+msgid "Order not found or access denied"
+msgstr ""
+
+#: .\order\views.py:344
+msgid "Handle LiqPay payment callback."
+msgstr ""
+
+#: .\order\views.py:354
+msgid "Order is not awaiting payment"
+msgstr ""
+
+#: .\order\views.py:364
+msgid "Order #{} paid, awaiting stock replenishment"
+msgstr ""
+
+#: .\order\views.py:375
+msgid "Invalid payment status"
+msgstr ""
+
+#: .\order\views.py:380
+msgid "Order #{} payment status updated"
+msgstr ""
+
+#: .\order\views.py:385
+msgid "Order not found"
+msgstr ""
 
 #: .\product\admin.py:58 .\product\admin.py:109
 msgid "Unnamed"
@@ -549,10 +632,8 @@ msgid "Статуси"
 msgstr "Status"
 
 #: .\product\admin.py:521
-#, fuzzy
-#| msgid "Позначити товари як бестселери"
 msgid "Позначити як бестселер"
-msgstr "Mark products as bestsellers"
+msgstr "Mark as a bestseller"
 
 #: .\product\admin.py:526
 msgid "Вибрані товари отримали статус 'bestseller'."
@@ -881,16 +962,70 @@ msgstr "Administrative tool"
 msgid "Ласкаво просимо"
 msgstr "Welcome"
 
+#: .\users\admin.py:34
+msgid "Знижка до Дня народження"
+msgstr "Birthday discount"
+
+#: .\users\admin.py:35
+msgid "Знижки до Дня народження"
+msgstr "Birthday discounts"
+
+#: .\users\admin.py:42
+msgid "Купони"
+msgstr "Coupons"
+
+#: .\users\admin.py:48 .\users\admin.py:49
+msgid "Бонусний рахунок"
+msgstr "Bonus account"
+
+#: .\users\admin.py:80 .\users\models.py:59
+msgid "Messengers must be a dictionary"
+msgstr ""
+
+#: .\users\admin.py:85
+msgid "Unsupported messenger: {}"
+msgstr ""
+
+#: .\users\admin.py:92
+msgid "Invalid {} format. Must be a phone number (e.g., +380123456789)"
+msgstr ""
+
+#: .\users\admin.py:104
+msgid ""
+"Telegram must start with @ (e.g., @username) or be a phone number (e.g., "
+"+380123456789)"
+msgstr ""
+
+#: .\users\admin.py:110
+msgid "Signal ID cannot be empty"
+msgstr ""
+
+#: .\users\admin.py:168
+msgid "Messengers"
+msgstr ""
+
+#: .\users\admin.py:172 .\users\admin.py:183
+msgid "No user associated"
+msgstr ""
+
+#: .\users\admin.py:175 .\users\admin.py:186
+msgid "No orders"
+msgstr ""
+
+#: .\users\admin.py:178
+msgid "Orders"
+msgstr ""
+
+#: .\users\admin.py:222
+msgid "User Orders"
+msgstr ""
+
 #: .\users\models.py:46
 msgid "Male"
 msgstr ""
 
 #: .\users\models.py:46
 msgid "Female"
-msgstr ""
-
-#: .\users\models.py:59
-msgid "Messengers must be a dictionary"
 msgstr ""
 
 #: .\users\models.py:79
@@ -1094,6 +1229,18 @@ msgstr "User is not authenticated"
 #: .\users\views.py:651
 msgid "Верифікація OTP та остаточне видалення користувача"
 msgstr "OTP verification and final user deletion"
+
+#: .\warehouse\models.py:22
+msgid "Склад"
+msgstr "Warehouse"
+
+#: .\warehouse\models.py:23
+msgid "Склади"
+msgstr "Warehouses"
+
+#: .\warehouse\models.py:46
+msgid "Not enough stock available"
+msgstr ""
 
 #~ msgid "Gold"
 #~ msgstr "Gold"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 01:17+0300\n"
+"POT-Creation-Date: 2025-05-07 02:36+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: LeX Xai <lexxai@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,12 +33,14 @@ msgstr ""
 msgid "Анонімний користувач"
 msgstr ""
 
-#: .\cart\admin.py:56 .\discounts\models.py:192 .\discounts\models.py:243
-#: .\discounts\models.py:262 .\discounts\models.py:332
+#: .\cart\admin.py:56 .\cart\models.py:25 .\discounts\models.py:192
+#: .\discounts\models.py:243 .\discounts\models.py:262
+#: .\discounts\models.py:332
 msgid "Користувач"
 msgstr ""
 
-#: .\cart\admin.py:57 .\discounts\models.py:221 .\discounts\models.py:435
+#: .\cart\admin.py:57 .\cart\models.py:28 .\discounts\models.py:221
+#: .\discounts\models.py:435
 msgid "Товар"
 msgstr ""
 
@@ -48,6 +50,34 @@ msgstr ""
 
 #: .\cart\admin.py:59
 msgid "Сума"
+msgstr ""
+
+#: .\cart\managment\commands\clear_old_carts.py:9
+msgid "Видаляє кошики, які не використовувалися більше 7 днів"
+msgstr ""
+
+#: .\cart\managment\commands\clear_old_carts.py:14
+msgid "Видалено {} старих кошиків."
+msgstr ""
+
+#: .\cart\models.py:30
+msgid "Кількість"
+msgstr ""
+
+#: .\cart\models.py:33
+msgid "Дата додавання"
+msgstr ""
+
+#: .\cart\models.py:38 .\cart\models.py:39
+msgid "Корзина"
+msgstr ""
+
+#: .\cart\models.py:51
+msgid "Корзина {} | Товар {} | Кількість {}"
+msgstr ""
+
+#: .\cart\models.py:54
+msgid "Анонімна корзина | Товар {} | Кількість {}"
 msgstr ""
 
 #: .\cart\views.py:43
@@ -67,6 +97,7 @@ msgid "Купони на знижку"
 msgstr ""
 
 #: .\discounts\admin.py:68 .\discounts\admin.py:69 .\discounts\models.py:324
+#: .\users\admin.py:28
 msgid "Персональні знижки"
 msgstr ""
 
@@ -150,7 +181,7 @@ msgstr ""
 msgid "З приводу"
 msgstr ""
 
-#: .\discounts\models.py:65
+#: .\discounts\models.py:65 .\users\admin.py:41
 msgid "Купон"
 msgstr ""
 
@@ -267,7 +298,7 @@ msgstr ""
 msgid "{}% персональна знижка для {}"
 msgstr ""
 
-#: .\discounts\models.py:323
+#: .\discounts\models.py:323 .\users\admin.py:27
 msgid "Персональна знижка"
 msgstr ""
 
@@ -406,6 +437,58 @@ msgstr ""
 #: .\order\serializers.py:75
 msgid "Замовлення повинно містити хоча б один товар"
 msgstr ""
+
+#: .\order\views.py:138
+msgid "Створити замовлення з корзини користувача з урахуванням знижок"
+msgstr ""
+
+#: .\order\views.py:171
+msgid "Сесія не знайдена"
+msgstr ""
+
+#: .\order\views.py:180
+msgid "Корзина порожня"
+msgstr ""
+
+#: .\order\views.py:228
+msgid "Жоден товар у кошику не доступний"
+msgstr ""
+
+#: .\order\views.py:298
+msgid "Update the status of an order with optional payment status."
+msgstr "Оновлення статусу замовлення з опціональним статусом оплати."
+
+#: .\order\views.py:308
+msgid "Order #{} status updated to {}"
+msgstr "Статус замовлення #{} змінено на {}"
+
+#: .\order\views.py:316
+msgid "Order not found or access denied"
+msgstr "Замовлення не знайдено або доступ заборонено"
+
+#: .\order\views.py:344
+msgid "Handle LiqPay payment callback."
+msgstr "Обробити зворотній платіж LiqPay."
+
+#: .\order\views.py:354
+msgid "Order is not awaiting payment"
+msgstr "Замовлення не чекає на оплату"
+
+#: .\order\views.py:364
+msgid "Order #{} paid, awaiting stock replenishment"
+msgstr "Замовлення #{} оплачено, чекаємо поповнення складу"
+
+#: .\order\views.py:375
+msgid "Invalid payment status"
+msgstr "Недійсний статус платежу"
+
+#: .\order\views.py:380
+msgid "Order #{} payment status updated"
+msgstr "Оновлено статус оплати замовлення #{}"
+
+#: .\order\views.py:385
+msgid "Order not found"
+msgstr "Замовлення не знайдено"
 
 #: .\product\admin.py:58 .\product\admin.py:109
 msgid "Unnamed"
@@ -882,6 +965,66 @@ msgstr ""
 msgid "Ласкаво просимо"
 msgstr ""
 
+#: .\users\admin.py:34
+msgid "Знижка до Дня народження"
+msgstr ""
+
+#: .\users\admin.py:35
+msgid "Знижки до Дня народження"
+msgstr ""
+
+#: .\users\admin.py:42
+msgid "Купони"
+msgstr ""
+
+#: .\users\admin.py:48 .\users\admin.py:49
+msgid "Бонусний рахунок"
+msgstr ""
+
+#: .\users\admin.py:80 .\users\models.py:59
+msgid "Messengers must be a dictionary"
+msgstr "Повідомлення мусять бути словником"
+
+#: .\users\admin.py:85
+msgid "Unsupported messenger: {}"
+msgstr "Непідтримуваний месенджер: {}"
+
+#: .\users\admin.py:92
+msgid "Invalid {} format. Must be a phone number (e.g., +380123456789)"
+msgstr "Неправильний формат {}. Повинен бути номер телефону (наприклад, +380123456789)"
+
+#: .\users\admin.py:104
+msgid ""
+"Telegram must start with @ (e.g., @username) or be a phone number (e.g., "
+"+380123456789)"
+msgstr ""
+"Telegram має починатися з @ (наприклад, @ім'я користувача) або бути номером телефону (наприклад, "
+"+380123456789)"
+
+#: .\users\admin.py:110
+msgid "Signal ID cannot be empty"
+msgstr "Ідентифікатор Signal не може бути порожнім"
+
+#: .\users\admin.py:168
+msgid "Messengers"
+msgstr "Месенджери"
+
+#: .\users\admin.py:172 .\users\admin.py:183
+msgid "No user associated"
+msgstr "Користувач не асоційований"
+
+#: .\users\admin.py:175 .\users\admin.py:186
+msgid "No orders"
+msgstr "Ніяких замовлень"
+
+#: .\users\admin.py:178
+msgid "Orders"
+msgstr "Замовленя"
+
+#: .\users\admin.py:222
+msgid "User Orders"
+msgstr "Замовлення користувачів"
+
 #: .\users\models.py:46
 msgid "Male"
 msgstr "Чоловічa"
@@ -889,10 +1032,6 @@ msgstr "Чоловічa"
 #: .\users\models.py:46
 msgid "Female"
 msgstr "Жіночa"
-
-#: .\users\models.py:59
-msgid "Messengers must be a dictionary"
-msgstr "Повідомлення мусять бути словником"
 
 #: .\users\models.py:79
 msgid "User Profile"
@@ -1099,6 +1238,18 @@ msgstr ""
 #: .\users\views.py:651
 msgid "Верифікація OTP та остаточне видалення користувача"
 msgstr ""
+
+#: .\warehouse\models.py:22
+msgid "Склад"
+msgstr ""
+
+#: .\warehouse\models.py:23
+msgid "Склади"
+msgstr ""
+
+#: .\warehouse\models.py:46
+msgid "Not enough stock available"
+msgstr "Недостатньо запасів в наявності"
 
 #, python-brace-format
 #~ msgid ""
