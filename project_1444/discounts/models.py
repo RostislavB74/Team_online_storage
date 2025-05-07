@@ -97,6 +97,8 @@ class Discount(models.Model):
 
     class Meta:
         ordering = ["-priority", "name"]
+        verbose_name = _("Знижка")
+        verbose_name_plural = _("Знижки")
 
     def is_valid(self, user=None):
         now_ = now()
@@ -140,6 +142,10 @@ class PromoCode(BaseDiscount):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = _("Промо код")
+        verbose_name_plural = _("Промо коди")
+
     @property
     def is_valid(self):
         return (
@@ -179,6 +185,8 @@ class DiscountUsageHistory(models.Model):
 
     class Meta:
         ordering = ["-used_at"]
+        verbose_name = _("Історія використання знижки")
+        verbose_name_plural = _("Історії використання знижок")
 
     def __str__(self):
         return _("Promo code {} used for {}").format(self.promo_code, self.user.email)
@@ -196,6 +204,11 @@ class Coupon(BaseDiscount):
         max_digits=4, decimal_places=2, verbose_name=_("Знижка, %")
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+
+        verbose_name = _("Купон")
+        verbose_name_plural = _("Купони")
 
     @property
     def is_valid(self):
@@ -302,6 +315,10 @@ class PersonalDiscount(BaseDiscount):
         default=default_valid_to, verbose_name=_("Дійсна до")
     )
 
+    class Meta:
+        verbose_name = _("Персональна знижка")
+        verbose_name_plural = _("Персональні знижки")
+
     @property
     def is_valid(self):
         return self.is_active and self.valid_from <= now() <= self.valid_to
@@ -318,10 +335,6 @@ class PersonalDiscount(BaseDiscount):
         return _("{}% персональна знижка для {}").format(
             self.discount_percentage, self.email
         )
-
-    class Meta:
-        verbose_name = _("Персональна знижка")
-        verbose_name_plural = _("Персональні знижки")
 
 
 class BirthdayDiscount(models.Model):

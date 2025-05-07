@@ -18,6 +18,9 @@ class DiscountAdmin(admin.ModelAdmin):
     list_filter = ("is_active", "valid_from", "valid_to")
     search_fields = ("product__name", "material__material", "status__status")
 
+    verbose_name = _("Знижка")
+    verbose_name_plural = _("Знижки")
+
 
 @admin.register(PromoCode)
 class PromoCodeAdmin(admin.ModelAdmin):
