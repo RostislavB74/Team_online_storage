@@ -78,7 +78,7 @@ class RingSizeLookup(APIView):
         parameters=[
             OpenApiParameter(
                 name="circumference",
-                description="Окружність пальця в міліметрах (напр. 60)",
+                description=_("Окружність пальця в міліметрах (напр. 60)"),
                 required=True,
                 type=OpenApiTypes.FLOAT,
                 location=OpenApiParameter.QUERY,
@@ -91,7 +91,7 @@ class RingSizeLookup(APIView):
 
         if not circumference:
             return Response(
-                {"error": "Circumference is required"},
+                {"error": _("Circumference is required")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -118,12 +118,12 @@ class RingSizeLookup(APIView):
                 return Response(self.serialize_size(nearest_size))
             else:
                 return Response(
-                    {"error": "No sizes available"}, status=status.HTTP_404_NOT_FOUND
+                    {"error": _("No sizes available")}, status=status.HTTP_404_NOT_FOUND
                 )
 
         except ValueError:
             return Response(
-                {"error": "Invalid circumference value"},
+                {"error": _("Invalid circumference value")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -197,14 +197,13 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         cache_key = self.get_cache_key()
         cached_response = cache.get(cache_key)
         if cached_response is not None:
-            print("Using cached response", cache_key)
+            # print("Using cached response", cache_key)
             return Response(cached_response)
 
         response = super().list(request, *args, **kwargs)
         cache.set(cache_key, response.data, settings.SQL_CACHE_TIMEOUT_DEFAULT)
-        print("Added cached response", cache_key)
+        # print("Added cached response", cache_key)
         return response
-
 
 
 class SubCategoriesViewSet(viewsets.ModelViewSet):
@@ -233,8 +232,8 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @extend_schema(
-        summary="Get example data",
-        description="Returns an example response with some data.",
+        summary=_("Get example data"),
+        description=_("Returns an example response with some data."),
         responses={200: dict},
     )
     def get(self, request):
@@ -334,10 +333,9 @@ class TotalProductsViewSet(ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     @extend_schema(
-        summary="Get example data",
-        description="Returns an example response with some data.",
+        summary=_("Get example data"),
+        description=_("Returns an example response with some data."),
         responses={200: dict},
     )
     def get(self, request):
         return Response({"message": "Hello, API!"})
-

@@ -25,12 +25,16 @@ celery -A project_1444 worker --loglevel=info  -c 1 --max-memory-per-child 13107
 #echo "Starting Celery beat..."
 #celery -A project_1444 beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler &
 
-# Show free system memory info
-free -h
 
 # Start Gunicorn
 echo "Starting Gunicorn..."
 gunicorn --bind "0.0.0.0:8000" "project_1444.wsgi:application"
+
+echo "Sleep 30 sec, for measure free memory..."
+sleep 30
+# Show free system memory info
+echo "Memory info after start Gunicorn:"
+free -h
 
 #if [ "$DEBUG" = "False" ]; then
 #  # python manage.py runserver 0.0.0.0:8000 --noreload --insecure --no-color

@@ -549,7 +549,7 @@ class LogoutAPIView(APIView):
     @extend_schema(
         request=None,
         responses={status.HTTP_200_OK: LogoutSerializer},
-        description="Вихід користувача та видалення токена",
+        description=_("Вихід користувача та видалення токена"),
     )
     def post(self, request):
         try:

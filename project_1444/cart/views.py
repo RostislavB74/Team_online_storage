@@ -8,6 +8,8 @@ from product.models import SubProducts
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema, OpenApiResponse
+from django.utils.translation import gettext_lazy as _
+
 
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
@@ -26,16 +28,19 @@ class CartViewSet(viewsets.ModelViewSet):
 
     @extend_schema(
         responses={
-            200: OpenApiResponse(
+            status.HTTP_200_OK: OpenApiResponse(
                 response={
-                    'type': 'object',
-                    'properties': {
-                        'carts': {'type': 'array', 'items': {'$ref': '#/components/schemas/Cart'}},
-                        'total_sum_carts': {'type': 'number', 'format': 'float'},
-                        'total_quantity': {'type': 'integer'}
-                    }
+                    "type": "object",
+                    "properties": {
+                        "carts": {
+                            "type": "array",
+                            "items": {"$ref": "#/components/schemas/Cart"},
+                        },
+                        "total_sum_carts": {"type": "number", "format": "float"},
+                        "total_quantity": {"type": "integer"},
+                    },
                 },
-                description='Список елементів кошика, загальна сума і кількість'
+                description=_("Список елементів кошика, загальна сума і кількість"),
             )
         }
     )
@@ -46,17 +51,21 @@ class CartViewSet(viewsets.ModelViewSet):
         total_sum = cart_items.total_price(user=request.user)
         total_quantity = cart_items.total_quantity()
 
-        return Response({
-            "carts": serializer.data,
-            "total_sum_carts": float(total_sum),  # Конвертуємо Decimal у float для JSON
-            "total_quantity": total_quantity
-        })
+        return Response(
+            {
+                "carts": serializer.data,
+                "total_sum_carts": float(
+                    total_sum
+                ),  # Конвертуємо Decimal у float для JSON
+                "total_quantity": total_quantity,
+            }
+        )
 
-    @action(detail=False, methods=['post'], url_path='add')
+    @action(detail=False, methods=["post"], url_path="add")
     def add(self, request):
         """Додавання товару до корзини"""
-        subproduct_id = request.data.get('subproduct_id')
-        quantity = int(request.data.get('quantity', 1))
+        subproduct_id = request.data.get("subproduct_id")
+        quantity = int(request.data.get("quantity", 1))
         subproduct = get_object_or_404(SubProducts, id=subproduct_id)
 
         session_key = self.request.session.session_key
@@ -68,7 +77,7 @@ class CartViewSet(viewsets.ModelViewSet):
             user=request.user if request.user.is_authenticated else None,
             session_key=session_key if not request.user.is_authenticated else None,
             product=subproduct,
-            defaults={'quantity': quantity}
+            defaults={"quantity": quantity},
         )
         if not created:
             cart.quantity += quantity
@@ -77,12 +86,15 @@ class CartViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(cart)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['delete'], url_path='remove')
+    @action(detail=True, methods=["delete"], url_path="remove")
     def remove(self, request, pk=None):
         """Видалення товару з корзини"""
         cart = get_object_or_404(Cart, pk=pk)
         cart.delete()
-        return Response({"message": "Товар видалено з корзини"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": _("Товар видалено з корзини")},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 
 # from django.shortcuts import render, redirect, get_object_or_404

@@ -29,21 +29,23 @@ class Categories(TranslatableModel):
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
     )
     updated_at = models.DateTimeField(auto_now=True)
-    has_length = models.BooleanField(default=False, verbose_name="Має довжину (см)")
-    has_width = models.BooleanField(default=False, verbose_name="Має ширину (см)")
-    has_diameter = models.BooleanField(default=False, verbose_name="Має діаметр (мм)")
-    has_weight = models.BooleanField(default=True, verbose_name="Має вагу (г)")
+    has_length = models.BooleanField(default=False, verbose_name=_("Має довжину (см)"))
+    has_width = models.BooleanField(default=False, verbose_name=_("Має ширину (см)"))
+    has_diameter = models.BooleanField(
+        default=False, verbose_name=_("Має діаметр (мм)")
+    )
+    has_weight = models.BooleanField(default=True, verbose_name=_("Має вагу (г)"))
 
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = "Категорія виробу"
-        verbose_name_plural = "Категорії виробів"
+        verbose_name = _("Категорія виробу")
+        verbose_name_plural = _("Категорії виробів")
 
     def __str__(self):
         return self.safe_translation_getter(
-            "name", default="Без назви"
+            "name", default=_("Без назви")
         )  # Бере name із перекладу
 
 
@@ -57,12 +59,12 @@ class Weaving(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = "Плетіння"
-        verbose_name_plural = "Плетіння"
+        verbose_name = _("Плетіння")
+        verbose_name_plural = _("Плетіння")
 
     def __str__(self):
         return self.safe_translation_getter(
-            "name", default="Без назви"
+            "name", default=_("Без назви")
         )  # Бере name із перекладу
 
 
@@ -76,11 +78,11 @@ class Clasp(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = "Застібка"
-        verbose_name_plural = "Застібка"
+        verbose_name = _("Застібка")
+        verbose_name_plural = _("Застібки")
 
     def __str__(self):
-        return self.safe_translation_getter("name", default="Без назви")
+        return self.safe_translation_getter("name", default=_("Без назви"))
 
 
 class Coating(TranslatableModel):
@@ -93,11 +95,11 @@ class Coating(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = "Покриття"
-        verbose_name_plural = "Покриття"
+        verbose_name = _("Покриття")
+        verbose_name_plural = _("Покриття")
 
     def __str__(self):
-        return self.safe_translation_getter("name", default="Без назви")
+        return self.safe_translation_getter("name", default=_("Без назви"))
 
 
 class SubCategories(TranslatableModel):
@@ -118,11 +120,11 @@ class SubCategories(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = "Підкатегорія виробу"
-        verbose_name_plural = "Підкатегорії виробів"
+        verbose_name = _("Підкатегорія виробу")
+        verbose_name_plural = _("Підкатегорії виробів")
 
     def __str__(self):
-        return self.safe_translation_getter("name", default="Без назви")
+        return self.safe_translation_getter("name", default=_("Без назви"))
 
 
 class Colors(TranslatableModel):
@@ -135,12 +137,12 @@ class Colors(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = "Колір"
-        verbose_name_plural = "Кольори"
+        verbose_name = _("Колір")
+        verbose_name_plural = _("Кольори")
 
     def __str__(self):
         return self.safe_translation_getter(
-            "name", default="Без назви"
+            "name", default=_("Без назви")
         )  # Бере name із перекладу
 
 
@@ -154,12 +156,12 @@ class Collections(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = "Колекція"
-        verbose_name_plural = "Колекції"
+        verbose_name = _("Колекція")
+        verbose_name_plural = _("Колекції")
 
     def __str__(self):
         return self.safe_translation_getter(
-            "name", default="Без назви"
+            "name", default=_("Без назви")
         )  # Бере name із перекладу
 
 
@@ -173,12 +175,12 @@ class Designs(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = "Дизайн"
-        verbose_name_plural = "Дизайни"
+        verbose_name = _("Дизайн")
+        verbose_name_plural = _("Дизайни")
 
     def __str__(self):
         return self.safe_translation_getter(
-            "name", default="Без назви"
+            "name", default=_("Без назви")
         )  # Бере name із перекладу
 
 
@@ -192,11 +194,11 @@ class Styles(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = "Стиль"
-        verbose_name_plural = "Стилі"
+        verbose_name = _("Стиль")
+        verbose_name_plural = _("Стилі")
 
     def __str__(self):
-        return self.safe_translation_getter("name", default="Без назви")
+        return self.safe_translation_getter("name", default=_("Без назви"))
 
 
 class Material(TranslatableModel):
@@ -242,8 +244,8 @@ class Material(TranslatableModel):
     )
 
     class Meta:
-        verbose_name = "Матеріал"
-        verbose_name_plural = "Матеріали"
+        verbose_name = _("Матеріал")
+        verbose_name_plural = _("Матеріали")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -402,11 +404,11 @@ class Gemstone(TranslatableModel):
     # color = models.ForeignKey('Colors', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
-        verbose_name = "Ювелірний камінь"
-        verbose_name_plural = "Ювелірне каміння"
+        verbose_name = _("Ювелірний камінь")
+        verbose_name_plural = _("Ювелірне каміння")
 
     def __str__(self):
-        return self.safe_translation_getter("name", default="Без назви")
+        return self.safe_translation_getter("name", default=_("Без назви"))
 
     def clean(self):
         """Валідація категорій каменів"""
@@ -443,31 +445,31 @@ class Occasion(TranslatableModel):
     )
 
     class Meta:
-        verbose_name = "Привід"
-        verbose_name_plural = "Приводи"
+        verbose_name = _("Привід")
+        verbose_name_plural = _("Приводи")
 
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
 
     def __str__(self):
         return self.safe_translation_getter(
-            "name", default="Без назви"
+            "name", default=_("Без назви")
         )  # Бере name із перекладу
 
 
 class Gender(models.Model):
     GENDER_CHOICES = [
-        ("female", "Жіноче"),
-        ("male", "Чоловіче"),
-        ("children", "Дитяче"),
-        ("unisex", "Унісекс"),
+        ("female", _("Жіноче")),
+        ("male", _("Чоловіче")),
+        ("children", _("Дитяче")),
+        ("unisex", _("Унісекс")),
     ]
     name = models.CharField(choices=GENDER_CHOICES, max_length=20)
 
     class Meta:
         ordering = ["name"]
-        verbose_name = "Для кого"
-        verbose_name_plural = "Для кого"
+        verbose_name = _("Для кого")
+        verbose_name_plural = _("Для кого")
 
     def __str__(self):
         return self.name
@@ -484,7 +486,7 @@ class SubProducts(models.Model):
     article = models.CharField(max_length=50, unique=True, blank=True, null=True)
     ean_13 = models.CharField(max_length=13, null=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Ціна")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Ціна"))
     discount_percentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -502,13 +504,13 @@ class SubProducts(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    length = models.FloatField(null=True, blank=True, verbose_name="Довжина (см)")
+    length = models.FloatField(null=True, blank=True, verbose_name=_("Довжина (см)"))
     max_length = models.FloatField(
-        null=True, blank=True, verbose_name="Макс. довжина (см)"
+        null=True, blank=True, verbose_name=_("Макс. довжина (см)")
     )
-    width = models.FloatField(null=True, blank=True, verbose_name="Ширина (см)")
-    size = models.FloatField(null=True, blank=True, verbose_name="Розмір(мм) ")
-    weight = models.FloatField(null=True, blank=True, verbose_name="Вага (г)")
+    width = models.FloatField(null=True, blank=True, verbose_name=_("Ширина (см)"))
+    size = models.FloatField(null=True, blank=True, verbose_name=_("Розмір(мм) "))
+    weight = models.FloatField(null=True, blank=True, verbose_name=_("Вага (г)"))
 
     def clean(self):
         if self.parent_product and self.parent_product.category:
@@ -527,10 +529,10 @@ class SubProducts(models.Model):
     def get_length_display(self):
         """Формує правильне відображення довжини"""
         if self.length and self.max_length:
-            return f"{self.length}-{self.max_length} см"
+            return "{}-{} {}".format(self.length, self.max_length, _("см"))
         elif self.length:
-            return f"{self.length} см"
-        return "Невідомо"
+            return "{} {}".format(self.length, _("см"))
+        return _("Невідомо")
 
     def save(self, *args, **kwargs):
         # Автоматично встановлює порядковий номер для кожного продукту
@@ -556,15 +558,15 @@ class SubProducts(models.Model):
     def __str__(self):
         details = []
         if self.length:
-            details.append(f"Довжина: {self.length} см")
+            details.append("Довжина: {} см".format(self.length))
         if self.width:
-            details.append(f"Ширина: {self.width} см")
+            details.append("Ширина: {} см".format(self.width))
         if self.size:
-            details.append(f"Розмір: {self.size} мм")
+            details.append("Розмір: {} мм".format(self.size))
         if self.weight:
-            details.append(f"Вага: {self.weight} г")
+            details.append("Вага: {} г".format(self.weight))
 
-        details_str = ", ".join(details) if details else "Без характеристик"
+        details_str = ", ".join(details) if details else _("Без характеристик")
         return f"{self.parent_product.name} ({details_str})"
 
 
@@ -680,14 +682,15 @@ class ProductGemstone(models.Model):
                 product=self.product, is_main=True
             ).exclude(pk=self.pk)
             if existing_main.exists():
-                raise ValidationError("У виробі вже є основний камінь!")
+                raise ValidationError(_("У виробі вже є основний камінь!"))
 
     def save(self, *args, **kwargs):
         self.clean()  # Викликаємо перевірку перед збереженням
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.product} - {self.gemstone} ({self.color}, {self.weight}g, {'Основний' if self.is_main else 'Додатковий'})"
+        is_main = _("Основний") if self.is_main else _("Додатковий")
+        return f"{self.product} - {self.gemstone} ({self.color}, {self.weight}g, {is_main})"
 
 
 class ProductImage(models.Model):
@@ -699,8 +702,8 @@ class ProductImage(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Фото продукції"
-        verbose_name_plural = "Фото продукцій"
+        verbose_name = _("Фото продукції")
+        verbose_name_plural = _("Фото продукцій")
 
     def __str__(self):
         return f"{self.product.article} - Image"
@@ -715,8 +718,8 @@ class ProductCertificate(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Сертифікат продукції"
-        verbose_name_plural = "Сертифікати продукцій"
+        verbose_name = _("Сертифікат продукції")
+        verbose_name_plural = _("Сертифікати продукцій")
 
     def __str__(self):
         return f"{self.product.article} - Certificate"
@@ -736,8 +739,8 @@ class Descriptions(TranslatableModel):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Description"
-        verbose_name_plural = "Descriptions"
+        verbose_name = _("Description")
+        verbose_name_plural = _("Descriptions")
 
     def save(self, *args, **kwargs):
         name = self.safe_translation_getter("name")
@@ -748,7 +751,7 @@ class Descriptions(TranslatableModel):
 
     def __str__(self):
         name = self.safe_translation_getter("name")
-        return name if name is not None else f"Description {self.id}"
+        return name if name is not None else _("Description {}").format(self.id)
 
 
 class Product(TranslatableModel):
@@ -796,11 +799,11 @@ class Product(TranslatableModel):
 
     @property
     def name_property(self):
-        return self.safe_translation_getter("name", default="Без назви")
+        return self.safe_translation_getter("name", default=_("Без назви"))
 
     @property
     def slug_property(self):
-        return self.safe_translation_getter("slug", default="Без опису")
+        return self.safe_translation_getter("slug", default=_("Без опису"))
 
     def __str__(self):
         translation = self.safe_translation_getter("name", any_language=True)
@@ -863,8 +866,8 @@ class RingSizeConversion(models.Model):
     )  # Решта Європи
 
     class Meta:
-        verbose_name = "Конвертація розмірів"
-        verbose_name_plural = "Конвертер розмірів"
+        verbose_name = _("Конвертація розмірів")
+        verbose_name_plural = _("Конвертер розмірів")
 
     def __str__(self):
         return f"{self.circumference_mm} мм → {self.size_ua} (UA)"
@@ -873,7 +876,7 @@ class RingSizeConversion(models.Model):
 def save(self, *args, **kwargs):
     if (
         self.category
-        and self.category.name.lower() == "каблучки"
+        and self.category.name.lower() == _("каблучки")
         and self.circumference_mm
     ):
         # Автоматично визначаємо розмір

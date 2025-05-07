@@ -36,6 +36,8 @@ from django.urls import path
 from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.text import slugify
+
+
 @admin.register(Descriptions)
 class DescriptionsAdmin(TranslatableAdmin):
     list_display = (
@@ -65,7 +67,9 @@ class DescriptionsAdmin(TranslatableAdmin):
         return obj.safe_translation_getter("seo_title", default=_("No SEO title"))
 
     def get_seo_description(self, obj):
-        return obj.safe_translation_getter("seo_description", default=_("No SEO description"))
+        return obj.safe_translation_getter(
+            "seo_description", default=_("No SEO description")
+        )
 
     def get_keywords(self, obj):
         return obj.safe_translation_getter("keywords", default=_("No keywords"))
@@ -266,24 +270,24 @@ class ProductAttributesInline(admin.TabularInline):
         "style",
     )
 
-    verbose_name = "Характеристики"
-    verbose_name_plural = "Характеристики"
+    verbose_name = _("Характеристики")
+    verbose_name_plural = _("Характеристики")
 
 
 class ProductGemstoneInline(admin.TabularInline):
     model = ProductGemstone
     extra = 1
     fields = ("gemstone", "is_main", "color")
-    verbose_name = "Камінь"
-    verbose_name_plural = "Камені"
+    verbose_name = _("Камінь")
+    verbose_name_plural = _("Камені")
 
 
 class ProductMaterialInline(admin.TabularInline):
     model = ProductMaterial
     extra = 1
     fields = ("material", "is_primary")
-    verbose_name = "Матеріал"
-    verbose_name_plural = "Матеріали"
+    verbose_name = _("Матеріал")
+    verbose_name_plural = _("Матеріали")
 
 
 # Налаштування для товару
@@ -332,7 +336,7 @@ class SubProductsAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (
-            "Основна інформація",
+            _("Основна інформація"),
             {
                 "fields": (
                     "article",
@@ -350,13 +354,13 @@ class SubProductsAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Ціна та знижки",
+            _("Ціна та знижки"),
             {
                 "fields": ("discount_percentage", "new_price", "old_price"),
             },
         ),
         (
-            "Системні поля",
+            _("Системні поля"),
             {
                 "fields": ("created_by", "created_at", "updated_at"),
                 "classes": ("collapse",),
@@ -364,20 +368,20 @@ class SubProductsAdmin(admin.ModelAdmin):
         ),
     )
 
-    @admin.action(description="Позначити як знижка")
+    @admin.action(description=_("Позначити як знижка"))
     def mark_as_discount(self, request, queryset):
         discount_status, _ = ProductStatus.objects.get_or_create(name="discount")
         for product in queryset:
             product.statuses.add(discount_status)
-        self.message_user(request, "Вибрані товари отримали статус 'discount'.")
+        self.message_user(request, _("Вибрані товари отримали статус 'discount'."))
 
-    @admin.action(description="Прибрати статус знижки")
+    @admin.action(description=_("Прибрати статус знижки"))
     def remove_discount(self, request, queryset):
         discount_status = ProductStatus.objects.filter(name="discount").first()
         if discount_status:
             for product in queryset:
                 product.statuses.remove(discount_status)
-        self.message_user(request, "Статус 'discount' видалено у вибраних товарів.")
+        self.message_user(request, _("Статус 'discount' видалено у вибраних товарів."))
 
 
 @admin.register(Occasion)
@@ -429,7 +433,7 @@ class ProductAdmin(TranslatableAdmin):
     )
     fieldsets = (
         (
-            "Основна інформація",
+            _("Основна інформація"),
             {
                 "fields": (
                     "category",
@@ -455,21 +459,21 @@ class ProductAdmin(TranslatableAdmin):
             },
         ),
         (
-            "Опис товару",
+            _("Опис товару"),
             {
                 "fields": ("description",),
                 "classes": ("collapse",),
             },
         ),
         (
-            "Типорозміри товару",
+            _("Типорозміри товару"),
             {
                 "fields": ("subproducts",),
                 "classes": ("collapse",),
             },
         ),
         (
-            "Системні поля",
+            _("Системні поля"),
             {
                 "fields": ("created_by", "created_at", "updated_at"),
                 "classes": ("collapse",),
@@ -484,49 +488,52 @@ class ProductAdmin(TranslatableAdmin):
             return format_html(
                 '<img src="{}" width="50" height="50" />', str(first_image.image)
             )
-        return "Немає зображень"
+        return _("Немає зображень")
 
-    get_images.short_description = "Зображення"
+    get_images.short_description = _("Зображення")
 
     def get_certificates(self, obj):
         """Показує посилання на перший сертифікат товару"""
         first_certificate = obj.certificates.first()
         if first_certificate and first_certificate.file:
             return format_html(
-                '<a href="{}" target="_blank">Сертифікат</a>',
+                '<a href="{}" target="_blank">{}</a>',
                 str(first_certificate.file),
+                _("Сертифікат"),
             )
-        return "Немає сертифікатів"
+        return _("Немає сертифікатів")
 
-    get_certificates.short_description = "Сертифікати"
+    get_certificates.short_description = _("Сертифікати")
 
-    @admin.action(description="Позначити товари як бестселери")
+    @admin.action(description=_("Позначити товари як бестселери"))
     def set_bestseller(self, request, queryset):
         queryset.update(is_bestseller=True)
 
-    @admin.action(description="Зняти статус бестселера")
+    @admin.action(description=_("Зняти статус бестселера"))
     def clear_bestseller(self, request, queryset):
         queryset.update(is_bestseller=False)
 
     def get_statuses(self, obj):
         return ", ".join([status.name for status in obj.status.all()])
 
-    get_statuses.short_description = "Статуси"
+    get_statuses.short_description = _("Статуси")
 
-    @admin.action(description="Позначити як бестселер")
+    @admin.action(description=_("Позначити як бестселер"))
     def mark_as_bestseller(self, request, queryset):
         bestseller_status, _ = ProductStatus.objects.get_or_create(name="bestseller")
         for product in queryset:
             product.statuses.add(bestseller_status)
-        self.message_user(request, "Вибрані товари отримали статус 'bestseller'.")
+        self.message_user(request, _("Вибрані товари отримали статус 'bestseller'."))
 
-    @admin.action(description="Прибрати статус бестселера")
+    @admin.action(description=_("Прибрати статус бестселера"))
     def remove_bestseller(self, request, queryset):
         bestseller_status = ProductStatus.objects.filter(name="bestseller").first()
         if bestseller_status:
             for product in queryset:
                 product.statuses.remove(bestseller_status)
-        self.message_user(request, "Статус 'bestseller' видалено у вибраних товарів.")
+        self.message_user(
+            request, _("Статус 'bestseller' видалено у вибраних товарів.")
+        )
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("name",)}
@@ -542,21 +549,21 @@ class ProductImageAdmin(admin.ModelAdmin):
     def product_article(self, obj):
         return obj.product.article
 
-    product_article.short_description = "Артикул"
+    product_article.short_description = _("Артикул")
 
     def product_name(self, obj):
         return obj.product.name
 
-    product_name.short_description = "Назва"
+    product_name.short_description = _("Назва")
 
     def preview(self, obj):
         return (
             format_html('<img src="{}" width="50" height="50" />', str(obj.image))
             if obj.image
-            else "Немає зображення"
+            else _("Немає зображення")
         )
 
-    preview.short_description = "Зображення"
+    preview.short_description = _("Зображення")
 
 
 # Окремий адмін для сертифікатів товару
@@ -568,18 +575,17 @@ class ProductCertificateAdmin(admin.ModelAdmin):
     def product_article(self, obj):
         return obj.product.article
 
-    product_article.short_description = "Артикул"
+    product_article.short_description = _("Артикул")
 
     def product_name(self, obj):
         return obj.product.name
 
-    product_name.short_description = "Назва"
+    product_name.short_description = _("Назва")
 
     def file_link(self, obj):
         return (
-            format_html('<a href="{}" target="_blank">Переглянути</a>', str(obj.file))
-            if obj.file
-            else "Немає сертифіката"
+            format_html('<a href="{}" target="_blank"></a>', str(obj.file)),
+            _("Переглянути") if obj.file else _("Немає сертифіката"),
         )
 
-    file_link.short_description = "Сертифікат"
+    file_link.short_description = _("Сертифікат")
