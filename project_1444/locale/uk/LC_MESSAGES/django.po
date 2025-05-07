@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 02:36+0300\n"
+"POT-Creation-Date: 2025-05-07 03:19+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: LeX Xai <lexxai@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,14 +33,14 @@ msgstr ""
 msgid "Анонімний користувач"
 msgstr ""
 
-#: .\cart\admin.py:56 .\cart\models.py:25 .\discounts\models.py:192
-#: .\discounts\models.py:243 .\discounts\models.py:262
-#: .\discounts\models.py:332
+#: .\cart\admin.py:56 .\cart\models.py:25 .\discounts\models.py:200
+#: .\discounts\models.py:256 .\discounts\models.py:275
+#: .\discounts\models.py:345
 msgid "Користувач"
 msgstr ""
 
-#: .\cart\admin.py:57 .\cart\models.py:28 .\discounts\models.py:221
-#: .\discounts\models.py:435
+#: .\cart\admin.py:57 .\cart\models.py:28 .\discounts\models.py:234
+#: .\discounts\models.py:448
 msgid "Товар"
 msgstr ""
 
@@ -88,52 +88,60 @@ msgstr ""
 msgid "Товар видалено з корзини"
 msgstr ""
 
-#: .\discounts\admin.py:36 .\discounts\admin.py:37
+#: .\discounts\admin.py:21 .\discounts\models.py:100
+msgid "Знижка"
+msgstr ""
+
+#: .\discounts\admin.py:22 .\discounts\models.py:101
+msgid "Знижки"
+msgstr ""
+
+#: .\discounts\admin.py:39 .\discounts\admin.py:40
 msgid "Промокоди"
 msgstr ""
 
-#: .\discounts\admin.py:52 .\discounts\admin.py:53
+#: .\discounts\admin.py:55 .\discounts\admin.py:56
 msgid "Купони на знижку"
 msgstr ""
 
-#: .\discounts\admin.py:68 .\discounts\admin.py:69 .\discounts\models.py:324
+#: .\discounts\admin.py:71 .\discounts\admin.py:72 .\discounts\models.py:320
 #: .\users\admin.py:28
 msgid "Персональні знижки"
 msgstr ""
 
-#: .\discounts\admin.py:83 .\discounts\admin.py:84 .\discounts\models.py:388
+#: .\discounts\admin.py:86 .\discounts\admin.py:87 .\discounts\models.py:401
 msgid "Знижки на день народження"
 msgstr ""
 
-#: .\discounts\admin.py:99 .\discounts\admin.py:100
+#: .\discounts\admin.py:102 .\discounts\admin.py:103
 msgid "Знижки на продукти"
 msgstr ""
 
-#: .\discounts\admin.py:115 .\discounts\admin.py:116
+#: .\discounts\admin.py:118 .\discounts\admin.py:119
 msgid "Знижки на матеріали"
 msgstr ""
 
-#: .\discounts\admin.py:131 .\discounts\admin.py:132
+#: .\discounts\admin.py:134 .\discounts\admin.py:135
 msgid "Знижки на статуси"
 msgstr ""
 
-#: .\discounts\admin.py:147
+#: .\discounts\admin.py:150
 msgid "Знижки на камінь"
 msgstr ""
 
-#: .\discounts\admin.py:148
+#: .\discounts\admin.py:151
 msgid "Знижки на камені"
 msgstr ""
 
-#: .\discounts\admin.py:163 .\discounts\admin.py:164
+#: .\discounts\admin.py:166 .\discounts\admin.py:167
 msgid "Знижки на колекції"
 msgstr ""
 
-#: .\discounts\admin.py:179
+#: .\discounts\admin.py:182
 msgid "Знижки з приводу"
 msgstr ""
 
-#: .\discounts\admin.py:180
+#: .\discounts\admin.py:183
 msgid "Знижки з приводів"
 msgstr ""
 
@@ -165,7 +173,7 @@ msgstr ""
 msgid "Ручна"
 msgstr ""
 
-#: .\discounts\models.py:61 .\discounts\models.py:120
+#: .\discounts\models.py:61 .\discounts\models.py:122
 msgid "Промокод"
 msgstr ""
 
@@ -181,7 +189,7 @@ msgstr ""
 msgid "З приводу"
 msgstr ""
 
-#: .\discounts\models.py:65 .\users\admin.py:41
+#: .\discounts\models.py:65 .\discounts\models.py:210 .\users\admin.py:41
 msgid "Купон"
 msgstr ""
 
@@ -213,148 +221,168 @@ msgstr ""
 msgid "На стиль"
 msgstr ""
 
-#: .\discounts\models.py:123 .\discounts\models.py:196
-#: .\discounts\models.py:416
+#: .\discounts\models.py:125 .\discounts\models.py:204
+#: .\discounts\models.py:429
 msgid "Знижка, %"
 msgstr ""
 
-#: .\discounts\models.py:126
+#: .\discounts\models.py:128
 msgid "Ліміт використання"
 msgstr ""
 
-#: .\discounts\models.py:128
+#: .\discounts\models.py:130
 msgid "Використано"
 msgstr ""
 
-#: .\discounts\models.py:133 .\discounts\models.py:278
+#: .\discounts\models.py:135 .\discounts\models.py:291
 msgid "Застосовується до товарів"
 msgstr ""
 
-#: .\discounts\models.py:139 .\discounts\models.py:290
+#: .\discounts\models.py:141 .\discounts\models.py:303
 msgid "Застосовується до категорій"
 msgstr ""
 
-#: .\discounts\models.py:184
+#: .\discounts\models.py:146
+msgid "Промо код"
+msgstr ""
+
+#: .\discounts\models.py:147
+msgid "Промо коди"
+msgstr ""
+
+#: .\discounts\models.py:188
+msgid "Історія використання знижки"
+msgstr ""
+
+#: .\discounts\models.py:189
+msgid "Історії використання знижок"
+msgstr ""
+
+#: .\discounts\models.py:192
 msgid "Promo code {} used for {}"
 msgstr "Промокод {} використовується для {}"
 
-#: .\discounts\models.py:213
+#: .\discounts\models.py:211 .\users\admin.py:42
+msgid "Купони"
+msgstr ""
+
+#: .\discounts\models.py:226
 msgid "Купон {}% для {}"
 msgstr ""
 
-#: .\discounts\models.py:224
+#: .\discounts\models.py:237
 msgid "Стара ціна"
 msgstr ""
 
-#: .\discounts\models.py:227
+#: .\discounts\models.py:240
 msgid "Нова ціна"
 msgstr ""
 
-#: .\discounts\models.py:230
+#: .\discounts\models.py:243
 msgid "Застосована знижка"
 msgstr ""
 
-#: .\discounts\models.py:232
+#: .\discounts\models.py:245
 msgid "Дата зміни"
 msgstr ""
 
-#: .\discounts\models.py:250
+#: .\discounts\models.py:263
 msgid "Баланс бонусів"
 msgstr ""
 
-#: .\discounts\models.py:254
+#: .\discounts\models.py:267
 msgid "{} - {} бонусів"
 msgstr ""
 
-#: .\discounts\models.py:269
+#: .\discounts\models.py:282
 msgid "Призначив"
 msgstr ""
 
-#: .\discounts\models.py:272
+#: .\discounts\models.py:285
 msgid "Персональна знижка, %"
 msgstr ""
 
-#: .\discounts\models.py:284
+#: .\discounts\models.py:297
 msgid "Застосовується до субпродуктів"
 msgstr ""
 
-#: .\discounts\models.py:296
+#: .\discounts\models.py:309
 msgid "Групи користувачів"
 msgstr ""
 
-#: .\discounts\models.py:299
+#: .\discounts\models.py:312
 msgid "Активна"
 msgstr ""
 
-#: .\discounts\models.py:300
+#: .\discounts\models.py:313
 msgid "Дійсна з"
 msgstr ""
 
-#: .\discounts\models.py:302
+#: .\discounts\models.py:315
 msgid "Дійсна до"
 msgstr ""
 
-#: .\discounts\models.py:318
-msgid "{}% персональна знижка для {}"
-msgstr ""
-
-#: .\discounts\models.py:323 .\users\admin.py:27
+#: .\discounts\models.py:319 .\users\admin.py:27
 msgid "Персональна знижка"
 msgstr ""
 
-#: .\discounts\models.py:338
+#: .\discounts\models.py:335
+msgid "{}% персональна знижка для {}"
+msgstr ""
+
+#: .\discounts\models.py:351
 msgid "Знижка на день народження, %"
 msgstr ""
 
-#: .\discounts\models.py:341
+#: .\discounts\models.py:354
 msgid "Дійсна кількість днів"
 msgstr ""
 
-#: .\discounts\models.py:345
+#: .\discounts\models.py:358
 msgid "Рік використання знижки"
 msgstr ""
 
-#: .\discounts\models.py:348
+#: .\discounts\models.py:361
 msgid "Дата народження на момент створення"
 msgstr ""
 
-#: .\discounts\models.py:382
+#: .\discounts\models.py:395
 msgid "Знижка {}% для {} на день народження"
 msgstr ""
 
-#: .\discounts\models.py:387
+#: .\discounts\models.py:400
 msgid "Знижка на день народження"
 msgstr ""
 
-#: .\discounts\models.py:447 .\product\admin.py:289 .\product\models.py:247
+#: .\discounts\models.py:460 .\product\admin.py:289 .\product\models.py:247
 msgid "Матеріал"
 msgstr ""
 
-#: .\discounts\models.py:459
+#: .\discounts\models.py:472
 msgid "Статус"
 msgstr ""
 
-#: .\discounts\models.py:471
+#: .\discounts\models.py:484
 msgid "Каміння"
 msgstr ""
 
-#: .\discounts\models.py:483
+#: .\discounts\models.py:496
 msgid "Категорії"
 msgstr ""
 
-#: .\discounts\models.py:495
+#: .\discounts\models.py:508
 msgid "Підкатегорії"
 msgstr ""
 
-#: .\discounts\models.py:507 .\product\models.py:160
+#: .\discounts\models.py:520 .\product\models.py:160
 msgid "Колекції"
 msgstr ""
 
-#: .\discounts\models.py:519 .\product\models.py:198
+#: .\discounts\models.py:532 .\product\models.py:198
 msgid "Стилі"
 msgstr ""
 
-#: .\discounts\models.py:531 .\product\models.py:448
+#: .\discounts\models.py:544 .\product\models.py:448
 msgid "Привід"
 msgstr ""
 
@@ -973,10 +1001,6 @@ msgstr ""
 msgid "Знижки до Дня народження"
 msgstr ""
 
-#: .\users\admin.py:42
-msgid "Купони"
-msgstr ""
-
 #: .\users\admin.py:48 .\users\admin.py:49
 msgid "Бонусний рахунок"
 msgstr ""
@@ -991,15 +1015,17 @@ msgstr "Непідтримуваний месенджер: {}"
 
 #: .\users\admin.py:92
 msgid "Invalid {} format. Must be a phone number (e.g., +380123456789)"
-msgstr "Неправильний формат {}. Повинен бути номер телефону (наприклад, +380123456789)"
+msgstr ""
+"Неправильний формат {}. Повинен бути номер телефону (наприклад, "
+"+380123456789)"
 
 #: .\users\admin.py:104
 msgid ""
 "Telegram must start with @ (e.g., @username) or be a phone number (e.g., "
 "+380123456789)"
 msgstr ""
-"Telegram має починатися з @ (наприклад, @ім'я користувача) або бути номером телефону (наприклад, "
-"+380123456789)"
+"Telegram має починатися з @ (наприклад, @ім'я користувача) або бути номером "
+"телефону (наприклад, +380123456789)"
 
 #: .\users\admin.py:110
 msgid "Signal ID cannot be empty"
