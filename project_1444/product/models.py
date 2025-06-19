@@ -698,7 +698,7 @@ class ProductImage(models.Model):
         "Product", on_delete=models.CASCADE, related_name="images"
     )
     # image = CloudinaryField("image")
-    image = MultiBackendImageField(upload_to="image/", blank=True, null=True)
+    image = MultiBackendImageField(upload_to="image/", blank=True, null=True, max_length=500)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
