@@ -1,6 +1,6 @@
 black==25.1.0 ; python_version >= "3.11" and python_version < "4.0"
 cfgv==3.4.0 ; python_version >= "3.11" and python_version < "4.0"
-click==8.1.8 ; python_version >= "3.11" and python_version < "4.0"
+click==8.2.1 ; python_version >= "3.11" and python_version < "4.0"
 colorama==0.4.6 ; python_version >= "3.11" and python_version < "4.0" and platform_system == "Windows"
 distlib==0.4.0 ; python_version >= "3.11" and python_version < "4.0"
 filelock==3.19.1 ; python_version >= "3.11" and python_version < "4.0"
