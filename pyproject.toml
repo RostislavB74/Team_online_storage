@@ -54,6 +54,12 @@ social-auth-app-django = "^5.4.3"
 [tool.poetry.group.deploy.dependencies]
 gunicorn = "^23.0.0"
 
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.3.0"
+black = "^25.1.0"
+ruff = "^0.12.11"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
