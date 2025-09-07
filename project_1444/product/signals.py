@@ -15,6 +15,7 @@ from product.models import (
     Material,
     SubProducts,
 )
+from project_1444.settings import CACHE_HEADERS_ENABLED
 
 
 @receiver(post_save, sender=Product)
@@ -26,6 +27,8 @@ def create_subproduct_attributes(sender, instance, created, **kwargs):
 
 def clear_category_tree_cache():
     # Clear all cached variations
+    if not CACHE_HEADERS_ENABLED:
+        return
     pattern = "category_tree_*"
     print("Using clear_category_tree_cache ", pattern)
     try:
