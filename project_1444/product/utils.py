@@ -129,9 +129,9 @@ def get_discounted_price(user, subproduct):
     discount_multiplier = (100 - final_discount) / 100
     new_price = original_price * Decimal(discount_multiplier)
 
-    print(
-        f"Original price: {original_price}, Discount applied: {final_discount}%, New price: {new_price}"
-    )
+    # print(
+    #     f"Original price: {original_price}, Discount applied: {final_discount}%, New price: {new_price}"
+    # )
     return {
         "new_price": round(new_price, 2),
         "old_price": original_price,
