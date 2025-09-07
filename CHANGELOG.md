@@ -5,10 +5,14 @@
 - Refactoring `Pagination` to `addons/paginations.py`
 - Refactoring dedupe `category` field from the `Product` model
 - Refactoring move signals from `model.py` to `signals.py`
-- Refactoring by rename to `generate_product_new_article` ,` generate_material_article`, `generate_subproduct_article`
+- Refactoring by rename:
+  - `generate_product_new_article`
+  - `generate_material_article`
+  - `generate_subproduct_article`
+  - `generate_product_qr_code` 
 - Refactoring `TotalProductsSerializer` added `year_collection` field
 - Refactoring moved generate_qr_code, generate_product_new_article, generate_sku, generate_subproduct_new_article to utils.py
-
+- Refactoring dynamic calculate CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT in `settings.py`
 
 ---
 ## 2025-09-04 — pre-commit
