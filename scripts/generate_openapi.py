@@ -1,7 +1,16 @@
+import os
 import subprocess
 import sys
 
+import dotenv
+
 # Run spectacular
+load_dotenv = dotenv.load_dotenv()
+
+if os.environ.get("GENERATE_OPENAPI", "false").lower() != "true":
+    print("Not generating openapi by env settings")
+    sys.exit(0)
+
 python_exe = sys.executable  # ensures same venv is used
 
 result = subprocess.run(
