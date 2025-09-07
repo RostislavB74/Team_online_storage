@@ -1,7 +1,9 @@
+from django.contrib import admin
 from django.utils.html import format_html
-from django.utils.translation import get_language
-from django.shortcuts import get_object_or_404
-from .models import (
+from django.utils.translation import gettext_lazy as _
+from parler.admin import TranslatableAdmin
+
+from product.models import (
     Categories,
     Material,
     Gemstone,
@@ -11,7 +13,6 @@ from .models import (
     Origin,
     ProductImage,
     ProductCertificate,
-    RingSizeConversion,
     Occasion,
     RingSizeConversion,
     Colors,
@@ -28,14 +29,6 @@ from .models import (
     Styles,
     Descriptions,
 )
-from django.contrib import admin
-from parler.admin import TranslatableAdmin, TranslatableTabularInline
-from django.utils.translation import gettext_lazy as _
-from django import forms
-from django.urls import path
-from django.shortcuts import redirect
-from django.utils import translation
-from django.utils.text import slugify
 
 
 @admin.register(Descriptions)
@@ -149,7 +142,7 @@ class RingSizeAdmin(admin.ModelAdmin):
 
 @admin.register(Categories)
 class CategoriesAdmin(TranslatableAdmin):
-    list_display = ("name", "slug")
+    list_display = ("id", "name", "slug")
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("name",)}
@@ -214,6 +207,7 @@ class CollectionsAdmin(TranslatableAdmin):
 @admin.register(SubCategories)
 class SubCategoriesAdmin(TranslatableAdmin):
     list_display = (
+        "id",
         "name",
         "slug",
     )
