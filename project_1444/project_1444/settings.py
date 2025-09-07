@@ -333,6 +333,21 @@ else:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
 
+CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT = env(
+    "CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT",
+    default="dtftiyeso",
+)
+
+CLOUDINARY_IMAGE_FIXED_PREFIX_PATH = env(
+    "CLOUDINARY_FIXED_PREFIX_PATH",
+    default=f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/image/upload/",
+)
+
+CLOUDINARY_FILE_FIXED_PREFIX_PATH = env(
+    "CLOUDINARY_FIXED_PREFIX_PATH",
+    default=f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/file/upload/",
+)
+
 if IS_TESTING:
     DEFAULT_FILE_STORAGE = "django.core.files.storage.InMemoryStorage"
     PASSWORD_HASHERS = [

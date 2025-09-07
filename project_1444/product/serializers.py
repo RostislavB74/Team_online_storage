@@ -19,6 +19,10 @@ from product.models import (
     Product,
 )
 from product.utils import get_discounted_price
+from project_1444.settings import (
+    CLOUDINARY_IMAGE_FIXED_PREFIX_PATH,
+    CLOUDINARY_FILE_FIXED_PREFIX_PATH,
+)
 
 
 class SubCategoryShortSerializer(serializers.ModelSerializer):
@@ -331,7 +335,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
         if obj.image:
             # Примусово формуємо правильний URL
             public_id = str(obj.image)  # Отримуємо public_id (msadf0szr5dhc7ght0cc)
-            return f"https://res.cloudinary.com/dtftiyeso/image/upload/{public_id}.png"
+            return f"{CLOUDINARY_IMAGE_FIXED_PREFIX_PATH}{public_id}.png"
         return None
 
 
@@ -346,7 +350,7 @@ class ProductCertificateSerializer(serializers.ModelSerializer):
         if obj.file:
             # Примусово формуємо правильний URL
             public_id = str(obj.file)  # Отримуємо public_id (msadf0szr5dhc7ght0cc)
-            return f"https://res.cloudinary.com/dtftiyeso/file/upload/{public_id}.png"
+            return f"{CLOUDINARY_FILE_FIXED_PREFIX_PATH}{public_id}.png"
         return None
 
 
