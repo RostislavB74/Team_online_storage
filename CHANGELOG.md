@@ -1,3 +1,10 @@
+## 2025-09-07  Product filtering
+
+- Added ProductFilter
+- Refactoring filters to filters.py.
+
+
+---
 ## 2025-09-04 — pre-commit
 
 - Added package `pre-commit`.
