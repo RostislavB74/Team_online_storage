@@ -17,6 +17,7 @@ EMAIL_HOST_PASSWORD='your_password'
 SECRET_KEY='your_secret_key'
 ALLOWED_HOSTS='127.0.0.1,localhost'
 DEBUG=True
+#DEBUG_TOOLBAR_ENABLE=False
 
 CELERY_BROKER_URL='redis://localhost:6379/0'
 

@@ -52,6 +52,8 @@ PROJECT_NAME = env("PROJECT_NAME", default=Path(__file__).resolve().parent.name)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=False, cast=bool)
 print(f"{DEBUG=}")
+DEBUG_TOOLBAR_ENABLE = env("DEBUG_TOOLBAR_ENABLE", default=False, cast=bool)
+
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=None)
 
@@ -82,7 +84,7 @@ INSTALLED_APPS = [
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
-    "debug_toolbar",
+    # "debug_toolbar", # added dynamically later
     # "cloudinary_storage",
     "django_filters",
     # "mptt",
@@ -103,6 +105,8 @@ INSTALLED_APPS = [
     # 'versatileimagefield',
     # "django_ratelimit",
 ]
+
+
 # VERSATILEIMAGEFIELD_SETTINGS = {
 #     'create_images_on_demand': True,
 #     'cache_length': 2592000,
@@ -163,11 +167,19 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",  # added dynamically later
     "social_django.middleware.SocialAuthExceptionMiddleware",
     # "django_ratelimit.middleware.RatelimitMiddleware",
 ]
 # RATELIMIT_VIEW = 'yourapp.views.rate_limited'
+
+if DEBUG_TOOLBAR_ENABLE:
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+    }
 
 
 ROOT_URLCONF = "project_1444.urls"

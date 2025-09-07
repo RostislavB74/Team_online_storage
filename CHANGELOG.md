@@ -3,6 +3,7 @@
 ### Added
 - `ProductFilter`
 - `year_collection` field to `TotalProductsSerializer`
+- `DEBUG_TOOLBAR_ENABLE` settings variable 
 
 ### Moved
 - **Filters** - `product/filters.py`
