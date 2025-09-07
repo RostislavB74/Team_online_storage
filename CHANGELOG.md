@@ -1,18 +1,24 @@
-## 2025-09-07  Product filtering
+## 2025-09-07 - Product Filtering & Refactoring
 
-- Added ProductFilter
-- Refactoring **filters** to `product/filters.py`.
-- Refactoring `Pagination` to `addons/paginations.py`
-- Refactoring dedupe `category` field from the `Product` model
-- Refactoring move signals from `model.py` to `signals.py`
-- Refactoring by rename:
-  - `generate_product_new_article`
-  - `generate_material_article`
-  - `generate_subproduct_article`
-  - `generate_product_qr_code` 
-- Refactoring `TotalProductsSerializer` added `year_collection` field
-- Refactoring moved generate_qr_code, generate_product_new_article, generate_sku, generate_subproduct_new_article to utils.py
-- Refactoring dynamic calculate CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT in `settings.py`
+### Added
+- `ProductFilter`
+- `year_collection` field to `TotalProductsSerializer`
+
+### Moved
+- **Filters** - `product/filters.py`
+- `Pagination` - `addons/paginations.py`
+- **Signals** - from `models.py` to `signals.py`
+
+### Renamed
+- `generate_product_new_article`
+- `generate_material_article`
+- `generate_subproduct_article`
+- `generate_product_qr_code`
+
+### Changed
+- Removed duplicate `category` field from `Product` model
+- Dynamic calculation of `CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT` in `settings.py`
+- Instead of use `addons.middleware.AdminSplitterSessionMiddleware` used env `SESSION_COOKIE_PATH` as `/admin` in `settings.py`
 
 ---
 ## 2025-09-04 — pre-commit
