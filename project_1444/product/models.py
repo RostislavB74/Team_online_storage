@@ -7,8 +7,6 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
@@ -559,16 +557,6 @@ def generate_subarticle(product):
     else:
         new_article = "SBPR00001"  # Початковий SKU
     return new_article
-
-
-@receiver(pre_save, sender=SubProducts)
-def subproduct_pre_save(sender, instance, **kwargs):
-    if not instance.sku:
-        instance.sku = generate_sku()
-    if not instance.article:
-        instance.article = generate_subarticle(instance)
-    if not instance.qr_code:
-        instance.qr_code = generate_qr_code(instance)
 
 
 class ProductAttributes(models.Model):

@@ -10,6 +10,9 @@ from .models import (
     Material,
     generate_sku,
     generate_product_new_article,
+    SubProducts,
+    generate_subarticle,
+    generate_qr_code,
 )
 
 
@@ -74,3 +77,13 @@ def product_pre_save(sender, instance, **kwargs):
         instance.sku = generate_sku()
     if not instance.article:
         instance.article = generate_product_new_article()
+
+
+@receiver(pre_save, sender=SubProducts)
+def subproduct_pre_save(sender, instance, **kwargs):
+    if not instance.sku:
+        instance.sku = generate_sku()
+    if not instance.article:
+        instance.article = generate_subarticle(instance)
+    if not instance.qr_code:
+        instance.qr_code = generate_qr_code(instance)
