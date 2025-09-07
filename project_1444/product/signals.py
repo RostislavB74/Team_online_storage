@@ -11,10 +11,10 @@ from .models import (
     SubProducts,
 )
 from .utils import (
-    generate_subproduct_new_article,
     generate_sku,
-    generate_product_new_article,
     generate_qr_code,
+    generate_subproduct_new_article,
+    generate_product_new_article,
 )
 
 
@@ -78,7 +78,7 @@ def product_pre_save(sender, instance, **kwargs):
     if not instance.sku:
         instance.sku = generate_sku()
     if not instance.article:
-        instance.article = generate_product_new_article()
+        instance.article = generate_product_new_article(instance)
 
 
 @receiver(pre_save, sender=SubProducts)

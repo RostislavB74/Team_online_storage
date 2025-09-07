@@ -8,8 +8,6 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.text import slugify
 
-from product.models import SubProducts, Product
-
 
 def save_with_translation(instance, *args, **kwargs):
     """Зберігає об'єкт і створює переклад, якщо його немає."""
@@ -145,8 +143,24 @@ def get_discounted_price(user, subproduct):
     }
 
 
-def generate_subproduct_new_article(product=None):
-    last_product = SubProducts.objects.order_by("-id").first()
+def generate_sku():
+    return f"SKU-{uuid.uuid4().hex[:8].upper()}"
+
+
+def generate_qr_code(product):
+    """Генерує QR-код із `sku` або `ean_13`"""
+    qr_data = product.sku or product.ean_13 or product.name
+    qr = qrcode.make(qr_data)
+    qr_io = BytesIO()
+    qr.save(qr_io, format="PNG")
+    qr_file = ContentFile(qr_io.getvalue(), name=f"qr_{product.sku}.png")
+    return qr_file
+
+
+def generate_subproduct_new_article(instance):
+    ModelClass: object = instance.__class__  # noqa N806
+    last_product = ModelClass.__class__.object.order_by("-id").first()
+    # last_product = SubProducts.objects.order_by("-id").first()
     if last_product:
         # Припустимо, що перші два символи - це префікс
         last_article_number = int(last_product.article[4:])
@@ -158,14 +172,11 @@ def generate_subproduct_new_article(product=None):
     return new_article
 
 
-def generate_sku():
-    return f"SKU-{uuid.uuid4().hex[:8].upper()}"
-
-
-def generate_product_new_article(product=None):
-
+def generate_product_new_article(instance):
     # def generate_sku():
-    last_product = Product.objects.order_by("-id").first()
+    ModelClass: object = instance.__class__  # noqa N806
+    last_product = ModelClass.__class__.object.order_by("-id").first()
+    # last_product = Product.objects.order_by("-id").first()
     if last_product:
         # Припустимо, що перші два символи - це префікс
         last_article_number = int(last_product.article[2:])
@@ -175,13 +186,3 @@ def generate_product_new_article(product=None):
     else:
         new_article = "PR00001"  # Початковий SKU
     return new_article
-
-
-def generate_qr_code(product):
-    """Генерує QR-код із `sku` або `ean_13`"""
-    qr_data = product.sku or product.ean_13 or product.name
-    qr = qrcode.make(qr_data)
-    qr_io = BytesIO()
-    qr.save(qr_io, format="PNG")
-    qr_file = ContentFile(qr_io.getvalue(), name=f"qr_{product.sku}.png")
-    return qr_file
