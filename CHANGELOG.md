@@ -18,7 +18,6 @@
 ### Changed
 - Removed duplicate `category` field from `Product` model
 - Dynamic calculation of `CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT` in `settings.py`
-- Instead of use `addons.middleware.AdminSplitterSessionMiddleware` used env `SESSION_COOKIE_PATH` as `/admin` in `settings.py`
 
 ---
 ## 2025-09-04 — pre-commit
