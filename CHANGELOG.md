@@ -5,8 +5,9 @@
 - Refactoring `Pagination` to `addons/paginations.py`
 - Refactoring dedupe `category` field from the `Product` model
 - Refactoring move signals from `model.py` to `signals.py`
-- Refactoring by rename to `generate_product_new_article` ,` generate_material_article`
+- Refactoring by rename to `generate_product_new_article` ,` generate_material_article`, `generate_subproduct_article`
 - Refactoring `TotalProductsSerializer` added `year_collection` field
+- 
 
 
 ---

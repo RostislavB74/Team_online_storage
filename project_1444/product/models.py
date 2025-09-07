@@ -546,7 +546,7 @@ class SubProducts(models.Model):
         return f"{self.parent_product.name} ({details_str})"
 
 
-def generate_subarticle(product):
+def generate_subproduct_article(product=None):
     last_product = SubProducts.objects.order_by("-id").first()
     if last_product:
         # Припустимо, що перші два символи - це префікс
