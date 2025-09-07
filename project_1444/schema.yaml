@@ -72,6 +72,18 @@ paths:
     get:
       operationId: api_v1_all_products_list
       parameters:
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - in: query
+        name: collection
+        schema:
+          type: integer
+      - in: query
+        name: is_ukrainian_cashback
+        schema:
+          type: boolean
       - name: limit
         required: false
         in: query
@@ -82,6 +94,14 @@ paths:
         required: false
         in: query
         description: The initial index from which to return the results.
+        schema:
+          type: integer
+      - in: query
+        name: subcategory
+        schema:
+          type: integer
+      - in: query
+        name: year_collection
         schema:
           type: integer
       tags:
@@ -564,7 +584,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this Description.
+        description: A unique integer value identifying this Опис.
         required: true
       tags:
       - api
@@ -587,7 +607,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this Description.
+        description: A unique integer value identifying this Опис.
         required: true
       tags:
       - api
@@ -621,7 +641,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this Description.
+        description: A unique integer value identifying this Опис.
         required: true
       tags:
       - api
@@ -655,7 +675,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this Description.
+        description: A unique integer value identifying this Опис.
         required: true
       tags:
       - api
@@ -796,7 +816,7 @@ paths:
   /api/v1/orders/{order_id}/update-status/:
     post:
       operationId: api_v1_orders_update_status_create
-      description: Update the status of an order with optional payment status.
+      description: Оновлення статусу замовлення з опціональним статусом оплати.
       parameters:
       - in: path
         name: order_id
@@ -1001,7 +1021,7 @@ paths:
   /api/v1/orders/liqpay/callback/:
     post:
       operationId: api_v1_orders_liqpay_callback_create
-      description: Handle LiqPay payment callback.
+      description: Обробити зворотній платіж LiqPay.
       tags:
       - api
       requestBody:
@@ -1049,6 +1069,18 @@ paths:
       operationId: api_v1_product_list
       description: CRUD для продуктів
       parameters:
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - in: query
+        name: collection
+        schema:
+          type: integer
+      - in: query
+        name: is_ukrainian_cashback
+        schema:
+          type: boolean
       - name: limit
         required: false
         in: query
@@ -1059,6 +1091,14 @@ paths:
         required: false
         in: query
         description: The initial index from which to return the results.
+        schema:
+          type: integer
+      - in: query
+        name: subcategory
+        schema:
+          type: integer
+      - in: query
+        name: year_collection
         schema:
           type: integer
       tags:
@@ -1742,25 +1782,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OTPResponse'
-          description: OTP code was sent successfully
+          description: OTP-код успішно надіслано
         '400':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-          description: Missing email address or invalid input
+          description: Відсутня адреса електронної пошти або невірне введення
         '401':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-          description: User is not authenticated
+          description: Користувач не автентифікований
         '500':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-          description: Failed to send OTP
+          description: Не вдалося надіслати OTP
   /auth/unregister/verify/:
     post:
       operationId: auth_unregister_verify_create
@@ -1801,7 +1841,7 @@ paths:
     get:
       operationId: social_auth_backends_retrieve
       description: 'Список імен активних бекендів Social Auth для подальшого використання
-        в URL-адресі API дляsocial авторизації на кшталт: `/social-auth/login/{backend}/`'
+        в URL-адресі API для social авторизації на кшталт: `/social-auth/login/{backend}/`'
       tags:
       - auth
       security:
@@ -3275,6 +3315,11 @@ components:
           items:
             $ref: '#/components/schemas/ProductAttributes'
           readOnly: true
+        year_collection:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
       required:
       - attributes
       - category

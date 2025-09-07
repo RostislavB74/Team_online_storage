@@ -1,3 +1,16 @@
+## 2025-09-07  Product filtering
+
+- Added ProductFilter
+- Refactoring **filters** to `product/filters.py`.
+- Refactoring `Pagination` to `addons/paginations.py`
+- Refactoring dedupe `category` field from the `Product` model
+- Refactoring move signals from `model.py` to `signals.py`
+- Refactoring by rename to `generate_product_new_article` ,` generate_material_article`, `generate_subproduct_article`
+- Refactoring `TotalProductsSerializer` added `year_collection` field
+- 
+
+
+---
 ## 2025-09-04 — pre-commit
 
 - Added package `pre-commit`.
