@@ -1,19 +1,21 @@
+import uuid
+from io import BytesIO
+
+import qrcode
 from django.core.cache import cache
+from django.core.files.base import ContentFile
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 
-from .models import (
+from product.models import (
     Product,
     ProductAttributes,
     Categories,
     SubCategories,
     Material,
-    generate_sku,
-    generate_product_new_article,
     SubProducts,
-    generate_subproduct_article,
-    generate_qr_code,
 )
+from project_1444.settings import CACHE_HEADERS_ENABLED
 
 
 @receiver(post_save, sender=Product)
@@ -25,6 +27,8 @@ def create_subproduct_attributes(sender, instance, created, **kwargs):
 
 def clear_category_tree_cache():
     # Clear all cached variations
+    if not CACHE_HEADERS_ENABLED:
+        return
     pattern = "category_tree_*"
     print("Using clear_category_tree_cache ", pattern)
     try:
@@ -63,7 +67,7 @@ def generate_material_article(sender, instance, **kwargs):
         assay_code = (
             str(instance.assay) if instance.assay else ""
         )  # Перевірка, чи є assay
-        last_material = Material.objects.order_by("-id").first()
+        last_material = sender.objects.order_by("-id").first()
         next_number = (
             f"{(last_material.id + 1) if last_material else 1:03d}"  # Генерація номера
         )
@@ -76,7 +80,7 @@ def product_pre_save(sender, instance, **kwargs):
     if not instance.sku:
         instance.sku = generate_sku()
     if not instance.article:
-        instance.article = generate_product_new_article()
+        instance.article = generate_product_new_article(instance)
 
 
 @receiver(pre_save, sender=SubProducts)
@@ -84,6 +88,51 @@ def subproduct_pre_save(sender, instance, **kwargs):
     if not instance.sku:
         instance.sku = generate_sku()
     if not instance.article:
-        instance.article = generate_subproduct_article(instance)
+        instance.article = generate_subproduct_new_article(instance)
     if not instance.qr_code:
-        instance.qr_code = generate_qr_code(instance)
+        instance.qr_code = generate_product_qr_code(instance)
+
+
+def generate_sku():
+    return f"SKU-{uuid.uuid4().hex[:8].upper()}"
+
+
+def generate_product_qr_code(product):
+    """Генерує QR-код із `sku` або `ean_13`"""
+    qr_data = product.sku or product.ean_13 or product.name
+    qr = qrcode.make(qr_data)
+    qr_io = BytesIO()
+    qr.save(qr_io, format="PNG")
+    qr_file = ContentFile(qr_io.getvalue(), name=f"qr_{product.sku}.png")
+    return qr_file
+
+
+def generate_subproduct_new_article(instance):
+    ModelClass: object = instance.__class__  # noqa N806
+    last_product = ModelClass.__class__.object.order_by("-id").first()
+    # last_product = SubProducts.objects.order_by("-id").first()
+    if last_product:
+        # Припустимо, що перші два символи - це префікс
+        last_article_number = int(last_product.article[4:])
+        new_article = (
+            f"SBPR{last_article_number + 1:05d}"  # Формат: PR00001, PR00002, ...
+        )
+    else:
+        new_article = "SBPR00001"  # Початковий SKU
+    return new_article
+
+
+def generate_product_new_article(instance):
+    # def generate_sku():
+    ModelClass: object = instance.__class__  # noqa N806
+    last_product = ModelClass.__class__.object.order_by("-id").first()
+    # last_product = Product.objects.order_by("-id").first()
+    if last_product:
+        # Припустимо, що перші два символи - це префікс
+        last_article_number = int(last_product.article[2:])
+        new_article = (
+            f"PR{last_article_number + 1:05d}"  # Формат: PR00001, PR00002, ...
+        )
+    else:
+        new_article = "PR00001"  # Початковий SKU
+    return new_article

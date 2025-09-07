@@ -1,14 +1,24 @@
-## 2025-09-07  Product filtering
+## 2025-09-07 - Product Filtering & Refactoring
 
-- Added ProductFilter
-- Refactoring **filters** to `product/filters.py`.
-- Refactoring `Pagination` to `addons/paginations.py`
-- Refactoring dedupe `category` field from the `Product` model
-- Refactoring move signals from `model.py` to `signals.py`
-- Refactoring by rename to `generate_product_new_article` ,` generate_material_article`, `generate_subproduct_article`
-- Refactoring `TotalProductsSerializer` added `year_collection` field
-- 
+### Added
+- `ProductFilter`
+- `year_collection` field to `TotalProductsSerializer`
+- `DEBUG_TOOLBAR_ENABLE` settings variable 
 
+### Moved
+- **Filters** - `product/filters.py`
+- `Pagination` - `addons/paginations.py`
+- **Signals** - from `models.py` to `signals.py`
+
+### Renamed
+- `generate_product_new_article`
+- `generate_material_article`
+- `generate_subproduct_article`
+- `generate_product_qr_code`
+
+### Changed
+- Removed duplicate `category` field from `Product` model
+- Dynamic calculation of `CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT` in `settings.py`
 
 ---
 ## 2025-09-04 — pre-commit

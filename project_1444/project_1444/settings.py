@@ -52,6 +52,8 @@ PROJECT_NAME = env("PROJECT_NAME", default=Path(__file__).resolve().parent.name)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=False, cast=bool)
 print(f"{DEBUG=}")
+DEBUG_TOOLBAR_ENABLE = env("DEBUG_TOOLBAR_ENABLE", default=False, cast=bool)
+
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=None)
 
@@ -82,7 +84,7 @@ INSTALLED_APPS = [
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
-    "debug_toolbar",
+    # "debug_toolbar", # added dynamically later
     # "cloudinary_storage",
     "django_filters",
     # "mptt",
@@ -103,6 +105,8 @@ INSTALLED_APPS = [
     # 'versatileimagefield',
     # "django_ratelimit",
 ]
+
+
 # VERSATILEIMAGEFIELD_SETTINGS = {
 #     'create_images_on_demand': True,
 #     'cache_length': 2592000,
@@ -149,10 +153,12 @@ SESSION_COOKIE_AGE = env(
     "SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30, cast=int
 )  # 30 days
 
+# SESSION_COOKIE_PATH = env("SESSION_COOKIE_PATH", default="/admin/")
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "utils.middleware.AdminSplitterSessionMiddleware",
+    "addons.middleware.AdminSplitterSessionMiddleware",
     # "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -161,11 +167,19 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",  # added dynamically later
     "social_django.middleware.SocialAuthExceptionMiddleware",
     # "django_ratelimit.middleware.RatelimitMiddleware",
 ]
 # RATELIMIT_VIEW = 'yourapp.views.rate_limited'
+
+if DEBUG_TOOLBAR_ENABLE:
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+    }
 
 
 ROOT_URLCONF = "project_1444.urls"
@@ -294,7 +308,7 @@ DEFAULT_FILE_STORAGE_OPTIONS = {}
 CLOUDINARY_PREVIEW_TRANSFORMATION = env(
     "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
 )
-
+CLOUDINARY_CLOUD_NAME = None
 if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
     try:
         CLOUDINARY_URL = CLOUDINARY_URL.rstrip("/")
@@ -319,6 +333,7 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
             "API_SECRET": CLOUDINARY_API_SECRET,
             "MEDIA_TAG": CLOUDINARY_MEDIA_TAG,
         }
+        CLOUDINARY_CLOUD_NAME = CLOUDINARY_NAME
         INSTALLED_APPS.insert(0, "cloudinary_storage")
     except (KeyError, environ.ImproperlyConfigured, ImportError) as e:
         print(
@@ -333,19 +348,28 @@ else:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
 
+
 CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT = env(
     "CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT",
-    default="dtftiyeso",
+    default=CLOUDINARY_CLOUD_NAME,
 )
 
 CLOUDINARY_IMAGE_FIXED_PREFIX_PATH = env(
     "CLOUDINARY_FIXED_PREFIX_PATH",
-    default=f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/image/upload/",
+    default=(
+        f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/image/upload/"
+        if CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT
+        else ""
+    ),
 )
 
 CLOUDINARY_FILE_FIXED_PREFIX_PATH = env(
     "CLOUDINARY_FIXED_PREFIX_PATH",
-    default=f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/file/upload/",
+    default=(
+        f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/file/upload/"
+        if CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT
+        else ""
+    ),
 )
 
 if IS_TESTING:

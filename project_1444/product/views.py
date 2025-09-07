@@ -46,7 +46,6 @@ from product.serializers import (
     SubCategoriesSerializer,
     CategoriesTreeSerializer,
 )
-from utils.cache_headers import MixinCacheHeaders
 from utils.language_code import get_language_code
 
 
@@ -276,7 +275,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class SubProductsSizesViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
+class SubProductsSizesViewSet(viewsets.ModelViewSet):
     """CRUD для типорозмірів"""
 
     queryset = SubProducts.objects.all()
