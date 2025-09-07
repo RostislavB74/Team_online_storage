@@ -7,7 +7,7 @@
 - Refactoring move signals from `model.py` to `signals.py`
 - Refactoring by rename to `generate_product_new_article` ,` generate_material_article`, `generate_subproduct_article`
 - Refactoring `TotalProductsSerializer` added `year_collection` field
-- 
+- Refactoring moved generate_qr_code, generate_product_new_article, generate_sku, generate_subproduct_new_article to utils.py
 
 
 ---

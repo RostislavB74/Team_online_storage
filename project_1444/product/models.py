@@ -1,10 +1,6 @@
-import uuid
 from decimal import Decimal
-from io import BytesIO
 
-import qrcode
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.text import slugify
@@ -546,19 +542,6 @@ class SubProducts(models.Model):
         return f"{self.parent_product.name} ({details_str})"
 
 
-def generate_subproduct_article(product=None):
-    last_product = SubProducts.objects.order_by("-id").first()
-    if last_product:
-        # Припустимо, що перші два символи - це префікс
-        last_article_number = int(last_product.article[4:])
-        new_article = (
-            f"SBPR{last_article_number + 1:05d}"  # Формат: PR00001, PR00002, ...
-        )
-    else:
-        new_article = "SBPR00001"  # Початковий SKU
-    return new_article
-
-
 class ProductAttributes(models.Model):
     product = models.ForeignKey(
         "Product", on_delete=models.CASCADE, related_name="attributes"
@@ -776,35 +759,12 @@ class Product(TranslatableModel):
 
 
 # Функція для генерації `sku`
-def generate_sku():
-    return f"SKU-{uuid.uuid4().hex[:8].upper()}"
 
 
 # Функція для генерації `article`
-def generate_product_new_article(product=None):
-
-    # def generate_sku():
-    last_product = Product.objects.order_by("-id").first()
-    if last_product:
-        # Припустимо, що перші два символи - це префікс
-        last_article_number = int(last_product.article[2:])
-        new_article = (
-            f"PR{last_article_number + 1:05d}"  # Формат: PR00001, PR00002, ...
-        )
-    else:
-        new_article = "PR00001"  # Початковий SKU
-    return new_article
 
 
 # Функція для генерації QR-коду
-def generate_qr_code(product):
-    """Генерує QR-код із `sku` або `ean_13`"""
-    qr_data = product.sku or product.ean_13 or product.name
-    qr = qrcode.make(qr_data)
-    qr_io = BytesIO()
-    qr.save(qr_io, format="PNG")
-    qr_file = ContentFile(qr_io.getvalue(), name=f"qr_{product.sku}.png")
-    return qr_file
 
 
 class RingSizeConversion(models.Model):

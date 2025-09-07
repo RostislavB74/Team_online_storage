@@ -8,10 +8,12 @@ from .models import (
     Categories,
     SubCategories,
     Material,
+    SubProducts,
+)
+from .utils import (
+    generate_subproduct_new_article,
     generate_sku,
     generate_product_new_article,
-    SubProducts,
-    generate_subproduct_article,
     generate_qr_code,
 )
 
@@ -84,6 +86,6 @@ def subproduct_pre_save(sender, instance, **kwargs):
     if not instance.sku:
         instance.sku = generate_sku()
     if not instance.article:
-        instance.article = generate_subproduct_article(instance)
+        instance.article = generate_subproduct_new_article(instance)
     if not instance.qr_code:
         instance.qr_code = generate_qr_code(instance)
