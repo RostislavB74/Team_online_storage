@@ -13,8 +13,13 @@ if os.environ.get("GENERATE_OPENAPI", "false").lower() != "true":
 
 python_exe = sys.executable  # ensures same venv is used
 
+PROJECT_NAME = "project_1444"
+OPENAPI_FILE = os.environ.get("OPENAPI_FILE", f"{PROJECT_NAME}/schema.yaml")
+
 result = subprocess.run(
-    [python_exe, "project_1444/manage.py", "spectacular", "--file", "openapi.yaml"], capture_output=True, text=True
+    [python_exe, f"{PROJECT_NAME}/manage.py", "spectacular", "--file", OPENAPI_FILE],
+    capture_output=True,
+    text=True,
 )
 
 # Print stdout/stderr if needed
@@ -31,4 +36,4 @@ if result.returncode != 0:
 
 
 # stage the file automatically
-subprocess.run(["git", "add", "openapi.yaml"])
+subprocess.run(["git", "add", OPENAPI_FILE])
