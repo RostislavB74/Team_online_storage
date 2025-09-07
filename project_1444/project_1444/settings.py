@@ -149,7 +149,7 @@ SESSION_COOKIE_AGE = env(
     "SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30, cast=int
 )  # 30 days
 
-SESSION_COOKIE_PATH = env("SESSION_COOKIE_PATH", default="/admin")
+SESSION_COOKIE_PATH = env("SESSION_COOKIE_PATH", default="/admin/")
 
 
 MIDDLEWARE = [
