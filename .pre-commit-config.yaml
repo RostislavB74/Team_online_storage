@@ -1,0 +1,28 @@
+exclude: '^$'
+fail_fast: true
+repos:
+  # Local hook for ruff (uses version from requirements.txt / pyproject.toml)
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (lint)
+        entry: ruff check
+        language: system
+        types: [python]
+        files: "^project_1444/.*\\.py$"
+
+      - id: black
+        name: black (format)
+        entry: black
+        language: system
+        types: [python]
+        files: "^project_1444/.*\\.py$"
+
+
+      - id: spectacular-openapi
+        name: generate openapi.yaml
+        entry: python scripts/generate_openapi.py
+        language: system
+        pass_filenames: false
+        files: "project_1444/.*(urls|views|serializers|api)\\.py$"
+

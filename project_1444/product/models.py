@@ -1,26 +1,18 @@
-import uuid
-import qrcode
-from io import BytesIO
-from datetime import datetime
-from django.db import models
-from django.db.models.signals import pre_save
-from django.conf import settings
-from django.core.files.base import ContentFile
+from decimal import Decimal
+
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.dispatch import receiver
-from users.models import User
-from parler.models import TranslatableModel, TranslatedFields
+from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
-from .utils import save_with_translation
-from cloudinary.models import CloudinaryField
-from django.utils import translation
+from parler.models import TranslatableModel, TranslatedFields
+
+from users.models import User
 from utils.multi_backend_image_field import (
     MultiBackendImageField,
     MultiBackendFileField,
 )
-from decimal import Decimal
+from .utils import save_with_translation
 
 
 class Categories(TranslatableModel):
@@ -344,26 +336,6 @@ class Material(TranslatableModel):
 #         return f"{material_display} | {self.assay} | {color_display}"
 
 
-# Функція для генерації артикула перед збереженням
-@receiver(pre_save, sender=Material)
-def generate_article(sender, instance, **kwargs):
-    if not instance.article:
-        metal_code = (
-            instance.material[0].upper() if instance.material else ""
-        )  # Перевірка, чи є metal
-        color_code = (
-            instance.color[0].upper() if instance.color else ""
-        )  # Перевірка, чи є color
-        assay_code = (
-            str(instance.assay) if instance.assay else ""
-        )  # Перевірка, чи є assay
-        last_material = Material.objects.order_by("-id").first()
-        next_number = (
-            f"{(last_material.id + 1) if last_material else 1:03d}"  # Генерація номера
-        )
-        instance.article = f"{metal_code}{assay_code}{color_code}{next_number}"
-
-
 # Gemstone
 class TypeGemstones(models.TextChoices):
     PRECIOUS = "precious", _("Precious")
@@ -570,29 +542,6 @@ class SubProducts(models.Model):
         return f"{self.parent_product.name} ({details_str})"
 
 
-def generate_subarticle(product):
-    last_product = SubProducts.objects.order_by("-id").first()
-    if last_product:
-        # Припустимо, що перші два символи - це префікс
-        last_article_number = int(last_product.article[4:])
-        new_article = (
-            f"SBPR{last_article_number + 1:05d}"  # Формат: PR00001, PR00002, ...
-        )
-    else:
-        new_article = "SBPR00001"  # Початковий SKU
-    return new_article
-
-
-@receiver(pre_save, sender=SubProducts)
-def subproduct_pre_save(sender, instance, **kwargs):
-    if not instance.sku:
-        instance.sku = generate_sku()
-    if not instance.article:
-        instance.article = generate_subarticle(instance)
-    if not instance.qr_code:
-        instance.qr_code = generate_qr_code(instance)
-
-
 class ProductAttributes(models.Model):
     product = models.ForeignKey(
         "Product", on_delete=models.CASCADE, related_name="attributes"
@@ -698,7 +647,9 @@ class ProductImage(models.Model):
         "Product", on_delete=models.CASCADE, related_name="images"
     )
     # image = CloudinaryField("image")
-    image = MultiBackendImageField(upload_to="image/", blank=True, null=True, max_length=500)
+    image = MultiBackendImageField(
+        upload_to="image/", blank=True, null=True, max_length=500
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -768,9 +719,6 @@ class Product(TranslatableModel):
         name=models.CharField(max_length=255, unique=True, null=True, blank=True),
         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
     )
-    category = models.ForeignKey(
-        "Categories", on_delete=models.SET_NULL, null=True, blank=True
-    )
     subcategory = models.ForeignKey(
         "SubCategories", on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -811,44 +759,12 @@ class Product(TranslatableModel):
 
 
 # Функція для генерації `sku`
-def generate_sku():
-    return f"SKU-{uuid.uuid4().hex[:8].upper()}"
 
 
 # Функція для генерації `article`
-def generate_article(product):
-
-    # def generate_sku():
-    last_product = Product.objects.order_by("-id").first()
-    if last_product:
-        # Припустимо, що перші два символи - це префікс
-        last_article_number = int(last_product.article[2:])
-        new_article = (
-            f"PR{last_article_number + 1:05d}"  # Формат: PR00001, PR00002, ...
-        )
-    else:
-        new_article = "PR00001"  # Початковий SKU
-    return new_article
 
 
 # Функція для генерації QR-коду
-def generate_qr_code(product):
-    """Генерує QR-код із `sku` або `ean_13`"""
-    qr_data = product.sku or product.ean_13 or product.name
-    qr = qrcode.make(qr_data)
-    qr_io = BytesIO()
-    qr.save(qr_io, format="PNG")
-    qr_file = ContentFile(qr_io.getvalue(), name=f"qr_{product.sku}.png")
-    return qr_file
-
-
-# Сигнал `pre_save` для автоматичного заповнення SKU, артикулу та QR-коду
-@receiver(pre_save, sender=Product)
-def product_pre_save(sender, instance, **kwargs):
-    if not instance.sku:
-        instance.sku = generate_sku()
-    if not instance.article:
-        instance.article = generate_article(instance)
 
 
 class RingSizeConversion(models.Model):

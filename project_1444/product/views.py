@@ -1,53 +1,44 @@
 import hashlib
 from urllib.parse import urlencode
 
-import django_filters
 from django.conf import settings
 from django.core.cache import cache
 from django.db import IntegrityError
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, status
-from rest_framework import viewsets
-from django.db.models import F, FloatField
+from django.db.models import F
+from django.db.models import Prefetch
 from django.db.models.functions import Abs
-from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiParameter,
     OpenApiTypes,
-    extend_schema_view,
 )
+from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly,
-    IsAuthenticated,
     AllowAny,
 )
-from django.db.models import Prefetch
-from utils.language_code import get_language_code
-from utils.cache_headers import MixinCacheHeaders
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext as _
-from .models import (
+from rest_framework.viewsets import ReadOnlyModelViewSet
+
+from addons.paginations import Pagination
+from product.filters import CategoriesFilter, ProductFilter
+from product.models import (
     Product,
-    ProductImage,
-    ProductCertificate,
     RingSizeConversion,
     Categories,
     SubProducts,
     Descriptions,
     SubCategories,
 )
-from .permissions import IsAdminOrReadOnly
-from .serializers import (
+from product.permissions import IsAdminOrReadOnly
+from product.serializers import (
     ProductSerializer,
-    CategoriesSerializer,
-    ProductImageSerializer,
-    ProductCertificateSerializer,
     RingSizeSerializer,
     SubProductsSizesSerializer,
     DescriptionsSerializer,
@@ -55,17 +46,7 @@ from .serializers import (
     SubCategoriesSerializer,
     CategoriesTreeSerializer,
 )
-
-from rest_framework import viewsets
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError
-from django_filters.rest_framework import DjangoFilterBackend
-
-
-class Pagination(LimitOffsetPagination):
-    default_limit = 4  # змінюй на потрібне значення
-    max_limit = 100
+from utils.language_code import get_language_code
 
 
 @extend_schema(tags=["Tools API"])
@@ -138,17 +119,6 @@ class RingSizeLookup(APIView):
             "size_asia": size_obj.size_asia,
             "size_other_eu": size_obj.size_other_eu,
         }
-
-
-class CategoriesFilter(django_filters.FilterSet):
-    has_length = django_filters.BooleanFilter()
-    has_width = django_filters.BooleanFilter()
-    has_diameter = django_filters.BooleanFilter()
-    has_weight = django_filters.BooleanFilter()
-
-    class Meta:
-        model = Categories
-        fields = ["has_length", "has_width", "has_diameter", "has_weight"]
 
 
 # USED
@@ -262,6 +232,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     pagination_class = Pagination
     permission_classes = (AllowAny,)
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
 
     def get_queryset(self):
         lang = get_language_code(self.request)
@@ -303,7 +275,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class SubProductsSizesViewSet(MixinCacheHeaders, viewsets.ModelViewSet):
+class SubProductsSizesViewSet(viewsets.ModelViewSet):
     """CRUD для типорозмірів"""
 
     queryset = SubProducts.objects.all()
@@ -317,6 +289,8 @@ class TotalProductsViewSet(ReadOnlyModelViewSet):
     serializer_class = TotalProductsSerializer
     pagination_class = Pagination
     permission_classes = (AllowAny,)
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""

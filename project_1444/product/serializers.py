@@ -1,9 +1,28 @@
 from rest_framework import serializers
 from typing import List  # Для типу List[str]
 from drf_spectacular.utils import extend_schema_field
-from .models import *
-from django.utils.translation import gettext_lazy as _
-from .utils import *
+
+# from django.utils.translation import gettext_lazy as _
+
+from product.models import (
+    SubCategories,
+    Categories,
+    Descriptions,
+    Material,
+    ProductGemstone,
+    ProductMaterial,
+    ProductStatus,
+    ProductAttributes,
+    SubProducts,
+    ProductImage,
+    ProductCertificate,
+    Product,
+)
+from product.utils import get_discounted_price
+from project_1444.settings import (
+    CLOUDINARY_IMAGE_FIXED_PREFIX_PATH,
+    CLOUDINARY_FILE_FIXED_PREFIX_PATH,
+)
 
 
 class SubCategoryShortSerializer(serializers.ModelSerializer):
@@ -119,20 +138,21 @@ class DescriptionsSerializer(serializers.ModelSerializer):
     def get_keywords(self, obj):
         return obj.safe_translation_getter("keywords", default="Без назви")
 
+
 class MaterialSerializer(serializers.ModelSerializer):
-    material = serializers.CharField(source='material_name')
-    color = serializers.CharField(source='color_name')
+    material = serializers.CharField(source="material_name")
+    color = serializers.CharField(source="color_name")
 
     class Meta:
         model = Material
-        fields = ['id', 'material', 'assay', 'color', 'article']
+        fields = ["id", "material", "assay", "color", "article"]
 
-# class MaterialSerializer(serializers.ModelSerializer):
-#     name = serializers.SerializerMethodField()
+    # class MaterialSerializer(serializers.ModelSerializer):
+    #     name = serializers.SerializerMethodField()
 
-#     class Meta:
-#         model = Material
-#         fields = ["material", "assay", "color", "slug", "name"]
+    #     class Meta:
+    #         model = Material
+    #         fields = ["material", "assay", "color", "slug", "name"]
 
     @extend_schema_field(str)
     def get_name(self, obj):
@@ -315,7 +335,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
         if obj.image:
             # Примусово формуємо правильний URL
             public_id = str(obj.image)  # Отримуємо public_id (msadf0szr5dhc7ght0cc)
-            return f"https://res.cloudinary.com/dtftiyeso/image/upload/{public_id}.png"
+            return f"{CLOUDINARY_IMAGE_FIXED_PREFIX_PATH}{public_id}.png"
         return None
 
 
@@ -330,7 +350,7 @@ class ProductCertificateSerializer(serializers.ModelSerializer):
         if obj.file:
             # Примусово формуємо правильний URL
             public_id = str(obj.file)  # Отримуємо public_id (msadf0szr5dhc7ght0cc)
-            return f"https://res.cloudinary.com/dtftiyeso/file/upload/{public_id}.png"
+            return f"{CLOUDINARY_FILE_FIXED_PREFIX_PATH}{public_id}.png"
         return None
 
 
@@ -487,6 +507,7 @@ class TotalProductsSerializer(serializers.ModelSerializer):
             "certificates",
             "design",
             "attributes",
+            "year_collection",
         ]
 
     @extend_schema_field(str)
