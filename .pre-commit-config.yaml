@@ -1,3 +1,5 @@
+exclude: '^$'
+fail_fast: true
 repos:
   # Local hook for ruff (uses version from requirements.txt / pyproject.toml)
   - repo: local
