@@ -3315,6 +3315,11 @@ components:
           items:
             $ref: '#/components/schemas/ProductAttributes'
           readOnly: true
+        year_collection:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
       required:
       - attributes
       - category
