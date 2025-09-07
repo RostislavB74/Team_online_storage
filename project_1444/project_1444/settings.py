@@ -152,7 +152,7 @@ SESSION_COOKIE_AGE = env(
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "utils.middleware.AdminSplitterSessionMiddleware",
+    "addons.middleware.AdminSplitterSessionMiddleware",
     # "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -294,7 +294,7 @@ DEFAULT_FILE_STORAGE_OPTIONS = {}
 CLOUDINARY_PREVIEW_TRANSFORMATION = env(
     "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
 )
-
+CLOUDINARY_CLOUD_NAME = None
 if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
     try:
         CLOUDINARY_URL = CLOUDINARY_URL.rstrip("/")
@@ -319,6 +319,7 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
             "API_SECRET": CLOUDINARY_API_SECRET,
             "MEDIA_TAG": CLOUDINARY_MEDIA_TAG,
         }
+        CLOUDINARY_CLOUD_NAME = CLOUDINARY_NAME
         INSTALLED_APPS.insert(0, "cloudinary_storage")
     except (KeyError, environ.ImproperlyConfigured, ImportError) as e:
         print(
@@ -333,19 +334,28 @@ else:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
 
+
 CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT = env(
     "CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT",
-    default="dtftiyeso",
+    default=CLOUDINARY_CLOUD_NAME,
 )
 
 CLOUDINARY_IMAGE_FIXED_PREFIX_PATH = env(
     "CLOUDINARY_FIXED_PREFIX_PATH",
-    default=f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/image/upload/",
+    default=(
+        f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/image/upload/"
+        if CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT
+        else ""
+    ),
 )
 
 CLOUDINARY_FILE_FIXED_PREFIX_PATH = env(
     "CLOUDINARY_FIXED_PREFIX_PATH",
-    default=f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/file/upload/",
+    default=(
+        f"https://res.cloudinary.com/{CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT}/file/upload/"
+        if CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT
+        else ""
+    ),
 )
 
 if IS_TESTING:
