@@ -5,6 +5,7 @@
 - `year_collection` field to `TotalProductsSerializer`
 - `DEBUG_TOOLBAR_ENABLE` settings variable 
 - `ProductFilter` added property for filter by coma-separated list and range for values
+- `CommaSeparatedIntegerListFilter` custom solution coma-separated list of integer values
 
 ### Moved
 - **Filters** - `product/filters.py`
