@@ -36,9 +36,9 @@ def get_discounted_price(user, subproduct):
     - old_price: Оригінальна ціна (Decimal)
     - discount_applied: Застосований відсоток знижки (Decimal)
     """
-    print(
-        f"User: {user}, Subproduct: {subproduct}, Authenticated: {user.is_authenticated if user else False}"
-    )
+    # print(
+    #     f"User: {user}, Subproduct: {subproduct}, Authenticated: {user.is_authenticated if user else False}"
+    # )
     original_price = subproduct.price
     discounts = []
 

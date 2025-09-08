@@ -1,7 +1,9 @@
+from django.contrib import admin
 from django.utils.html import format_html
-from django.utils.translation import get_language
-from django.shortcuts import get_object_or_404
-from .models import (
+from django.utils.translation import gettext_lazy as _
+from parler.admin import TranslatableAdmin
+
+from product.models import (
     Categories,
     Material,
     Gemstone,
@@ -11,7 +13,6 @@ from .models import (
     Origin,
     ProductImage,
     ProductCertificate,
-    RingSizeConversion,
     Occasion,
     RingSizeConversion,
     Colors,
@@ -28,14 +29,7 @@ from .models import (
     Styles,
     Descriptions,
 )
-from django.contrib import admin
-from parler.admin import TranslatableAdmin, TranslatableTabularInline
-from django.utils.translation import gettext_lazy as _
-from django import forms
-from django.urls import path
-from django.shortcuts import redirect
-from django.utils import translation
-from django.utils.text import slugify
+from project_1444.settings import LANGUAGE_CODE
 
 
 @admin.register(Descriptions)
@@ -149,7 +143,7 @@ class RingSizeAdmin(admin.ModelAdmin):
 
 @admin.register(Categories)
 class CategoriesAdmin(TranslatableAdmin):
-    list_display = ("name", "slug")
+    list_display = ("id", "name", "slug")
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("name",)}
@@ -214,6 +208,7 @@ class CollectionsAdmin(TranslatableAdmin):
 @admin.register(SubCategories)
 class SubCategoriesAdmin(TranslatableAdmin):
     list_display = (
+        "id",
         "name",
         "slug",
     )
@@ -406,6 +401,10 @@ class ProductAdmin(TranslatableAdmin):
         "get_certificates",
     )
     search_fields = ("name", "sku", "ean_13", "category__name", "subcategory__name")
+    list_select_related = (
+        "category",
+        "subcategory",
+    )
     readonly_fields = (
         "sku",
         "article",
@@ -481,6 +480,8 @@ class ProductAdmin(TranslatableAdmin):
         ),
     )
 
+    _sort_related_fields_byid = {"category", "subcategory", "collection"}
+
     def get_images(self, obj):
         """Показує перше зображення товару в списку товарів"""
         first_image = obj.images.first()
@@ -537,6 +538,29 @@ class ProductAdmin(TranslatableAdmin):
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("name",)}
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name in self._sort_related_fields_byid:
+            qs = db_field.related_model.objects.all().order_by("pk")
+            kwargs["queryset"] = qs
+        field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+        if db_field.name in self._sort_related_fields_byid:
+            lang = request.GET.get("language")
+            if not lang or lang == LANGUAGE_CODE:
+                return field
+
+            def label_from_instance(obj):
+                field_translated = obj.safe_translation_getter(
+                    "name",
+                    language_code=lang,
+                    any_language=True,
+                )
+                return f"{obj.pk:03d}-{field_translated}"
+
+            field.label_from_instance = label_from_instance
+
+        return field
 
 
 # Адмінка для подій (на які випадки можна дарувати товар)

@@ -1,9 +1,14 @@
 import django_filters
 
+from addons.filters import CommaSeparatedIntegerListFilter
 from product.models import Product, Categories
 
 
 class ProductFilter(django_filters.FilterSet):
+    category_list = CommaSeparatedIntegerListFilter(field_name="category_id")
+    subcategory_list = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
+    year_collection_range = django_filters.RangeFilter(field_name="year_collection")
+
     class Meta:
         model = Product
         fields = (
