@@ -5,8 +5,8 @@ from product.models import Product, Categories
 
 
 class ProductFilter(django_filters.FilterSet):
-    category_list = CommaSeparatedIntegerListFilter(field_name="category_id")
-    subcategory_list = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
+    categories = CommaSeparatedIntegerListFilter(field_name="category_id")
+    subcategories = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
     year_collection_range = django_filters.RangeFilter(field_name="year_collection")
 
     class Meta:
