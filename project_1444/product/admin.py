@@ -551,11 +551,12 @@ class ProductAdmin(TranslatableAdmin):
                 return field
 
             def label_from_instance(obj):
-                return f"{obj.pk:03d}-{obj.safe_translation_getter(
+                field_translated = obj.safe_translation_getter(
                     "name",
                     language_code=lang,
                     any_language=True,
-                )}"
+                )
+                return f"{obj.pk:03d}-{field_translated}"
 
             field.label_from_instance = label_from_instance
 
