@@ -49,6 +49,7 @@ django-sendgrid-v5 = "^1.2.4"
 django-celery-email = "^3.0.0"
 django-debug-toolbar = "^5.1.0"
 social-auth-app-django = "^5.4.3"
+drf-spectacular-sidecar = "^2025.9.1"
 
 
 [tool.poetry.group.deploy.dependencies]
