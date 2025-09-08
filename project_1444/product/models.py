@@ -36,9 +36,8 @@ class Categories(TranslatableModel):
         verbose_name_plural = _("Категорії виробів")
 
     def __str__(self):
-        return self.safe_translation_getter(
-            "name", default=_("Без назви")
-        )  # Бере name із перекладу
+        field_translated = self.safe_translation_getter("name", default=_("Без назви"))
+        return f"{self.pk:03d}-{field_translated}"
 
 
 class Weaving(TranslatableModel):
@@ -116,7 +115,8 @@ class SubCategories(TranslatableModel):
         verbose_name_plural = _("Підкатегорії виробів")
 
     def __str__(self):
-        return self.safe_translation_getter("name", default=_("Без назви"))
+        field_translated = self.safe_translation_getter("name", default=_("Без назви"))
+        return f"{self.pk:03d}-{field_translated}"
 
 
 class Colors(TranslatableModel):
@@ -152,9 +152,8 @@ class Collections(TranslatableModel):
         verbose_name_plural = _("Колекції")
 
     def __str__(self):
-        return self.safe_translation_getter(
-            "name", default=_("Без назви")
-        )  # Бере name із перекладу
+        field_translated = self.safe_translation_getter("name", default=_("Без назви"))
+        return f"{self.pk:03d}-{field_translated}"
 
 
 class Designs(TranslatableModel):
