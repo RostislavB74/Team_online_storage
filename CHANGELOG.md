@@ -4,6 +4,7 @@
 - `ProductFilter`
 - `year_collection` field to `TotalProductsSerializer`
 - `DEBUG_TOOLBAR_ENABLE` settings variable 
+- `ProductFilter` added property for filter by coma-separated list and range for values
 
 ### Moved
 - **Filters** - `product/filters.py`
@@ -19,6 +20,8 @@
 ### Changed
 - Removed duplicate `category` field from `Product` model
 - Dynamic calculation of `CLOUDINARY_FIXED_PREFIX_PATH_ACCOUNT` in `settings.py`
+- Django Admin `ProductAdmin`: added formfield_for_foreignkey() and `_sort_related_fields_byid` for sorf by `pk` {"category", "subcategory", "collection"}
+- At `Category`, `Subcategory`, `Collection` models changed string representation with pk index in text
 
 ---
 ## 2025-09-04 — pre-commit
