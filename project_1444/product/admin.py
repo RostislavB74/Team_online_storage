@@ -29,6 +29,7 @@ from product.models import (
     Styles,
     Descriptions,
 )
+from project_1444.settings import LANGUAGE_CODE
 
 
 @admin.register(Descriptions)
@@ -400,6 +401,10 @@ class ProductAdmin(TranslatableAdmin):
         "get_certificates",
     )
     search_fields = ("name", "sku", "ean_13", "category__name", "subcategory__name")
+    list_select_related = (
+        "category",
+        "subcategory",
+    )
     readonly_fields = (
         "sku",
         "article",
@@ -475,6 +480,8 @@ class ProductAdmin(TranslatableAdmin):
         ),
     )
 
+    _sort_related_fields_byid = {"category", "subcategory", "collection"}
+
     def get_images(self, obj):
         """Показує перше зображення товару в списку товарів"""
         first_image = obj.images.first()
@@ -531,6 +538,28 @@ class ProductAdmin(TranslatableAdmin):
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("name",)}
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name in self._sort_related_fields_byid:
+            qs = db_field.related_model.objects.all().order_by("pk")
+            kwargs["queryset"] = qs
+        field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+        if db_field.name in self._sort_related_fields_byid:
+            lang = request.GET.get("language")
+            if not lang or lang == LANGUAGE_CODE:
+                return field
+
+            def label_from_instance(obj):
+                return f"{obj.pk:03d}-{obj.safe_translation_getter(
+                    "name",
+                    language_code=lang,
+                    any_language=True,
+                )}"
+
+            field.label_from_instance = label_from_instance
+
+        return field
 
 
 # Адмінка для подій (на які випадки можна дарувати товар)
