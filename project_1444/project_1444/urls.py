@@ -32,6 +32,7 @@ admin.site.index_title = _("Ласкаво просимо")
 admin.site.login_template = "custom_admin/login.html"
 
 urlpatterns = [
+    
     path("api/", ApiRootView.as_view(), name="api-root"),
     path("admin/", admin.site.urls, name="admin"),
     path("", include("users.urls")),

@@ -73,6 +73,15 @@ paths:
       operationId: api_v1_all_products_list
       parameters:
       - in: query
+        name: categories
+        schema:
+          type: array
+          items:
+            type: string
+        description: Кілька значень можуть бути розділені комами.
+        explode: false
+        style: form
+      - in: query
         name: category
         schema:
           type: integer
@@ -97,6 +106,15 @@ paths:
         schema:
           type: integer
       - in: query
+        name: subcategories
+        schema:
+          type: array
+          items:
+            type: string
+        description: Кілька значень можуть бути розділені комами.
+        explode: false
+        style: form
+      - in: query
         name: subcategory
         schema:
           type: integer
@@ -104,6 +122,20 @@ paths:
         name: year_collection
         schema:
           type: integer
+      - in: query
+        name: year_collection_range_max
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+      - in: query
+        name: year_collection_range_min
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
       tags:
       - api
       security:
@@ -1070,6 +1102,15 @@ paths:
       description: CRUD для продуктів
       parameters:
       - in: query
+        name: categories
+        schema:
+          type: array
+          items:
+            type: string
+        description: Кілька значень можуть бути розділені комами.
+        explode: false
+        style: form
+      - in: query
         name: category
         schema:
           type: integer
@@ -1094,6 +1135,15 @@ paths:
         schema:
           type: integer
       - in: query
+        name: subcategories
+        schema:
+          type: array
+          items:
+            type: string
+        description: Кілька значень можуть бути розділені комами.
+        explode: false
+        style: form
+      - in: query
         name: subcategory
         schema:
           type: integer
@@ -1101,6 +1151,20 @@ paths:
         name: year_collection
         schema:
           type: integer
+      - in: query
+        name: year_collection_range_max
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+      - in: query
+        name: year_collection_range_min
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
       tags:
       - api
       security:

@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "social_django",
     "rest_framework",
     "drf_spectacular",
+    "drf_spectacular_sidecar",  # стилі + swagger-ui
     "djoser",
     "rest_framework.authtoken",
     "django_extensions",
