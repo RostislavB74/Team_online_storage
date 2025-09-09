@@ -554,6 +554,10 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {"anon": ANON_RATE_THROTTLE, "user": USER_RATE_THROTTLE},
+    #added 080925
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 20,
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 if IS_TESTING:
@@ -566,6 +570,28 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     }
 }
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Jewelry Store API",
+    "DESCRIPTION": "API for jewelry store with products, categories, and more",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": True,
+    # Дозволяє Swagger UI використовувати власний шаблон
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+    },
+    "SWAGGER_UI_DIST": "SIDECAR",  # Використовує вбудований Swagger UI
+    "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",  # Опціонально
+    "REDOC_DIST": "SIDECAR",  # Якщо також хочеш Redoc
+}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         # "LOCATION": "redis://127.0.0.1:6379/1",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         },
+#     }
+# }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),

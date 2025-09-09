@@ -482,6 +482,11 @@ class SubProducts(models.Model):
     width = models.FloatField(null=True, blank=True, verbose_name=_("Ширина (см)"))
     size = models.FloatField(null=True, blank=True, verbose_name=_("Розмір(мм) "))
     weight = models.FloatField(null=True, blank=True, verbose_name=_("Вага (г)"))
+    class Meta:
+        indexes = [
+            models.Index(fields=["price"]),
+            # models.Index(fields=["is_ukrainian_cashback"]),
+        ]
 
     def clean(self):
         if self.parent_product and self.parent_product.category:
@@ -740,7 +745,7 @@ class Product(TranslatableModel):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
 
