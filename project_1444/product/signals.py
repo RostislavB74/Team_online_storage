@@ -125,7 +125,7 @@ def generate_subproduct_new_article(instance):
 def generate_product_new_article(instance):
     # def generate_sku():
     ModelClass: object = instance.__class__  # noqa N806
-    last_product = ModelClass.__class__.object.order_by("-id").first()
+    last_product = ModelClass.objects.order_by("-id").first()
     # last_product = Product.objects.order_by("-id").first()
     if last_product:
         # Припустимо, що перші два символи - це префікс
