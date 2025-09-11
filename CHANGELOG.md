@@ -1,3 +1,10 @@
+## 2025-09-11 - BugFix Add product and subproducts
+- Added scrips for a backup database model
+- Tuned generate articles with found only digits onto string.
+- Recovered bug in signal pre_save.
+
+---
+
 ## 2025-09-07 - Product Filtering & Refactoring
 
 ### Added

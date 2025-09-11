@@ -194,3 +194,6 @@ poetry.lock
 .set
 /project_1444/*.sqlite3
 /project_1444/test_db_output_*.json
+
+.*
+**/.*

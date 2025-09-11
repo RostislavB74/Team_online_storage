@@ -78,7 +78,7 @@ paths:
         schema:
           type: array
           items:
-            type: number
+            type: string
         description: Кілька значень можуть бути розділені комами.
         explode: false
         style: form
@@ -119,19 +119,11 @@ paths:
         schema:
           type: integer
       - in: query
-        name: price_max
-        schema:
-          type: number
-      - in: query
-        name: price_min
-        schema:
-          type: number
-      - in: query
         name: subcategories
         schema:
           type: array
           items:
-            type: number
+            type: string
         description: Кілька значень можуть бути розділені комами.
         explode: false
         style: form
@@ -143,6 +135,20 @@ paths:
         name: year_collection
         schema:
           type: integer
+      - in: query
+        name: year_collection_range_max
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+      - in: query
+        name: year_collection_range_min
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
       - in: query
         name: year_collection_range_max
         schema:
@@ -1153,7 +1159,7 @@ paths:
         schema:
           type: array
           items:
-            type: number
+            type: string
         description: Кілька значень можуть бути розділені комами.
         explode: false
         style: form
@@ -1193,32 +1199,12 @@ paths:
         description: The initial index from which to return the results.
         schema:
           type: integer
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - in: query
-        name: price_max
-        schema:
-          type: number
-      - in: query
-        name: price_min
-        schema:
-          type: number
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
       - in: query
         name: subcategories
         schema:
           type: array
           items:
-            type: number
+            type: string
         description: Кілька значень можуть бути розділені комами.
         explode: false
         style: form
@@ -1230,6 +1216,20 @@ paths:
         name: year_collection
         schema:
           type: integer
+      - in: query
+        name: year_collection_range_max
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+      - in: query
+        name: year_collection_range_min
+        schema:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
       - in: query
         name: year_collection_range_max
         schema:
