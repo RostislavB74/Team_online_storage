@@ -109,11 +109,11 @@ def generate_product_qr_code(product):
 
 def generate_subproduct_new_article(instance):
     ModelClass: object = instance.__class__  # noqa N806
-    last_product = ModelClass.__class__.object.order_by("-id").first()
+    last_product = ModelClass.objects.order_by("-id").first()
     # last_product = SubProducts.objects.order_by("-id").first()
     if last_product:
         # Припустимо, що перші два символи - це префікс
-        last_article_number = int(last_product.article[4:])
+        last_article_number = int("".join(filter(str.isdigit, last_product.article)))
         new_article = (
             f"SBPR{last_article_number + 1:05d}"  # Формат: PR00001, PR00002, ...
         )
@@ -128,8 +128,7 @@ def generate_product_new_article(instance):
     last_product = ModelClass.objects.order_by("-id").first()
     # last_product = Product.objects.order_by("-id").first()
     if last_product:
-        # Припустимо, що перші два символи - це префікс
-        last_article_number = int(last_product.article[2:])
+        last_article_number = int("".join(filter(str.isdigit, last_product.article)))
         new_article = (
             f"PR{last_article_number + 1:05d}"  # Формат: PR00001, PR00002, ...
         )
