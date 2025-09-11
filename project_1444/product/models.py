@@ -626,13 +626,18 @@ class Descriptions(TranslatableModel):
     class Meta:
         verbose_name = _("Description")
         verbose_name_plural = _("Descriptions")
-
     def save(self, *args, **kwargs):
         name = self.safe_translation_getter("name")
         if not self.safe_translation_getter("slug") and name:
             self.set_current_language(self.get_current_language())
             self.slug = slugify(name)
         super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     name = self.safe_translation_getter("name")
+    #     if not self.safe_translation_getter("slug") and name:
+    #         self.set_current_language(self.get_current_language())
+    #         self.slug = slugify(name)
+    #     super().save(*args, **kwargs)
 
     def __str__(self):
         name = self.safe_translation_getter("name")

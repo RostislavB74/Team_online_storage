@@ -26,7 +26,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from addons.paginations import Pagination
+from rest_framework.pagination import PageNumberPagination
 from product.filters import CategoriesFilter, ProductFilter
 from product.models import (
     Product,
@@ -52,6 +52,72 @@ from django.http import HttpResponseNotModified
 from django.utils.http import quote_etag
 from hashlib import md5
 from django.views.decorators.cache import cache_page
+from rest_framework import viewsets
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.http import HttpResponseNotModified
+from django.utils.http import quote_etag
+from hashlib import md5
+from django.db.models import Prefetch
+from product.models import Product, Descriptions, Categories  # Додано Categories
+from product.serializers import ProductSerializer
+from product.filters import ProductFilter
+from product.pagination import Pagination
+from utils.language_code import get_language_code
+
+
+class ProductViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = (AllowAny,)
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = ProductFilter
+    search_fields = ["translations__name", "description__translations__text"]
+    ordering_fields = [
+        "category__translations__name",
+        "subcategory__translations__name",
+        "collection__translations__name",
+        "year_collection",
+        "is_ukrainian_cashback",
+        "subproducts__price",  # Оновлено
+    ]
+    ordering = ["category__translations__name"]
+
+    def get_queryset(self):
+        lang = get_language_code(self.request)
+        description_qs = Descriptions.objects.language(lang)
+        return (
+            Product.objects.language(lang)
+            .prefetch_related(
+                Prefetch("description", queryset=description_qs),
+                "statuses",
+                "subproducts",
+                "occasions",
+                "materials__material",
+                "attributes",
+                "images",
+                "certificates",
+                "gemstones",
+                "translations",
+            )
+            .select_related("category", "subcategory", "collection", "design")
+        )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+        content = str(data).encode("utf-8")
+        etag = quote_etag(md5(content).hexdigest())
+        if request.headers.get("If-None-Match") == etag:
+            return HttpResponseNotModified()
+        response = Response(data)
+        response["ETag"] = etag
+        response["Cache-Control"] = "max-age=3600"
+        return response
+
 
 @extend_schema(tags=["Tools API"])
 class RingSizeLookup(APIView):
@@ -290,93 +356,93 @@ class DescriptionViewSet(viewsets.ModelViewSet):
 #         return Response(serializer.data)
 
 
-class ProductViewSet(viewsets.ModelViewSet):
+# class ProductViewSet(viewsets.ModelViewSet):
 
-    """CRUD для продуктів"""
+#     """CRUD для продуктів"""
 
-    serializer_class = ProductSerializer
-    pagination_class = Pagination
-    permission_classes = (AllowAny,)
-    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_class = ProductFilter
-    search_fields = ["translations__name", "description__text"]  # Поля для пошуку
-    ordering_fields = [
-        "category__translations__name",  # Сортування за перекладеною назвою
-        "subcategory__translations__name",
-        "collection__translations__name",
-        "year_collection",
-        "is_ukrainian_cashback",
-        "price",  # Додаємо ціну
-    ]
-    ordering = ["category__translations__name"]  # За замовчуванням
+#     serializer_class = ProductSerializer
+#     pagination_class = Pagination
+#     permission_classes = (AllowAny,)
+#     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+#     filterset_class = ProductFilter
+#     search_fields = ["translations__name", "description__text"]  # Поля для пошуку
+#     ordering_fields = [
+#         "category__translations__name",  # Сортування за перекладеною назвою
+#         "subcategory__translations__name",
+#         "collection__translations__name",
+#         "year_collection",
+#         "is_ukrainian_cashback",
+#         "price",  # Додаємо ціну
+#     ]
+#     ordering = ["category__translations__name"]  # За замовчуванням
 
-    def get_queryset(self):
-        lang = get_language_code(self.request)
-        description_qs = Descriptions.objects.language(lang)
-        return (
-            Product.objects.language(lang)
-            .prefetch_related(
-                Prefetch("description", queryset=description_qs),
-                "statuses",
-                "subproducts",
-                "occasions",
-                "materials__material",
-                "attributes",
-                "images",
-                "certificates",
-                "gemstones",
-                "translations",
-            )
-            .select_related("category", "subcategory", "collection", "design")
-        )
-    
-    def list(self, request, *args, **kwargs):
-        """Список продуктів з ETag і серверним кешуванням"""
-        # Генеруємо ключ для кешу на основі параметрів запиту
-        cache_key = f"product_list_{request.get_full_path()}_{get_language_code(request)}"
-        cached_data = cache.get(cache_key)
+#     def get_queryset(self):
+#         lang = get_language_code(self.request)
+#         description_qs = Descriptions.objects.language(lang)
+#         return (
+#             Product.objects.language(lang)
+#             .prefetch_related(
+#                 Prefetch("description", queryset=description_qs),
+#                 "statuses",
+#                 "subproducts",
+#                 "occasions",
+#                 "materials__material",
+#                 "attributes",
+#                 "images",
+#                 "certificates",
+#                 "gemstones",
+#                 "translations",
+#             )
+#             .select_related("category", "subcategory", "collection", "design")
+#         )
 
-        if cached_data:
-            # Якщо є кеш, повертаємо його
-            response = Response(cached_data['data'])
-            response['ETag'] = cached_data['etag']
-            response['Cache-Control'] = 'max-age=3600'
-            return response
+#     def list(self, request, *args, **kwargs):
+#         """Список продуктів з ETag і серверним кешуванням"""
+#         # Генеруємо ключ для кешу на основі параметрів запиту
+#         cache_key = f"product_list_{request.get_full_path()}_{get_language_code(request)}"
+#         cached_data = cache.get(cache_key)
 
-        # Фільтруємо та серіалізуємо дані
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        data = serializer.data
+#         if cached_data:
+#             # Якщо є кеш, повертаємо його
+#             response = Response(cached_data['data'])
+#             response['ETag'] = cached_data['etag']
+#             response['Cache-Control'] = 'max-age=3600'
+#             return response
 
-        # Обчислення ETag
-        content = str(data).encode('utf-8')
-        etag = quote_etag(md5(content).hexdigest())
+#         # Фільтруємо та серіалізуємо дані
+#         queryset = self.filter_queryset(self.get_queryset())
+#         serializer = self.get_serializer(queryset, many=True)
+#         data = serializer.data
 
-        # Перевірка If-None-Match
-        if request.headers.get('If-None-Match') == etag:
-            return HttpResponseNotModified()
+#         # Обчислення ETag
+#         content = str(data).encode('utf-8')
+#         etag = quote_etag(md5(content).hexdigest())
 
-        # Зберігаємо в кеш
-        cache.set(cache_key, {'data': data, 'etag': etag}, 60 * 60)  # Кеш на 1 годину
+#         # Перевірка If-None-Match
+#         if request.headers.get('If-None-Match') == etag:
+#             return HttpResponseNotModified()
 
-        response = Response(data)
-        response['ETag'] = etag
-        response['Cache-Control'] = 'max-age=3600'
-        return response
-        
-    def retrieve(self, request, *args, **kwargs):
-        """Отримання продукту за id або slug з урахуванням мови"""
+#         # Зберігаємо в кеш
+#         cache.set(cache_key, {'data': data, 'etag': etag}, 60 * 60)  # Кеш на 1 годину
 
-        lookup_value = kwargs.get("pk")
-        lang = get_language_code(self.request)
-        queryset = Product.objects.language(lang)
-        try:
-            lookup_int = int(lookup_value)
-            product = get_object_or_404(queryset, id=lookup_int)
-        except ValueError:
-            product = get_object_or_404(queryset, translations__slug=lookup_value)
-        serializer = self.get_serializer(product)
-        return Response(serializer.data)
+#         response = Response(data)
+#         response['ETag'] = etag
+#         response['Cache-Control'] = 'max-age=3600'
+#         return response
+
+#     def retrieve(self, request, *args, **kwargs):
+#         """Отримання продукту за id або slug з урахуванням мови"""
+
+#         lookup_value = kwargs.get("pk")
+#         lang = get_language_code(self.request)
+#         queryset = Product.objects.language(lang)
+#         try:
+#             lookup_int = int(lookup_value)
+#             product = get_object_or_404(queryset, id=lookup_int)
+#         except ValueError:
+#             product = get_object_or_404(queryset, translations__slug=lookup_value)
+#         serializer = self.get_serializer(product)
+#         return Response(serializer.data)
 
 
 class SubProductsSizesViewSet(viewsets.ModelViewSet):
