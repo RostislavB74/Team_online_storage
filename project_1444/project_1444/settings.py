@@ -14,12 +14,14 @@ import environ
 from django.urls import reverse_lazy
 
 from . import __version__
+from .settings_cache import REDIS_URL
+from .settings_base import env, BASE_DIR
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env()
-environ.Env.read_env(BASE_DIR.parent / ".env")
+# env = environ.Env()
+# environ.Env.read_env(BASE_DIR.parent / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -46,7 +48,6 @@ if not ALLOWED_HOSTS:
 ALLOWED_HOSTS.append("testserver")
 
 print(f"{ALLOWED_HOSTS=}")
-
 
 # Application definition
 
@@ -448,11 +449,6 @@ if IS_TESTING:
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {"anon": None, "user": None}
 
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    }
-}
 SPECTACULAR_SETTINGS = {
     "TITLE": "Jewelry Store API",
     "DESCRIPTION": "API for jewelry store with products, categories, and more",
@@ -467,15 +463,7 @@ SPECTACULAR_SETTINGS = {
     },
     "COMPONENT_SPLIT_REQUEST": True,  # Для коректної роботи з фільтрами
 }
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "redis://127.0.0.1:6379/1",
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         },
-#     }
-# }
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
@@ -528,24 +516,6 @@ GIT_VERSION = env("GIT_VERSION", default="Version is unknown")
 VERSION = env("VERSION", default=__version__)
 CACHE_HEADERS_ENABLED = env("CACHE_HEADERS_ENABLED", default=False, cast=bool)
 
-REDIS_URL = env("REDIS_URL", default=None)
-
-if REDIS_URL:
-    import redis
-
-    try:
-        r = redis.Redis.from_url(REDIS_URL)
-        r.ping()
-        CACHES = {
-            "default": {
-                # "BACKEND": "django.core.cache.backends.redis.RedisCache",
-                "BACKEND": "django_redis.cache.RedisCache",
-                "LOCATION": REDIS_URL,
-            }
-        }
-        SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
-    except redis.ConnectionError as e:
-        print(f"Can't connect to Redis {REDIS_URL}, skip of use Redis: {e}")
 
 # CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 # CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')

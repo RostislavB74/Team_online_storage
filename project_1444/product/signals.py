@@ -140,4 +140,12 @@ def generate_product_new_article(instance):
 
 @receiver(post_save, sender=Product)
 def clear_product_cache(sender, instance, **kwargs):
-    cache.delete_pattern("product_list_*")
+    if hasattr(cache, "delete_pattern"):
+        cache.delete_pattern("product_list_*")
+    else:
+        cache.clear()
+
+    if hasattr(cache, "delete_pattern"):
+        cache.delete_pattern("product_detail_*")
+    else:
+        cache.clear()
