@@ -51,7 +51,7 @@ from rest_framework.filters import SearchFilter
 from django.http import HttpResponseNotModified
 from django.utils.http import quote_etag
 from hashlib import md5
-from django.views.decorators.cache import cache_page
+# from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend

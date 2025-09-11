@@ -2,30 +2,18 @@ import django_filters
 from addons.filters import CommaSeparatedIntegerListFilter
 from django_filters import rest_framework as filters
 from django.db.models import Q
-from product.models import Product, Categories, SubCategories, Collections
+from product.models import Product, Categories
 
-from django_filters import rest_framework as filters
-from django.db.models import Q
-from product.models import Product, Descriptions
-
-
-class CommaSeparatedIntegerListFilter(filters.BaseCSVFilter, filters.NumberFilter):
-    def filter(self, qs, value):
-        if value:
-            return qs.filter(**{f"{self.field_name}__in": value})
-        return qs
+# from django_filters import rest_framework as filters
+# from django.db.models import Q
+# from product.models import  Descriptions
 
 
-from django_filters import rest_framework as filters
-from django.db.models import Q
-from product.models import Product, Descriptions
-
-
-class CommaSeparatedIntegerListFilter(filters.BaseCSVFilter, filters.NumberFilter):
-    def filter(self, qs, value):
-        if value:
-            return qs.filter(**{f"{self.field_name}__in": value})
-        return qs
+# class CommaSeparatedIntegerListFilter(filters.BaseCSVFilter, filters.NumberFilter):
+#     def filter(self, qs, value):
+#         if value:
+#             return qs.filter(**{f"{self.field_name}__in": value})
+#         return qs
 
 
 class ProductFilter(filters.FilterSet):

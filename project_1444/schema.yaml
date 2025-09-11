@@ -98,12 +98,6 @@ paths:
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - name: limit
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
       - in: query
         name: material
         schema:
@@ -112,12 +106,26 @@ paths:
         name: name
         schema:
           type: string
-      - name: offset
+      - name: page
         required: false
         in: query
-        description: The initial index from which to return the results.
+        description: A page number within the paginated result set.
         schema:
           type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: price_max
+        schema:
+          type: number
+      - in: query
+        name: price_min
+        schema:
+          type: number
       - in: query
         name: subcategories
         schema:
@@ -135,20 +143,6 @@ paths:
         name: year_collection
         schema:
           type: integer
-      - in: query
-        name: year_collection_range_max
-        schema:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
-      - in: query
-        name: year_collection_range_min
-        schema:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
       - in: query
         name: year_collection_range_max
         schema:
@@ -271,16 +265,10 @@ paths:
       operationId: api_v1_cart_list
       description: Отримання списку корзин + загальної суми
       parameters:
-      - name: limit
+      - name: page
         required: false
         in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: offset
-        required: false
-        in: query
-        description: The initial index from which to return the results.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       tags:
@@ -306,12 +294,12 @@ paths:
                     type: string
                     nullable: true
                     format: uri
-                    example: http://api.example.org/accounts/?offset=400&limit=100
+                    example: http://api.example.org/accounts/?page=4
                   previous:
                     type: string
                     nullable: true
                     format: uri
-                    example: http://api.example.org/accounts/?offset=200&limit=100
+                    example: http://api.example.org/accounts/?page=2
                   results:
                     type: array
                     items:
@@ -526,24 +514,18 @@ paths:
         name: has_width
         schema:
           type: boolean
-      - name: limit
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: offset
-        required: false
-        in: query
-        description: The initial index from which to return the results.
-        schema:
-          type: integer
       - name: ordering
         required: false
         in: query
         description: Which field to use when ordering the results.
         schema:
           type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -696,16 +678,16 @@ paths:
       operationId: api_v1_description_list
       description: CRUD для продуктів
       parameters:
-      - name: limit
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
         required: false
         in: query
         description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: offset
-        required: false
-        in: query
-        description: The initial index from which to return the results.
         schema:
           type: integer
       tags:
@@ -846,16 +828,10 @@ paths:
     get:
       operationId: api_v1_orders_list
       parameters:
-      - name: limit
+      - name: page
         required: false
         in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: offset
-        required: false
-        in: query
-        description: The initial index from which to return the results.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       tags:
@@ -1152,7 +1128,6 @@ paths:
   /api/v1/product/:
     get:
       operationId: api_v1_product_list
-      description: Список продуктів з ETag і серверним кешуванням
       parameters:
       - in: query
         name: categories
@@ -1179,12 +1154,6 @@ paths:
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - name: limit
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
       - in: query
         name: material
         schema:
@@ -1193,12 +1162,32 @@ paths:
         name: name
         schema:
           type: string
-      - name: offset
+      - name: ordering
         required: false
         in: query
-        description: The initial index from which to return the results.
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: price_max
+        schema:
+          type: number
+      - in: query
+        name: price_min
+        schema:
+          type: number
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
       - in: query
         name: subcategories
         schema:
@@ -1230,20 +1219,6 @@ paths:
           maximum: 2147483647
           minimum: -2147483648
           nullable: true
-      - in: query
-        name: year_collection_range_max
-        schema:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
-      - in: query
-        name: year_collection_range_min
-        schema:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
       tags:
       - api
       security:
@@ -1259,7 +1234,6 @@ paths:
           description: ''
     post:
       operationId: api_v1_product_create
-      description: CRUD для продуктів
       tags:
       - api
       requestBody:
@@ -1287,7 +1261,6 @@ paths:
   /api/v1/product/{id}/:
     get:
       operationId: api_v1_product_retrieve
-      description: Отримання продукту за id або slug з урахуванням мови
       parameters:
       - in: path
         name: id
@@ -1310,7 +1283,6 @@ paths:
           description: ''
     put:
       operationId: api_v1_product_update
-      description: CRUD для продуктів
       parameters:
       - in: path
         name: id
@@ -1344,7 +1316,6 @@ paths:
           description: ''
     patch:
       operationId: api_v1_product_partial_update
-      description: CRUD для продуктів
       parameters:
       - in: path
         name: id
@@ -1378,7 +1349,6 @@ paths:
           description: ''
     delete:
       operationId: api_v1_product_destroy
-      description: CRUD для продуктів
       parameters:
       - in: path
         name: id
@@ -1426,16 +1396,10 @@ paths:
       operationId: api_v1_subcategories_list
       description: CRUD для продуктів
       parameters:
-      - name: limit
+      - name: page
         required: false
         in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: offset
-        required: false
-        in: query
-        description: The initial index from which to return the results.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       tags:
@@ -1594,16 +1558,16 @@ paths:
       operationId: api_v1_subproducts_list
       description: CRUD для типорозмірів
       parameters:
-      - name: limit
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
         required: false
         in: query
         description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: offset
-        required: false
-        in: query
-        description: The initial index from which to return the results.
         schema:
           type: integer
       tags:
@@ -2804,12 +2768,12 @@ components:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -2827,12 +2791,12 @@ components:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -2850,12 +2814,12 @@ components:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -2873,12 +2837,12 @@ components:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -2896,12 +2860,12 @@ components:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -2919,12 +2883,12 @@ components:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -2942,12 +2906,12 @@ components:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
           format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
