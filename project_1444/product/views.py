@@ -186,8 +186,10 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = CategoriesFilter
-    ordering_fields = ["name",]
-    ordering=["name"]
+    ordering_fields = [
+        "translations__name",
+    ]
+    ordering = ["translations__name"]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
     def get_queryset(self):
@@ -240,7 +242,7 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
     queryset = SubCategories.objects.all()
     serializer_class = SubCategoriesSerializer
     permission_classes = (AllowAny,)
-    
+
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
