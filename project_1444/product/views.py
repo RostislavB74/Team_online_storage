@@ -51,21 +51,7 @@ from rest_framework.filters import SearchFilter
 from django.http import HttpResponseNotModified
 from django.utils.http import quote_etag
 from hashlib import md5
-# from django.views.decorators.cache import cache_page
-from rest_framework import viewsets
-from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from django.http import HttpResponseNotModified
-from django.utils.http import quote_etag
-from hashlib import md5
-from django.db.models import Prefetch
-from product.models import Product, Descriptions, Categories  # Додано Categories
-from product.serializers import ProductSerializer
-from product.filters import ProductFilter
 from product.pagination import Pagination
-from utils.language_code import get_language_code
 
 
 class ProductViewSet(viewsets.ModelViewSet):

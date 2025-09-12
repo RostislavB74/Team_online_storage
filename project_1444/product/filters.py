@@ -4,18 +4,6 @@ from django_filters import rest_framework as filters
 from django.db.models import Q
 from product.models import Product, Categories
 
-# from django_filters import rest_framework as filters
-# from django.db.models import Q
-# from product.models import  Descriptions
-
-
-# class CommaSeparatedIntegerListFilter(filters.BaseCSVFilter, filters.NumberFilter):
-#     def filter(self, qs, value):
-#         if value:
-#             return qs.filter(**{f"{self.field_name}__in": value})
-#         return qs
-
-
 class ProductFilter(filters.FilterSet):
     categories = CommaSeparatedIntegerListFilter(field_name="category_id")
     subcategories = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
@@ -56,53 +44,6 @@ class ProductFilter(filters.FilterSet):
         lang = self.request.GET.get("lang", "uk")
         return queryset.filter(description__translations__text__icontains=value).language(lang)
 
-# class CommaSeparatedIntegerListFilter(filters.BaseCSVFilter, filters.NumberFilter):
-#     """Кастомний фільтр для списку цілих чисел, розділених комами"""
-
-#     def filter(self, qs, value):
-#         if value:
-#             return qs.filter(**{f"{self.field_name}__in": value})
-#         return qs
-
-
-# class ProductFilter(filters.FilterSet):
-#     categories = CommaSeparatedIntegerListFilter(field_name="category_id")
-#     subcategories = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
-#     year_collection_range = filters.RangeFilter(field_name="year_collection")
-#     name = filters.CharFilter(method="filter_name")  # Пошук за назвою
-#     material = filters.CharFilter(
-#         field_name="materials__material__name", lookup_expr="iexact"
-#     )  # Фільтр за матеріалом
-#     gemstone = filters.CharFilter(
-#         field_name="gemstones__name", lookup_expr="iexact"
-#     )  # Фільтр за каменем
-#     price_min = filters.NumberFilter(field_name="price", lookup_expr="gte")  # Ціна від
-#     price_max = filters.NumberFilter(field_name="price", lookup_expr="lte")  # Ціна до
-
-#     class Meta:
-#         model = Product
-#         fields = (
-#             "category",
-#             "subcategory",
-#             "collection",
-#             "year_collection",
-#             "is_ukrainian_cashback",
-#             "name",
-#             "material",
-#             "gemstone",
-#             "price_min",
-#             "price_max",
-#         )
-
-#     def filter_name(self, queryset, name, value):
-#         """Пошук за назвою та описом з урахуванням локалізації"""
-#         lang = self.request.GET.get(
-#             "lang", "uk"
-#         )  # Припускаємо, що мова передається в запиті
-#         return queryset.filter(
-#             Q(translations__name__icontains=value)
-#             | Q(description__text__icontains=value)
-#         ).language(lang)
 
 
 class CategoriesFilter(django_filters.FilterSet):
