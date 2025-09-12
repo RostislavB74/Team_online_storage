@@ -49,7 +49,7 @@ djangorestframework==3.16.1 ; python_version >= "3.11" and python_version < "4.0
 djoser==2.3.3 ; python_version >= "3.11" and python_version < "4.0"
 drf-nested-routers==0.94.2 ; python_version >= "3.11" and python_version < "4.0"
 drf-spectacular-sidecar==2025.9.1; python_version >= "3.11" and python_version < "4.0"
-# drf-spectacular==0.28.0 ; python_version >= "3.11" and python_version < "4.0"
+drf-spectacular==0.28.0 ; python_version >= "3.11" and python_version < "4.0"
 ecdsa==0.19.1 ; python_version >= "3.11" and python_version < "4.0"
 et-xmlfile==2.0.0 ; python_version >= "3.11" and python_version < "4.0"
 executing==2.2.1 ; python_version >= "3.11" and python_version < "4.0"
