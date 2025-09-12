@@ -14,29 +14,14 @@ import environ
 from django.urls import reverse_lazy
 
 from . import __version__
-
-# from django.utils.translation import gettext_lazy as _
-# import zoneinfo
-# from urllib.parse import urlparse
-# from pygments.lexer import default
-# import os
-# from urllib.parse import urlparse
-# from dotenv import load_dotenv
-# from django.core.exceptions import ImproperlyConfigured
-
-# from django.conf.global_settings import STATIC_ROOT
-# import cloudinary
-# import cloudinary.uploader
-# import cloudinary.api
-# from cloudinary.utils import cloudinary_url
-# from django.conf.global_settings import LANGUAGES as GLOBAL_LANGUAGES
-
+from .settings_cache import REDIS_URL
+from .settings_base import env, BASE_DIR
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env()
-environ.Env.read_env(BASE_DIR.parent / ".env")
+# env = environ.Env()
+# environ.Env.read_env(BASE_DIR.parent / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -64,7 +49,6 @@ ALLOWED_HOSTS.append("testserver")
 
 print(f"{ALLOWED_HOSTS=}")
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -78,12 +62,14 @@ INSTALLED_APPS = [
     "social_django",
     "rest_framework",
     "drf_spectacular",
+    "drf_spectacular_sidecar",  # стилі + swagger-ui
     "djoser",
     "rest_framework.authtoken",
     "django_extensions",
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
+    
     # "debug_toolbar", # added dynamically later
     # "cloudinary_storage",
     "django_filters",
@@ -210,25 +196,8 @@ AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = "auth/login/"
-# LOGIN_REDIRECT_URL = "user/profile/"
 LOGOUT_REDIRECT_URL = "/admin/login/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'neondb',
-#         'USER': 'your_user',
-#         'PASSWORD': 'your_password',
-#         'HOST': 'your_neon_host',
-#         'PORT': '5432',
-#     },
-#     'test': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'test_db.sqlite3',
-#     }
-# }
 try:
     if not env("DATABASE_URL", default=None):
         raise environ.ImproperlyConfigured
@@ -427,90 +396,7 @@ LOGGING = {
         },
     },
 }
-# CLOUDINARY_PREVIEW_TRANSFORMATION = env(
-#     "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
-# )
-# if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
-#     try:
-#         # CLOUDINARY_URL = env("CLOUDINARY_URL")
-#         CLOUDINARY_URL = CLOUDINARY_URL.rstrip("/")
-#         cl_url = urlparse(CLOUDINARY_URL)
-#         if cl_url.scheme == "cloudinary":
-#             CLOUDINARY_NAME = cl_url.hostname
-#             CLOUDINARY_API_KEY = cl_url.username
-#             CLOUDINARY_API_SECRET = cl_url.password
-#             if not all([CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
-#                 raise ValueError(
-#                     "CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET must be set"
-#                 )
-#         else:
-#             raise ValueError("cloudinary scheme not found in CLOUDINARY_URL")
-#         CLOUDINARY_MEDIA_TAG = env("CLOUDINARY_MEDIA_TAG", default=PROJECT_NAME)
 
-#         DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-#         # MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_NAME}/"
-#         MEDIA_URL = f"{PROJECT_NAME}/"
-#         CLOUDINARY_STORAGE = {
-#             "CLOUD_NAME": CLOUDINARY_NAME,
-#             "API_KEY": CLOUDINARY_API_KEY,
-#             "API_SECRET": CLOUDINARY_API_SECRET,
-#             "MEDIA_TAG": CLOUDINARY_MEDIA_TAG,
-#         }
-#         INSTALLED_APPS.insert(0, "cloudinary_storage")
-#     except (KeyError, environ.ImproperlyConfigured, ImportError) as e:
-#         print(
-#             "CLOUDINARY not configured correctly by environs. Can setup CLOUDINARY_URL, or their components.  Error:",
-#             str(e),
-#         )
-
-# if not DEFAULT_FILE_STORAGE and env("AWS_ACCESS_KEY_ID", default=None):
-#     # Try S3 / MinIO / ... configuration
-#     try:
-#         AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
-#         AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
-#         AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
-#         AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default=None)  # optional
-#         AWS_S3_ENDPOINT_URL = env(
-#             "AWS_S3_ENDPOINT_URL",
-#             default=f"https://{AWS_STORAGE_BUCKET_NAME}.s3{AWS_S3_REGION_NAME if AWS_S3_REGION_NAME else '.'}.amazonaws.com/",
-#         )
-#         AWS_LOCATION = env("AWS_LOCATION", default="")
-#         AWS_S3_VERIFY = env("AWS_S3_VERIFY", default=None, cast=bool)
-
-#         DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
-#         DEFAULT_FILE_STORAGE_OPTIONS = {
-#             "access_key": AWS_ACCESS_KEY_ID,
-#             "secret_key": AWS_SECRET_ACCESS_KEY,
-#             "bucket_name": AWS_STORAGE_BUCKET_NAME,
-#             "region_name": AWS_S3_REGION_NAME,
-#             "endpoint_url": AWS_S3_ENDPOINT_URL,
-#             "location": AWS_LOCATION,
-#             "verify": AWS_S3_VERIFY,
-#         }
-#     except (KeyError, environ.ImproperlyConfigured) as e:
-#         print(
-#             "AWS S3 / MinIO not configured correctly by environs. Error:",
-#             str(e),
-#         )
-
-# if DEFAULT_FILE_STORAGE:
-#     print(f"Using DEFAULT_FILE_STORAGE BACKEND: '{DEFAULT_FILE_STORAGE}'")
-#     STORAGES = {
-#         "default": {
-#             "BACKEND": DEFAULT_FILE_STORAGE,
-#             "OPTIONS": DEFAULT_FILE_STORAGE_OPTIONS,
-#         },
-#         "staticfiles": {
-#             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-#         },
-#     }
-
-# STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # for compatibility with cloudinary static files
-
-# # Fallback for use FileSystemStorage when CLOUDINARY, or S3 / MinIO not configured
-# if not DEFAULT_FILE_STORAGE:
-#     print(f"Using FileSystemStorage as DEFAULT_FILE_STORAGE BACKEND")
-# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / "emails"
 
 
@@ -553,6 +439,10 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {"anon": ANON_RATE_THROTTLE, "user": USER_RATE_THROTTLE},
+    # added 080925
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 if IS_TESTING:
@@ -560,11 +450,21 @@ if IS_TESTING:
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {"anon": None, "user": None}
 
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    }
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Jewelry Store API",
+    "DESCRIPTION": "API for jewelry store with products, categories, and more",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": True,
+    "SWAGGER_UI_DIST": "SIDECAR",  # Вбудовані файли Swagger UI
+    "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",
+    "REDOC_DIST": "SIDECAR",
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,  # Зберігати авторизацію
+    },
+    "COMPONENT_SPLIT_REQUEST": True,  # Для коректної роботи з фільтрами
 }
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
@@ -617,24 +517,6 @@ GIT_VERSION = env("GIT_VERSION", default="Version is unknown")
 VERSION = env("VERSION", default=__version__)
 CACHE_HEADERS_ENABLED = env("CACHE_HEADERS_ENABLED", default=False, cast=bool)
 
-REDIS_URL = env("REDIS_URL", default=None)
-
-if REDIS_URL:
-    import redis
-
-    try:
-        r = redis.Redis.from_url(REDIS_URL)
-        r.ping()
-        CACHES = {
-            "default": {
-                # "BACKEND": "django.core.cache.backends.redis.RedisCache",
-                "BACKEND": "django_redis.cache.RedisCache",
-                "LOCATION": REDIS_URL,
-            }
-        }
-        SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
-    except redis.ConnectionError as e:
-        print(f"Can't connect to Redis {REDIS_URL}, skip of use Redis: {e}")
 
 # CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 # CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
@@ -783,60 +665,3 @@ INTERNAL_IPS = [
     # ...
 ]
 OTP_EXPIRATION_TIME = 15  # minutes
-# INSTALLED_APPS = [
-#     ...,
-#     'django_ratelimit',
-# ]
-
-# MIDDLEWARE = [
-#     ...,
-#     'ratelimit.middleware.RatelimitMiddleware',
-# ]
-
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': 'redis://127.0.0.1:6379/1',
-#         'OPTIONS': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#         }
-#     }
-# }
-
-# RATELIMIT_VIEW = 'users.views.rate_limited'
-# RATELIMIT_CACHE_BACKEND = 'default'
-# project_1444/settings.py
-
-
-# REST_FRAMEWORK = {
-#     'DEFAULT_THROTTLE_CLASSES': [
-#         'rest_framework.throttling.AnonRateThrottle',
-#         'rest_framework.throttling.UserRateThrottle'
-#     ],
-#     'DEFAULT_THROTTLE_RATES': {
-#         'anon': '5/minute',
-#         'user': '10/minute'
-#     }
-# }
-
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#     }
-# }
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         '': {
-#             'handlers': ['console'],
-#             'level': 'INFO',
-#         },
-#     },
-# }

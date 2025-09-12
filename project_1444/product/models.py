@@ -265,76 +265,6 @@ class Material(TranslatableModel):
     def __str__(self):
         return f"{self.material_name} | {self.assay} | {self.color_name}"
 
-
-# Матеріали
-# class Material(TranslatableModel):
-
-#     PROBE_CHOICES = [
-#         ("0", "0"),
-#         ("585", "585"),
-#         ("750", "750"),
-#         ("925", "925"),
-#         ("950", "950"),
-#     ]
-#     COLOR_CHOICES = [
-#         ("white", _("White")),  # Переклад буде в .po файлах
-#         ("yellow", _("Yellow")),
-#         ("red", _("Red")),
-#         ("brown", _("Brown")),
-#         ("rhodium_plating", _("Rhodium Plating")),
-#         ("black", _("Black")),
-#         ("blackening", _("Blackening")),
-#     ]
-
-#     METAL_CHOICES = [
-#         ("gold", _("Gold")),
-#         ("silver", _("Silver")),
-#         ("platinum", _("Platinum")),
-#         ("steel", _("Steel")),
-#     ]
-#     # COLOR_CHOICES = [
-#     #     ("white", "Білий"),
-#     #     ("yellow", "Жовтий"),
-#     #     ("red", "Червоний"),
-#     #     ("brown", "Коричневий"),
-#     #     ("rhodium_plating", "Родіювання"),
-#     #     ("black", "Чорний"),
-#     #     ("blackening", "Чорніння"),
-#     # ]
-#     # METAL_CHOICES = [
-#     #     ("gold", "Золото"),
-#     #     ("silver", "Срібло"),
-#     #     ("platinum", "Платина"),
-#     #     ("steel", "Сталь"),
-#     # ]
-#     material = models.CharField(
-#         max_length=50, choices=METAL_CHOICES, null=True, blank=True
-#     )
-#     assay = models.CharField(
-#         max_length=20, choices=PROBE_CHOICES, null=True, blank=True
-#     )
-#     color = models.CharField(
-#         max_length=50, choices=COLOR_CHOICES, null=True, blank=True
-#     )
-#     article = models.CharField(max_length=20, unique=True, blank=True, null=True)
-#     translations = TranslatedFields(
-#         slug=models.SlugField(max_length=255, unique=True, blank=True, null=True),
-#     )
-
-#     class Meta:
-#         verbose_name = "Матеріал"
-#         verbose_name_plural = "Матеріали"
-
-#     # def __str__(self):
-#     #     material = f"{self.material} | {self.assay} | {self.color}"
-#     #     return material
-#     def __str__(self):
-#         # Отримуємо перекладені значення
-#         material_display = self.get_material_display()
-#         color_display = self.get_color_display()
-#         return f"{material_display} | {self.assay} | {color_display}"
-
-
 # Gemstone
 class TypeGemstones(models.TextChoices):
     PRECIOUS = "precious", _("Precious")
@@ -482,6 +412,11 @@ class SubProducts(models.Model):
     width = models.FloatField(null=True, blank=True, verbose_name=_("Ширина (см)"))
     size = models.FloatField(null=True, blank=True, verbose_name=_("Розмір(мм) "))
     weight = models.FloatField(null=True, blank=True, verbose_name=_("Вага (г)"))
+    class Meta:
+        indexes = [
+            models.Index(fields=["price"]),
+            # models.Index(fields=["is_ukrainian_cashback"]),
+        ]
 
     def clean(self):
         if self.parent_product and self.parent_product.category:
@@ -691,13 +626,18 @@ class Descriptions(TranslatableModel):
     class Meta:
         verbose_name = _("Description")
         verbose_name_plural = _("Descriptions")
-
     def save(self, *args, **kwargs):
         name = self.safe_translation_getter("name")
         if not self.safe_translation_getter("slug") and name:
             self.set_current_language(self.get_current_language())
             self.slug = slugify(name)
         super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     name = self.safe_translation_getter("name")
+    #     if not self.safe_translation_getter("slug") and name:
+    #         self.set_current_language(self.get_current_language())
+    #         self.slug = slugify(name)
+    #     super().save(*args, **kwargs)
 
     def __str__(self):
         name = self.safe_translation_getter("name")
@@ -740,7 +680,7 @@ class Product(TranslatableModel):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def save(self, *args, **kwargs):
         save_with_translation(self, *args, **kwargs)
 
