@@ -1,13 +1,22 @@
 import django_filters
-
 from addons.filters import CommaSeparatedIntegerListFilter
+from django_filters import rest_framework as filters
+from django.db.models import Q
 from product.models import Product, Categories
 
-
-class ProductFilter(django_filters.FilterSet):
+class ProductFilter(filters.FilterSet):
     categories = CommaSeparatedIntegerListFilter(field_name="category_id")
     subcategories = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
-    year_collection_range = django_filters.RangeFilter(field_name="year_collection")
+    year_collection_range = filters.RangeFilter(field_name="year_collection")
+    name = filters.CharFilter(method="filter_name")
+    material = filters.CharFilter(
+        field_name="materials__material__material_name", lookup_expr="iexact"
+    )
+    gemstone = filters.CharFilter(
+        field_name="gemstones__gemstone__name", lookup_expr="iexact"
+    )
+    price_min = filters.NumberFilter(field_name="subproducts__price", lookup_expr="gte")
+    price_max = filters.NumberFilter(field_name="subproducts__price", lookup_expr="lte")
 
     class Meta:
         model = Product
@@ -17,7 +26,24 @@ class ProductFilter(django_filters.FilterSet):
             "collection",
             "year_collection",
             "is_ukrainian_cashback",
+            "name",
+            "material",
+            "gemstone",
+            "price_min",
+            "price_max",
         )
+
+    def filter_name(self, queryset, name, value):
+        lang = self.request.GET.get("lang", "uk")
+        return queryset.filter(
+            Q(translations__name__icontains=value)
+            | Q(description__translations__text__icontains=value)
+        ).language(lang)
+
+    def filter_description(self, queryset, name, value):
+        lang = self.request.GET.get("lang", "uk")
+        return queryset.filter(description__translations__text__icontains=value).language(lang)
+
 
 
 class CategoriesFilter(django_filters.FilterSet):

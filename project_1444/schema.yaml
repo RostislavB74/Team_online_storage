@@ -1,7 +1,8 @@
 openapi: 3.0.3
 info:
-  title: ''
-  version: 0.0.0
+  title: Jewelry Store API
+  version: 1.0.0
+  description: API for jewelry store with products, categories, and more
 paths:
   /api/:
     get:
@@ -90,21 +91,41 @@ paths:
         schema:
           type: integer
       - in: query
+        name: gemstone
+        schema:
+          type: string
+      - in: query
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - name: limit
+      - in: query
+        name: material
+        schema:
+          type: string
+      - in: query
+        name: name
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
         required: false
         in: query
         description: Number of results to return per page.
         schema:
           type: integer
-      - name: offset
-        required: false
-        in: query
-        description: The initial index from which to return the results.
+      - in: query
+        name: price_max
         schema:
-          type: integer
+          type: number
+      - in: query
+        name: price_min
+        schema:
+          type: number
       - in: query
         name: subcategories
         schema:
@@ -173,10 +194,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/TotalProducts'
           description: ''
-  /api/v1/cart/:
+  /api/v1/apply/:
+    post:
+      operationId: api_v1_apply_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: BIRTHDAY10
+              required:
+              - code
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyDiscountResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyDiscountResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyDiscountResponse'
+          description: ''
+  /api/v1/available/:
     get:
-      operationId: api_v1_cart_list
-      description: Отримання списку корзин + загальної суми
+      operationId: api_v1_available_retrieve
+      parameters:
+      - in: query
+        name: category_id
+        schema:
+          type: integer
+      - in: query
+        name: product_id
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -188,19 +255,65 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    carts:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/Cart'
-                    total_sum_carts:
-                      type: number
-                      format: float
-                    total_quantity:
-                      type: integer
+                type: object
+                properties:
+                  discounts:
+                    type: array
+          description: ''
+  /api/v1/cart/:
+    get:
+      operationId: api_v1_cart_list
+      description: Отримання списку корзин + загальної суми
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - count
+                - results
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=4
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=2
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        carts:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Cart'
+                        total_sum_carts:
+                          type: number
+                          format: float
+                        total_quantity:
+                          type: integer
           description: Список елементів кошика, загальна сума і кількість
     post:
       operationId: api_v1_cart_create
@@ -210,13 +323,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/CartRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/CartRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/CartRequest'
         required: true
       security:
       - tokenAuth: []
@@ -266,13 +379,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/CartRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/CartRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/CartRequest'
         required: true
       security:
       - tokenAuth: []
@@ -299,13 +412,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCart'
+              $ref: '#/components/schemas/PatchedCartRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCart'
+              $ref: '#/components/schemas/PatchedCartRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCart'
+              $ref: '#/components/schemas/PatchedCartRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -362,13 +475,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/CartRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/CartRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Cart'
+              $ref: '#/components/schemas/CartRequest'
         required: true
       security:
       - tokenAuth: []
@@ -401,6 +514,18 @@ paths:
         name: has_width
         schema:
           type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -411,9 +536,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CategoriesTree'
+                $ref: '#/components/schemas/PaginatedCategoriesTreeList'
           description: ''
     post:
       operationId: api_v1_categories_create
@@ -424,13 +547,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoriesTree'
+              $ref: '#/components/schemas/CategoriesTreeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CategoriesTree'
+              $ref: '#/components/schemas/CategoriesTreeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CategoriesTree'
+              $ref: '#/components/schemas/CategoriesTreeRequest'
         required: true
       security:
       - tokenAuth: []
@@ -481,13 +604,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoriesTree'
+              $ref: '#/components/schemas/CategoriesTreeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CategoriesTree'
+              $ref: '#/components/schemas/CategoriesTreeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CategoriesTree'
+              $ref: '#/components/schemas/CategoriesTreeRequest'
         required: true
       security:
       - tokenAuth: []
@@ -515,13 +638,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCategoriesTree'
+              $ref: '#/components/schemas/PatchedCategoriesTreeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCategoriesTree'
+              $ref: '#/components/schemas/PatchedCategoriesTreeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCategoriesTree'
+              $ref: '#/components/schemas/PatchedCategoriesTreeRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -555,16 +678,16 @@ paths:
       operationId: api_v1_description_list
       description: CRUD для продуктів
       parameters:
-      - name: limit
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
         required: false
         in: query
         description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: offset
-        required: false
-        in: query
-        description: The initial index from which to return the results.
         schema:
           type: integer
       tags:
@@ -585,17 +708,6 @@ paths:
       description: CRUD для продуктів
       tags:
       - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Descriptions'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Descriptions'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Descriptions'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -643,17 +755,6 @@ paths:
         required: true
       tags:
       - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Descriptions'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Descriptions'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Descriptions'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -677,17 +778,6 @@ paths:
         required: true
       tags:
       - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedDescriptions'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedDescriptions'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedDescriptions'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -718,72 +808,6 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/v1/discounts/apply/:
-    post:
-      operationId: api_v1_discounts_apply_create
-      tags:
-      - api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: string
-                  example: BIRTHDAY10
-              required:
-              - code
-      security:
-      - tokenAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApplyDiscountResponse'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApplyDiscountResponse'
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApplyDiscountResponse'
-          description: ''
-  /api/v1/discounts/available/:
-    get:
-      operationId: api_v1_discounts_available_retrieve
-      parameters:
-      - in: query
-        name: category_id
-        schema:
-          type: integer
-      - in: query
-        name: product_id
-        schema:
-          type: integer
-      tags:
-      - api
-      security:
-      - tokenAuth: []
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  discounts:
-                    type: array
-          description: ''
   /api/v1/livez/:
     get:
       operationId: api_v1_livez_retrieve
@@ -803,6 +827,13 @@ paths:
   /api/v1/orders/:
     get:
       operationId: api_v1_orders_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -814,9 +845,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Order'
+                $ref: '#/components/schemas/PaginatedOrderList'
           description: ''
     post:
       operationId: api_v1_orders_create
@@ -826,13 +855,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/OrderRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/OrderRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/OrderRequest'
         required: true
       security:
       - tokenAuth: []
@@ -951,13 +980,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/OrderRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/OrderRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: '#/components/schemas/OrderRequest'
         required: true
       security:
       - tokenAuth: []
@@ -985,13 +1014,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOrder'
+              $ref: '#/components/schemas/PatchedOrderRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOrder'
+              $ref: '#/components/schemas/PatchedOrderRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOrder'
+              $ref: '#/components/schemas/PatchedOrderRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1031,13 +1060,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderCreate'
+              $ref: '#/components/schemas/OrderCreateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OrderCreate'
+              $ref: '#/components/schemas/OrderCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OrderCreate'
+              $ref: '#/components/schemas/OrderCreateRequest'
         required: true
       security:
       - tokenAuth: []
@@ -1099,7 +1128,6 @@ paths:
   /api/v1/product/:
     get:
       operationId: api_v1_product_list
-      description: CRUD для продуктів
       parameters:
       - in: query
         name: categories
@@ -1119,21 +1147,47 @@ paths:
         schema:
           type: integer
       - in: query
+        name: gemstone
+        schema:
+          type: string
+      - in: query
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - name: limit
+      - in: query
+        name: material
+        schema:
+          type: string
+      - in: query
+        name: name
+        schema:
+          type: string
+      - name: ordering
         required: false
         in: query
-        description: Number of results to return per page.
+        description: Which field to use when ordering the results.
         schema:
-          type: integer
-      - name: offset
+          type: string
+      - name: page
         required: false
         in: query
-        description: The initial index from which to return the results.
+        description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: price_max
+        schema:
+          type: number
+      - in: query
+        name: price_min
+        schema:
+          type: number
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
       - in: query
         name: subcategories
         schema:
@@ -1180,20 +1234,19 @@ paths:
           description: ''
     post:
       operationId: api_v1_product_create
-      description: CRUD для продуктів
       tags:
       - api
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: '#/components/schemas/ProductRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: '#/components/schemas/ProductRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: '#/components/schemas/ProductRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1208,7 +1261,6 @@ paths:
   /api/v1/product/{id}/:
     get:
       operationId: api_v1_product_retrieve
-      description: Отримання продукту за id або slug з урахуванням мови
       parameters:
       - in: path
         name: id
@@ -1231,7 +1283,6 @@ paths:
           description: ''
     put:
       operationId: api_v1_product_update
-      description: CRUD для продуктів
       parameters:
       - in: path
         name: id
@@ -1245,13 +1296,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: '#/components/schemas/ProductRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: '#/components/schemas/ProductRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: '#/components/schemas/ProductRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1265,7 +1316,6 @@ paths:
           description: ''
     patch:
       operationId: api_v1_product_partial_update
-      description: CRUD для продуктів
       parameters:
       - in: path
         name: id
@@ -1279,13 +1329,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedProduct'
+              $ref: '#/components/schemas/PatchedProductRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedProduct'
+              $ref: '#/components/schemas/PatchedProductRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedProduct'
+              $ref: '#/components/schemas/PatchedProductRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1299,7 +1349,6 @@ paths:
           description: ''
     delete:
       operationId: api_v1_product_destroy
-      description: CRUD для продуктів
       parameters:
       - in: path
         name: id
@@ -1346,6 +1395,13 @@ paths:
     get:
       operationId: api_v1_subcategories_list
       description: CRUD для продуктів
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       tags:
       - api
       security:
@@ -1357,9 +1413,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SubCategories'
+                $ref: '#/components/schemas/PaginatedSubCategoriesList'
           description: ''
     post:
       operationId: api_v1_subcategories_create
@@ -1370,13 +1424,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubCategories'
+              $ref: '#/components/schemas/SubCategoriesRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SubCategories'
+              $ref: '#/components/schemas/SubCategoriesRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SubCategories'
+              $ref: '#/components/schemas/SubCategoriesRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1428,13 +1482,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubCategories'
+              $ref: '#/components/schemas/SubCategoriesRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SubCategories'
+              $ref: '#/components/schemas/SubCategoriesRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SubCategories'
+              $ref: '#/components/schemas/SubCategoriesRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1462,13 +1516,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSubCategories'
+              $ref: '#/components/schemas/PatchedSubCategoriesRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSubCategories'
+              $ref: '#/components/schemas/PatchedSubCategoriesRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSubCategories'
+              $ref: '#/components/schemas/PatchedSubCategoriesRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1504,16 +1558,16 @@ paths:
       operationId: api_v1_subproducts_list
       description: CRUD для типорозмірів
       parameters:
-      - name: limit
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
         required: false
         in: query
         description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: offset
-        required: false
-        in: query
-        description: The initial index from which to return the results.
         schema:
           type: integer
       tags:
@@ -1538,13 +1592,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubProductsSizes'
+              $ref: '#/components/schemas/SubProductsSizesRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SubProductsSizes'
+              $ref: '#/components/schemas/SubProductsSizesRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SubProductsSizes'
+              $ref: '#/components/schemas/SubProductsSizesRequest'
         required: true
       security:
       - tokenAuth: []
@@ -1597,13 +1651,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubProductsSizes'
+              $ref: '#/components/schemas/SubProductsSizesRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SubProductsSizes'
+              $ref: '#/components/schemas/SubProductsSizesRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SubProductsSizes'
+              $ref: '#/components/schemas/SubProductsSizesRequest'
         required: true
       security:
       - tokenAuth: []
@@ -1632,13 +1686,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSubProductsSizes'
+              $ref: '#/components/schemas/PatchedSubProductsSizesRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSubProductsSizes'
+              $ref: '#/components/schemas/PatchedSubProductsSizesRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSubProductsSizes'
+              $ref: '#/components/schemas/PatchedSubProductsSizesRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1716,13 +1770,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
         required: true
       security:
       - tokenAuth: []
@@ -1761,13 +1815,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Register'
+              $ref: '#/components/schemas/RegisterRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Register'
+              $ref: '#/components/schemas/RegisterRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Register'
+              $ref: '#/components/schemas/RegisterRequest'
         required: true
       security:
       - tokenAuth: []
@@ -1790,13 +1844,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OTP'
+              $ref: '#/components/schemas/OTPRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OTP'
+              $ref: '#/components/schemas/OTPRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OTP'
+              $ref: '#/components/schemas/OTPRequest'
         required: true
       security:
       - tokenAuth: []
@@ -1819,7 +1873,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthToken'
+              $ref: '#/components/schemas/AuthTokenRequest'
         required: true
       security:
       - tokenAuth: []
@@ -1875,13 +1929,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OTP'
+              $ref: '#/components/schemas/OTPRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OTP'
+              $ref: '#/components/schemas/OTPRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OTP'
+              $ref: '#/components/schemas/OTPRequest'
         required: true
       security:
       - tokenAuth: []
@@ -1980,13 +2034,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserNotificationSettings'
+              $ref: '#/components/schemas/UserNotificationSettingsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserNotificationSettings'
+              $ref: '#/components/schemas/UserNotificationSettingsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UserNotificationSettings'
+              $ref: '#/components/schemas/UserNotificationSettingsRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -2021,13 +2075,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserProfile'
+              $ref: '#/components/schemas/UserProfileRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserProfile'
+              $ref: '#/components/schemas/UserProfileRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UserProfile'
+              $ref: '#/components/schemas/UserProfileRequest'
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -2074,21 +2128,27 @@ components:
     AuthToken:
       type: object
       properties:
-        username:
-          type: string
-          writeOnly: true
-          title: Ім'я користувача
-        password:
-          type: string
-          writeOnly: true
-          title: Пароль
         token:
           type: string
           readOnly: true
           title: Токен
       required:
-      - password
       - token
+    AuthTokenRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          minLength: 1
+          title: Ім'я користувача
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          title: Пароль
+      required:
+      - password
       - username
     BlankEnum:
       enum:
@@ -2131,6 +2191,21 @@ components:
       - product_name
       - total_price
       - username
+    CartRequest:
+      type: object
+      properties:
+        user:
+          type: integer
+        product:
+          type: integer
+          title: Товар
+        quantity:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Кількість
+      required:
+      - product
     Categories:
       type: object
       properties:
@@ -2199,6 +2274,30 @@ components:
       - slug
       - subcategories
       - updated_at
+    CategoriesTreeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        slug:
+          type: string
+          minLength: 1
+        has_length:
+          type: boolean
+          title: Має довжину (см)
+        has_width:
+          type: boolean
+          title: Має ширину (см)
+        has_diameter:
+          type: boolean
+          title: Має діаметр (мм)
+        has_weight:
+          type: boolean
+          title: Має вагу (г)
+      required:
+      - name
+      - slug
     Descriptions:
       type: object
       properties:
@@ -2249,15 +2348,17 @@ components:
           maxLength: 10
       required:
       - status
-    Login:
+    LoginRequest:
       type: object
       properties:
         username:
           type: string
+          minLength: 1
           maxLength: 150
         password:
           type: string
           writeOnly: true
+          minLength: 1
       required:
       - password
       - username
@@ -2274,13 +2375,13 @@ components:
     NullEnum:
       enum:
       - null
-    OTP:
+    OTPRequest:
       type: object
       properties:
         otp_code:
           type: string
-          maxLength: 6
           minLength: 6
+          maxLength: 6
         otp_user_id:
           type: integer
       required:
@@ -2378,45 +2479,6 @@ components:
       - status
       - stocks
       - updated_at
-    OrderCreate:
-      type: object
-      properties:
-        payment_method:
-          allOf:
-          - $ref: '#/components/schemas/OrderCreatePaymentMethodEnum'
-          default: cash
-        delivery_method:
-          allOf:
-          - $ref: '#/components/schemas/OrderCreateDeliveryMethodEnum'
-          default: pickup
-        recipient_name:
-          type: string
-          nullable: true
-          maxLength: 100
-        recipient_phone:
-          type: string
-          nullable: true
-          maxLength: 20
-        address:
-          type: string
-          nullable: true
-        coupon:
-          type: integer
-          nullable: true
-        call_me:
-          type: boolean
-          default: false
-        discount:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
-          default: '0.00'
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderItemCreate'
-      required:
-      - items
     OrderCreateDeliveryMethodEnum:
       enum:
       - pickup
@@ -2435,6 +2497,48 @@ components:
         * `cash` - cash
         * `liqpay` - liqpay
         * `googlepay` - googlepay
+    OrderCreateRequest:
+      type: object
+      properties:
+        payment_method:
+          allOf:
+          - $ref: '#/components/schemas/OrderCreatePaymentMethodEnum'
+          default: cash
+        delivery_method:
+          allOf:
+          - $ref: '#/components/schemas/OrderCreateDeliveryMethodEnum'
+          default: pickup
+        recipient_name:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 100
+        recipient_phone:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 20
+        address:
+          type: string
+          nullable: true
+          minLength: 1
+        coupon:
+          type: integer
+          nullable: true
+        call_me:
+          type: boolean
+          default: false
+        discount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          default: '0.00'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemCreateRequest'
+      required:
+      - items
     OrderDeliveryMethodEnum:
       enum:
       - pickup
@@ -2504,7 +2608,7 @@ components:
       - product_price
       - quantity
       - total_price
-    OrderItemCreate:
+    OrderItemCreateRequest:
       type: object
       properties:
         product_id:
@@ -2520,6 +2624,25 @@ components:
       - product_id
       - product_price
       - quantity
+    OrderItemRequest:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        product_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+      required:
+      - product_price
+      - quantity
+      - total_price
     OrderPaymentMethodEnum:
       enum:
       - cash
@@ -2530,227 +2653,9 @@ components:
         * `cash` - Готівка
         * `liqpay` - LiqPay
         * `googlepay` - GooglePay
-    OrderStatusEnum:
-      enum:
-      - new
-      - awaiting_payment
-      - paid
-      - in_transit
-      - shipped
-      - delivered
-      - failed
-      - reversed
-      - cancelled
-      type: string
-      description: |-
-        * `new` - Нове
-        * `awaiting_payment` - Очікує оплати
-        * `paid` - Оплачено
-        * `in_transit` - В дорозі
-        * `shipped` - Прибуло
-        * `delivered` - Доставлено
-        * `failed` - Недоставлено
-        * `reversed` - Повернено
-        * `cancelled` - Скасовано
-    OrderStock:
+    OrderRequest:
       type: object
       properties:
-        warehouse:
-          type: string
-          readOnly: true
-        quantity:
-          type: integer
-          maximum: 2147483647
-          minimum: 0
-        in_transit:
-          type: boolean
-      required:
-      - quantity
-      - warehouse
-    PaginatedDescriptionsList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Descriptions'
-    PaginatedProductList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Product'
-    PaginatedSubProductsSizesList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubProductsSizes'
-    PaginatedTotalProductsList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?offset=400&limit=100
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?offset=200&limit=100
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/TotalProducts'
-    PatchedCart:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        user:
-          type: integer
-        username:
-          type: string
-          readOnly: true
-        product:
-          type: integer
-          title: Товар
-        product_name:
-          type: string
-          readOnly: true
-        quantity:
-          type: integer
-          maximum: 32767
-          minimum: 0
-          title: Кількість
-        total_price:
-          type: string
-          description: Обчислює загальну ціну для одного товару в корзині
-          readOnly: true
-        created_timestamp:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Дата додавання
-    PatchedCategoriesTree:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-        slug:
-          type: string
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-        has_length:
-          type: boolean
-          title: Має довжину (см)
-        has_width:
-          type: boolean
-          title: Має ширину (см)
-        has_diameter:
-          type: boolean
-          title: Має діаметр (мм)
-        has_weight:
-          type: boolean
-          title: Має вагу (г)
-        subcategories:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubCategoryShort'
-          readOnly: true
-    PatchedDescriptions:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-        slug:
-          type: string
-          readOnly: true
-        text:
-          type: string
-          readOnly: true
-        seo_title:
-          type: string
-          readOnly: true
-        seo_description:
-          type: string
-          readOnly: true
-        keywords:
-          type: string
-          readOnly: true
-    PatchedOrder:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
         user:
           type: integer
           nullable: true
@@ -2800,43 +2705,306 @@ components:
           type: string
           nullable: true
           maxLength: 50
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderItem'
-          readOnly: true
-        stocks:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderStock'
-          readOnly: true
-    PatchedProduct:
+      required:
+      - status
+    OrderStatusEnum:
+      enum:
+      - new
+      - awaiting_payment
+      - paid
+      - in_transit
+      - shipped
+      - delivered
+      - failed
+      - reversed
+      - cancelled
+      type: string
+      description: |-
+        * `new` - Нове
+        * `awaiting_payment` - Очікує оплати
+        * `paid` - Оплачено
+        * `in_transit` - В дорозі
+        * `shipped` - Прибуло
+        * `delivered` - Доставлено
+        * `failed` - Недоставлено
+        * `reversed` - Повернено
+        * `cancelled` - Скасовано
+    OrderStock:
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
-        category:
+        warehouse:
           type: string
           readOnly: true
-        subcategory:
-          allOf:
-          - $ref: '#/components/schemas/SubCategories'
-          readOnly: true
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        in_transit:
+          type: boolean
+      required:
+      - quantity
+      - warehouse
+    OrderStockRequest:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        in_transit:
+          type: boolean
+      required:
+      - quantity
+    PaginatedCategoriesTreeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoriesTree'
+    PaginatedDescriptionsList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Descriptions'
+    PaginatedOrderList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    PaginatedProductList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    PaginatedSubCategoriesList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubCategories'
+    PaginatedSubProductsSizesList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubProductsSizes'
+    PaginatedTotalProductsList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TotalProducts'
+    PatchedCartRequest:
+      type: object
+      properties:
+        user:
+          type: integer
+        product:
+          type: integer
+          title: Товар
+        quantity:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Кількість
+    PatchedCategoriesTreeRequest:
+      type: object
+      properties:
         name:
           type: string
-          readOnly: true
+          minLength: 1
         slug:
           type: string
-          readOnly: true
+          minLength: 1
+        has_length:
+          type: boolean
+          title: Має довжину (см)
+        has_width:
+          type: boolean
+          title: Має ширину (см)
+        has_diameter:
+          type: boolean
+          title: Має діаметр (мм)
+        has_weight:
+          type: boolean
+          title: Має вагу (г)
+    PatchedOrderRequest:
+      type: object
+      properties:
+        user:
+          type: integer
+          nullable: true
+        payment_method:
+          allOf:
+          - $ref: '#/components/schemas/OrderPaymentMethodEnum'
+          default: cash
+        delivery_method:
+          allOf:
+          - $ref: '#/components/schemas/OrderDeliveryMethodEnum'
+          default: pickup
+        recipient_name:
+          type: string
+          nullable: true
+          maxLength: 100
+        recipient_phone:
+          type: string
+          nullable: true
+          maxLength: 20
+        address:
+          type: string
+          nullable: true
+        coupon:
+          type: integer
+          nullable: true
+        call_me:
+          type: boolean
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        discount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        final_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        status:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        status_pay:
+          type: string
+          nullable: true
+          maxLength: 20
+        tracking_number:
+          type: string
+          nullable: true
+          maxLength: 50
+    PatchedProductRequest:
+      type: object
+      properties:
         ean_13:
           type: string
           nullable: true
@@ -2849,80 +3017,20 @@ components:
           type: string
           nullable: true
           maxLength: 50
-        collection:
-          type: string
-          readOnly: true
-        statuses:
-          type: string
-          readOnly: true
         year_collection:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
           nullable: true
-        occasions:
-          type: string
-          readOnly: true
-        design:
-          type: string
-          readOnly: true
-        status_display:
-          type: string
-          readOnly: true
-        subproducts:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubProductsSizes'
-          readOnly: true
-        gemstone:
-          type: string
-          readOnly: true
-        materials:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductMaterial'
-          readOnly: true
-        attributes:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductAttributes'
-          readOnly: true
-        images:
-          type: array
-          items:
-            type: string
-          readOnly: true
-        certificates:
-          type: array
-          items:
-            type: string
-          readOnly: true
-        description:
-          type: array
-          items:
-            $ref: '#/components/schemas/Descriptions'
-          readOnly: true
-    PatchedSubCategories:
+    PatchedSubCategoriesRequest:
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-        slug:
-          type: string
-          readOnly: true
         parent:
           type: integer
           nullable: true
-    PatchedSubProductsSizes:
+    PatchedSubProductsSizesRequest:
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
         position:
           type: integer
           maximum: 2147483647
@@ -2955,21 +3063,6 @@ components:
           format: decimal
           pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
           nullable: true
-        new_price:
-          type: string
-          readOnly: true
-        old_price:
-          type: string
-          readOnly: true
-        discount_applied:
-          type: string
-          readOnly: true
-        status_display:
-          type: string
-          readOnly: true
-        size:
-          type: string
-          readOnly: true
         length:
           type: number
           format: double
@@ -3127,6 +3220,13 @@ components:
         * `male` - Чоловіче
         * `children` - Дитяче
         * `unisex` - Унісекс
+    ProductAttributesRequest:
+      type: object
+      properties:
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/ProductAttributesGenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
     ProductMaterial:
       type: object
       properties:
@@ -3143,11 +3243,39 @@ components:
       required:
       - id
       - material
-    Register:
+    ProductMaterialRequest:
+      type: object
+      properties:
+        is_primary:
+          type: boolean
+        set_included:
+          type: boolean
+    ProductRequest:
+      type: object
+      properties:
+        ean_13:
+          type: string
+          nullable: true
+          maxLength: 13
+        sku:
+          type: string
+          nullable: true
+          maxLength: 50
+        article:
+          type: string
+          nullable: true
+          maxLength: 50
+        year_collection:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+    RegisterRequest:
       type: object
       properties:
         username:
           type: string
+          minLength: 1
           title: Ім'я користувача
           description: 'Необхідно: 150 або менше символів. тільки букви, цифри та  знаки
             @/./+/-/_.'
@@ -3156,6 +3284,7 @@ components:
         email:
           type: string
           format: email
+          minLength: 1
         password:
           type: string
           writeOnly: true
@@ -3163,6 +3292,7 @@ components:
         password_confirm:
           type: string
           writeOnly: true
+          minLength: 1
       required:
       - email
       - password
@@ -3201,6 +3331,12 @@ components:
       - id
       - name
       - slug
+    SubCategoriesRequest:
+      type: object
+      properties:
+        parent:
+          type: integer
+          nullable: true
     SubCategoryShort:
       type: object
       properties:
@@ -3213,6 +3349,18 @@ components:
           type: string
       required:
       - id
+      - name
+      - slug
+    SubCategoryShortRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        slug:
+          type: string
+          minLength: 1
+      required:
       - name
       - slug
     SubProductsSizes:
@@ -3291,6 +3439,58 @@ components:
       - price
       - size
       - status_display
+    SubProductsSizesRequest:
+      type: object
+      properties:
+        position:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        ean_13:
+          type: string
+          nullable: true
+          maxLength: 13
+        sku:
+          type: string
+          nullable: true
+          maxLength: 50
+        article:
+          type: string
+          nullable: true
+          maxLength: 50
+        weight:
+          type: number
+          format: double
+          nullable: true
+          title: Вага (г)
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Ціна
+        discount_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        length:
+          type: number
+          format: double
+          nullable: true
+          title: Довжина (см)
+        max_length:
+          type: number
+          format: double
+          nullable: true
+          title: Макс. довжина (см)
+        width:
+          type: number
+          format: double
+          nullable: true
+          title: Ширина (см)
+      required:
+      - price
     Token:
       type: object
       properties:
@@ -3409,6 +3609,15 @@ components:
           type: boolean
         viber_notifications:
           type: boolean
+    UserNotificationSettingsRequest:
+      type: object
+      properties:
+        email_notifications:
+          type: boolean
+        sms_notifications:
+          type: boolean
+        viber_notifications:
+          type: boolean
     UserProfile:
       type: object
       properties:
@@ -3446,6 +3655,20 @@ components:
       description: |-
         * `M` - Чоловічa
         * `F` - Жіночa
+    UserProfileRequest:
+      type: object
+      properties:
+        gender:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/UserProfileGenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        messengers: {}
+        avatar:
+          type: string
+          format: binary
+          nullable: true
     Version:
       type: object
       properties:

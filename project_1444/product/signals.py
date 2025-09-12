@@ -135,3 +135,17 @@ def generate_product_new_article(instance):
     else:
         new_article = "PR00001"  # Початковий SKU
     return new_article
+
+
+
+@receiver(post_save, sender=Product)
+def clear_product_cache(sender, instance, **kwargs):
+    if hasattr(cache, "delete_pattern"):
+        cache.delete_pattern("product_list_*")
+    else:
+        cache.clear()
+
+    if hasattr(cache, "delete_pattern"):
+        cache.delete_pattern("product_detail_*")
+    else:
+        cache.clear()
