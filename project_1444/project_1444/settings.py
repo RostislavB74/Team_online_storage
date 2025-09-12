@@ -69,7 +69,7 @@ INSTALLED_APPS = [
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
-    "celery"
+    
     # "debug_toolbar", # added dynamically later
     # "cloudinary_storage",
     "django_filters",
