@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "order",
     "warehouse",
     "discounts",
+    "tcategories",
     # 'versatileimagefield',
     # "django_ratelimit",
 ]
