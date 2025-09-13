@@ -69,7 +69,6 @@ INSTALLED_APPS = [
     "parler",
     "storages",  # For custom S3/Cloudinary storage class
     "cloudinary",
-    
     # "debug_toolbar", # added dynamically later
     # "cloudinary_storage",
     "django_filters",
@@ -440,7 +439,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_THROTTLE_RATES": {"anon": ANON_RATE_THROTTLE, "user": USER_RATE_THROTTLE},
     # added 080925
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": "addons.paginations.Pagination",
     "PAGE_SIZE": 10,
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
