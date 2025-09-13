@@ -242,6 +242,7 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
     permission_classes = (AllowAny,)
     pagination_class = None
 
+
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
