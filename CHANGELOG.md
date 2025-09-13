@@ -1,3 +1,13 @@
+## 2025-09-13 - Pagination Refactoring
+
+### Changed
+
+- Moved `Pagination` class from products to addons and set it as global
+- Removed default pagination from Category and Subcategory views
+- Updated AnotherViewSet to use global pagination instead of custom override
+
+---
+
 ## 2025-09-11 - BugFix Add product and subproducts
 - Added scrips for a backup database model
 - Tuned generate articles with found only digits onto string.

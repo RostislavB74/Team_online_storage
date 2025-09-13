@@ -1,15 +1,17 @@
-import hashlib
+from hashlib import md5
 from urllib.parse import urlencode
+
 from django.conf import settings
 from django.core.cache import cache
 from django.db import IntegrityError
 from django.db.models import F
 from django.db.models import Prefetch
 from django.db.models.functions import Abs
+from django.http import HttpResponseNotModified
 from django.shortcuts import get_object_or_404
+from django.utils.http import quote_etag
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiParameter,
@@ -18,6 +20,8 @@ from drf_spectacular.utils import (
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import (
     AllowAny,
 )
@@ -26,7 +30,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from rest_framework.pagination import PageNumberPagination
 from product.filters import CategoriesFilter, ProductFilter
 from product.models import (
     Product,
@@ -47,16 +50,10 @@ from product.serializers import (
     CategoriesTreeSerializer,
 )
 from utils.language_code import get_language_code
-from rest_framework.filters import SearchFilter
-from django.http import HttpResponseNotModified
-from django.utils.http import quote_etag
-from hashlib import md5
-from product.pagination import Pagination
 
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
-    pagination_class = PageNumberPagination
     permission_classes = (AllowAny,)
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = ProductFilter
@@ -191,6 +188,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     ]
     ordering = ["translations__name"]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    pagination_class = None
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
@@ -221,7 +219,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
         # Create hash-based key
         key_string = "|".join(str(c) for c in components)
-        return f"category_tree_{hashlib.md5(key_string.encode()).hexdigest()}"
+        return f"category_tree_{md5(key_string.encode()).hexdigest()}"
 
     def list(self, request, *args, **kwargs):
         cache_key = self.get_cache_key()
@@ -242,6 +240,7 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
     queryset = SubCategories.objects.all()
     serializer_class = SubCategoriesSerializer
     permission_classes = (AllowAny,)
+    pagination_class = None
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
@@ -274,7 +273,6 @@ class DescriptionViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
 
     serializer_class = DescriptionsSerializer
-    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
@@ -438,14 +436,12 @@ class SubProductsSizesViewSet(viewsets.ModelViewSet):
 
     queryset = SubProducts.objects.all()
     serializer_class = SubProductsSizesSerializer
-    pagination_class = Pagination
     permission_classes = (AllowAny,)
 
 
 class TotalProductsViewSet(ReadOnlyModelViewSet):
     queryset = Product.objects.prefetch_related("subproducts")
     serializer_class = TotalProductsSerializer
-    pagination_class = Pagination
     permission_classes = (AllowAny,)
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
