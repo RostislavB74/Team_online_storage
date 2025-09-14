@@ -1754,11 +1754,17 @@ paths:
     get:
       operationId: api_v1_tcategories_children_retrieve_2
       parameters:
+      - in: query
+        name: include_children
+        schema:
+          type: boolean
+          default: false
+        description: Whether to include nested children in the response
       - in: path
         name: parent_id
         schema:
-          type: string
-          pattern: ^[0-9]+$
+          type: integer
+        description: The ID of the parent category
         required: true
       tags:
       - Categories
@@ -1771,7 +1777,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TCategories'
+                $ref: '#/components/schemas/TCategoryFullPath'
           description: ''
   /api/v1/tcategories/{id}/:
     get:
@@ -1794,7 +1800,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TCategories'
+                $ref: '#/components/schemas/TCategoryFullPath'
           description: ''
   /api/v1/tcategories/children/:
     get:
@@ -3567,6 +3573,31 @@ components:
           nullable: true
           readOnly: true
       required:
+      - id
+      - name
+      - parent_id
+      - slug
+    TCategoryFullPath:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        parent_id:
+          type: integer
+          nullable: true
+          readOnly: true
+        full_path:
+          type: string
+          readOnly: true
+      required:
+      - full_path
       - id
       - name
       - parent_id
