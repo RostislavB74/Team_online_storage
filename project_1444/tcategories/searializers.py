@@ -1,25 +1,12 @@
-from django.utils.translation import gettext as _
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from tcategories.models import TCategories
 
 
 class TCategoriesSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-    slug = serializers.SerializerMethodField()
-
     class Meta:
         model = TCategories
-        fields = ["id", "name", "slug", "parent_id"]
-
-    @extend_schema_field(str)
-    def get_name(self, obj):
-        return obj.safe_translation_getter("name", default=_("Без назви"))
-
-    @extend_schema_field(str)
-    def get_slug(self, obj):
-        return obj.safe_translation_getter("slug", default=None)
+        fields = ["id", "name", "slug", "parent_id"]  # noqa
 
 
 class TCategoryShortSerializer(serializers.ModelSerializer):
@@ -29,3 +16,16 @@ class TCategoryShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = TCategories
         fields = ["id", "name", "slug"]
+
+
+class TCategoryFullPathSerializer(serializers.ModelSerializer):
+    full_path = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TCategories
+        fields = ["id", "name", "slug", "parent_id", "full_path"]  # noqa
+        read_only_fields = ["full_path"]
+
+    @staticmethod
+    def get_full_path(obj):
+        return obj.get_full_path()
