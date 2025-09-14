@@ -387,14 +387,22 @@ LOGGING = {
         "cloudinary": {
             "handlers": ["console"],
             "level": "DEBUG",
+            "propagate": False,
         },
         "users": {
             "handlers": ["console"],
             "level": "DEBUG",
+            "propagate": False,
         },
         "utils": {
             "handlers": ["console"],
             "level": "DEBUG",
+            "propagate": False,
+        },
+        "tcategories": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
         },
     },
 }
