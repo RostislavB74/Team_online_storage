@@ -1732,6 +1732,102 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/tcategories/:
+    get:
+      operationId: api_v1_tcategories_list
+      tags:
+      - Categories
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TCategories'
+          description: ''
+  /api/v1/tcategories/{parent_id}/children/:
+    get:
+      operationId: api_v1_tcategories_children_retrieve_2
+      parameters:
+      - in: path
+        name: parent_id
+        schema:
+          type: string
+          pattern: ^[0-9]+$
+        required: true
+      tags:
+      - Categories
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TCategories'
+          description: ''
+  /api/v1/tcategories/{id}/:
+    get:
+      operationId: api_v1_tcategories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this T категорія виробу.
+        required: true
+      tags:
+      - Categories
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TCategories'
+          description: ''
+  /api/v1/tcategories/children/:
+    get:
+      operationId: api_v1_tcategories_children_retrieve
+      tags:
+      - Categories
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TCategories'
+          description: ''
+  /api/v1/tcategories/root/:
+    get:
+      operationId: api_v1_tcategories_root_retrieve
+      tags:
+      - Categories
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TCategories'
+          description: ''
   /api/v1/version/:
     get:
       operationId: api_v1_version_retrieve
@@ -3454,6 +3550,27 @@ components:
           title: Ширина (см)
       required:
       - price
+    TCategories:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        parent_id:
+          type: integer
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - name
+      - parent_id
+      - slug
     Token:
       type: object
       properties:

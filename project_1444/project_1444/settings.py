@@ -49,6 +49,8 @@ ALLOWED_HOSTS.append("testserver")
 
 print(f"{ALLOWED_HOSTS=}")
 
+ROOT_API = "api/v1/"
+
 # Application definition
 
 INSTALLED_APPS = [
