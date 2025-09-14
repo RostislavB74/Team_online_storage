@@ -1,14 +1,18 @@
 import logging
 
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from project_1444.settings import LANGUAGE_CODE
 from tcategories.models import TCategories
+from tcategories.openapi_spec import (
+    TCATEGORIES_GET_CHILDREN_PARAMETERS,
+)
 from tcategories.searializers import TCategoriesSerializer, TCategoryFullPathSerializer
+from utils.language_code import get_language_code
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +25,15 @@ class TCategoriesViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        logger.debug("get_queryset: %s", self.action)
+        lang = get_language_code(self.request) or LANGUAGE_CODE
+        logger.debug("get_queryset: %s %s", self.action, lang)
+        queryset = self.queryset.language(lang)
         match self.action:
             case "get_only_root":
-                return self.queryset.filter(parent__isnull=True)
+                return queryset.filter(parent__isnull=True)
             case "get_only_children":
-                return self.queryset.filter(parent__isnull=False)
-        return self.queryset
+                return queryset.filter(parent__isnull=False)
+        return queryset
 
     def get_serializer_class(self):
         logger.debug("get_serializer_class: %s", self.action)
@@ -56,23 +62,8 @@ class TCategoriesViewSet(viewsets.ReadOnlyModelViewSet):
 
     @extend_schema(
         methods=["get"],
-        parameters=[
-            OpenApiParameter(
-                "parent_id",
-                OpenApiTypes.INT,
-                OpenApiParameter.PATH,  # This is the key change
-                description="The ID of the parent category",
-                required=True,
-            ),
-            OpenApiParameter(
-                "include_children",
-                OpenApiTypes.BOOL,
-                OpenApiParameter.QUERY,
-                description="Whether to include nested children in the response",
-                required=False,
-                default=False,
-            ),
-        ],
+        parameters=TCATEGORIES_GET_CHILDREN_PARAMETERS,
+        operation_id="tcategories_children_get",
     )
     @action(
         detail=False,
