@@ -1,0 +1,7 @@
+.*
+*/.*
+**/.*
+**/migrations/*
+!**/migrations/__init__.py
+project_1444/media
+project_1444/static
