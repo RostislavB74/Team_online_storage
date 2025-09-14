@@ -527,7 +527,7 @@ paths:
         schema:
           type: string
       tags:
-      - api
+      - Categories
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -544,7 +544,7 @@ paths:
       operationId: api_v1_categories_create
       description: CRUD для категорій
       tags:
-      - api
+      - Categories
       requestBody:
         content:
           application/json:
@@ -579,7 +579,7 @@ paths:
         description: A unique integer value identifying this Категорія виробу.
         required: true
       tags:
-      - api
+      - Categories
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -601,7 +601,7 @@ paths:
         description: A unique integer value identifying this Категорія виробу.
         required: true
       tags:
-      - api
+      - Categories
       requestBody:
         content:
           application/json:
@@ -635,7 +635,7 @@ paths:
         description: A unique integer value identifying this Категорія виробу.
         required: true
       tags:
-      - api
+      - Categories
       requestBody:
         content:
           application/json:
@@ -668,7 +668,7 @@ paths:
         description: A unique integer value identifying this Категорія виробу.
         required: true
       tags:
-      - api
+      - Categories
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1410,7 +1410,7 @@ paths:
       operationId: api_v1_subcategories_list
       description: CRUD для продуктів
       tags:
-      - api
+      - Categories
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1428,7 +1428,7 @@ paths:
       operationId: api_v1_subcategories_create
       description: CRUD для продуктів
       tags:
-      - api
+      - Categories
       requestBody:
         content:
           application/json:
@@ -1463,7 +1463,7 @@ paths:
         description: A unique integer value identifying this Підкатегорія виробу.
         required: true
       tags:
-      - api
+      - Categories
       security:
       - tokenAuth: []
       - cookieAuth: []
@@ -1486,7 +1486,7 @@ paths:
         description: A unique integer value identifying this Підкатегорія виробу.
         required: true
       tags:
-      - api
+      - Categories
       requestBody:
         content:
           application/json:
@@ -1520,7 +1520,7 @@ paths:
         description: A unique integer value identifying this Підкатегорія виробу.
         required: true
       tags:
-      - api
+      - Categories
       requestBody:
         content:
           application/json:
@@ -1554,7 +1554,7 @@ paths:
         description: A unique integer value identifying this Підкатегорія виробу.
         required: true
       tags:
-      - api
+      - Categories
       security:
       - tokenAuth: []
       - cookieAuth: []
