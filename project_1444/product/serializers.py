@@ -246,43 +246,38 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     old_price = serializers.SerializerMethodField()
     discount_applied = serializers.SerializerMethodField()
     size = serializers.SerializerMethodField()
-    # parent_product = serializers.CharField(source='parent_product.name', read_only=True)
     new_price = serializers.SerializerMethodField()
 
-    @extend_schema_field(str)
     def get_size(self, obj):
-        # Обробка size
         if obj.size:
             if isinstance(obj.size, dict) and "value" in obj.size:
-                return obj.size["value"]  # Для словника повертаємо значення 'value'
-            return str(obj.size)  # Для рядка або іншого типу повертаємо як є
-
-        # Обробка length і max_length
+                return obj.size["value"]
+            return str(obj.size)
         if obj.length and obj.max_length:
             return f"{obj.length}-{obj.max_length}"
         if obj.length:
             return str(obj.length)
-
-        # Якщо нічого немає, повертаємо порожній рядок
         return ""
 
-    @extend_schema_field(str)
     def get_new_price(self, obj):
-        request = self.context.get("request")
-        user = request.user if request and hasattr(request, "user") else None
-        return get_discounted_price(user, obj)["new_price"]
+        # Перевіряємо, чи discount_percentage не None і більше 0
+        if obj.discount_percentage is not None and obj.discount_percentage > 0:
+            request = self.context.get("request")
+            user = request.user if request and hasattr(request, "user") else None
+            return get_discounted_price(user, obj)["new_price"]
+        return None
 
-    @extend_schema_field(str)
     def get_old_price(self, obj):
-        request = self.context.get("request")
-        user = request.user if request and hasattr(request, "user") else None
-        return get_discounted_price(user, obj)["old_price"]
+        # Перевіряємо, чи discount_percentage не None і більше 0
+        if obj.discount_percentage is not None and obj.discount_percentage > 0:
+            request = self.context.get("request")
+            user = request.user if request and hasattr(request, "user") else None
+            return get_discounted_price(user, obj)["old_price"]
+        return None
 
-    @extend_schema_field(str)
     def get_discount_applied(self, obj):
-        request = self.context.get("request")
-        user = request.user if request and hasattr(request, "user") else None
-        return get_discounted_price(user, obj)["discount_applied"]
+        # Повертаємо True, якщо є знижка (не None і більше 0)
+        return obj.discount_percentage is not None and obj.discount_percentage > 0
 
     class Meta:
         model = SubProducts
@@ -304,6 +299,71 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             "max_length",
             "width",
         ]
+
+
+# class SubProductsSizesSerializer(serializers.ModelSerializer):
+#     status_display = serializers.CharField(source="get_status_display", read_only=True)
+#     old_price = serializers.SerializerMethodField()
+#     discount_applied = serializers.SerializerMethodField()
+#     size = serializers.SerializerMethodField()
+#     # parent_product = serializers.CharField(source='parent_product.name', read_only=True)
+#     new_price = serializers.SerializerMethodField()
+
+#     @extend_schema_field(str)
+#     def get_size(self, obj):
+#         # Обробка size
+#         if obj.size:
+#             if isinstance(obj.size, dict) and "value" in obj.size:
+#                 return obj.size["value"]  # Для словника повертаємо значення 'value'
+#             return str(obj.size)  # Для рядка або іншого типу повертаємо як є
+
+#         # Обробка length і max_length
+#         if obj.length and obj.max_length:
+#             return f"{obj.length}-{obj.max_length}"
+#         if obj.length:
+#             return str(obj.length)
+
+#         # Якщо нічого немає, повертаємо порожній рядок
+#         return ""
+
+#     @extend_schema_field(str)
+#     def get_new_price(self, obj):
+#         request = self.context.get("request")
+#         user = request.user if request and hasattr(request, "user") else None
+#         return get_discounted_price(user, obj)["new_price"]
+
+#     @extend_schema_field(str)
+#     def get_old_price(self, obj):
+#         request = self.context.get("request")
+#         user = request.user if request and hasattr(request, "user") else None
+#         return get_discounted_price(user, obj)["old_price"]
+
+#     @extend_schema_field(str)
+#     def get_discount_applied(self, obj):
+#         request = self.context.get("request")
+#         user = request.user if request and hasattr(request, "user") else None
+#         return get_discounted_price(user, obj)["discount_applied"]
+
+#     class Meta:
+#         model = SubProducts
+#         fields = [
+#             "id",
+#             "position",
+#             "ean_13",
+#             "sku",
+#             "article",
+#             "weight",
+#             "price",
+#             "discount_percentage",
+#             "new_price",
+#             "old_price",
+#             "discount_applied",
+#             "status_display",
+#             "size",
+#             "length",
+#             "max_length",
+#             "width",
+#         ]
 
 
 class SubCategoriesSerializer(serializers.ModelSerializer):
