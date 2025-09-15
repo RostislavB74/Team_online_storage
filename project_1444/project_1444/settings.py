@@ -49,6 +49,8 @@ ALLOWED_HOSTS.append("testserver")
 
 print(f"{ALLOWED_HOSTS=}")
 
+ROOT_API = "api/v1/"
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -87,6 +89,7 @@ INSTALLED_APPS = [
     "order",
     "warehouse",
     "discounts",
+    "tcategories",
     # 'versatileimagefield',
     # "django_ratelimit",
 ]
@@ -384,14 +387,22 @@ LOGGING = {
         "cloudinary": {
             "handlers": ["console"],
             "level": "DEBUG",
+            "propagate": False,
         },
         "users": {
             "handlers": ["console"],
             "level": "DEBUG",
+            "propagate": False,
         },
         "utils": {
             "handlers": ["console"],
             "level": "DEBUG",
+            "propagate": False,
+        },
+        "tcategories": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
         },
     },
 }

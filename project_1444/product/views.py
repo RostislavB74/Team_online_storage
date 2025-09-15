@@ -175,6 +175,7 @@ class RingSizeLookup(APIView):
 
 
 # USED
+@extend_schema(tags=["Categories"])
 class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для категорій"""
 
@@ -234,6 +235,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         return response
 
 
+@extend_schema(tags=["Categories"])
 class SubCategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
 

@@ -7,6 +7,8 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
+
+from .settings import ROOT_API
 from .views import ApiRootView
 from utils.views import HealthCheckView, VersionView
 from django.conf import settings
@@ -16,16 +18,18 @@ admin.site.site_title = "Адмінка"
 admin.site.index_title = "Ласкаво просимо"
 admin.site.login_template = "custom_admin/login.html"
 
+
 urlpatterns = [
     path("api/", ApiRootView.as_view(), name="api-root"),
     path("admin/", admin.site.urls, name="admin"),
     path("", include("users.urls")),
     path("", RedirectView.as_view(url="api/docs/", permanent=False), name="index"),
     path("social-auth/", include("social_django.urls", namespace="social")),
-    path("api/v1/", include("order.urls")),
-    path("api/v1/", include("cart.urls")),
-    path("api/v1/", include("product.urls")),
-    path("api/v1/auth/", include("rest_framework.urls")),
+    path(f"{ROOT_API}", include("order.urls")),
+    path(f"{ROOT_API}", include("cart.urls")),
+    path(f"{ROOT_API}", include("product.urls")),
+    path(f"{ROOT_API}", include("tcategories.urls")),
+    path(f"{ROOT_API}auth/", include("rest_framework.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",
@@ -33,9 +37,9 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
-    path("api/v1/livez/", HealthCheckView.as_view(), name="livez"),
-    path("api/v1/version/", VersionView.as_view(), name="version"),
-    path("api/v1/", include("discounts.urls", namespace="discounts")),
+    path(f"{ROOT_API}livez/", HealthCheckView.as_view(), name="livez"),
+    path(f"{ROOT_API}version/", VersionView.as_view(), name="version"),
+    path(f"{ROOT_API}", include("discounts.urls", namespace="discounts")),
 ]
 
 if settings.STATIC_URL:
@@ -103,9 +107,9 @@ if settings.DEBUG:
 #     path("", RedirectView.as_view(url="api/docs/", permanent=False), name="index"),
 #     path("social-auth/", include("social_django.urls", namespace="social")),
 #     # path("api/v0/", include("mock.urls")),
-#     path("api/v1/", include("order.urls")),
-#     path("api/v1/", include("cart.urls")),
-#     path("api/v1/", include("product.urls")),
+#     path(f"{ROOT_API}", include("order.urls")),
+#     path(f"{ROOT_API}", include("cart.urls")),
+#     path(f"{ROOT_API}", include("product.urls")),
 #     path("api/v1/auth/", include("rest_framework.urls")),
 #     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
 #     path(
@@ -129,7 +133,7 @@ if settings.DEBUG:
 #     path("api/v1/livez/", HealthCheckView.as_view(), name="livez"),
 #     path("api/v1/version/", VersionView.as_view(), name="version"),
 #     path(
-#         "api/v1/",
+#         f"{ROOT_API}",
 #         include(
 #             [
 #                 path("discounts/", include("discounts.urls", namespace="discounts")),
