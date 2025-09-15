@@ -4,19 +4,6 @@ from .serializers import (
     RingSizeSerializer,
 )
 
-# class ProductViewSet(viewsets.ModelViewSet):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-
-# class ProductImageViewSet(viewsets.ModelViewSet):
-#     queryset = ProductImage.objects.all()
-#     serializer_class = ProductImageSerializer
-
-# class ProductCertificateViewSet(viewsets.ModelViewSet):
-#     queryset = ProductCertificate.objects.all()
-#     serializer_class = ProductCertificateSerializer
-
-
 class RingSizeViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = RingSizeSerializer
