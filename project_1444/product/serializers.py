@@ -260,21 +260,24 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
         return ""
 
     def get_new_price(self, obj):
-        if obj.discount_percentage > 0:  # Повертаємо new_price лише якщо є знижка
+        # Перевіряємо, чи discount_percentage не None і більше 0
+        if obj.discount_percentage is not None and obj.discount_percentage > 0:
             request = self.context.get("request")
             user = request.user if request and hasattr(request, "user") else None
             return get_discounted_price(user, obj)["new_price"]
-        return None  # Якщо знижки немає, повертаємо None
+        return None
 
     def get_old_price(self, obj):
-        if obj.discount_percentage > 0:  # Повертаємо old_price лише якщо є знижка
+        # Перевіряємо, чи discount_percentage не None і більше 0
+        if obj.discount_percentage is not None and obj.discount_percentage > 0:
             request = self.context.get("request")
             user = request.user if request and hasattr(request, "user") else None
             return get_discounted_price(user, obj)["old_price"]
-        return None  # Якщо знижки немає, повертаємо None
+        return None
 
     def get_discount_applied(self, obj):
-        return obj.discount_percentage > 0  # Повертаємо True лише якщо є знижка
+        # Повертаємо True, якщо є знижка (не None і більше 0)
+        return obj.discount_percentage is not None and obj.discount_percentage > 0
 
     class Meta:
         model = SubProducts
