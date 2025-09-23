@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  ping:
+  ping_server:
     runs-on: ubuntu-latest
     steps:
       - name: Send HEAD request to Server
