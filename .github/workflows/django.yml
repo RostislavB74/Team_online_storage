@@ -5,8 +5,8 @@ permissions:
   pull-requests: write
 
 on:
-  push:
-    branches: [ "dev", "deploy" ]
+#  push:
+#    branches: [ "dev", "deploy" ]
   pull_request:
     branches: [ "dev", "deploy" ]
 
@@ -34,5 +34,5 @@ jobs:
         cd project_1444
         export PYTHONPATH=.
         export DATABASE_URL=sqlite:///db.sqlite
-        python manage.py migrate
-        python manage.py test
+        python manage.py migrate --noinput
+        python manage.py test --noinput
