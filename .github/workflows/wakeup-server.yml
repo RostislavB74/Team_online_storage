@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send request to Server
-        run: curl -s -I https://team-online-storage.onrender.com/api/v1/livez/?format=json&git=1444 -o /dev/null
+        run: curl -s -I https://team-online-storage.onrender.com/api/v1/livez/?format=json&git=1444 > /dev/null
