@@ -2,7 +2,7 @@ name: Send HEAD request to Server
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/5 5-20 * * *"
   workflow_dispatch:
 
 jobs:
