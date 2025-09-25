@@ -58,7 +58,7 @@ def gen_email_alias(email: str, alias: str):
     if not alias:
         return email
     split_email = email.split("@")
-    split_email[0] = f"{split_email[0]}+{alias.replace("@","_")}"
+    split_email[0] = f"{split_email[0]}+{alias.replace('@','_')}"
     return "@".join(split_email)
 
 
