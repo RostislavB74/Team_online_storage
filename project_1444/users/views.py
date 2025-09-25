@@ -343,7 +343,7 @@ class VerifyOTPAPIView(APIView):
             return Response(
                 {
                     "status": "success",
-                    "message": _("Welcome, ") + user.username + "!",
+                    "message": _("Welcome, {username}!").format(username=user.username),
                     "token": token.key,
                     "user_id": user.pk,
                     "username": user.username,
@@ -394,7 +394,9 @@ class RegisterAPIView(APIView):
         return Response(
             {
                 "status": otp_status,
-                "message": _("Registration successful") + ". " + data.get("message"),
+                "message": _("Registration successful. {message}").format(
+                    message=data.get("message", "")
+                ),
                 # "token": token.key,
                 "user_id": user.pk,
                 "username": user.username,

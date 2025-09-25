@@ -1,0 +1,18 @@
+name: Send HEAD request to Server
+
+on:
+  schedule:
+    - cron: "*/5 5-20 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping_server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send HEAD request to Server
+        env:
+          server_url: ${{ secrets.PING_SERVER_URL || 'https://team-online-storage.onrender.com/api/v1/livez/?git=1444' }}
+        run: |
+          if [ -n "${server_url}" ]; then
+              curl -s -I "${server_url}"
+          fi

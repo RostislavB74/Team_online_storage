@@ -675,3 +675,6 @@ INTERNAL_IPS = [
     # ...
 ]
 OTP_EXPIRATION_TIME = 15  # minutes
+
+EMAIL_FROM_HOST_USER_ONLY = env("EMAIL_FROM_HOST_USER_ONLY", default=False, cast=bool)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default=None)
