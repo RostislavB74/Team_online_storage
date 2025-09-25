@@ -4,16 +4,13 @@ permissions:
   contents: read
 
 on:
-  #workflow_run:
-  #  workflows: ["Django CI"]
-  #  types:
-  #   - completed
   pull_request:
     branches: [ "deploy" ]
+    types: [closed]
 
 jobs:
   ci:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'deploy' }}
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'deploy' && github.event.pull_request.head.ref == 'dev'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
