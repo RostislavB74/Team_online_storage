@@ -5,7 +5,10 @@ import requests  # Для Telegram API або SMS-сервісу
 from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 
-from project_1444.settings import EMAIL_FROM_HOST_USER_ONLY
+from project_1444.settings import (
+    EMAIL_FROM_HOST_USER_ONLY,
+    EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS,
+)
 from project_1444.settings import EMAIL_HOST_USER
 
 logger = logging.getLogger(__name__)
@@ -58,7 +61,12 @@ def gen_email_alias(email: str, alias: str):
     if not alias:
         return email
     split_email = email.split("@")
-    split_email[0] = f"{split_email[0]}+{alias.replace('@','_')}"
+    if EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS:
+        split_email[0] = f"{split_email[0]}+{alias.replace('@','_')}"
+    else:
+        split_email[0] = f"{alias.replace('@','_')} <{split_email[0]}"
+        split_email[1] += ">"
+
     return "@".join(split_email)
 
 
