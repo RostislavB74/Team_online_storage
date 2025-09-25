@@ -61,9 +61,6 @@ pre-commit = "^4.3.0"
 black = "^25.1.0"
 ruff = "^0.12.11"
 
-[tool.poetry.virtualenvs]
-in-project = true
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
