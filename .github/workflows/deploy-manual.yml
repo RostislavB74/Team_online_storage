@@ -1,0 +1,31 @@
+name: DEPLOY-MANUAL
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'deploy' && github.event.pull_request.head.ref == 'dev'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        env:
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          deploy_static_url: ${{ secrets.RENDER_DEPLOY_HOOK_STATIC_URL }}
+        run: |
+          if [ -n "$deploy_url" ]; then
+            echo "Deploying to $deploy_url"
+            curl "$deploy_url"
+          else
+            echo "No deploy url found"
+          fi
+          if [ -n "$deploy_static_url" ]; then
+            echo "Deploying to deploy_static_url"
+            # curl "$deploy_static_url"
+          else
+            echo "No deploy static url found"
+          fi
