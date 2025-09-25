@@ -381,14 +381,14 @@ class RegisterAPIView(APIView):
             )
         data = send_otp_by_email(request, user)
         otp_status = data.get("status")
-        if otp_status == "error":
+        if otp_status == "error" or otp_status is None:
             user.delete()
             return Response(
                 {
                     "status": otp_status,
                     "message": _("Failed to send OTP. Please try again."),
                 },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
         # token, created = Token.objects.get_or_create(user=user)
         return Response(
