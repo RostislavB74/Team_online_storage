@@ -9,5 +9,7 @@ if command -v dos2unix &> /dev/null; then
 fi
 echo Creating Django superuser...
 pushd "../project_1444"
-poetry run python manage.py createsuperuser --username admin
+#poetry run python manage.py createsuperuser --username admin
+poetry run python manage.py createsuperuser --noinput --username admin
+
 popd
