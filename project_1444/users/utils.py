@@ -1,10 +1,12 @@
 import logging
 import mimetypes
 
+import requests  # Для Telegram API або SMS-сервісу
 from django.core.files.base import ContentFile
 from django.core.mail import send_mail
-import requests  # Для Telegram API або SMS-сервісу
 
+from project_1444.settings import EMAIL_FROM_HOST_USER_ONLY
+from project_1444.settings import EMAIL_HOST_USER
 
 logger = logging.getLogger(__name__)
 
@@ -50,8 +52,27 @@ def send_otp_via_telegram(username, otp):
 #     send_mail(subject, message, from_email, recipient_list)
 
 
+def gen_email_alias(email: str, alias: str):
+    if not email:
+        return alias
+    if not alias:
+        return email
+    split_email = email.split("@")
+    split_email[0] = f"{split_email[0]}+{alias.replace("@","_")}"
+    return "@".join(split_email)
+
+
 def send_email_in_background(*args, **kwargs):
     logger.debug("Sending email in background...")
+    if EMAIL_FROM_HOST_USER_ONLY:
+        kwargs["recipient_list"] = [
+            gen_email_alias(EMAIL_HOST_USER, recipient)
+            for recipient in kwargs.get("recipient_list", [])
+        ]
+        logger.debug(
+            f"Email alias generated for recipients. {kwargs['recipient_list']}"
+        )
+
     return send_mail(*args, **kwargs)
 
 

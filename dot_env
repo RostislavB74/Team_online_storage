@@ -24,6 +24,7 @@ EMAIL_PORT=587
 EMAIL_USE_SSL= True
 EMAIL_HOST_USER='your_email'
 EMAIL_HOST_PASSWORD='your_password'
+EMAIL_FROM_HOST_USER_ONLY=False
 
 SECRET_KEY='your_secret_key'
 ALLOWED_HOSTS='127.0.0.1,localhost'
