@@ -6,7 +6,7 @@ repos:
     hooks:
       - id: ruff
         name: ruff (lint)
-        entry: ruff check
+        entry: ruff check --target-version py311
         language: system
         types: [python]
         files: "^project_1444/.*\\.py$"
