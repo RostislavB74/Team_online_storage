@@ -11,15 +11,15 @@ echo "GIT_VERSION=${GIT_VERSION}"
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 cd "${script_dir}"
 
-python manage.py migrate
+python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 
 # Ensure DEBUG is set
 DEBUG=${DEBUG:-False}
 
 # Start Celery worker in background
-echo "Starting Celery worker..."
-celery -A project_1444 worker --loglevel=info  -c 1 --max-memory-per-child 131072 --max-tasks-per-child 50 &
+# echo "Starting Celery worker..."
+# celery -A project_1444 worker --loglevel=info  -c 1 --max-memory-per-child 131072 --max-tasks-per-child 50 &
 
 # Optional: Start Celery beat (for scheduled tasks)
 #echo "Starting Celery beat..."
@@ -28,7 +28,7 @@ celery -A project_1444 worker --loglevel=info  -c 1 --max-memory-per-child 13107
 
 # Start Gunicorn
 echo "Starting Gunicorn..."
-gunicorn --bind "0.0.0.0:8000" "project_1444.wsgi:application"
+gunicorn --bind "0.0.0.0:8000" "project_1444.wsgi:application" --workers 1 --threads 4 --max-requests 1000 --max-requests-jitter 50 --timeout 300 --graceful-timeout 300 --keep-alive 5 #--loglevel info --access-logfile - --error-logfile -
 
 echo "Sleep 30 sec, for measure free memory..."
 sleep 30
