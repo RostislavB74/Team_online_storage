@@ -95,3 +95,5 @@ SAVE_TEST_DB_OUTPUT=False
 
 # GENERATE_OPENAPI=False
 # OPENAPI_FILE=project_1444/schema.yaml
+
+# OTP_ENABLE=True
