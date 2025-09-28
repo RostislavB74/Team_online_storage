@@ -28,6 +28,7 @@ from drf_spectacular.utils import (
     OpenApiResponse,
 )
 from cart.models import Cart
+from project_1444.settings import OTP_ENABLE
 from .models import UserProfile, OTP, UserNotificationSettings
 from .serializers import (
     LoginSerializer,
@@ -379,23 +380,28 @@ class RegisterAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        data = send_otp_by_email(request, user)
-        otp_status = data.get("status")
-        if otp_status == "error" or otp_status is None:
-            user.delete()
-            return Response(
-                {
-                    "status": otp_status,
-                    "message": _("Failed to send OTP. Please try again."),
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if OTP_ENABLE:
+            data = send_otp_by_email(request, user)
+            otp_status = data.get("status")
+            if otp_status == "error" or otp_status is None:
+                user.delete()
+                return Response(
+                    {
+                        "status": otp_status,
+                        "message": _("Failed to send OTP. Please try again."),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            message = data.get("message", "")
+        else:
+            otp_status = "success"
+            message = ""
         # token, created = Token.objects.get_or_create(user=user)
         return Response(
             {
                 "status": otp_status,
                 "message": _("Registration successful. {message}").format(
-                    message=data.get("message", "")
+                    message=message
                 ),
                 # "token": token.key,
                 "user_id": user.pk,

@@ -674,6 +674,8 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+OTP_ENABLE = env("OTP_ENABLE", default=True, cast=bool)
+OTP_BACKEND = "email"
 OTP_EXPIRATION_TIME = 15  # minutes
 
 EMAIL_FROM_HOST_USER_ONLY = env("EMAIL_FROM_HOST_USER_ONLY", default=False, cast=bool)
