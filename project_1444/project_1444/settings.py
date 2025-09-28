@@ -196,6 +196,7 @@ WSGI_APPLICATION = "project_1444.wsgi.application"
 # Налаштування автентифікації
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
+
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = "auth/login/"
 LOGOUT_REDIRECT_URL = "/admin/login/"
@@ -234,6 +235,9 @@ if IS_TESTING:
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+
+AUTH_USER_MODEL = "users.CustomUser"
+
 # AUTH_USER_MODEL = 'users.User'
 AUTH_PASSWORD_VALIDATORS = [
     {

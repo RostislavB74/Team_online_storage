@@ -1,9 +1,12 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import User
+
 
 from product.models import SubProducts
 from product.utils import get_discounted_price
+
+User = get_user_model()
 
 
 class CartQueryset(models.QuerySet):
