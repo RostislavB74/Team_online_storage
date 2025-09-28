@@ -8,6 +8,7 @@ from django.core.mail import send_mail
 from project_1444.settings import (
     EMAIL_FROM_HOST_USER_ONLY,
     EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS,
+    DEFAULT_FROM_EMAIL,
 )
 from project_1444.settings import EMAIL_HOST_USER
 
@@ -62,9 +63,9 @@ def gen_email_alias(email: str, alias: str):
         return email
     split_email = email.split("@")
     if EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS:
-        split_email[0] = f"{split_email[0]}+{alias.replace('@','_')}"
+        split_email[0] = f"{split_email[0]}+{alias.replace('@', '_')}"
     else:
-        split_email[0] = f"{alias.replace('@','_')} <{split_email[0]}"
+        split_email[0] = f"{alias.replace('@', '_')} <{split_email[0]}"
         split_email[1] += ">"
 
     return "@".join(split_email)
@@ -73,8 +74,10 @@ def gen_email_alias(email: str, alias: str):
 def send_email_in_background(*args, **kwargs):
     logger.debug("Sending email in background...")
     if EMAIL_FROM_HOST_USER_ONLY:
+        system_email = DEFAULT_FROM_EMAIL or EMAIL_HOST_USER
+        logger.debug(f"send_email_in_background: System email: {system_email}")
         kwargs["recipient_list"] = [
-            gen_email_alias(EMAIL_HOST_USER, recipient)
+            gen_email_alias(system_email, recipient)
             for recipient in kwargs.get("recipient_list", [])
         ]
         logger.debug(
