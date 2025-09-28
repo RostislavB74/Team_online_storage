@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from datetime import timedelta
 from django.utils import timezone
+from .constants import GenderChoices
 
 
 class MessengerDict:
@@ -43,7 +44,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     gender = models.CharField(
         max_length=1,
-        choices=[("M", _("Male")), ("F", _("Female"))],
+        choices=GenderChoices,
         blank=True,
         null=True,
     )
