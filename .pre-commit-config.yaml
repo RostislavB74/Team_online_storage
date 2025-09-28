@@ -4,19 +4,26 @@ repos:
   # Local hook for ruff (uses version from requirements.txt / pyproject.toml)
   - repo: local
     hooks:
-      - id: ruff
+      - id: ruff_lint
         name: ruff (lint)
         entry: ruff check --target-version py311
         language: system
         types: [python]
         files: "^project_1444/.*\\.py$"
 
-      - id: black
-        name: black (format)
-        entry: black
+      - id: ruff_format
+        name: ruff (format)
+        entry: ruff format --target-version py311
         language: system
-        types: [python]
+        types: [ python ]
         files: "^project_1444/.*\\.py$"
+
+#      - id: black
+#        name: black (format)
+#        entry: black
+#        language: system
+#        types: [python]
+#        files: "^project_1444/.*\\.py$"
 
 
       - id: spectacular-openapi
