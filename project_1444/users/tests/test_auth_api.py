@@ -104,7 +104,7 @@ class AuthAPITest(APITestCase):
         assert response.data.get("token"), "Token should not be returned"
         self.assertEqual(response.data.get("user_id"), otp_user_id)
         if self.token:
-            self.assertEqual(self.token, response.data.get("token"), "Token mismatch")
+            self.assertEqual(self.token.key, response.data.get("token"), "Token mismatch")
         return True
 
     def verify_otp_code_unregister_request(self, otp_code: str, otp_user_id: int) -> bool:
@@ -195,7 +195,7 @@ class AuthAPITest(APITestCase):
             "password": self.user_test["password"],
         }
 
-        response = self.client.post(reverse("api_token"), data, format="json", content_type="application/json")
+        response = self.client.post(reverse("api_token"), data, format="json")
         # print("POST", response.data)
         self.assertEqual(
             response.status_code,
@@ -210,6 +210,7 @@ class AuthAPITest(APITestCase):
         return token
 
     def test_unregister_user(self):
+        """User must be authorized"""
         user = self.create_user_unit(**self.user_test)
         self.assertIsNotNone(user, "Test User is not created")
         self.assertTrue(user.is_active, "User should be active")
