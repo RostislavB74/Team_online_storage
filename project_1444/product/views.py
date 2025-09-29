@@ -51,6 +51,7 @@ from product.serializers import (
 )
 from utils.language_code import get_language_code
 
+import hashlib
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
@@ -175,6 +176,8 @@ class RingSizeLookup(APIView):
 
 
 # USED
+
+
 @extend_schema(tags=["Categories"])
 class CategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для категорій"""
@@ -184,17 +187,19 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = CategoriesFilter
-    ordering_fields = [
-        "translations__name",
-    ]
-    ordering = ["translations__name"]
+    ordering_fields = ["translations__name"]  # Для OrderingFilter
+    ordering = ["translations__name"]  # Default сортування
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     pagination_class = None
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        qs = Categories.objects.language(lang)
+        qs = (
+            Categories.objects.translated(lang)
+            .distinct()
+            .order_by("translations__name")
+        )
         if self.action == "list":
             return qs.prefetch_related(
                 "translations", "subcategories", "subcategories__translations"
@@ -208,31 +213,84 @@ class CategoriesViewSet(viewsets.ModelViewSet):
             raise ValidationError({"detail": f"Category creation failed: {str(e)}"})
 
     def get_cache_key(self):
-        """
-        Build cache key based on request path, language, and ALL query parameters.
-        This automatically includes any filter parameters since they come via GET.
-        """
         components = [
             self.request.path,
             get_language_code(self.request),
-            urlencode(sorted(self.request.GET.items())),  # All sorted params
+            urlencode(sorted(self.request.GET.items())),
         ]
-
-        # Create hash-based key
         key_string = "|".join(str(c) for c in components)
-        return f"category_tree_{md5(key_string.encode()).hexdigest()}"
+        return f"category_tree_{hashlib.md5(key_string.encode()).hexdigest()}"
 
     def list(self, request, *args, **kwargs):
         cache_key = self.get_cache_key()
         cached_response = cache.get(cache_key)
         if cached_response is not None:
-            # print("Using cached response", cache_key)
             return Response(cached_response)
-
         response = super().list(request, *args, **kwargs)
         cache.set(cache_key, response.data, settings.SQL_CACHE_TIMEOUT_DEFAULT)
-        # print("Added cached response", cache_key)
         return response
+
+
+# @extend_schema(tags=["Categories"])
+# class CategoriesViewSet(viewsets.ModelViewSet):
+#     """CRUD для категорій"""
+
+#     queryset = Categories.objects.all()
+#     serializer_class = CategoriesTreeSerializer
+#     permission_classes = (IsAdminOrReadOnly,)
+#     filter_backends = [DjangoFilterBackend, OrderingFilter]
+#     filterset_class = CategoriesFilter
+#     ordering_fields = [
+#         "translations__name",
+#     ]
+#     ordering = ["translations__name"]
+#     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+#     pagination_class = None
+
+#     def get_queryset(self):
+#         """Фільтрація товарів за мовою"""
+#         lang = get_language_code(self.request)
+#         qs = Categories.objects.translated(lang)
+
+#         # qs = Categories.objects.language(lang)
+#         if self.action == "list":
+#             return qs.prefetch_related(
+#                 "translations", "subcategories", "subcategories__translations"
+#             ).order_by("translations__name")
+#         return qs
+
+#     def create(self, request, *args, **kwargs):
+#         try:
+#             return super().create(request, *args, **kwargs)
+#         except IntegrityError as e:
+#             raise ValidationError({"detail": f"Category creation failed: {str(e)}"})
+
+#     def get_cache_key(self):
+#         """
+#         Build cache key based on request path, language, and ALL query parameters.
+#         This automatically includes any filter parameters since they come via GET.
+#         """
+#         components = [
+#             self.request.path,
+#             get_language_code(self.request),
+#             urlencode(sorted(self.request.GET.items())),  # All sorted params
+#         ]
+
+#         # Create hash-based key
+#         key_string = "|".join(str(c) for c in components)
+#         return f"category_tree_{md5(key_string.encode()).hexdigest()}"
+
+#     def list(self, request, *args, **kwargs):
+#         cache_key = self.get_cache_key()
+#         cached_response = cache.get(cache_key)
+#         if cached_response is not None:
+#             # print("Using cached response", cache_key)
+#             return Response(cached_response)
+
+#         response = super().list(request, *args, **kwargs)
+#         cache.set(cache_key, response.data, settings.SQL_CACHE_TIMEOUT_DEFAULT)
+#         # print("Added cached response", cache_key)
+#         return response
 
 
 @extend_schema(tags=["Categories"])
@@ -285,9 +343,6 @@ class DescriptionViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return qs.prefetch_related("translations")
         return qs.all()
-
-
-
 
 
 class SubProductsSizesViewSet(viewsets.ModelViewSet):
