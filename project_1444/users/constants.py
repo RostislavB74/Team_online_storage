@@ -13,3 +13,4 @@ class OTPStatus(StrEnum):
     SUCCESS = "success"
     ERROR = "error"
     SENT = "otp_sent"
+    DISABLED = "disabled"

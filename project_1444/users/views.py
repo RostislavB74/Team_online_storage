@@ -629,26 +629,36 @@ class UnRegisterAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        data = send_otp_by_email(request, user)
-        otp_status = data.get("status")
-        if otp_status == "error":
+        if OTP_ENABLE:
+            data = send_otp_by_email(request, user)
+            otp_status = data.get("status")
+            if otp_status == "error":
+                return Response(
+                    {
+                        "status": otp_status,
+                        "message": _("Failed to send OTP. Please try again."),
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
             return Response(
                 {
                     "status": otp_status,
-                    "message": _("Failed to send OTP. Please try again."),
+                    "message": _("OTP code was sent for continue UnRegistration")
+                    + ". "
+                    + data.get("message"),
+                    "user_id": user.pk,
                 },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_202_ACCEPTED,
             )
-        return Response(
-            {
-                "status": otp_status,
-                "message": _("OTP code was sent for continue UnRegistration")
-                + ". "
-                + data.get("message"),
-                "user_id": user.pk,
-            },
-            status=status.HTTP_202_ACCEPTED,
-        )
+        else:
+            return Response(
+                {
+                    "status": OTPStatus.DISABLED,
+                    "message": _("This dangerous function without OTP is disabled"),
+                    "user_id": user.pk,
+                },
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
 
 
 class VerifyOTPUnRegister(APIView):
