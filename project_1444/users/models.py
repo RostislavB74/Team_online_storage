@@ -1,8 +1,16 @@
-from django.contrib.auth.models import User
+import logging
+
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from datetime import timedelta
 from django.utils import timezone
+from .constants import GenderChoices
+
+logger = logging.getLogger(__name__)
+
+
+User = get_user_model()
 
 
 class MessengerDict:
@@ -43,7 +51,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     gender = models.CharField(
         max_length=1,
-        choices=[("M", _("Male")), ("F", _("Female"))],
+        choices=GenderChoices,
         blank=True,
         null=True,
     )

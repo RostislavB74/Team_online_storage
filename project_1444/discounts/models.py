@@ -1,29 +1,31 @@
-import uuid
 import random
 import string
 from datetime import timedelta
 from decimal import Decimal
-from django.db import models
+
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
-from django.utils.timezone import now
-from django.conf import settings
-from product.models import *
-from users.models import UserProfile
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
-from django.contrib.auth.models import User
-from product.models import Product, Categories, SubProducts
+from django.utils.translation import gettext_lazy as _
+from product.models import (
+    Product,
+    Categories,
+    SubProducts,
+    Occasion,
+    Material,
+    Gemstone,
+    RingSizeConversion,
+    Gender,
+    Collections,
+    Styles,
+)
 from users.models import UserProfile
-from datetime import timedelta
+
+User = get_user_model()
 
 
 def default_valid_to():
     return now() + timedelta(days=30)
-
-
-User = get_user_model()
 
 
 def generate_promo_code(length=10):
@@ -206,7 +208,6 @@ class Coupon(BaseDiscount):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-
         verbose_name = _("Купон")
         verbose_name_plural = _("Купони")
 
