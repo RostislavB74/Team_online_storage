@@ -184,21 +184,25 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = CategoriesFilter
-    ordering_fields = [
-        "translations__name",
-    ]
-    ordering = ["translations__name"]
+    ordering_fields=["name"]
+    ordering=["name"]
+    # ordering_fields = [
+    #     "translations__name",
+    # ]
+    # ordering = ["translations__name"]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     pagination_class = None
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
         lang = get_language_code(self.request)
-        qs = Categories.objects.language(lang)
+        qs = Categories.objects.translated(lang)
+
+        # qs = Categories.objects.language(lang)
         if self.action == "list":
             return qs.prefetch_related(
                 "translations", "subcategories", "subcategories__translations"
-            )
+            ).order_by('name')
         return qs
 
     def create(self, request, *args, **kwargs):
@@ -285,9 +289,6 @@ class DescriptionViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return qs.prefetch_related("translations")
         return qs.all()
-
-
-
 
 
 class SubProductsSizesViewSet(viewsets.ModelViewSet):
