@@ -293,8 +293,20 @@ class LoginAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        data = send_otp_by_email(request, user)
+        if OTP_ENABLE:
+            data = send_otp_by_email(request, user)
+        else:
+            login(request, user, "django.contrib.auth.backends.ModelBackend")
+            token, created = Token.objects.get_or_create(user=user)
+            data = (
+                {
+                    "status": OTPStatus.SUCCESS,
+                    "message": _("Successfully logged in"),
+                    "token": token.key,
+                    "user_id": user.pk,
+                    "username": user.username,
+                },
+            )
 
         return Response(data=data, status=status.HTTP_200_OK)
 
