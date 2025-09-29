@@ -184,12 +184,12 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = CategoriesFilter
-    ordering_fields=["name"]
-    ordering=["name"]
-    # ordering_fields = [
-    #     "translations__name",
-    # ]
-    # ordering = ["translations__name"]
+    # ordering_fields=["name"]
+    # ordering=["name"]
+    ordering_fields = [
+        "translations__name",
+    ]
+    ordering = ["translations__name"]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     pagination_class = None
 
@@ -202,7 +202,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return qs.prefetch_related(
                 "translations", "subcategories", "subcategories__translations"
-            ).order_by('name')
+            ).order_by("translations__name")
         return qs
 
     def create(self, request, *args, **kwargs):
