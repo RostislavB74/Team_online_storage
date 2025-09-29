@@ -1,16 +1,17 @@
-from rest_framework import serializers
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-from .models import UserProfile, OTP, UserNotificationSettings
-from order.serializers import OrderSerializer
-from rest_framework import serializers
 import re
-import json
+
 from django.conf import settings
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
+
+from order.serializers import OrderSerializer
+from project_1444.settings import OTP_ENABLE
+from .models import UserNotificationSettings
 from .models import UserProfile
-from order.models import Order, OrderItem  # Імпортуємо із orders
-from product.serializers import ProductSerializer
-import re
 
 
 class LoginSerializer(serializers.Serializer):
@@ -27,9 +28,9 @@ class LoginSerializer(serializers.Serializer):
                 password=password,
             )
             if not user:
-                raise serializers.ValidationError("Invalid credentials")
+                raise serializers.ValidationError(_("Invalid credentials"))
         else:
-            raise serializers.ValidationError("Must include username and password")
+            raise serializers.ValidationError(_("Must include username and password"))
         data["user"] = user
         return data
 
@@ -41,23 +42,53 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["username", "email", "password", "password_confirm"]
+        fields = ["email", "password", "password_confirm"]
+
+    def validate_email(self, value):
+        return value.lower().strip()
 
     def validate(self, data):
         if data["password"] != data["password_confirm"]:
-            raise serializers.ValidationError({"password": "Passwords must match"})
-        if User.objects.filter(email=data["email"]).exists():
-            raise serializers.ValidationError({"email": "Email already exists"})
+            raise serializers.ValidationError(
+                {"password_confirm": _("Passwords must match.")}
+            )
+
+        email = data["email"]
+        try:
+            existing_user = User.objects.get(email=email)
+            if existing_user and existing_user.is_active:
+                raise serializers.ValidationError({"email": _("Email already in use.")})
+            # Inactive user exists → we'll reuse it
+            data["existing_inactive_user"] = existing_user
+        except User.DoesNotExist:
+            data["existing_inactive_user"] = None
+
+        # Optional: validate password strength
+        try:
+            validate_password(data["password"])
+        except DjangoValidationError as e:
+            raise serializers.ValidationError({"password": list(e.messages)})
+
         return data
 
     def create(self, validated_data):
         validated_data.pop("password_confirm")
-        user = User.objects.create_user(
-            username=validated_data["username"],
+        existing_user = validated_data.pop("existing_inactive_user", None)
+
+        if existing_user:
+            # Reuse existing inactive user: update password and reset any state if needed
+            existing_user.set_password(validated_data["password"])
+            existing_user.save(update_fields=["password"])
+            return existing_user
+
+        # Create new user
+        user = User(
+            username=validated_data["email"],
             email=validated_data["email"],
-            password=validated_data["password"],
-            is_active=False,
+            is_active=not OTP_ENABLE,  # inactive if OTP is enabled
         )
+        user.set_password(validated_data["password"])  # NEVER assign raw password!
+        user.save()
         return user
 
 
@@ -78,7 +109,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def validate_messengers(self, value):
         if not isinstance(value, dict):
-            raise serializers.ValidationError("Messengers must be a dictionary")
+            raise serializers.ValidationError(_("Messengers must be a dictionary"))
 
         allowed_messengers = set(settings.ALLOWED_MESSENGERS)
         for key in value:
