@@ -1,7 +1,6 @@
 import logging
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from datetime import timedelta
@@ -9,14 +8,6 @@ from django.utils import timezone
 from .constants import GenderChoices
 
 logger = logging.getLogger(__name__)
-
-
-class CustomUser(AbstractUser):
-    username = None  # Remove username field
-    email = models.EmailField(unique=True)
-
-    USERNAME_FIELD = "email"  # Use email as the unique identifier
-    REQUIRED_FIELDS = []  # No other required fields for createsuperuser
 
 
 User = get_user_model()
