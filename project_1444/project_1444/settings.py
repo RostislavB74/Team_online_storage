@@ -426,6 +426,7 @@ try:
         EMAIL_BACKEND = None
 except (KeyError, environ.ImproperlyConfigured):
     EMAIL_BACKEND = None
+    DEFAULT_FROM_EMAIL = None
 
 ANON_RATE_THROTTLE = env("ANON_RATE_THROTTLE", default="5/minute") or None
 USER_RATE_THROTTLE = env("USER_RATE_THROTTLE", default="10/minute") or None
