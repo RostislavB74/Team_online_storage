@@ -3,8 +3,7 @@ import random
 from datetime import timedelta
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -52,6 +51,8 @@ from .templatetags.social_extras import (
 from .utils import send_email_in_background
 
 logger = logging.getLogger(__name__)
+
+User = get_user_model()
 
 STATIC_PREFIX_EXAMPLE = "https://static.example.com/"
 
