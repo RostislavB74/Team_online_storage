@@ -141,7 +141,7 @@ SESSION_COOKIE_AGE = env(
     "SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30, cast=int
 )  # 30 days
 
-# SESSION_COOKIE_PATH = env("SESSION_COOKIE_PATH", default="/admin/")
+SESSION_COOKIE_PATH = env("SESSION_COOKIE_PATH", default="/admin/")
 
 
 MIDDLEWARE = [
@@ -444,7 +444,7 @@ REST_FRAMEWORK = {
         # "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.TokenAuthentication",
         # "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
