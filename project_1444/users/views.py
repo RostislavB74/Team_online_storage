@@ -3,31 +3,32 @@ import random
 from datetime import timedelta
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from drf_spectacular.types import OpenApiTypes
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.parsers import JSONParser
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
     OpenApiExample,
     OpenApiResponse,
 )
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+from rest_framework.views import APIView
+
 from cart.models import Cart
+from .constants import OTPStatus
 from .models import UserProfile, OTP, UserNotificationSettings
 from .serializers import (
     LoginSerializer,
@@ -49,6 +50,8 @@ from .templatetags.social_extras import (
 from .utils import send_email_in_background
 
 logger = logging.getLogger(__name__)
+
+User = get_user_model()
 
 STATIC_PREFIX_EXAMPLE = "https://static.example.com/"
 
@@ -245,7 +248,7 @@ def send_otp_by_email(request, user):
         logger.error(f"Failed to send OTP to {user.email}: {str(e)}")
         return Response(
             {
-                "status": "error",
+                "status": OTPStatus.ERROR,
                 "message": _("Failed to send OTP. Please try again."),
             },
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -253,7 +256,7 @@ def send_otp_by_email(request, user):
 
     request.session["otp_user_id"] = user.id
     return {
-        "status": "otp_sent",
+        "status": OTPStatus.SENT,
         "message": _("OTP sent to your email"),
         "otp_user_id": user.id,
     }
@@ -290,8 +293,20 @@ class LoginAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        data = send_otp_by_email(request, user)
+        if settings.OTP_ENABLE:
+            data = send_otp_by_email(request, user)
+        else:
+            login(request, user, "django.contrib.auth.backends.ModelBackend")
+            token, created = Token.objects.get_or_create(user=user)
+            data = (
+                {
+                    "status": OTPStatus.SUCCESS,
+                    "message": _("Successfully logged in"),
+                    "token": token.key,
+                    "user_id": user.pk,
+                    "username": user.username,
+                },
+            )
 
         return Response(data=data, status=status.HTTP_200_OK)
 
@@ -342,7 +357,7 @@ class VerifyOTPAPIView(APIView):
                 del request.session["otp_user_id"]
             return Response(
                 {
-                    "status": "success",
+                    "status": OTPStatus.SUCCESS,
                     "message": _("Welcome, {username}!").format(username=user.username),
                     "token": token.key,
                     "user_id": user.pk,
@@ -379,23 +394,28 @@ class RegisterAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        data = send_otp_by_email(request, user)
-        otp_status = data.get("status")
-        if otp_status == "error" or otp_status is None:
-            user.delete()
-            return Response(
-                {
-                    "status": otp_status,
-                    "message": _("Failed to send OTP. Please try again."),
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if settings.OTP_ENABLE:
+            data = send_otp_by_email(request, user)
+            responses_status = data.get("status")
+            if responses_status is None or responses_status != OTPStatus.SENT:
+                # user.delete()
+                return Response(
+                    {
+                        "status": responses_status,
+                        "message": _("Failed to send OTP. Please try again."),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            message = data.get("message", "")
+        else:
+            responses_status = OTPStatus.SUCCESS
+            message = ""
         # token, created = Token.objects.get_or_create(user=user)
         return Response(
             {
-                "status": otp_status,
+                "status": responses_status,
                 "message": _("Registration successful. {message}").format(
-                    message=data.get("message", "")
+                    message=message
                 ),
                 # "token": token.key,
                 "user_id": user.pk,
@@ -609,26 +629,36 @@ class UnRegisterAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        data = send_otp_by_email(request, user)
-        otp_status = data.get("status")
-        if otp_status == "error":
+        if settings.OTP_ENABLE:
+            data = send_otp_by_email(request, user)
+            otp_status = data.get("status")
+            if otp_status == "error":
+                return Response(
+                    {
+                        "status": otp_status,
+                        "message": _("Failed to send OTP. Please try again."),
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
             return Response(
                 {
                     "status": otp_status,
-                    "message": _("Failed to send OTP. Please try again."),
+                    "message": _("OTP code was sent for continue UnRegistration")
+                    + ". "
+                    + data.get("message"),
+                    "user_id": user.pk,
                 },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_202_ACCEPTED,
             )
-        return Response(
-            {
-                "status": otp_status,
-                "message": _("OTP code was sent for continue UnRegistration")
-                + ". "
-                + data.get("message"),
-                "user_id": user.pk,
-            },
-            status=status.HTTP_202_ACCEPTED,
-        )
+        else:
+            return Response(
+                {
+                    "status": OTPStatus.DISABLED,
+                    "message": _("This dangerous function without OTP is disabled"),
+                    "user_id": user.pk,
+                },
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
 
 
 class VerifyOTPUnRegister(APIView):
