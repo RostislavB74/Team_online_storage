@@ -100,7 +100,9 @@ class OTPSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source="user.username", read_only=True)
     avatar = serializers.ImageField(allow_null=True, required=False)
-    messengers = serializers.JSONField(default=dict, source="get_messengers_for_admin")
+    messengers = serializers.JSONField(
+        default=dict, source="get_messengers_for_admin", required=False
+    )
     orders = OrderSerializer(many=True, source="user.orders", read_only=True)
 
     class Meta:
