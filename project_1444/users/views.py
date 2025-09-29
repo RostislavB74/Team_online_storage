@@ -28,7 +28,6 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.views import APIView
 
 from cart.models import Cart
-from project_1444.settings import OTP_ENABLE
 from .constants import OTPStatus
 from .models import UserProfile, OTP, UserNotificationSettings
 from .serializers import (
@@ -294,7 +293,7 @@ class LoginAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if OTP_ENABLE:
+        if settings.OTP_ENABLE:
             data = send_otp_by_email(request, user)
         else:
             login(request, user, "django.contrib.auth.backends.ModelBackend")
@@ -395,7 +394,7 @@ class RegisterAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if OTP_ENABLE:
+        if settings.OTP_ENABLE:
             data = send_otp_by_email(request, user)
             responses_status = data.get("status")
             if responses_status is None or responses_status != OTPStatus.SENT:
@@ -630,7 +629,7 @@ class UnRegisterAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if OTP_ENABLE:
+        if settings.OTP_ENABLE:
             data = send_otp_by_email(request, user)
             otp_status = data.get("status")
             if otp_status == "error":

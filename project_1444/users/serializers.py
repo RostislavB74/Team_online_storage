@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from order.serializers import OrderSerializer
-from project_1444.settings import OTP_ENABLE
 from .models import UserNotificationSettings
 from .models import UserProfile
 
@@ -85,7 +84,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User(
             username=validated_data["email"],
             email=validated_data["email"],
-            is_active=not OTP_ENABLE,  # inactive if OTP is enabled
+            is_active=not settings.OTP_ENABLE,  # inactive if OTP is enabled
         )
         user.set_password(validated_data["password"])  # NEVER assign raw password!
         user.save()
