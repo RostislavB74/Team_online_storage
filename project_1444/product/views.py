@@ -197,7 +197,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         lang = get_language_code(self.request)
         qs = (
             Categories.objects.translated(lang)
-            .distinct()
+            # .distinct()
             .order_by("translations__name")
         )
         if self.action == "list":
