@@ -4,15 +4,9 @@ from django.http import HttpRequest
 from django.utils.translation import get_language
 
 
-def get_language_code(
-    request: Request | HttpRequest, default: str = settings.LANGUAGE_CODE
-) -> str:
+def get_language_code(request: Request | HttpRequest, default: str = settings.LANGUAGE_CODE) -> str:
     # Для DRF використовуємо query_params, для звичайного Django — GET
-    lang = (
-        request.query_params.get("lang")
-        if isinstance(request, Request)
-        else request.GET.get("lang")
-    )
+    lang = request.query_params.get("lang") if isinstance(request, Request) else request.GET.get("lang")
     if lang:
         lang = lang.strip()[:6].lower()
     else:
@@ -24,7 +18,7 @@ def get_language_code(
     # Перевіряємо, чи мова підтримується
     supported_languages = getattr(settings, "PARLER_LANGUAGES_LIST", ["uk", "en"])
     lang = lang if lang in supported_languages else default
-    print(f"Language from request: {lang}")  # Дебаг
+    # print(f"Language from request: {lang}")  # Дебаг
     return lang
 
 

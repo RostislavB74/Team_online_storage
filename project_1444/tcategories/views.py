@@ -36,7 +36,7 @@ class TCategoriesViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
     def get_serializer_class(self):
-        logger.debug("get_serializer_class: %s", self.action)
+        # logger.debug("get_serializer_class: %s", self.action)
         match self.action:
             case "get_children" | "retrieve":
                 return TCategoryFullPathSerializer
@@ -73,9 +73,7 @@ class TCategoriesViewSet(viewsets.ReadOnlyModelViewSet):
     )
     def get_children(self, request, parent_id=None):
         try:
-            include_children = (
-                request.query_params.get("include_children", "false").lower() == "true"
-            )
+            include_children = request.query_params.get("include_children", "false").lower() == "true"
 
             def get_recursive_children(parent_id):
                 direct_children = self.get_queryset().filter(parent_id=parent_id)
