@@ -5,7 +5,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from parler.models import TranslatableModel, TranslatedFields
+from parler.models import TranslatableModel, TranslatedFields #TranslatedFieldsModel
 
 from users.models import User
 from utils.multi_backend_image_field import (
@@ -13,7 +13,6 @@ from utils.multi_backend_image_field import (
     MultiBackendFileField,
 )
 from .utils import save_with_translation
-
 
 class Categories(TranslatableModel):
     translations = TranslatedFields(
@@ -32,12 +31,28 @@ class Categories(TranslatableModel):
         save_with_translation(self, *args, **kwargs)
 
     class Meta:
+
         verbose_name = _("Категорія виробу")
         verbose_name_plural = _("Категорії виробів")
 
     def __str__(self):
         field_translated = self.safe_translation_getter("name", default=_("Без назви"))
         return f"{self.pk:03d}-{field_translated}"
+
+
+# class CategoriesTranslation(TranslatedFieldsModel):
+#     master = models.ForeignKey(
+#         "Categories", on_delete=models.CASCADE, related_name="translations"
+#     )
+#     name = models.CharField(max_length=255, unique=True, verbose_name="Categories")
+#     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
+
+#     class Meta:
+#         indexes = [
+#             models.Index(fields=["language_code", "name"]),
+#         ]
+#         verbose_name = _("Переклад категорії")
+#         verbose_name_plural = _("Переклади категорій")
 
 
 class Weaving(TranslatableModel):
