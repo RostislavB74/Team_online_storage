@@ -25,6 +25,12 @@ EMAIL_USE_SSL= True
 EMAIL_HOST_USER='your_email'
 EMAIL_HOST_PASSWORD='your_password'
 EMAIL_FROM_HOST_USER_ONLY=False
+DEFAULT_FROM_EMAIL='your_email'
+
+##  ANYMAIL
+# ANYMAIL_ENABLED=False
+# ANYMAIL_BACKEND=brevo
+# ANYMAIL_API=
 
 SECRET_KEY='your_secret_key'
 ALLOWED_HOSTS='127.0.0.1,localhost'
