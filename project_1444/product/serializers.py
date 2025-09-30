@@ -26,20 +26,28 @@ from project_1444.settings import (
 
 
 class SubCategoryShortSerializer(serializers.ModelSerializer):
-    name = serializers.CharField()
-    slug = serializers.CharField()
-
+    name = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
     class Meta:
         model = SubCategories
         fields = ["id", "name", "slug"]
 
+    @extend_schema_field(str)
+    def get_name(self, obj):
+        language = self.context.get("language", "uk")
+        return obj.safe_translation_getter(
+            "name", language_code=language, default="Без назви"
+        )
+
+    @extend_schema_field(str)
+    def get_slug(self, obj):
+        language = self.context.get("language", "uk")
+        return obj.safe_translation_getter("slug", language_code=language, default=None)
+
 
 class CategoriesTreeSerializer(serializers.ModelSerializer):
-    # For translation save on create category via API post
-    name = serializers.CharField()
-    slug = serializers.CharField()
-    # name = serializers.SerializerMethodField()
-    # slug = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
     subcategories = SubCategoryShortSerializer(many=True, read_only=True)
 
     class Meta:
@@ -58,19 +66,20 @@ class CategoriesTreeSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(str)
     def get_name(self, obj):
-        return obj.safe_translation_getter("name", default="Без назви")
+        language = self.context.get("language", "uk")
+        return obj.safe_translation_getter(
+            "name", language_code=language, default="Без назви"
+        )
 
     @extend_schema_field(str)
     def get_slug(self, obj):
-        return obj.safe_translation_getter("slug", default=None)
+        language = self.context.get("language", "uk")
+        return obj.safe_translation_getter("slug", language_code=language, default=None)
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
-    # For translation save on create category via API post
-    name = serializers.CharField()
-    slug = serializers.CharField()
-    # name = serializers.SerializerMethodField()
-    # slug = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Categories
@@ -87,11 +96,15 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(str)
     def get_name(self, obj):
-        return obj.safe_translation_getter("name", default="Без назви")
+        language = self.context.get("language", "uk")
+        return obj.safe_translation_getter(
+            "name", language_code=language, default="Без назви"
+        )
 
     @extend_schema_field(str)
     def get_slug(self, obj):
-        return obj.safe_translation_getter("slug", default=None)
+        language = self.context.get("language", "uk")
+        return obj.safe_translation_getter("slug", language_code=language, default=None)
 
 
 class DescriptionsSerializer(serializers.ModelSerializer):

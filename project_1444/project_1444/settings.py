@@ -108,7 +108,7 @@ PARLER_LANGUAGES = {
     ),
     "default": {
         "fallbacks": ["uk"],
-        "hide_untranslated": False ,
+        "hide_untranslated": True,
     },
 }
 
