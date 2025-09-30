@@ -71,6 +71,20 @@ build-backend = "poetry.core.masonry.api"
 line-length = 120
 target-version = ['py311']
 
+[tool.ruff]
+line-length = 120
+target-version = ['py311']
+
+[tool.ruff.format]
+# Use double quotes to match Black
+quote-style = "double"
+# Use spaces for indentation (Black's default)
+indent-style = "space"
+# Ensure Ruff respects Black's skip-string-normalization behavior
+skip-magic-trailing-comma = false
+# Match Black's line ending behavior (usually not needed, as both default to LF)
+line-ending = "lf"
+
 [tool.isort]
 profile = "black"
 line_length = 120
