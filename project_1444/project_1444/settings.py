@@ -12,10 +12,9 @@ import environ
 
 # from django.shortcuts import resolve_url
 from django.urls import reverse_lazy
-
 from . import __version__
-from .settings_cache import REDIS_URL
 from .settings_base import env, BASE_DIR
+from .settings_cache import REDIS_URL, CACHES, SESSION_ENGINE  # noqa
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -131,7 +130,7 @@ for lang in GLOBAL_LANGUAGES:
 LOCALE_PATHS = [
     BASE_DIR / "locale",
 ]
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
 SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE", default=True, cast=bool)
 SESSION_COOKIE_HTTPONLY = env("SESSION_COOKIE_HTTPONLY", default=True, cast=bool)
 SESSION_COOKIE_SAMESITE = env(
