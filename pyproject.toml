@@ -69,11 +69,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
-target-version = ['py311']
+target-version = "py311"
 
 [tool.ruff]
 line-length = 120
-target-version = ['py311']
+target-version = "py311"
 
 [tool.ruff.format]
 # Use double quotes to match Black
