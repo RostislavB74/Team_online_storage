@@ -406,23 +406,40 @@ EMAIL_FILE_PATH = BASE_DIR / "emails"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+# MAIL
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default=None)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
+DEFAULT_REPLY_TO_EMAIL = env("DEFAULT_REPLY_TO_EMAIL", default=None)
+
+
 try:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = env("EMAIL_HOST")
     EMAIL_PORT = env("EMAIL_PORT", cast=int, default=465)
     EMAIL_USE_SSL = env("EMAIL_USE_SSL", cast=bool, default=True)
-    EMAIL_HOST_USER = env("EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
     if not EMAIL_HOST:
         EMAIL_BACKEND = None
 except (KeyError, environ.ImproperlyConfigured):
     EMAIL_BACKEND = None
-    DEFAULT_FROM_EMAIL = None
 
 ANON_RATE_THROTTLE = env("ANON_RATE_THROTTLE", default="5/minute") or None
 USER_RATE_THROTTLE = env("USER_RATE_THROTTLE", default="10/minute") or None
 print(f"{ANON_RATE_THROTTLE=}, {USER_RATE_THROTTLE=}")
+
+# ANYMAIL
+ANYMAIL_ENABLED = env("ANYMAIL_ENABLED", default=False, cast=bool)
+if ANYMAIL_ENABLED:
+    ANYMAIL_BACKEND = env("ANYMAIL_BACKEND", default=None)
+    ANYMAIL_API = env("ANYMAIL_API", default=None)
+    assert ANYMAIL_BACKEND, "ANYMAIL_BACKEND must be set"
+    assert ANYMAIL_API, "ANYMAIL_API must be set"
+    EMAIL_BACKEND = f"anymail.backends.{ANYMAIL_BACKEND.lower()}.EmailBackend"
+    ANYMAIL = {f"{ANYMAIL_BACKEND.upper()}_API_KEY": ANYMAIL_API}
+    INSTALLED_APPS.append("anymail")
+
+print(f"{EMAIL_BACKEND=}")
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -649,10 +666,17 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
-OTP_ENABLE = env("OTP_ENABLE", default=True, cast=bool)
-OTP_BACKEND = "email"
+
+if EMAIL_BACKEND:
+    OTP_ENABLE = env("OTP_ENABLE", default=True, cast=bool)
+    OTP_BACKEND = "email"
+else:
+    OTP_ENABLE = False
+    OTP_BACKEND = None
+
+print(f"{OTP_ENABLE=}")
+
 OTP_EXPIRATION_TIME = 15  # minutes
 
 EMAIL_FROM_HOST_USER_ONLY = env("EMAIL_FROM_HOST_USER_ONLY", default=False, cast=bool)
 EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS = env("EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS", default=False, cast=bool)
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default=None)
