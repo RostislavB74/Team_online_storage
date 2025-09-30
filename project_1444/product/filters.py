@@ -17,6 +17,7 @@ class ProductFilter(filters.FilterSet):
     )
     price_min = filters.NumberFilter(field_name="subproducts__price", lookup_expr="gte")
     price_max = filters.NumberFilter(field_name="subproducts__price", lookup_expr="lte")
+    statuses  = filters.CharFilter(method="filter_statuses")
 
     class Meta:
         model = Product
@@ -31,6 +32,22 @@ class ProductFilter(filters.FilterSet):
             "gemstone",
             "price_min",
             "price_max",
+            # "price",
+            # "slug",
+            # "ean_13",
+            # "sku",
+            # "article",
+             "statuses",
+            # "occasions",
+            # "description",
+            # "subproducts",
+            # "gemstone",
+            # "material",
+            # "images",
+            # "certificates",
+            # "design",
+            # "attributes",
+            # "year_collection",
         )
 
     def filter_name(self, queryset, name, value):

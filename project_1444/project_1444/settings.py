@@ -103,12 +103,12 @@ LANGUAGE_CODE = "uk"  # Мова за замовчуванням
 
 PARLER_LANGUAGES = {
     None: (
-        {"code": "uk", "fallbacks": ["en"], "hide_untranslated": False},
-        {"code": "en", "fallbacks": ["uk"], "hide_untranslated": False},
+        {"code": "uk", "fallbacks": ["en"], "hide_untranslated": True},
+        {"code": "en", "fallbacks": ["uk"], "hide_untranslated": True},
     ),
     "default": {
         "fallbacks": ["uk"],
-        "hide_untranslated": False,
+        "hide_untranslated": False ,
     },
 }
 
