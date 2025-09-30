@@ -3,12 +3,13 @@ import mimetypes
 
 import requests  # Для Telegram API або SMS-сервісу
 from django.core.files.base import ContentFile
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 
 from project_1444.settings import (
     EMAIL_FROM_HOST_USER_ONLY,
     EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS,
     DEFAULT_FROM_EMAIL,
+    DEFAULT_REPLY_TO_EMAIL,
 )
 from project_1444.settings import EMAIL_HOST_USER
 
@@ -56,19 +57,24 @@ def send_otp_via_telegram(username, otp):
 #     send_mail(subject, message, from_email, recipient_list)
 
 
-def gen_email_alias(email: str, alias: str):
-    if not email:
+def gen_email_alias(email_string: str, alias: str):
+    if not email_string:
         return alias
     if not alias:
-        return email
-    split_email = email.split("@")
-    if EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS:
-        split_email[0] = f"{split_email[0]}+{alias.replace('@', '_')}"
-    else:
-        split_email[0] = f"{alias.replace('@', '_')} <{split_email[0]}"
-        split_email[1] += ">"
+        return email_string
 
-    return "@".join(split_email)
+    alias = alias.replace("@", "_at_")
+
+    from email.utils import parseaddr, formataddr
+
+    name, email = parseaddr(email_string)
+    if EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS:
+        split_email = email.split("@")
+        split_email[0] = f"{split_email[0]}+{alias}"
+        email = "@".join(split_email)
+    else:
+        name = f"{name} vs {alias}" if name else alias
+    return formataddr((name, email))
 
 
 def send_email_in_background(*args, **kwargs):
@@ -77,14 +83,28 @@ def send_email_in_background(*args, **kwargs):
         system_email = DEFAULT_FROM_EMAIL or EMAIL_HOST_USER
         logger.debug(f"send_email_in_background: System email: {system_email}")
         kwargs["recipient_list"] = [
-            gen_email_alias(system_email, recipient)
-            for recipient in kwargs.get("recipient_list", [])
+            gen_email_alias(system_email, recipient) for recipient in kwargs.get("recipient_list", [])
         ]
-        logger.debug(
-            f"Email alias generated for recipients. {kwargs['recipient_list']}"
-        )
+        logger.debug(f"Email alias generated for recipients. {kwargs['recipient_list']}")
+        if kwargs["recipient_list"]:
+            kwargs["from_email"] = kwargs["recipient_list"][0]
 
-    return send_mail(*args, **kwargs)
+    email_message = EmailMessage(
+        subject=kwargs["subject"],
+        body=kwargs.get("message", None),
+        from_email=kwargs.get("from_email", DEFAULT_FROM_EMAIL),
+        to=kwargs.get("recipient_list", None),
+        reply_to=(DEFAULT_REPLY_TO_EMAIL,) if DEFAULT_REPLY_TO_EMAIL else None,
+    )
+    if html_message := kwargs.get("html_message"):
+        email_message.content_subtype = "html"
+        email_message.body = html_message
+
+    # print(email_message.__dict__, kwargs)
+
+    return email_message.send()
+
+    # return send_mail(*args, **kwargs)
 
 
 def mark_social_login(strategy, backend, user=None, *args, **kwargs):
@@ -111,9 +131,7 @@ def set_avatar_from_url(user, url):
         logger.error(f"Set Avatar from URL: {e}")
 
 
-def set_profile_avatar_from_social(
-    backend, user, response, is_new=False, *args, **kwargs
-):
+def set_profile_avatar_from_social(backend, user, response, is_new=False, *args, **kwargs):
     if not is_new:
         return  # Skip for existing users
 
