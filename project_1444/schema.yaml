@@ -125,6 +125,10 @@ paths:
         schema:
           type: number
       - in: query
+        name: statuses
+        schema:
+          type: string
+      - in: query
         name: subcategories
         schema:
           type: array
@@ -541,7 +545,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/CategoriesTreeRequest'
-        required: true
       security:
       - tokenAuth: []
       responses:
@@ -596,7 +599,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/CategoriesTreeRequest'
-        required: true
       security:
       - tokenAuth: []
       responses:
@@ -1164,6 +1166,10 @@ paths:
         required: false
         in: query
         description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: statuses
         schema:
           type: string
       - in: query
@@ -2250,8 +2256,10 @@ components:
           readOnly: true
         name:
           type: string
+          readOnly: true
         slug:
           type: string
+          readOnly: true
         updated_at:
           type: string
           format: date-time
@@ -2281,8 +2289,10 @@ components:
           readOnly: true
         name:
           type: string
+          readOnly: true
         slug:
           type: string
+          readOnly: true
         updated_at:
           type: string
           format: date-time
@@ -2313,12 +2323,6 @@ components:
     CategoriesTreeRequest:
       type: object
       properties:
-        name:
-          type: string
-          minLength: 1
-        slug:
-          type: string
-          minLength: 1
         has_length:
           type: boolean
           title: Має довжину (см)
@@ -2331,9 +2335,6 @@ components:
         has_weight:
           type: boolean
           title: Має вагу (г)
-      required:
-      - name
-      - slug
     Descriptions:
       type: object
       properties:
@@ -2922,12 +2923,6 @@ components:
     PatchedCategoriesTreeRequest:
       type: object
       properties:
-        name:
-          type: string
-          minLength: 1
-        slug:
-          type: string
-          minLength: 1
         has_length:
           type: boolean
           title: Має довжину (см)
@@ -3326,22 +3321,12 @@ components:
           readOnly: true
         name:
           type: string
+          readOnly: true
         slug:
           type: string
+          readOnly: true
       required:
       - id
-      - name
-      - slug
-    SubCategoryShortRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-        slug:
-          type: string
-          minLength: 1
-      required:
       - name
       - slug
     SubProductsSizes:
