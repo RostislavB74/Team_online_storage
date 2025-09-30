@@ -50,6 +50,7 @@ from product.serializers import (
     CategoriesTreeSerializer,
 )
 from utils.language_code import get_language_code
+from django.utils.translation import get_language
 
 import hashlib
 
@@ -194,12 +195,9 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
-        lang = get_language_code(self.request)
-        qs = (
-            Categories.objects.translated(lang)
-            # .distinct()
-            .order_by("translations__name")
-        )
+        lang = self.request.query_params.get("lang", get_language())
+        print(f"Language: {lang}")
+        qs = (Categories.objects.translated(lang).order_by("translations__name"))
         if self.action == "list":
             return qs.prefetch_related(
                 "translations", "subcategories", "subcategories__translations"
@@ -222,13 +220,18 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         return f"category_tree_{hashlib.md5(key_string.encode()).hexdigest()}"
 
     def list(self, request, *args, **kwargs):
-        cache_key = self.get_cache_key()
-        cached_response = cache.get(cache_key)
-        if cached_response is not None:
-            return Response(cached_response)
+        # cache_key = self.get_cache_key()
+        # cached_response = cache.get(cache_key)
+        # if cached_response is not None:
+        #     return Response(cached_response)
         response = super().list(request, *args, **kwargs)
-        cache.set(cache_key, response.data, settings.SQL_CACHE_TIMEOUT_DEFAULT)
+        # cache.set(cache_key, response.data, settings.SQL_CACHE_TIMEOUT_DEFAULT)
         return response
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = get_language_code(self.request)
+        return context
 
 
 # @extend_schema(tags=["Categories"])
