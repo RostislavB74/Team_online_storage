@@ -81,13 +81,31 @@ paths:
         explode: false
         style: form
       - in: query
-        name: category
+        name: category_id
         schema:
           type: integer
+          nullable: true
       - in: query
         name: collection
         schema:
+          type: string
+      - in: query
+        name: collection_id
+        schema:
           type: integer
+          nullable: true
+      - in: query
+        name: color
+        schema:
+          type: string
+      - in: query
+        name: color_name
+        schema:
+          type: string
+      - in: query
+        name: design
+        schema:
+          type: string
       - in: query
         name: gemstone
         schema:
@@ -101,7 +119,15 @@ paths:
         schema:
           type: string
       - in: query
+        name: material_name
+        schema:
+          type: string
+      - in: query
         name: name
+        schema:
+          type: string
+      - in: query
+        name: occasions
         schema:
           type: string
       - name: page
@@ -138,13 +164,18 @@ paths:
         explode: false
         style: form
       - in: query
-        name: subcategory
+        name: subcategory_id
         schema:
           type: integer
+          nullable: true
+      - in: query
+        name: subproducts
+        schema:
+          type: string
       - in: query
         name: year_collection
         schema:
-          type: integer
+          type: string
       - in: query
         name: year_collection_range_max
         schema:
@@ -510,6 +541,10 @@ paths:
         name: has_width
         schema:
           type: boolean
+      - in: query
+        name: name
+        schema:
+          type: string
       - name: ordering
         required: false
         in: query
@@ -1113,13 +1148,31 @@ paths:
         explode: false
         style: form
       - in: query
-        name: category
+        name: category_id
         schema:
           type: integer
+          nullable: true
       - in: query
         name: collection
         schema:
+          type: string
+      - in: query
+        name: collection_id
+        schema:
           type: integer
+          nullable: true
+      - in: query
+        name: color
+        schema:
+          type: string
+      - in: query
+        name: color_name
+        schema:
+          type: string
+      - in: query
+        name: design
+        schema:
+          type: string
       - in: query
         name: gemstone
         schema:
@@ -1133,7 +1186,15 @@ paths:
         schema:
           type: string
       - in: query
+        name: material_name
+        schema:
+          type: string
+      - in: query
         name: name
+        schema:
+          type: string
+      - in: query
+        name: occasions
         schema:
           type: string
       - name: ordering
@@ -1182,13 +1243,18 @@ paths:
         explode: false
         style: form
       - in: query
-        name: subcategory
+        name: subcategory_id
         schema:
           type: integer
+          nullable: true
+      - in: query
+        name: subproducts
+        schema:
+          type: string
       - in: query
         name: year_collection
         schema:
-          type: integer
+          type: string
       - in: query
         name: year_collection_range_max
         schema:
@@ -3098,7 +3164,9 @@ components:
           type: string
           readOnly: true
         statuses:
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         year_collection:
           type: integer
@@ -3106,7 +3174,9 @@ components:
           minimum: -2147483648
           nullable: true
         occasions:
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         design:
           type: string
@@ -3120,7 +3190,10 @@ components:
             $ref: '#/components/schemas/SubProductsSizes'
           readOnly: true
         gemstone:
-          type: string
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
           readOnly: true
         materials:
           type: array
