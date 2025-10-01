@@ -7,10 +7,10 @@ from product.models import (
     Categories,
     Material,
     Gemstone,
-    SubProducts,
+    # SubProducts,
     Occasion,
     Collections,
-    Styles,
+    # Styles,
 )
 from utils.language_code import get_language_code
 from addons.filters import CommaSeparatedIntegerListFilter # Імпортуємо твою функцію

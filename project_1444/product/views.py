@@ -1,7 +1,7 @@
 from hashlib import md5
 from urllib.parse import urlencode
 
-from django.conf import settings
+# from django.conf import settings
 from django.core.cache import cache
 from django.db import IntegrityError
 from django.db.models import F
