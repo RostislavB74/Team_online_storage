@@ -12,10 +12,9 @@ import environ
 
 # from django.shortcuts import resolve_url
 from django.urls import reverse_lazy
-
 from . import __version__
-from .settings_cache import REDIS_URL
 from .settings_base import env, BASE_DIR
+from .settings_cache import REDIS_URL, CACHES, SESSION_ENGINE  # noqa
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -131,15 +130,13 @@ for lang in GLOBAL_LANGUAGES:
 LOCALE_PATHS = [
     BASE_DIR / "locale",
 ]
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
 SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE", default=True, cast=bool)
 SESSION_COOKIE_HTTPONLY = env("SESSION_COOKIE_HTTPONLY", default=True, cast=bool)
 SESSION_COOKIE_SAMESITE = env(
     "SESSION_COOKIE_SAMESITE", default="Lax", cast=str
 )  # Lax for same-origin requests, None for cross-origin
-SESSION_COOKIE_AGE = env(
-    "SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30, cast=int
-)  # 30 days
+SESSION_COOKIE_AGE = env("SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30, cast=int)  # 30 days
 
 # SESSION_COOKIE_PATH = env("SESSION_COOKIE_PATH", default="/admin/")
 
@@ -196,6 +193,7 @@ WSGI_APPLICATION = "project_1444.wsgi.application"
 # Налаштування автентифікації
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
+
 # URL для перенаправлення після логіну/логоуту
 LOGIN_URL = "auth/login/"
 LOGOUT_REDIRECT_URL = "/admin/login/"
@@ -225,15 +223,14 @@ except environ.ImproperlyConfigured:
 
 if IS_TESTING:
     print("Test mode detected: using a SQLite DB for diagnostics")
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.sqlite3",
-    }
+    DATABASES["default"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
     SAVE_TEST_DB_OUTPUT = env("SAVE_TEST_DB_OUTPUT", default=False)
     if SAVE_TEST_DB_OUTPUT:
         DATABASES["default"]["TEST"] = {"NAME": "test_db.sqlite3"}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+
 # AUTH_USER_MODEL = 'users.User'
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -276,9 +273,7 @@ for lang in PARLER_LANGUAGES_LIST:
 DEFAULT_FILE_STORAGE = None
 DEFAULT_FILE_STORAGE_OPTIONS = {}
 # Try Cloudinary configuration first
-CLOUDINARY_PREVIEW_TRANSFORMATION = env(
-    "CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150"
-)
+CLOUDINARY_PREVIEW_TRANSFORMATION = env("CLOUDINARY_PREVIEW_TRANSFORMATION", default="c_thumb,g_face,h_150,w_150")
 CLOUDINARY_CLOUD_NAME = None
 if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
     try:
@@ -289,9 +284,7 @@ if CLOUDINARY_URL := env("CLOUDINARY_URL", default=None):
             CLOUDINARY_API_KEY = cl_url.username
             CLOUDINARY_API_SECRET = cl_url.password
             if not all([CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
-                raise ValueError(
-                    "CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET must be set"
-                )
+                raise ValueError("CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET must be set")
         else:
             raise ValueError("cloudinary scheme not found in CLOUDINARY_URL")
         CLOUDINARY_MEDIA_TAG = env("CLOUDINARY_MEDIA_TAG", default=PROJECT_NAME)
@@ -412,14 +405,19 @@ EMAIL_FILE_PATH = BASE_DIR / "emails"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+# MAIL
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default=None)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
+DEFAULT_REPLY_TO_EMAIL = env("DEFAULT_REPLY_TO_EMAIL", default=None)
+
+
 try:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = env("EMAIL_HOST")
     EMAIL_PORT = env("EMAIL_PORT", cast=int, default=465)
     EMAIL_USE_SSL = env("EMAIL_USE_SSL", cast=bool, default=True)
-    EMAIL_HOST_USER = env("EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
     if not EMAIL_HOST:
         EMAIL_BACKEND = None
 except (KeyError, environ.ImproperlyConfigured):
@@ -428,6 +426,19 @@ except (KeyError, environ.ImproperlyConfigured):
 ANON_RATE_THROTTLE = env("ANON_RATE_THROTTLE", default="5/minute") or None
 USER_RATE_THROTTLE = env("USER_RATE_THROTTLE", default="10/minute") or None
 print(f"{ANON_RATE_THROTTLE=}, {USER_RATE_THROTTLE=}")
+
+# ANYMAIL
+ANYMAIL_ENABLED = env("ANYMAIL_ENABLED", default=False, cast=bool)
+if ANYMAIL_ENABLED:
+    ANYMAIL_BACKEND = env("ANYMAIL_BACKEND", default=None)
+    ANYMAIL_API = env("ANYMAIL_API", default=None)
+    assert ANYMAIL_BACKEND, "ANYMAIL_BACKEND must be set"
+    assert ANYMAIL_API, "ANYMAIL_API must be set"
+    EMAIL_BACKEND = f"anymail.backends.{ANYMAIL_BACKEND.lower()}.EmailBackend"
+    ANYMAIL = {f"{ANYMAIL_BACKEND.upper()}_API_KEY": ANYMAIL_API}
+    INSTALLED_APPS.append("anymail")
+
+print(f"{EMAIL_BACKEND=}")
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -442,7 +453,7 @@ REST_FRAMEWORK = {
         # "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.TokenAuthentication",
         # "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
@@ -535,15 +546,11 @@ CACHE_HEADERS_ENABLED = env("CACHE_HEADERS_ENABLED", default=False, cast=bool)
 # CELERY_RESULT_SERIALIZER = 'json'
 # CELERY_TIMEZONE = 'Europe/Kyiv'
 
-CELERY_BROKER_URL = env(
-    "CELERY_BROKER_URL", default=None
-)  # Redis як брокер повідомлень
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=None)  # Redis як брокер повідомлень
 if not CELERY_BROKER_URL:
     CELERY_BROKER_URL = REDIS_URL or "redis://localhost:6379/0"
 
-CELERY_RESULT_BACKEND = env(
-    "CELERY_RESULT_BACKEND", default=None
-)  # Redis як брокер повідомлень
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default=None)  # Redis як брокер повідомлень
 if not CELERY_RESULT_BACKEND:
     CELERY_RESULT_BACKEND = CELERY_BROKER_URL or REDIS_URL or "redis://localhost:6379/0"
 
@@ -551,9 +558,7 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE or "Europe/Kyiv"
 
-SQL_CACHE_TIMEOUT_DEFAULT = env(
-    "SQL_CACHE_TIMEOUT_DEFAULT", default=60 * 60 * 1
-)  # 1 hour
+SQL_CACHE_TIMEOUT_DEFAULT = env("SQL_CACHE_TIMEOUT_DEFAULT", default=60 * 60 * 1)  # 1 hour
 
 # print(f"{CORS_ALLOWED_ORIGINS=}, {CORS_ALLOW_ALL_ORIGINS=}, {CSRF_TRUSTED_ORIGINS=}")
 LIQPAY_PUBLIC_KEY = env("LIQPAY_PUBLIC_KEY", default="your-public-key")
@@ -565,12 +570,8 @@ LIQPAY_SANDBOX_MODE = env("LIQPAY_SANDBOX_MODE", default=True, cast=bool)
 
 # Social external auth
 # Google Auth
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
-    env("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", default=None) or None
-)
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = (
-    env("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", default=None) or None
-)
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", default=None) or None
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", default=None) or None
 if all([SOCIAL_AUTH_GOOGLE_OAUTH2_KEY, SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET]):
     AUTHENTICATION_BACKENDS.append("social_core.backends.google.GoogleOAuth2")
 
@@ -591,19 +592,11 @@ if all([SOCIAL_AUTH_GITHUB_KEY, SOCIAL_AUTH_GITHUB_SECRET]):
     AUTHENTICATION_BACKENDS.append("social_core.backends.github.GithubOAuth2")
 
 # Linkedin auth
-SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY = (
-    env("SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY", default=None) or None
-)
-SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET = (
-    env("SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET", default=None) or None
-)
+SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY = env("SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY", default=None) or None
+SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET = env("SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET", default=None) or None
 SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_USERNAME_IS_FULL_EMAIL = True
-if all(
-    [SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY, SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET]
-):
-    AUTHENTICATION_BACKENDS.append(
-        "social_core.backends.linkedin.LinkedinOpenIdConnect"
-    )
+if all([SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_KEY, SOCIAL_AUTH_LINKEDIN_OPENIDCONNECT_SECRET]):
+    AUTHENTICATION_BACKENDS.append("social_core.backends.linkedin.LinkedinOpenIdConnect")
 # Facebook auth
 SOCIAL_AUTH_FACEBOOK_KEY = env("SOCIAL_AUTH_FACEBOOK_KEY", default=None) or None
 SOCIAL_AUTH_FACEBOOK_SECRET = env("SOCIAL_AUTH_FACEBOOK_SECRET", default=None) or None
@@ -663,9 +656,7 @@ SOCIAL_AUTH_PIPELINE = (
 )
 SOCIAL_AUTH_SANITIZE_REDIRECTS = True
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = f"{SITE_URL}/social-auth/token/"
-SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN = env(
-    "SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN", default=True
-)
+SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN = env("SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN", default=True)
 
 # Allowed messengers
 ALLOWED_MESSENGERS = ["viber", "telegram", "whatsapp", "signal", "discord"]
@@ -674,10 +665,17 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+
+if EMAIL_BACKEND:
+    OTP_ENABLE = env("OTP_ENABLE", default=True, cast=bool)
+    OTP_BACKEND = "email"
+else:
+    OTP_ENABLE = False
+    OTP_BACKEND = None
+
+print(f"{OTP_ENABLE=}")
+
 OTP_EXPIRATION_TIME = 15  # minutes
 
 EMAIL_FROM_HOST_USER_ONLY = env("EMAIL_FROM_HOST_USER_ONLY", default=False, cast=bool)
-EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS = env(
-    "EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS", default=False, cast=bool
-)
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default=None)
+EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS = env("EMAIL_FROM_HOST_USER_ONLY_PLUS_ALIAS", default=False, cast=bool)

@@ -7,6 +7,8 @@ from .settings_base import env
 
 REDIS_URL = env("REDIS_URL", default=None)
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
 if REDIS_URL:
     try:
         r = redis.Redis.from_url(REDIS_URL)
