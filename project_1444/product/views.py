@@ -1,7 +1,7 @@
 from hashlib import md5
 from urllib.parse import urlencode
 
-from django.conf import settings
+# from django.conf import settings
 from django.core.cache import cache
 from django.db import IntegrityError
 from django.db.models import F
@@ -51,10 +51,11 @@ from product.serializers import (
 )
 from utils.language_code import get_language_code
 from django.utils.translation import get_language
-
 import hashlib
+from rest_framework.viewsets import ModelViewSet
 
-class ProductViewSet(viewsets.ModelViewSet):
+
+class ProductViewSet(ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -66,7 +67,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         "collection__translations__name",
         "year_collection",
         "is_ukrainian_cashback",
-        "subproducts__price",  # Оновлено
+        "subproducts__price",
     ]
     ordering = ["category__translations__name"]
 
@@ -90,6 +91,11 @@ class ProductViewSet(viewsets.ModelViewSet):
             .select_related("category", "subcategory", "collection", "design")
         )
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = get_language_code(self.request)
+        return context
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
@@ -102,6 +108,71 @@ class ProductViewSet(viewsets.ModelViewSet):
         response["ETag"] = etag
         response["Cache-Control"] = "max-age=3600"
         return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        cache.clear()  # Очищаємо кеш після створення
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        cache.clear()  # Очищаємо кеш після оновлення
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        response = super().destroy(request, *args, **kwargs)
+        cache.clear()  # Очищаємо кеш після видалення
+        return response
+
+
+# class ProductViewSet(viewsets.ModelViewSet):
+#     serializer_class = ProductSerializer
+#     permission_classes = (AllowAny,)
+#     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+#     filterset_class = ProductFilter
+#     search_fields = ["translations__name", "description__translations__text"]
+#     ordering_fields = [
+#         "category__translations__name",
+#         "subcategory__translations__name",
+#         "collection__translations__name",
+#         "year_collection",
+#         "is_ukrainian_cashback",
+#         "subproducts__price",  # Оновлено
+#     ]
+#     ordering = ["category__translations__name"]
+
+#     def get_queryset(self):
+#         lang = get_language_code(self.request)
+#         description_qs = Descriptions.objects.language(lang)
+#         return (
+#             Product.objects.language(lang)
+#             .prefetch_related(
+#                 Prefetch("description", queryset=description_qs),
+#                 "statuses",
+#                 "subproducts",
+#                 "occasions",
+#                 "materials__material",
+#                 "attributes",
+#                 "images",
+#                 "certificates",
+#                 "gemstones",
+#                 "translations",
+#             )
+#             .select_related("category", "subcategory", "collection", "design")
+#         )
+
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.filter_queryset(self.get_queryset())
+#         serializer = self.get_serializer(queryset, many=True)
+#         data = serializer.data
+#         content = str(data).encode("utf-8")
+#         etag = quote_etag(md5(content).hexdigest())
+#         if request.headers.get("If-None-Match") == etag:
+#             return HttpResponseNotModified()
+#         response = Response(data)
+#         response["ETag"] = etag
+#         response["Cache-Control"] = "max-age=3600"
+#         return response
 
 
 @extend_schema(tags=["Tools API"])

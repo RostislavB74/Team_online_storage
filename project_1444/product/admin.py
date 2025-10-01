@@ -218,27 +218,40 @@ class SubCategoriesAdmin(TranslatableAdmin):
         return {"slug": ("name",)}
 
 
+# @admin.register(Material)
+# class MaterialAdmin(admin.ModelAdmin):
+#     list_display = (
+#         "id",
+#         "article",
+#         "material",
+#         "color",
+#         "assay",
+#     )
+#     search_fields = (
+#         "article",
+#         "material",
+#         "color",
+#         "assay",
+#     )
+#     readonly_fields = ("article",)
+#     list_display_links = (
+#         "material",
+#         "color",
+#         "assay",
+#     )
 @admin.register(Material)
-class MaterialAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "article",
-        "material",
-        "color",
-        "assay",
-    )
+class MaterialAdmin(TranslatableAdmin):
+    list_display = ("id", "material_name", "assay", "color_name", "article")
+    list_filter = ("material", "assay", "color")
     search_fields = (
-        "article",
-        "material",
-        "color",
-        "assay",
+        "translations__material_name",
+        "translations__color_name",
+        "article", "assay",
     )
     readonly_fields = ("article",)
-    list_display_links = (
-        "material",
-        "color",
-        "assay",
-    )
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("translations")
 
 
 # Інлайн для зображень товару
