@@ -99,7 +99,42 @@ INSTALLED_APPS = [
 #     'cache_length': 2592000,
 # }
 LANGUAGE_CODE = "uk"  # Мова за замовчуванням
+MATERIAL_TRANSLATIONS = {
+    "uk": {
+        "gold": "Золото",
+        "silver": "Срібло",
+        "platinum": "Платина",
+        "steel": "Сталь",
+    },
+    "en": {
+        "gold": "Gold",
+        "silver": "Silver",
+        "platinum": "Platinum",
+        "steel": "Steel",
+    },
+    # можна додавати для нових мов 'fr', 'de' 
+}
 
+COLOR_TRANSLATIONS = {
+    "uk": {
+        "white": "Білий",
+        "yellow": "Жовтий",
+        "red": "Червоний",
+        "brown": "Коричневий",
+        "rhodium_plating": "Родіювання",
+        "black": "Чорний",
+        "blackening": "Чорніння",
+    },
+    "en": {
+        "white": "White",
+        "yellow": "Yellow",
+        "red": "Red",
+        "brown": "Brown",
+        "rhodium_plating": "Rhodium Plating",
+        "black": "Black",
+        "blackening": "Blackening",
+    },
+}
 PARLER_LANGUAGES = {
     None: (
         {"code": "uk", "fallbacks": ["en"], "hide_untranslated": True},

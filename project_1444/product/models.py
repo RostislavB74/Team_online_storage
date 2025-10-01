@@ -1,5 +1,5 @@
 from decimal import Decimal
-
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -13,6 +13,7 @@ from utils.multi_backend_image_field import (
     MultiBackendFileField,
 )
 from .utils import save_with_translation
+from django.utils.translation import get_language
 
 class Categories(TranslatableModel):
     translations = TranslatedFields(
@@ -255,27 +256,40 @@ class Material(TranslatableModel):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Оновлюємо перекладені поля при збереженні
-        self.set_current_language("uk")
-        self.material_name = {
-            "gold": "Золото",
-            "silver": "Срібло",
-            "platinum": "Платина",
-            "steel": "Сталь",
-        }.get(self.material, self.material)
-        self.color_name = {
-            "white": "Білий",
-            "yellow": "Жовтий",
-            "red": "Червоний",
-            "brown": "Коричневий",
-            "rhodium_plating": "Родіювання",
-            "black": "Чорний",
-            "blackening": "Чорніння",
-        }.get(self.color, self.color)
-        self.set_current_language("en")
-        self.material_name = self.material
-        self.color_name = self.color
-        super().save(*args, **kwargs)
+        # Оновлюємо переклади для всіх підтримуваних мов
+        for lang in settings.PARLER_LANGUAGES_LIST:
+            self.set_current_language(lang)
+            self.material_name = settings.MATERIAL_TRANSLATIONS.get(lang, {}).get(
+                self.material, self.material or "Unknown"
+            )
+            self.color_name = settings.COLOR_TRANSLATIONS.get(lang, {}).get(
+                self.color, self.color or "Unknown"
+            )
+            super().save(*args, **kwargs)
+
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     # Оновлюємо перекладені поля при збереженні
+    #     self.set_current_language("uk")
+    #     self.material_name = {
+    #         "gold": "Золото",
+    #         "silver": "Срібло",
+    #         "platinum": "Платина",
+    #         "steel": "Сталь",
+    #     }.get(self.material, self.material)
+    #     self.color_name = {
+    #         "white": "Білий",
+    #         "yellow": "Жовтий",
+    #         "red": "Червоний",
+    #         "brown": "Коричневий",
+    #         "rhodium_plating": "Родіювання",
+    #         "black": "Чорний",
+    #         "blackening": "Чорніння",
+    #     }.get(self.color, self.color)
+    #     self.set_current_language("en")
+    #     self.material_name = self.material
+    #     self.color_name = self.color
+    #     super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.material_name} | {self.assay} | {self.color_name}"

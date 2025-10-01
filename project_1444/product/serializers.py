@@ -172,14 +172,61 @@ class MaterialSerializer(serializers.ModelSerializer):
         return f"{obj.get_material_display()} {obj.assay} {obj.get_color_display()}"
 
 
+# class ProductGemstoneSerializer(serializers.ModelSerializer):
+#     name = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = ProductGemstone
+#         fields = ["id", "name", "slug"]
+
+#     @extend_schema_field(str)
+#     def get_name(self, obj):
+#         language = self.context.get("language", "uk")
+#         return obj.safe_translation_getter(
+#             "name", language_code=language, default="Без назви"
+        # )
+
+
 class ProductGemstoneSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
-    gemstone = serializers.CharField(source="gemstone.name", read_only=True)
-    color = serializers.CharField(source="color.name", read_only=True)
+    gemstone = serializers.SerializerMethodField()
+    color = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductGemstone
         fields = ["id", "status_display", "gemstone", "color"]
+
+    @extend_schema_field(str)
+    def get_gemstone(self, obj):
+        language = self.context.get("language", "uk")
+        return (
+            obj.gemstone.safe_translation_getter(
+                "name", language_code=language, default="Без назви"
+            )
+            if obj.gemstone
+            else None
+        )
+
+    @extend_schema_field(str)
+    def get_color(self, obj):
+        language = self.context.get("language", "uk")
+        return (
+            obj.color.safe_translation_getter(
+                "name", language_code=language, default="Без кольору"
+            )
+            if obj.color
+            else None
+        )
+
+
+# class ProductGemstoneSerializer(serializers.ModelSerializer):
+#     status_display = serializers.CharField(source="get_status_display", read_only=True)
+#     gemstone = serializers.CharField(source="gemstone.name", read_only=True)
+#     color = serializers.CharField(source="color.name", read_only=True)
+
+#     class Meta:
+#         model = ProductGemstone
+#         fields = ["id", "status_display", "gemstone", "color"]
 
 
 class ProductMaterialSerializer(serializers.ModelSerializer):
@@ -406,70 +453,204 @@ class ProductSerializer(serializers.ModelSerializer):
             "description",
         ]
 
-    @extend_schema_field(str)
+    @extend_schema_field(List[str])
     def get_occasions(self, obj):
-        return (
-            obj.safe_translation_getter("name", default="Без назви")
-            if obj.occasions
-            else None
-        )
-
-    @extend_schema_field(str)
+        language = self.context.get("language", "uk")
+        return [
+            occasion.safe_translation_getter(
+                "name", language_code=language, default="Без назви"
+            )
+            for occasion in obj.occasions.all()
+        ]
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
     def get_gemstone(self, obj):
-        gemstones = obj.gemstones.all()  # Використовуємо related_name="gemstones"
-        return (
-            ProductGemstoneSerializer(gemstones, many=True).data if gemstones else None
-        )
+        language = self.context.get('language', 'uk')
+        gemstones = obj.gemstones.all()
+        return ProductGemstoneSerializer(gemstones, many=True, context={'language': language}).data if gemstones else None
+    # @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    # def get_gemstone(self, obj):
+    #     language = self.context.get("language", "uk")
+    #     gemstones = obj.gemstones.all()
+    #     return (
+    #         ProductGemstoneSerializer(
+    #             gemstones, many=True, context={"language": language}
+    #         ).data
+    #         if gemstones
+    #         else None
+    #     )
 
     @extend_schema_field(str)
     def get_category(self, obj):
+        language = self.context.get("language", "uk")
         return (
-            obj.category.safe_translation_getter("name", default="Без назви")
+            obj.category.safe_translation_getter(
+                "name", language_code=language, default="Без категорії"
+            )
             if obj.category
             else None
         )
 
     @extend_schema_field(str)
     def get_name(self, obj):
-        return obj.safe_translation_getter("name", default="Без назви")
+        language = self.context.get("language", "uk")
+        return obj.safe_translation_getter(
+            "name", language_code=language, default="Без назви"
+        )
 
     @extend_schema_field(str)
     def get_collection(self, obj):
+        language = self.context.get("language", "uk")
         return (
-            obj.safe_translation_getter("name", default="Без назви")
+            obj.collection.safe_translation_getter(
+                "name", language_code=language, default="Без колекції"
+            )
             if obj.collection
             else None
         )
 
     @extend_schema_field(str)
     def get_design(self, obj):
+        language = self.context.get("language", "uk")
         return (
-            obj.safe_translation_getter("name", default="Без назви")
+            obj.design.safe_translation_getter(
+                "name", language_code=language, default="Без дизайну"
+            )
             if obj.design
             else None
         )
 
     @extend_schema_field(str)
     def get_slug(self, obj):
-        return obj.safe_translation_getter("slug", default=None)
+        language = self.context.get("language", "uk")
+        return obj.safe_translation_getter("slug", language_code=language, default=None)
 
-    @extend_schema_field(str)
+    @extend_schema_field(List[str])
     def get_statuses(self, obj):
+        language = self.context.get("language", "uk")
         return [
-            status.safe_translation_getter("name", default=None)
+            status.safe_translation_getter("name", language_code=language, default=None)
             for status in obj.statuses.all()
         ]
 
-    @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
+    @extend_schema_field(List[str])
     def get_images(self, obj):
         request = self.context.get("request")
         return [str(img.image) for img in obj.images.all()] if request else []
-        # return [request.build_absolute_uri(img.image.url) for img in obj.images.all()] if request else [img.image.url for img in obj.images.all()]
 
-    @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
+    @extend_schema_field(List[str])
     def get_certificates(self, obj):
         request = self.context.get("request")
         return [str(cert.file) for cert in obj.certificates.all()] if request else []
+
+
+# class ProductSerializer(serializers.ModelSerializer):
+#     images = serializers.SerializerMethodField()
+#     certificates = serializers.SerializerMethodField()
+#     statuses = serializers.SerializerMethodField()
+#     category = serializers.SerializerMethodField()
+#     subcategory = SubCategoriesSerializer(read_only=True)
+#     subproducts = SubProductsSizesSerializer(many=True, read_only=True)
+#     gemstone = serializers.SerializerMethodField()
+#     materials = ProductMaterialSerializer(many=True, read_only=True)
+#     attributes = ProductAttributesSerializer(many=True, read_only=True)
+#     design = serializers.SerializerMethodField()
+#     status_display = serializers.CharField(source="get_status_display", read_only=True)
+#     name = serializers.SerializerMethodField()
+#     slug = serializers.SerializerMethodField()
+#     collection = serializers.SerializerMethodField()
+#     occasions = serializers.SerializerMethodField()
+#     description = DescriptionsSerializer(many=True, read_only=True)
+
+#     class Meta:
+#         model = Product
+#         fields = [
+#             "id",
+#             "category",
+#             "subcategory",
+#             "name",
+#             "slug",
+#             "ean_13",
+#             "sku",
+#             "article",
+#             "collection",
+#             "statuses",
+#             "year_collection",
+#             "occasions",
+#             "design",
+#             "status_display",
+#             "subproducts",
+#             "gemstone",
+#             "materials",
+#             "attributes",
+#             "images",
+#             "certificates",
+#             "description",
+#         ]
+
+#     @extend_schema_field(str)
+#     def get_occasions(self, obj):
+#         return (
+#             obj.safe_translation_getter("name", default="Без назви")
+#             if obj.occasions
+#             else None
+#         )
+
+#     @extend_schema_field(str)
+#     def get_gemstone(self, obj):
+#         gemstones = obj.gemstones.all()  # Використовуємо related_name="gemstones"
+#         return (
+#             ProductGemstoneSerializer(gemstones, many=True).data if gemstones else None
+#         )
+
+#     @extend_schema_field(str)
+#     def get_category(self, obj):
+#         return (
+#             obj.category.safe_translation_getter("name", default="Без назви")
+#             if obj.category
+#             else None
+#         )
+
+#     @extend_schema_field(str)
+#     def get_name(self, obj):
+#         return obj.safe_translation_getter("name", default="Без назви")
+
+#     @extend_schema_field(str)
+#     def get_collection(self, obj):
+#         return (
+#             obj.safe_translation_getter("name", default="Без назви")
+#             if obj.collection
+#             else None
+#         )
+
+#     @extend_schema_field(str)
+#     def get_design(self, obj):
+#         return (
+#             obj.safe_translation_getter("name", default="Без назви")
+#             if obj.design
+#             else None
+#         )
+
+#     @extend_schema_field(str)
+#     def get_slug(self, obj):
+#         return obj.safe_translation_getter("slug", default=None)
+
+#     @extend_schema_field(str)
+#     def get_statuses(self, obj):
+#         return [
+#             status.safe_translation_getter("name", default=None)
+#             for status in obj.statuses.all()
+#         ]
+
+#     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
+#     def get_images(self, obj):
+#         request = self.context.get("request")
+#         return [str(img.image) for img in obj.images.all()] if request else []
+#         # return [request.build_absolute_uri(img.image.url) for img in obj.images.all()] if request else [img.image.url for img in obj.images.all()]
+
+#     @extend_schema_field(List[str])  # Вказуємо, що повертається список рядків
+#     def get_certificates(self, obj):
+#         request = self.context.get("request")
+#         return [str(cert.file) for cert in obj.certificates.all()] if request else []
 
 
 class RingSizeSerializer(serializers.Serializer):
