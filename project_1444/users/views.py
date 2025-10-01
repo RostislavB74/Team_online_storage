@@ -86,9 +86,7 @@ class ListSocialBackends(APIView):
             )
         ],
         description=format_lazy(
-            _(
-                "List of Active Social Auth Backends names for later use in API URL for social auth like: `{}`"
-            ),
+            _("List of Active Social Auth Backends names for later use in API URL for social auth like: `{}`"),
             "/social-auth/login/{backend}/",
         ),
         tags=["auth"],
@@ -105,10 +103,7 @@ class ListSocialBackends(APIView):
             for key in active_backend_names
             if key in friendly_names
         }
-        serialized_data = {
-            backend: SocialBackendSerializer(value).data
-            for backend, value in result.items()
-        }
+        serialized_data = {backend: SocialBackendSerializer(value).data for backend, value in result.items()}
         return Response(serialized_data)
 
 
@@ -118,17 +113,13 @@ class SocialAuthSuccessToken(APIView):
 
     def __init__(self):
         super().__init__()
-        self.force_logout = getattr(
-            settings, "SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN", True
-        )
+        self.force_logout = getattr(settings, "SOCIAL_AUTH_FORCE_LOGOUT_AFTER_TOKEN", True)
 
     @extend_schema(
         responses={
             status.HTTP_200_OK: {
                 "type": "object",
-                "properties": {
-                    "token": {"type": "string", "example": "3234373847856878436"}
-                },
+                "properties": {"token": {"type": "string", "example": "3234373847856878436"}},
             }
         },
         description=_(
@@ -140,9 +131,7 @@ class SocialAuthSuccessToken(APIView):
     )
     def get(self, request):
         if not request.user.is_authenticated:
-            return JsonResponse(
-                {"error": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
-            )
+            return JsonResponse({"error": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
         if not request.session.get("is_social_login"):
             return JsonResponse(
                 {"error": "This endpoint is only for social login users."},
@@ -180,6 +169,20 @@ class SocialAuthSuccessToken(APIView):
 class JsonObtainAuthToken(ObtainAuthToken):
     parser_classes = (JSONParser,)
 
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        try:
+            token = Token.objects.get(user=user)
+            return Response({"token": token.key})
+        except Token.DoesNotExist:
+            ...
+        return JsonResponse(
+            {"detail": _("Can use this only after login of user.")},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
 
 class CSRFAPIView(APIView):
     @method_decorator(ensure_csrf_cookie)
@@ -187,9 +190,7 @@ class CSRFAPIView(APIView):
         responses={
             status.HTTP_200_OK: {
                 "type": "object",
-                "properties": {
-                    "message": {"type": "string", "example": "CSRF cookie set"}
-                },
+                "properties": {"message": {"type": "string", "example": "CSRF cookie set"}},
             }
         },
         description="Sets the CSRF cookie and returns a confirmation message.",
@@ -214,9 +215,7 @@ def merge_carts(user, session_key):
 
 def send_otp_by_email(request, user):
     otp_code = "".join(random.choices("0123456789", k=6))
-    expires_at = timezone.now() + timedelta(
-        minutes=getattr(settings, "OTP_EXPIRATION_TIME", 15)
-    )
+    expires_at = timezone.now() + timedelta(minutes=getattr(settings, "OTP_EXPIRATION_TIME", 15))
 
     OTP.objects.update_or_create(
         user=user,
@@ -324,9 +323,7 @@ class VerifyOTPAPIView(APIView):
         serializer = OTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         otp_code = serializer.validated_data["otp_code"]
-        user_id = serializer.validated_data.get("otp_user_id") or request.session.get(
-            "otp_user_id"
-        )
+        user_id = serializer.validated_data.get("otp_user_id") or request.session.get("otp_user_id")
         if not user_id:
             return Response(
                 {"status": "error", "message": _("Invalid session")},
@@ -341,9 +338,7 @@ class VerifyOTPAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        otp = OTP.objects.filter(
-            user=user, code=otp_code, expires_at__gte=timezone.now()
-        ).first()
+        otp = OTP.objects.filter(user=user, code=otp_code, expires_at__gte=timezone.now()).first()
         if otp:
             login(request, user, "django.contrib.auth.backends.ModelBackend")
             otp.delete()
@@ -414,9 +409,7 @@ class RegisterAPIView(APIView):
         return Response(
             {
                 "status": responses_status,
-                "message": _("Registration successful. {message}").format(
-                    message=message
-                ),
+                "message": _("Registration successful. {message}").format(message=message),
                 # "token": token.key,
                 "user_id": user.pk,
                 "username": user.username,
@@ -440,9 +433,7 @@ class ProfileAPIView(APIView):
             profile = UserProfile.objects.create(user=request.user)
 
         # Оптимізуємо запит із prefetch_related для замовлень
-        profile = UserProfile.objects.prefetch_related(
-            "user__orders__items__product"
-        ).get(user=request.user)
+        profile = UserProfile.objects.prefetch_related("user__orders__items__product").get(user=request.user)
 
         serializer = UserProfileSerializer(profile, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -456,9 +447,7 @@ class ProfileAPIView(APIView):
             profile = request.user.profile
         except UserProfile.DoesNotExist:
             profile = UserProfile.objects.create(user=request.user)
-        serializer = UserProfileSerializer(
-            profile, data=request.data, context={"request": request}
-        )
+        serializer = UserProfileSerializer(profile, data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -575,10 +564,10 @@ class LogoutAPIView(APIView):
     )
     def post(self, request):
         try:
-            logout(request)
             request.user.auth_token.delete()
-        except (AttributeError, Token.DoesNotExist):
-            pass
+            logout(request)
+        except (AttributeError, Token.DoesNotExist) as e:
+            logger.error("logout %s", e)
         return Response(
             {"status": "success", "message": _("Successfully logged out")},
             status=status.HTTP_200_OK,
@@ -643,9 +632,7 @@ class UnRegisterAPIView(APIView):
             return Response(
                 {
                     "status": otp_status,
-                    "message": _("OTP code was sent for continue UnRegistration")
-                    + ". "
-                    + data.get("message"),
+                    "message": _("OTP code was sent for continue UnRegistration") + ". " + data.get("message"),
                     "user_id": user.pk,
                 },
                 status=status.HTTP_202_ACCEPTED,
@@ -695,17 +682,13 @@ class VerifyOTPUnRegister(APIView):
         serializer = OTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         otp_code = serializer.validated_data["otp_code"]
-        user_id = serializer.validated_data.get("otp_user_id") or request.session.get(
-            "otp_user_id"
-        )
+        user_id = serializer.validated_data.get("otp_user_id") or request.session.get("otp_user_id")
         if not user_id or user_id != user.pk:
             return Response(
                 {"status": "error", "message": _("Invalid session")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        otp = OTP.objects.filter(
-            user=user, code=otp_code, expires_at__gte=timezone.now()
-        ).first()
+        otp = OTP.objects.filter(user=user, code=otp_code, expires_at__gte=timezone.now()).first()
         if otp:
             otp.delete()
             if "otp_user_id" in request.session:
