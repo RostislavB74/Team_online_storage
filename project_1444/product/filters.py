@@ -2,8 +2,14 @@ import django_filters
 from addons.filters import CommaSeparatedIntegerListFilter
 from django_filters import rest_framework as filters
 from django.db.models import Q
-from product.models import Product, Categories
-
+from product.models import Product, Categories, Material, Gemstone, SubProducts, Occasion
+#category
+# price
+# metal color
+# material
+# size
+# collection (for her/ for him/ for kids)
+# gemstone
 class ProductFilter(filters.FilterSet):
     categories = CommaSeparatedIntegerListFilter(field_name="category_id")
     subcategories = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
@@ -18,6 +24,12 @@ class ProductFilter(filters.FilterSet):
     price_min = filters.NumberFilter(field_name="subproducts__price", lookup_expr="gte")
     price_max = filters.NumberFilter(field_name="subproducts__price", lookup_expr="lte")
     statuses  = filters.CharFilter(method="filter_statuses")
+    collection=filters.CharFilter(method="filter_collection")
+    design=filters.CharFilter(method="filter_design")
+    occasions=filters.CharFilter(method="filter_occasions")
+    year_collection=filters.CharFilter(method="filter_year_collection")
+    subcategories = filters.CharFilter(method="filter_subcategories")
+    subproducts = filters.CharFilter(method="filter_subproducts")
 
     class Meta:
         model = Product
@@ -32,22 +44,9 @@ class ProductFilter(filters.FilterSet):
             "gemstone",
             "price_min",
             "price_max",
-            # "price",
-            # "slug",
-            # "ean_13",
-            # "sku",
-            # "article",
-             "statuses",
-            # "occasions",
-            # "description",
-            # "subproducts",
-            # "gemstone",
-            # "material",
-            # "images",
-            # "certificates",
-            # "design",
-            # "attributes",
-            # "year_collection",
+            "statuses",
+            "occasions",
+            "subproducts",
         )
 
     def filter_name(self, queryset, name, value):
@@ -72,3 +71,17 @@ class CategoriesFilter(django_filters.FilterSet):
     class Meta:
         model = Categories
         fields = ["has_length", "has_width", "has_diameter", "has_weight"]
+class MaterialsFilter(django_filters.FilterSet):
+    class Meta:
+        model = Material
+        fields = ["assay", "color", "article"]
+
+class GemstonesFilter(django_filters.FilterSet):
+    class Meta:
+        model = Gemstone
+        fields = ["name"]
+
+class OccasionsFilter(django_filters.FilterSet):
+    class Meta:
+        model = Occasion
+        fields = ["name"]
