@@ -498,18 +498,6 @@ class ProductSerializer(serializers.ModelSerializer):
             ProductGemstoneSerializer(gemstones, many=True, context={"language": language}).data if gemstones else None
         )
 
-    # @extend_schema_field(serializers.ListField(child=serializers.DictField()))
-    # def get_gemstone(self, obj):
-    #     language = self.context.get("language", "uk")
-    #     gemstones = obj.gemstones.all()
-    #     return (
-    #         ProductGemstoneSerializer(
-    #             gemstones, many=True, context={"language": language}
-    #         ).data
-    #         if gemstones
-    #         else None
-    #     )
-
     @extend_schema_field(str)
     def get_category(self, obj):
         language = self.context.get("language", "uk")
