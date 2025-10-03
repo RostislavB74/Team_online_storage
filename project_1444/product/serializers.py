@@ -217,19 +217,29 @@ class ProductMaterialSerializer(serializers.ModelSerializer):
         material_obj = obj.material
         language = self.context.get("language", "uk")
 
-        material_name = material_obj.safe_translation_getter(
-            "material_name", language_code=language, default=material_obj.get_material_display()
+        material_name = settings.MATERIAL_TRANSLATIONS[language].get(
+            material_obj.material,
+            material_obj.safe_translation_getter(
+                "material_name", language_code=language, default=material_obj.get_material_display()
+            ),
         )
-        color_name = material_obj.safe_translation_getter(
-            "color_name", language_code=language, default=material_obj.get_color_display()
+        color_name = (
+            settings.COLOR_TRANSLATIONS[language].get(
+                material_obj.color,
+                material_obj.safe_translation_getter(
+                    "color_name", language_code=language, default=material_obj.get_color_display()
+                ),
+            )
+            if material_obj.color
+            else ""
         )
 
         return {
-            "material": material_obj.material_name,  # Статичне значення зі словника
+            "material_name": material_name,
             "assay": material_obj.assay,
-            "color": material_obj.color_name,  # Статичне значення зі словника
+            "color_name": color_name,
             "slug": material_obj.safe_translation_getter("slug", language_code=language, default=None),
-            "label": f"{material_name} {material_obj.assay or ''} {color_name}".strip(),
+            "label": f"{material_name} {material_obj.assay or ''} {color_name}".strip().lower(),
         }
 
 
