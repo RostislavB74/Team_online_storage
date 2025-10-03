@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from typing import List  # Для типу List[str]
 from drf_spectacular.utils import extend_schema_field
+from django.conf import settings
 
 # from django.utils.translation import gettext_lazy as _
 
@@ -167,21 +168,6 @@ class MaterialSerializer(serializers.ModelSerializer):
         return f"{obj.get_material_display()} {obj.assay} {obj.get_color_display()}"
 
 
-# class ProductGemstoneSerializer(serializers.ModelSerializer):
-#     name = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = ProductGemstone
-#         fields = ["id", "name", "slug"]
-
-#     @extend_schema_field(str)
-#     def get_name(self, obj):
-#         language = self.context.get("language", "uk")
-#         return obj.safe_translation_getter(
-#             "name", language_code=language, default="Без назви"
-# )
-
-
 class ProductGemstoneSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
     gemstone = serializers.SerializerMethodField()
@@ -216,48 +202,6 @@ class ProductGemstoneSerializer(serializers.ModelSerializer):
         return None
 
 
-# class ProductGemstoneSerializer(serializers.ModelSerializer):
-#     status_display = serializers.CharField(source="get_status_display", read_only=True)
-#     gemstone = serializers.SerializerMethodField()
-#     color = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = ProductGemstone
-#         fields = ["id", "status_display", "gemstone", "color"]
-
-#     @extend_schema_field(str)
-#     def get_gemstone(self, obj):
-#         language = self.context.get("language", "uk")
-#         return (
-#             obj.gemstone.safe_translation_getter(
-#                 "name", language_code=language, default="Без назви"
-#             )
-#             if obj.gemstone
-#             else None
-#         )
-
-#     @extend_schema_field(str)
-#     def get_color(self, obj):
-#         language = self.context.get("language", "uk")
-#         return (
-#             obj.color.safe_translation_getter(
-#                 "name", language_code=language, default="Без кольору"
-#             )
-#             if obj.color
-#             else None
-#         )
-
-
-# class ProductGemstoneSerializer(serializers.ModelSerializer):
-#     status_display = serializers.CharField(source="get_status_display", read_only=True)
-#     gemstone = serializers.CharField(source="gemstone.name", read_only=True)
-#     color = serializers.CharField(source="color.name", read_only=True)
-
-#     class Meta:
-#         model = ProductGemstone
-#         fields = ["id", "status_display", "gemstone", "color"]
-
-
 class ProductMaterialSerializer(serializers.ModelSerializer):
     material = serializers.SerializerMethodField()
 
@@ -265,19 +209,37 @@ class ProductMaterialSerializer(serializers.ModelSerializer):
         model = ProductMaterial
         fields = ["id", "is_primary", "set_included", "material"]
 
-    @extend_schema_field(str)
+    @extend_schema_field(dict)
     def get_material(self, obj):
         if not obj.material:
             return None
 
         material_obj = obj.material
+        language = self.context.get("language", "uk")
+
+        material_name = settings.MATERIAL_TRANSLATIONS[language].get(
+            material_obj.material,
+            material_obj.safe_translation_getter(
+                "material_name", language_code=language, default=material_obj.get_material_display()
+            ),
+        )
+        color_name = (
+            settings.COLOR_TRANSLATIONS[language].get(
+                material_obj.color,
+                material_obj.safe_translation_getter(
+                    "color_name", language_code=language, default=material_obj.get_color_display()
+                ),
+            )
+            if material_obj.color
+            else ""
+        )
 
         return {
-            "material": material_obj.get_material_display(),  # "Золото"
-            "assay": material_obj.assay,  # "585"
-            "color": material_obj.get_color_display(),  # "Червоний"
-            "slug": material_obj.safe_translation_getter("slug", default=None),
-            "label": f"{material_obj.get_material_display()} {material_obj.assay} {material_obj.get_color_display()}",
+            "material_name": material_name,
+            "assay": material_obj.assay,
+            "color_name": color_name,
+            "slug": material_obj.safe_translation_getter("slug", language_code=language, default=None),
+            "label": f"{material_name} {material_obj.assay or ''} {color_name}".strip().lower(),
         }
 
 
@@ -292,6 +254,7 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
     clasp_type = serializers.SerializerMethodField()
     coating_material = serializers.SerializerMethodField()
     weaving_type = serializers.SerializerMethodField()
+    gender = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductAttributes
@@ -303,6 +266,11 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
             "clasp_type",
             "coating_material",
         ]
+
+    @extend_schema_field(str)
+    def get_gender(self, obj):
+        language = self.context.get("language", "uk")
+        return settings.GENDER_TRANSLATIONS[language].get(obj.gender, obj.get_gender_display()) if obj.gender else None
 
     @extend_schema_field(str)
     def get_weaving_type(self, obj):
@@ -339,6 +307,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     size = serializers.SerializerMethodField()
     new_price = serializers.SerializerMethodField()
 
+    @extend_schema_field(str)
     def get_size(self, obj):
         if obj.size:
             if isinstance(obj.size, dict) and "value" in obj.size:
@@ -350,6 +319,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             return str(obj.length)
         return ""
 
+    @extend_schema_field(str)
     def get_new_price(self, obj):
         # Перевіряємо, чи discount_percentage не None і більше 0
         if obj.discount_percentage is not None and obj.discount_percentage > 0:
@@ -358,6 +328,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             return get_discounted_price(user, obj)["new_price"]
         return None
 
+    @extend_schema_field(str)
     def get_old_price(self, obj):
         # Перевіряємо, чи discount_percentage не None і більше 0
         if obj.discount_percentage is not None and obj.discount_percentage > 0:
@@ -366,6 +337,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             return get_discounted_price(user, obj)["old_price"]
         return None
 
+    @extend_schema_field(str)
     def get_discount_applied(self, obj):
         # Повертаємо True, якщо є знижка (не None і більше 0)
         return obj.discount_percentage is not None and obj.discount_percentage > 0
@@ -539,18 +511,6 @@ class ProductSerializer(serializers.ModelSerializer):
         return (
             ProductGemstoneSerializer(gemstones, many=True, context={"language": language}).data if gemstones else None
         )
-
-    # @extend_schema_field(serializers.ListField(child=serializers.DictField()))
-    # def get_gemstone(self, obj):
-    #     language = self.context.get("language", "uk")
-    #     gemstones = obj.gemstones.all()
-    #     return (
-    #         ProductGemstoneSerializer(
-    #             gemstones, many=True, context={"language": language}
-    #         ).data
-    #         if gemstones
-    #         else None
-    #     )
 
     @extend_schema_field(str)
     def get_category(self, obj):

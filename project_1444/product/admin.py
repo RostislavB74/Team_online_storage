@@ -61,9 +61,7 @@ class DescriptionsAdmin(TranslatableAdmin):
         return obj.safe_translation_getter("seo_title", default=_("No SEO title"))
 
     def get_seo_description(self, obj):
-        return obj.safe_translation_getter(
-            "seo_description", default=_("No SEO description")
-        )
+        return obj.safe_translation_getter("seo_description", default=_("No SEO description"))
 
     def get_keywords(self, obj):
         return obj.safe_translation_getter("keywords", default=_("No keywords"))
@@ -218,27 +216,6 @@ class SubCategoriesAdmin(TranslatableAdmin):
         return {"slug": ("name",)}
 
 
-# @admin.register(Material)
-# class MaterialAdmin(admin.ModelAdmin):
-#     list_display = (
-#         "id",
-#         "article",
-#         "material",
-#         "color",
-#         "assay",
-#     )
-#     search_fields = (
-#         "article",
-#         "material",
-#         "color",
-#         "assay",
-#     )
-#     readonly_fields = ("article",)
-#     list_display_links = (
-#         "material",
-#         "color",
-#         "assay",
-#     )
 @admin.register(Material)
 class MaterialAdmin(TranslatableAdmin):
     list_display = ("id", "material_name", "assay", "color_name", "article")
@@ -246,10 +223,11 @@ class MaterialAdmin(TranslatableAdmin):
     search_fields = (
         "translations__material_name",
         "translations__color_name",
-        "article", "assay",
+        "article",
+        "assay",
     )
     readonly_fields = ("article",)
-    
+
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("translations")
 
@@ -499,9 +477,7 @@ class ProductAdmin(TranslatableAdmin):
         """Показує перше зображення товару в списку товарів"""
         first_image = obj.images.first()
         if first_image and first_image.image:
-            return format_html(
-                '<img src="{}" width="50" height="50" />', str(first_image.image)
-            )
+            return format_html('<img src="{}" width="50" height="50" />', str(first_image.image))
         return _("Немає зображень")
 
     get_images.short_description = _("Зображення")
@@ -545,9 +521,7 @@ class ProductAdmin(TranslatableAdmin):
         if bestseller_status:
             for product in queryset:
                 product.statuses.remove(bestseller_status)
-        self.message_user(
-            request, _("Статус 'bestseller' видалено у вибраних товарів.")
-        )
+        self.message_user(request, _("Статус 'bestseller' видалено у вибраних товарів."))
 
     def get_prepopulated_fields(self, request, obj=None):
         return {"slug": ("name",)}
