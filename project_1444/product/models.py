@@ -251,30 +251,6 @@ class Material(TranslatableModel):
             self.color_name = settings.COLOR_TRANSLATIONS.get(lang, {}).get(self.color, self.color or "Unknown")
             super().save(*args, **kwargs)
 
-    # def save(self, *args, **kwargs):
-    #     super().save(*args, **kwargs)
-    #     # Оновлюємо перекладені поля при збереженні
-    #     self.set_current_language("uk")
-    #     self.material_name = {
-    #         "gold": "Золото",
-    #         "silver": "Срібло",
-    #         "platinum": "Платина",
-    #         "steel": "Сталь",
-    #     }.get(self.material, self.material)
-    #     self.color_name = {
-    #         "white": "Білий",
-    #         "yellow": "Жовтий",
-    #         "red": "Червоний",
-    #         "brown": "Коричневий",
-    #         "rhodium_plating": "Родіювання",
-    #         "black": "Чорний",
-    #         "blackening": "Чорніння",
-    #     }.get(self.color, self.color)
-    #     self.set_current_language("en")
-    #     self.material_name = self.material
-    #     self.color_name = self.color
-    #     super().save(*args, **kwargs)
-
     def __str__(self):
         return f"{self.material_name} | {self.assay} | {self.color_name}"
 

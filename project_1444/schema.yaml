@@ -99,10 +99,6 @@ paths:
         schema:
           type: string
       - in: query
-        name: color_name
-        schema:
-          type: string
-      - in: query
         name: design
         schema:
           type: string
@@ -114,10 +110,6 @@ paths:
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - in: query
-        name: material
-        schema:
-          type: string
       - in: query
         name: material_name
         schema:
@@ -1162,10 +1154,6 @@ paths:
           type: integer
           nullable: true
       - in: query
-        name: color
-        schema:
-          type: string
-      - in: query
         name: color_name
         schema:
           type: string
@@ -1181,10 +1169,6 @@ paths:
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - in: query
-        name: material
-        schema:
-          type: string
       - in: query
         name: material_name
         schema:
@@ -2443,6 +2427,16 @@ components:
       required:
       - message
       - status
+    GenderEnum:
+      enum:
+      - M
+      - F
+      - U
+      type: string
+      description: |-
+        * `M` - Чоловічa
+        * `F` - Жіночa
+        * `U` - Undefined
     HealthCheck:
       type: object
       properties:
@@ -3248,9 +3242,8 @@ components:
           type: string
           readOnly: true
         gender:
-          oneOf:
-          - $ref: '#/components/schemas/ProductAttributesGenderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
+          type: string
+          readOnly: true
         weaving_type:
           type: string
           readOnly: true
@@ -3263,28 +3256,10 @@ components:
       required:
       - clasp_type
       - coating_material
+      - gender
       - id
       - status_display
       - weaving_type
-    ProductAttributesGenderEnum:
-      enum:
-      - female
-      - male
-      - children
-      - unisex
-      type: string
-      description: |-
-        * `female` - Жіноче
-        * `male` - Чоловіче
-        * `children` - Дитяче
-        * `unisex` - Унісекс
-    ProductAttributesRequest:
-      type: object
-      properties:
-        gender:
-          oneOf:
-          - $ref: '#/components/schemas/ProductAttributesGenderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
     ProductMaterial:
       type: object
       properties:
@@ -3296,7 +3271,8 @@ components:
         set_included:
           type: boolean
         material:
-          type: string
+          type: object
+          additionalProperties: {}
           readOnly: true
       required:
       - id
@@ -3711,7 +3687,7 @@ components:
         gender:
           nullable: true
           oneOf:
-          - $ref: '#/components/schemas/UserProfileGenderEnum'
+          - $ref: '#/components/schemas/GenderEnum'
           - $ref: '#/components/schemas/BlankEnum'
           - $ref: '#/components/schemas/NullEnum'
         messengers: {}
@@ -3728,23 +3704,13 @@ components:
       - id
       - orders
       - user
-    UserProfileGenderEnum:
-      enum:
-      - M
-      - F
-      - U
-      type: string
-      description: |-
-        * `M` - Чоловічa
-        * `F` - Жіночa
-        * `U` - Undefined
     UserProfileRequest:
       type: object
       properties:
         gender:
           nullable: true
           oneOf:
-          - $ref: '#/components/schemas/UserProfileGenderEnum'
+          - $ref: '#/components/schemas/GenderEnum'
           - $ref: '#/components/schemas/BlankEnum'
           - $ref: '#/components/schemas/NullEnum'
         messengers: {}
