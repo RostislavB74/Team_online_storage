@@ -297,6 +297,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
     size = serializers.SerializerMethodField()
     new_price = serializers.SerializerMethodField()
 
+    @extend_schema_field(str)
     def get_size(self, obj):
         if obj.size:
             if isinstance(obj.size, dict) and "value" in obj.size:
@@ -308,6 +309,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             return str(obj.length)
         return ""
 
+    @extend_schema_field(str)
     def get_new_price(self, obj):
         # Перевіряємо, чи discount_percentage не None і більше 0
         if obj.discount_percentage is not None and obj.discount_percentage > 0:
@@ -316,6 +318,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             return get_discounted_price(user, obj)["new_price"]
         return None
 
+    @extend_schema_field(str)
     def get_old_price(self, obj):
         # Перевіряємо, чи discount_percentage не None і більше 0
         if obj.discount_percentage is not None and obj.discount_percentage > 0:
@@ -324,6 +327,7 @@ class SubProductsSizesSerializer(serializers.ModelSerializer):
             return get_discounted_price(user, obj)["old_price"]
         return None
 
+    @extend_schema_field(str)
     def get_discount_applied(self, obj):
         # Повертаємо True, якщо є знижка (не None і більше 0)
         return obj.discount_percentage is not None and obj.discount_percentage > 0
