@@ -125,56 +125,6 @@ class ProductViewSet(ModelViewSet):
         return response
 
 
-# class ProductViewSet(viewsets.ModelViewSet):
-#     serializer_class = ProductSerializer
-#     permission_classes = (AllowAny,)
-#     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-#     filterset_class = ProductFilter
-#     search_fields = ["translations__name", "description__translations__text"]
-#     ordering_fields = [
-#         "category__translations__name",
-#         "subcategory__translations__name",
-#         "collection__translations__name",
-#         "year_collection",
-#         "is_ukrainian_cashback",
-#         "subproducts__price",  # Оновлено
-#     ]
-#     ordering = ["category__translations__name"]
-
-#     def get_queryset(self):
-#         lang = get_language_code(self.request)
-#         description_qs = Descriptions.objects.language(lang)
-#         return (
-#             Product.objects.language(lang)
-#             .prefetch_related(
-#                 Prefetch("description", queryset=description_qs),
-#                 "statuses",
-#                 "subproducts",
-#                 "occasions",
-#                 "materials__material",
-#                 "attributes",
-#                 "images",
-#                 "certificates",
-#                 "gemstones",
-#                 "translations",
-#             )
-#             .select_related("category", "subcategory", "collection", "design")
-#         )
-
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.filter_queryset(self.get_queryset())
-#         serializer = self.get_serializer(queryset, many=True)
-#         data = serializer.data
-#         content = str(data).encode("utf-8")
-#         etag = quote_etag(md5(content).hexdigest())
-#         if request.headers.get("If-None-Match") == etag:
-#             return HttpResponseNotModified()
-#         response = Response(data)
-#         response["ETag"] = etag
-#         response["Cache-Control"] = "max-age=3600"
-#         return response
-
-
 @extend_schema(tags=["Tools API"])
 class RingSizeLookup(APIView):
     """Переводить окружність пальця в розмір кільця, знаходячи найближче значення"""
@@ -206,17 +156,13 @@ class RingSizeLookup(APIView):
             circumference = float(circumference)
 
             # Шукаємо точний розмір
-            size_obj = RingSizeConversion.objects.filter(
-                circumference_mm=circumference
-            ).first()
+            size_obj = RingSizeConversion.objects.filter(circumference_mm=circumference).first()
             if size_obj:
                 return Response(self.serialize_size(size_obj))
 
             # Якщо точного значення немає, шукаємо найближчий розмір
             nearest_size = (
-                RingSizeConversion.objects.annotate(
-                    diff=Abs(F("circumference_mm") - circumference)
-                )
+                RingSizeConversion.objects.annotate(diff=Abs(F("circumference_mm") - circumference))
                 .order_by("diff")
                 .first()
             )
@@ -224,9 +170,7 @@ class RingSizeLookup(APIView):
             if nearest_size:
                 return Response(self.serialize_size(nearest_size))
             else:
-                return Response(
-                    {"error": _("No sizes available")}, status=status.HTTP_404_NOT_FOUND
-                )
+                return Response({"error": _("No sizes available")}, status=status.HTTP_404_NOT_FOUND)
 
         except ValueError:
             return Response(
@@ -268,11 +212,9 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         """Фільтрація товарів за мовою"""
         lang = self.request.query_params.get("lang", get_language())
         print(f"Language: {lang}")
-        qs = (Categories.objects.translated(lang).order_by("translations__name"))
+        qs = Categories.objects.translated(lang).order_by("translations__name")
         if self.action == "list":
-            return qs.prefetch_related(
-                "translations", "subcategories", "subcategories__translations"
-            )
+            return qs.prefetch_related("translations", "subcategories", "subcategories__translations")
         return qs
 
     def create(self, request, *args, **kwargs):
@@ -305,68 +247,6 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         return context
 
 
-# @extend_schema(tags=["Categories"])
-# class CategoriesViewSet(viewsets.ModelViewSet):
-#     """CRUD для категорій"""
-
-#     queryset = Categories.objects.all()
-#     serializer_class = CategoriesTreeSerializer
-#     permission_classes = (IsAdminOrReadOnly,)
-#     filter_backends = [DjangoFilterBackend, OrderingFilter]
-#     filterset_class = CategoriesFilter
-#     ordering_fields = [
-#         "translations__name",
-#     ]
-#     ordering = ["translations__name"]
-#     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
-#     pagination_class = None
-
-#     def get_queryset(self):
-#         """Фільтрація товарів за мовою"""
-#         lang = get_language_code(self.request)
-#         qs = Categories.objects.translated(lang)
-
-#         # qs = Categories.objects.language(lang)
-#         if self.action == "list":
-#             return qs.prefetch_related(
-#                 "translations", "subcategories", "subcategories__translations"
-#             ).order_by("translations__name")
-#         return qs
-
-#     def create(self, request, *args, **kwargs):
-#         try:
-#             return super().create(request, *args, **kwargs)
-#         except IntegrityError as e:
-#             raise ValidationError({"detail": f"Category creation failed: {str(e)}"})
-
-#     def get_cache_key(self):
-#         """
-#         Build cache key based on request path, language, and ALL query parameters.
-#         This automatically includes any filter parameters since they come via GET.
-#         """
-#         components = [
-#             self.request.path,
-#             get_language_code(self.request),
-#             urlencode(sorted(self.request.GET.items())),  # All sorted params
-#         ]
-
-#         # Create hash-based key
-#         key_string = "|".join(str(c) for c in components)
-#         return f"category_tree_{md5(key_string.encode()).hexdigest()}"
-
-#     def list(self, request, *args, **kwargs):
-#         cache_key = self.get_cache_key()
-#         cached_response = cache.get(cache_key)
-#         if cached_response is not None:
-#             # print("Using cached response", cache_key)
-#             return Response(cached_response)
-
-#         response = super().list(request, *args, **kwargs)
-#         cache.set(cache_key, response.data, settings.SQL_CACHE_TIMEOUT_DEFAULT)
-#         # print("Added cached response", cache_key)
-#         return response
-
-
 @extend_schema(tags=["Categories"])
 class SubCategoriesViewSet(viewsets.ModelViewSet):
     """CRUD для продуктів"""
@@ -375,7 +255,6 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
     serializer_class = SubCategoriesSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
-
 
     def get_queryset(self):
         """Фільтрація товарів за мовою"""
@@ -389,9 +268,7 @@ class SubCategoriesViewSet(viewsets.ModelViewSet):
         """Отримання продукту за slug з урахуванням мови"""
         lang = get_language_code(self.request)
         field = "translations__slug"  # Вказуємо, що шукаємо в перекладах
-        result = get_object_or_404(
-            SubCategories, **{field: kwargs["pk"], "translations__language_code": lang}
-        )
+        result = get_object_or_404(SubCategories, **{field: kwargs["pk"], "translations__language_code": lang})
         serializer = self.get_serializer(result)
         return Response(serializer.data)
 

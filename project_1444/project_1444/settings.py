@@ -99,6 +99,19 @@ INSTALLED_APPS = [
 #     'cache_length': 2592000,
 # }
 LANGUAGE_CODE = "uk"  # Мова за замовчуванням
+GENDER_TRANSLATIONS = {
+    "uk": {
+        "male": "Чоловічий",
+        "female": "Жіночий",
+        "unisex": "Унісекс",
+    },
+    "en": {
+        "male": "Male",
+        "female": "Female",
+        "unisex": "Unisex",
+    },
+}
+
 MATERIAL_TRANSLATIONS = {
     "uk": {
         "gold": "Золото",
@@ -112,7 +125,7 @@ MATERIAL_TRANSLATIONS = {
         "platinum": "Platinum",
         "steel": "Steel",
     },
-    # можна додавати для нових мов 'fr', 'de' 
+    # можна додавати для нових мов 'fr', 'de'
 }
 
 COLOR_TRANSLATIONS = {
