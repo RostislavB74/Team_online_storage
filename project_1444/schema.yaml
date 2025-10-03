@@ -99,10 +99,6 @@ paths:
         schema:
           type: string
       - in: query
-        name: color_name
-        schema:
-          type: string
-      - in: query
         name: design
         schema:
           type: string
@@ -114,10 +110,6 @@ paths:
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - in: query
-        name: material
-        schema:
-          type: string
       - in: query
         name: material_name
         schema:
@@ -1162,10 +1154,6 @@ paths:
           type: integer
           nullable: true
       - in: query
-        name: color
-        schema:
-          type: string
-      - in: query
         name: color_name
         schema:
           type: string
@@ -1181,10 +1169,6 @@ paths:
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - in: query
-        name: material
-        schema:
-          type: string
       - in: query
         name: material_name
         schema:
