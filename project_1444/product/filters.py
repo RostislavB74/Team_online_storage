@@ -1,6 +1,7 @@
 import django_filters
 from django_filters import rest_framework as filters
 from django.db.models import Q
+
 # from project_1444.settings import LANGUAGE_CODE
 from product.models import (
     Product,
@@ -13,7 +14,8 @@ from product.models import (
     # Styles,
 )
 from utils.language_code import get_language_code
-from addons.filters import CommaSeparatedIntegerListFilter # Імпортуємо твою функцію
+from addons.filters import CommaSeparatedIntegerListFilter  # Імпортуємо твою функцію
+
 
 class ProductFilter(filters.FilterSet):
     categories = CommaSeparatedIntegerListFilter(field_name="category_id")
@@ -46,73 +48,58 @@ class ProductFilter(filters.FilterSet):
 
     def filter_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(
-            Q(translations__name__icontains=value) |
-            Q(description__translations__text__icontains=value)
-        ).translated(lang).distinct()
+        return (
+            queryset.filter(
+                Q(translations__name__icontains=value) | Q(description__translations__text__icontains=value)
+            )
+            .translated(lang)
+            .distinct()
+        )
 
     def filter_material(self, queryset, name, value):
-        return queryset.filter(
-            materials__material__material=value
-        ).distinct()
+        return queryset.filter(materials__material__material=value).distinct()
 
     def filter_material_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(
-            materials__material__translations__material_name__iexact=value
-        ).translated(lang).distinct()
+        return (
+            queryset.filter(materials__material__translations__material_name__iexact=value).translated(lang).distinct()
+        )
 
     def filter_color(self, queryset, name, value):
-        return queryset.filter(
-            materials__material__color=value
-        ).distinct()
+        return queryset.filter(materials__material__color=value).distinct()
 
     def filter_color_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(
-            materials__material__translations__color_name__iexact=value
-        ).translated(lang).distinct()
+        return queryset.filter(materials__material__translations__color_name__iexact=value).translated(lang).distinct()
 
     def filter_gemstone(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(
-            gemstones__gemstone__translations__name__iexact=value
-        ).translated(lang).distinct()
+        return queryset.filter(gemstones__gemstone__translations__name__iexact=value).translated(lang).distinct()
 
     def filter_statuses(self, queryset, name, value):
         lang = get_language_code(self.request)
-        statuses = value.split(',')
-        return queryset.filter(
-            statuses__translations__name__in=statuses
-        ).translated(lang).distinct()
+        statuses = value.split(",")
+        return queryset.filter(statuses__translations__name__in=statuses).translated(lang).distinct()
 
     def filter_collection(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(
-            collection__translations__name__icontains=value
-        ).translated(lang).distinct()
+        return queryset.filter(collection__translations__name__icontains=value).translated(lang).distinct()
 
     def filter_design(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(
-            design__translations__name__icontains=value
-        ).translated(lang).distinct()
+        return queryset.filter(design__translations__name__icontains=value).translated(lang).distinct()
 
     def filter_occasions(self, queryset, name, value):
         lang = get_language_code(self.request)
-        occasions = value.split(',')
-        return queryset.filter(
-            occasions__translations__name__in=occasions
-        ).translated(lang).distinct()
+        occasions = value.split(",")
+        return queryset.filter(occasions__translations__name__in=occasions).translated(lang).distinct()
 
     def filter_year_collection(self, queryset, name, value):
         return queryset.filter(year_collection=value).distinct()
 
     def filter_subproducts(self, queryset, name, value):
-        subproducts = value.split(',')
-        return queryset.filter(
-            subproducts__article__in=subproducts
-        ).distinct()
+        subproducts = value.split(",")
+        return queryset.filter(subproducts__article__in=subproducts).distinct()
 
 
 # class ProductFilter(filters.FilterSet):
@@ -230,18 +217,14 @@ class CategoriesFilter(django_filters.FilterSet):
 
     def filter_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return (
-            queryset.filter(translations__name__icontains=value)
-            .translated(lang)
-            .distinct()
-        )
+        return queryset.filter(translations__name__icontains=value).translated(lang).distinct()
 
 
 class MaterialsFilter(filters.FilterSet):
     assay = filters.CharFilter(lookup_expr="exact")
-    color = filters.CharFilter(lookup_expr="exact")
+    # color = filters.CharFilter(lookup_expr="exact")
     article = filters.CharFilter(lookup_expr="exact")
-    material = filters.CharFilter(lookup_expr="exact")
+    # material = filters.CharFilter(lookup_expr="exact")
     material_name = filters.CharFilter(method="filter_material_name")
     color_name = filters.CharFilter(method="filter_color_name")
 
@@ -258,19 +241,11 @@ class MaterialsFilter(filters.FilterSet):
 
     def filter_material_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return (
-            queryset.filter(translations__material_name__iexact=value)
-            .translated(lang)
-            .distinct()
-        )
+        return queryset.filter(translations__material_name__iexact=value).translated(lang).distinct()
 
     def filter_color_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return (
-            queryset.filter(translations__color_name__iexact=value)
-            .translated(lang)
-            .distinct()
-        )
+        return queryset.filter(translations__color_name__iexact=value).translated(lang).distinct()
 
 
 class GemstonesFilter(filters.FilterSet):
@@ -282,11 +257,7 @@ class GemstonesFilter(filters.FilterSet):
 
     def filter_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return (
-            queryset.filter(translations__name__iexact=value)
-            .translated(lang)
-            .distinct()
-        )
+        return queryset.filter(translations__name__iexact=value).translated(lang).distinct()
 
 
 class OccasionsFilter(django_filters.FilterSet):
@@ -298,11 +269,8 @@ class OccasionsFilter(django_filters.FilterSet):
 
     def filter_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return (
-            queryset.filter(translations__name__iexact=value)
-            .translated(lang)
-            .distinct()
-        )
+        return queryset.filter(translations__name__iexact=value).translated(lang).distinct()
+
 
 class CollectionsFilter(django_filters.FilterSet):
     name = filters.CharFilter(method="filter_name")
@@ -313,8 +281,4 @@ class CollectionsFilter(django_filters.FilterSet):
 
     def filter_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return (
-            queryset.filter(translations__name__iexact=value)
-            .translated(lang)
-            .distinct()
-        )
+        return queryset.filter(translations__name__iexact=value).translated(lang).distinct()
