@@ -114,10 +114,7 @@ paths:
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      # - in: query
-      #   name: material
-      #   schema:
-      #     type: string
+    
       - in: query
         name: material_name
         schema:

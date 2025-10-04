@@ -22,9 +22,9 @@ class ProductFilter(filters.FilterSet):
     subcategories = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
     year_collection_range = filters.RangeFilter(field_name="year_collection")
     name = filters.CharFilter(method="filter_name")
-    material = filters.CharFilter(method="filter_material")
+    # material = filters.CharFilter(method="filter_material")
     material_name = filters.CharFilter(method="filter_material_name")
-    color = filters.CharFilter(method="filter_color")
+    # color = filters.CharFilter(method="filter_color")
     color_name = filters.CharFilter(method="filter_color_name")
     gemstone = filters.CharFilter(method="filter_gemstone")
     price_min = filters.NumberFilter(field_name="subproducts__price", lookup_expr="gte")
@@ -56,8 +56,8 @@ class ProductFilter(filters.FilterSet):
             .distinct()
         )
 
-    def filter_material(self, queryset, name, value):
-        return queryset.filter(materials__material__material=value).distinct()
+    # def filter_material(self, queryset, name, value):
+    #     return queryset.filter(materials__material__material=value).distinct()
 
     def filter_material_name(self, queryset, name, value):
         lang = get_language_code(self.request)
@@ -65,8 +65,8 @@ class ProductFilter(filters.FilterSet):
             queryset.filter(materials__material__translations__material_name__iexact=value).translated(lang).distinct()
         )
 
-    def filter_color(self, queryset, name, value):
-        return queryset.filter(materials__material__color=value).distinct()
+    # def filter_color(self, queryset, name, value):
+    #     return queryset.filter(materials__material__color=value).distinct()
 
     def filter_color_name(self, queryset, name, value):
         lang = get_language_code(self.request)
