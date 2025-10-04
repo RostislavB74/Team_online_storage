@@ -94,10 +94,10 @@ paths:
         schema:
           type: integer
           nullable: true
-      - in: query
-        name: color
-        schema:
-          type: string
+      # - in: query
+      #   name: color
+      #   schema:
+      #     type: string
       - in: query
         name: color_name
         schema:
@@ -114,10 +114,10 @@ paths:
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - in: query
-        name: material
-        schema:
-          type: string
+      # - in: query
+      #   name: material
+      #   schema:
+      #     type: string
       - in: query
         name: material_name
         schema:
