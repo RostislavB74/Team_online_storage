@@ -337,7 +337,7 @@ class Occasion(TranslatableModel):
 
 
 class Gender(TranslatableModel):
-    gender = models.CharField(max_length=20, unique=True)  # Сире значення: female, male, children, unisex
+    # gender = models.CharField(max_length=20, unique=True)  # Сире значення: female, male, children, unisex
 
     translations = TranslatedFields(
         name=models.CharField(max_length=50, verbose_name=_("Назва гендеру")),
