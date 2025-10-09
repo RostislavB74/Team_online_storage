@@ -113,6 +113,9 @@ class ProductFilter(filters.FilterSet):
         # Фільтруємо продукти, де є subproduct з size, близьким до заданого (наприклад, ±0.5)
         return queryset.filter(
             Q(subproducts__size__gte=size_float - 0.5) & Q(subproducts__size__lte=size_float + 0.5)
+            or Q(subproducts__length__gte=size_float - 0.5) & Q(subproducts__length__lte=size_float + 0.5)
+            or Q(subproducts__max_length__gte=size_float - 0.5) & Q(subproducts__max_length__lte=size_float + 0.5)
+            or Q(subproducts__width__gte=size_float - 0.5) & Q(subproducts__width__lte=size_float + 0.5)
         ).distinct()
 
 
