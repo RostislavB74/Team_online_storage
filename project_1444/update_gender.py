@@ -3,7 +3,7 @@ import os
 import sys
 import django
 from django.db import transaction
-from .product.models import ProductAttributes, Gender
+from product.models import ProductAttributes, Gender
 
 # from django.utils.translation import activate
 
