@@ -36,6 +36,7 @@ class ProductFilter(filters.FilterSet):
     year_collection = filters.CharFilter(method="filter_year_collection")
     subproducts = filters.CharFilter(method="filter_subproducts")
     size = filters.CharFilter(method="filter_size")
+    gender = filters.CharFilter(method="filter_gender")
 
     class Meta:
         model = Product
@@ -116,6 +117,9 @@ class ProductFilter(filters.FilterSet):
             | Q(subproducts__length__gte=size_float - 0.5) & Q(subproducts__length__lte=size_float + 0.5)
             | Q(subproducts__max_length__gte=size_float - 0.5) & Q(subproducts__max_length__lte=size_float + 0.5)
         ).distinct()
+
+    def filter_gender(self, queryset, name, value):
+        return queryset.filter(product_attributes__gender=value).distinct()
 
 
 # class ProductFilter(filters.FilterSet):
