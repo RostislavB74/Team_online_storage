@@ -533,7 +533,7 @@ SPECTACULAR_SETTINGS = {
     },
     "COMPONENT_SPLIT_REQUEST": True,  # Для коректної роботи з фільтрами
     "SERVERS": [
-        {"url": "https://api.example.com", "description": "Production server"},
+        {"url": "127.0.0.1:8000", "description": "https://team-online-storage.onrender.com/"},
     ],
     "APPEND_COMPONENTS": {
         "parameters": {
