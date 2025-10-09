@@ -8,17 +8,17 @@ from product.models import ProductAttributes, Gender
 # from django.utils.translation import activate
 
 # Додаємо корінь проєкту до sys.path
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(BASE_DIR)
 
 # Налаштування Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project_1444.settings")
 django.setup()
 
-# Імпорт із правильного модуля
+# Імпорт моделей після django.setup()
 
 
-gender_map = {"male": "Чоловіче", "female": "Жіноче", "unisex": "Унісекс", "children": "Дитяче"}
+gender_map = {"female": "Жіноче", "male": "Чоловіче", "children": "Дитяче", "unisex": "Унісекс"}
 
 with transaction.atomic():
     # Створюємо записи Gender і виводимо їх ID

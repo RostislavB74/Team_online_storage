@@ -104,11 +104,13 @@ GENDER_TRANSLATIONS = {
         "male": "Чоловічий",
         "female": "Жіноче",
         "unisex": "Унісекс",
+        "children": "Дитяче",
     },
     "en": {
         "male": "Male",
         "female": "Female",
         "unisex": "Unisex",
+        "children": "Children",
     },
 }
 
