@@ -111,6 +111,10 @@ paths:
         schema:
           type: string
       - in: query
+        name: gender
+        schema:
+          type: string
+      - in: query
         name: is_ukrainian_cashback
         schema:
           type: boolean
@@ -1191,6 +1195,10 @@ paths:
             value: Diamond
           Emerald:
             value: Emerald
+      - in: query
+        name: gender
+        schema:
+          type: string
       - in: query
         name: is_ukrainian_cashback
         schema:
