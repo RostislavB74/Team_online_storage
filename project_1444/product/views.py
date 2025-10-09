@@ -52,10 +52,11 @@ from product.serializers import (
 from utils.language_code import get_language_code
 from django.utils.translation import get_language
 import hashlib
-from rest_framework.viewsets import ModelViewSet
+
+from drf_spectacular.utils import OpenApiExample
 
 
-class ProductViewSet(ModelViewSet):
+class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -96,6 +97,76 @@ class ProductViewSet(ModelViewSet):
         context["language"] = get_language_code(self.request)
         return context
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="lang",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description='Language code for the response (e.g., "en" for English, "uk" for Ukrainian)',
+                required=False,
+                enum=["en", "uk"],
+                examples=[
+                    OpenApiExample("English", value="en"),
+                    OpenApiExample("Ukrainian", value="uk"),
+                ],
+            ),
+            OpenApiParameter(
+                name="gemstone",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description='Filter by gemstone (e.g., "Diamond")',
+                required=False,
+                examples=[
+                    OpenApiExample("Diamond", value="Diamond"),
+                    OpenApiExample("Emerald", value="Emerald"),
+                ],
+            ),
+            OpenApiParameter(
+                name="color_gemstone",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description='Filter by gemstone color (e.g., "White")',
+                required=False,
+                examples=[
+                    OpenApiExample("White", value="White"),
+                    OpenApiExample("Blue", value="Blue"),
+                ],
+            ),
+        ],
+        responses={
+            200: ProductSerializer(many=True),
+            304: None,  # Для HttpResponseNotModified
+        },
+        examples=[
+            OpenApiExample(
+                "Example Response",
+                value=[
+                    {
+                        "id": 1,
+                        "name": "Diamond Ring",
+                        "materials": [
+                            {
+                                "id": 1,
+                                "is_primary": True,
+                                "set_included": False,
+                                "material": {
+                                    "material_name": "Gold",
+                                    "assay": "585",
+                                    "color_name": "White",
+                                    "slug": None,
+                                    "label": "gold 585 white",
+                                },
+                            }
+                        ],
+                    }
+                ],
+                response_only=True,
+                status_codes=["200"],
+            ),
+        ],
+        description="Retrieve a list of products with optional filters for language, gemstone, and gemstone color.",
+    )
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
@@ -123,6 +194,76 @@ class ProductViewSet(ModelViewSet):
         response = super().destroy(request, *args, **kwargs)
         cache.clear()  # Очищаємо кеш після видалення
         return response
+
+
+# class ProductViewSet(ModelViewSet):
+#     serializer_class = ProductSerializer
+#     permission_classes = (AllowAny,)
+#     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+#     filterset_class = ProductFilter
+#     search_fields = ["translations__name", "description__translations__text"]
+#     ordering_fields = [
+#         "category__translations__name",
+#         "subcategory__translations__name",
+#         "collection__translations__name",
+#         "year_collection",
+#         "is_ukrainian_cashback",
+#         "subproducts__price",
+#     ]
+#     ordering = ["category__translations__name"]
+
+#     def get_queryset(self):
+#         lang = get_language_code(self.request)
+#         description_qs = Descriptions.objects.language(lang)
+#         return (
+#             Product.objects.language(lang)
+#             .prefetch_related(
+#                 Prefetch("description", queryset=description_qs),
+#                 "statuses",
+#                 "subproducts",
+#                 "occasions",
+#                 "materials__material",
+#                 "attributes",
+#                 "images",
+#                 "certificates",
+#                 "gemstones",
+#                 "translations",
+#             )
+#             .select_related("category", "subcategory", "collection", "design")
+#         )
+
+#     def get_serializer_context(self):
+#         context = super().get_serializer_context()
+#         context["language"] = get_language_code(self.request)
+#         return context
+
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.filter_queryset(self.get_queryset())
+#         serializer = self.get_serializer(queryset, many=True)
+#         data = serializer.data
+#         content = str(data).encode("utf-8")
+#         etag = quote_etag(md5(content).hexdigest())
+#         if request.headers.get("If-None-Match") == etag:
+#             return HttpResponseNotModified()
+#         response = Response(data)
+#         response["ETag"] = etag
+#         response["Cache-Control"] = "max-age=3600"
+#         return response
+
+#     def create(self, request, *args, **kwargs):
+#         response = super().create(request, *args, **kwargs)
+#         cache.clear()  # Очищаємо кеш після створення
+#         return response
+
+#     def update(self, request, *args, **kwargs):
+#         response = super().update(request, *args, **kwargs)
+#         cache.clear()  # Очищаємо кеш після оновлення
+#         return response
+
+#     def destroy(self, request, *args, **kwargs):
+#         response = super().destroy(request, *args, **kwargs)
+#         cache.clear()  # Очищаємо кеш після видалення
+#         return response
 
 
 @extend_schema(tags=["Tools API"])

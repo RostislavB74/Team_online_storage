@@ -94,10 +94,6 @@ paths:
         schema:
           type: integer
           nullable: true
-      # - in: query
-      #   name: color
-      #   schema:
-      #     type: string
       - in: query
         name: color_name
         schema:
@@ -114,7 +110,6 @@ paths:
         name: is_ukrainian_cashback
         schema:
           type: boolean
-    
       - in: query
         name: material_name
         schema:
@@ -147,6 +142,10 @@ paths:
         name: price_min
         schema:
           type: number
+      - in: query
+        name: size
+        schema:
+          type: string
       - in: query
         name: statuses
         schema:
@@ -1134,6 +1133,8 @@ paths:
   /api/v1/product/:
     get:
       operationId: api_v1_product_list
+      description: Retrieve a list of products with optional filters for language,
+        gemstone, and gemstone color.
       parameters:
       - in: query
         name: categories
@@ -1159,13 +1160,19 @@ paths:
           type: integer
           nullable: true
       - in: query
-        name: color
+        name: color_gemstone
         schema:
           type: string
-      # - in: query
-      #   name: color_name
-      #   schema:
-      #     type: string
+        description: Filter by gemstone color (e.g., "White")
+        examples:
+          White:
+            value: White
+          Blue:
+            value: Blue
+      - in: query
+        name: color_name
+        schema:
+          type: string
       - in: query
         name: design
         schema:
@@ -1174,14 +1181,30 @@ paths:
         name: gemstone
         schema:
           type: string
+        description: Filter by gemstone (e.g., "Diamond")
+        examples:
+          Diamond:
+            value: Diamond
+          Emerald:
+            value: Emerald
       - in: query
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      # - in: query
-      #   name: material
-      #   schema:
-      #     type: string
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - uk
+        description: Language code for the response (e.g., "en" for English, "uk"
+          for Ukrainian)
+        examples:
+          English:
+            value: en
+          Ukrainian:
+            value: uk
       - in: query
         name: material_name
         schema:
@@ -1224,6 +1247,10 @@ paths:
         required: false
         in: query
         description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: size
         schema:
           type: string
       - in: query
@@ -1277,7 +1304,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedProductList'
+              examples:
+                ExampleResponse:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                    - - id: 1
+                        name: Diamond Ring
+                        materials:
+                        - id: 1
+                          is_primary: true
+                          set_included: false
+                          material:
+                            material_name: Gold
+                            assay: '585'
+                            color_name: White
+                            slug: null
+                            label: gold 585 white
+                  summary: Example Response
           description: ''
+        '304':
+          description: No response body
     post:
       operationId: api_v1_product_create
       tags:
@@ -2198,6 +2247,15 @@ paths:
                 $ref: '#/components/schemas/UserProfile'
           description: ''
 components:
+  parameters:
+    Accepted-Language:
+      name: Accepted-Language
+      in: header
+      description: Preferred language (e.g. en, fr, uk).
+      required: false
+      schema:
+        type: string
+        example: en
   schemas:
     ApiSchema:
       type: object
@@ -3749,3 +3807,6 @@ components:
       in: header
       name: Authorization
       description: Token-based authentication with required prefix "Token"
+servers:
+- url: https://api.example.com
+  description: Production server

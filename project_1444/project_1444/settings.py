@@ -532,6 +532,21 @@ SPECTACULAR_SETTINGS = {
         "persistAuthorization": True,  # Зберігати авторизацію
     },
     "COMPONENT_SPLIT_REQUEST": True,  # Для коректної роботи з фільтрами
+    "SERVERS": [
+        {"url": "https://api.example.com", "description": "Production server"},
+    ],
+    "APPEND_COMPONENTS": {
+        "parameters": {
+            "Accepted-Language": {
+                "name": "Accepted-Language",
+                "in": "header",
+                "description": "Preferred language (e.g. en, fr, uk).",
+                "required": False,
+                "schema": {"type": "string", "example": "en"},
+            },
+        },
+    },
+    "APPEND_COMPONENTS_SCOPE": "global",
 }
 
 
