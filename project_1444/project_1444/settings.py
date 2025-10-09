@@ -81,7 +81,7 @@ INSTALLED_APPS = [
     # "sorl.thumbnail",
     #
     # "django-liqpay",
-    "product",
+    "product.apps.ProductConfig",
     "users.apps.UsersConfig",
     # "users",
     "cart",
@@ -102,7 +102,7 @@ LANGUAGE_CODE = "uk"  # Мова за замовчуванням
 GENDER_TRANSLATIONS = {
     "uk": {
         "male": "Чоловічий",
-        "female": "Жіночий",
+        "female": "Жіноче",
         "unisex": "Унісекс",
     },
     "en": {
