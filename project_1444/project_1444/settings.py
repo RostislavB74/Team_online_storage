@@ -519,34 +519,44 @@ if IS_TESTING:
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {"anon": None, "user": None}
 
 
+# SPECTACULAR_SETTINGS = {
+#     "TITLE": "Jewelry Store API",
+#     "DESCRIPTION": "API for jewelry store with products, categories, and more",
+#     "VERSION": "1.0.0",
+#     "SERVE_INCLUDE_SCHEMA": True,
+#     "SWAGGER_UI_DIST": "SIDECAR",  # Вбудовані файли Swagger UI
+#     "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",
+#     "REDOC_DIST": "SIDECAR",
+#     "SWAGGER_UI_SETTINGS": {
+#         "deepLinking": True,
+#         "persistAuthorization": True,  # Зберігати авторизацію
+#     },
+#     "COMPONENT_SPLIT_REQUEST": True,  # Для коректної роботи з фільтрами
 SPECTACULAR_SETTINGS = {
     "TITLE": "Jewelry Store API",
-    "DESCRIPTION": "API for jewelry store with products, categories, and more",
+    "DESCRIPTION": (
+        "API for jewelry store with products, categories, and more. "
+        "Use the `lang` query parameter (e.g., `lang=en` or `lang=uk`) to set the response language. "
+        "Supported languages: English (`en`), Ukrainian (`uk`)."
+    ),
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": True,
-    "SWAGGER_UI_DIST": "SIDECAR",  # Вбудовані файли Swagger UI
+    "SWAGGER_UI_DIST": "SIDECAR",
     "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",
     "REDOC_DIST": "SIDECAR",
     "SWAGGER_UI_SETTINGS": {
         "deepLinking": True,
-        "persistAuthorization": True,  # Зберігати авторизацію
+        "persistAuthorization": True,
     },
-    "COMPONENT_SPLIT_REQUEST": True,  # Для коректної роботи з фільтрами
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": "/api/v1",  # Вказує префікс для API шляхів
     "SERVERS": [
-        {"url": "127.0.0.1:8000", "description": "https://team-online-storage.onrender.com/"},
-    ],
-    "APPEND_COMPONENTS": {
-        "parameters": {
-            "Accepted-Language": {
-                "name": "Accepted-Language",
-                "in": "header",
-                "description": "Preferred language (e.g. en, fr, uk).",
-                "required": False,
-                "schema": {"type": "string", "example": "en"},
-            },
+        {"url": "http://127.0.0.1:8000", "description": "Local Development Server"},  # Додано http://
+        {
+            "url": "https://team-online-storage.onrender.com",  # Продакшен-сервер (вже коректний)
+            "description": "Production Server",
         },
-    },
-    "APPEND_COMPONENTS_SCOPE": "global",
+    ],
 }
 
 
