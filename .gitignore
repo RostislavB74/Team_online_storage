@@ -197,14 +197,8 @@ poetry.lock
 
 .*
 **/.*
-# Тести
-project_1444/*/tests/
-project_1444/cart/
-project_1444/discounts/
-project_1444/tcategories/
-project_1444/users/
-project_1444/utils/
-project_1444/warehouse/
+
+
 
 # Порожні папки
 __pycache__/
