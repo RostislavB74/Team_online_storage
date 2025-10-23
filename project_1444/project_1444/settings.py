@@ -7,7 +7,7 @@ from pathlib import Path
 # from django.utils.translation import gettext_lazy as _
 # import os
 from urllib.parse import urlparse
-
+import os
 import environ
 
 # from django.shortcuts import resolve_url
@@ -15,6 +15,12 @@ from django.urls import reverse_lazy
 from . import __version__
 from .settings_base import env, BASE_DIR
 from .settings_cache import REDIS_URL, CACHES, SESSION_ENGINE  # noqa
+
+if "TESTS" in os.environ:
+    # ТІЛЬКИ tests/ папка
+    TEST_RUNNER = "django.test.runner.DiscoverRunner"
+    TEST_DISCOVERY_TIMEOUT = 10
+    TEST_INCLUDE = "tests.*"  # ТІЛЬКИ tests/
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
