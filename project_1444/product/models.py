@@ -336,45 +336,45 @@ class Occasion(TranslatableModel):
         return self.safe_translation_getter("name", default=_("Без назви"))  # Бере name із перекладу
 
 
-class Gender(TranslatableModel):
-    gender = models.CharField(max_length=20, unique=True)  # Сире значення: female, male, children, unisex
+# class Gender(TranslatableModel):
+#     gender = models.CharField(max_length=20, unique=True)  # Сире значення: female, male, children, unisex
 
-    translations = TranslatedFields(
-        name=models.CharField(max_length=50, verbose_name=_("Назва гендеру")),
-    )
-
-    class Meta:
-        verbose_name = _("Для кого")
-        verbose_name_plural = _("Для кого")
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # Оновлюємо переклади для всіх підтримуваних мов
-        for lang in settings.PARLER_LANGUAGES_LIST:
-            self.set_current_language(lang)
-            self.name = settings.GENDER_TRANSLATIONS.get(lang, {}).get(self.gender, self.gender or "Unknown")
-            super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-
-
-# class Gender(models.Model):
-#     GENDER_CHOICES = [
-#         ("female", _("Жіноче")),
-#         ("male", _("Чоловіче")),
-#         ("children", _("Дитяче")),
-#         ("unisex", _("Унісекс")),
-#     ]
-#     name = models.CharField(choices=GENDER_CHOICES, max_length=20)
+#     translations = TranslatedFields(
+#         name=models.CharField(max_length=50, verbose_name=_("Назва гендеру")),
+#     )
 
 #     class Meta:
-#         ordering = ["name"]
 #         verbose_name = _("Для кого")
 #         verbose_name_plural = _("Для кого")
 
+#     def save(self, *args, **kwargs):
+#         super().save(*args, **kwargs)
+#         # Оновлюємо переклади для всіх підтримуваних мов
+#         for lang in settings.PARLER_LANGUAGES_LIST:
+#             self.set_current_language(lang)
+#             self.name = settings.GENDER_TRANSLATIONS.get(lang, {}).get(self.gender, self.gender or "Unknown")
+#             super().save(*args, **kwargs)
+
 #     def __str__(self):
 #         return self.name
+
+
+class Gender(models.Model):
+    GENDER_CHOICES = [
+        ("female", _("Жіноче")),
+        ("male", _("Чоловіче")),
+        ("children", _("Дитяче")),
+        ("unisex", _("Унісекс")),
+    ]
+    name = models.CharField(choices=GENDER_CHOICES, max_length=20)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = _("Для кого")
+        verbose_name_plural = _("Для кого")
+
+    def __str__(self):
+        return self.name
 
 
 class SubProducts(models.Model):
@@ -475,13 +475,13 @@ class SubProducts(models.Model):
 class ProductAttributes(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="attributes")
     # gender = models.ForeignKey("Gender", on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Gender"))
-    # gender = models.CharField(
-    #     "Gender",
-    #     max_length=20,
-    #     choices=Gender.GENDER_CHOICES,
-    #     default="unisex",
-    #     blank=True,
-    # )
+    gender = models.CharField(
+        "Gender",
+        max_length=20,
+        choices=Gender.GENDER_CHOICES,
+        default="unisex",
+        blank=True,
+    )
     color_coating = models.ForeignKey("Colors", on_delete=models.SET_NULL, null=True, blank=True)
     weaving_type = models.ForeignKey("Weaving", on_delete=models.SET_NULL, null=True, blank=True)
     coating_material = models.ForeignKey("Coating", on_delete=models.SET_NULL, null=True, blank=True)
