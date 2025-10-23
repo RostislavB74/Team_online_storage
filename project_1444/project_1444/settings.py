@@ -84,7 +84,7 @@ INSTALLED_APPS = [
     "product.apps.ProductConfig",
     "users.apps.UsersConfig",
     # "users",
-    # "cart",
+    "cart",
     "order",
     "warehouse",
     "discounts",
