@@ -254,14 +254,14 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
     clasp_type = serializers.SerializerMethodField()
     coating_material = serializers.SerializerMethodField()
     weaving_type = serializers.SerializerMethodField()
-    gender = serializers.SerializerMethodField()
+    # gender = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductAttributes
         fields = [
             "id",
             "status_display",
-            "gender",
+            # "gender",
             "weaving_type",
             "clasp_type",
             "coating_material",

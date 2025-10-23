@@ -474,7 +474,7 @@ class SubProducts(models.Model):
 
 class ProductAttributes(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="attributes")
-    gender = models.ForeignKey("Gender", on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Gender"))
+    # gender = models.ForeignKey("Gender", on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Gender"))
     # gender = models.CharField(
     #     "Gender",
     #     max_length=20,

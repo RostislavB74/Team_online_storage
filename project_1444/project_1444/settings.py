@@ -194,7 +194,7 @@ SESSION_COOKIE_AGE = env("SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30, cast=i
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "addons.middleware.AdminSplitterSessionMiddleware",
-    # "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
