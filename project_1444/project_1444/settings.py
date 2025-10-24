@@ -207,6 +207,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "addons.middleware.AdminSplitterSessionMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.http.ConditionalGetMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
