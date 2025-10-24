@@ -2,7 +2,9 @@ openapi: 3.0.3
 info:
   title: Jewelry Store API
   version: 1.0.0
-  description: API for jewelry store with products, categories, and more
+  description: 'API for jewelry store with products, categories, and more. Use the
+    `lang` query parameter (e.g., `lang=en` or `lang=uk`) to set the response language.
+    Supported languages: English (`en`), Ukrainian (`uk`).'
 paths:
   /api/:
     get:
@@ -22,11 +24,13 @@ paths:
   /api/schema/:
     get:
       operationId: api_schema_retrieve
-      description: |-
-        OpenApi3 schema for this API. Format can be selected via content negotiation.
+      description: 'OpenApi3 schema for this API. Format can be selected via content
+        negotiation.
+
 
         - YAML: application/vnd.oai.openapi
-        - JSON: application/vnd.oai.openapi+json
+
+        - JSON: application/vnd.oai.openapi+json'
       parameters:
       - in: query
         name: format
@@ -69,7 +73,7 @@ paths:
           description: ''
   /api/v1/all-products/:
     get:
-      operationId: api_v1_all_products_list
+      operationId: all_products_list
       parameters:
       - in: query
         name: categories
@@ -187,7 +191,7 @@ paths:
           minimum: -2147483648
           nullable: true
       tags:
-      - api
+      - all-products
       security:
       - tokenAuth: []
       - {}
@@ -200,7 +204,7 @@ paths:
           description: ''
   /api/v1/all-products/{id}/:
     get:
-      operationId: api_v1_all_products_retrieve
+      operationId: all_products_retrieve
       description: Отримання продукту за ID разом із його підпродуктами
       parameters:
       - in: path
@@ -210,7 +214,7 @@ paths:
         description: A unique integer value identifying this product.
         required: true
       tags:
-      - api
+      - all-products
       security:
       - tokenAuth: []
       - {}
@@ -223,9 +227,9 @@ paths:
           description: ''
   /api/v1/apply/:
     post:
-      operationId: api_v1_apply_create
+      operationId: apply_create
       tags:
-      - api
+      - apply
       requestBody:
         content:
           application/json:
@@ -260,7 +264,7 @@ paths:
           description: ''
   /api/v1/available/:
     get:
-      operationId: api_v1_available_retrieve
+      operationId: available_retrieve
       parameters:
       - in: query
         name: category_id
@@ -271,7 +275,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - available
       security:
       - tokenAuth: []
       - {}
@@ -287,7 +291,7 @@ paths:
           description: ''
   /api/v1/cart/:
     get:
-      operationId: api_v1_cart_list
+      operationId: cart_list
       description: Отримання списку корзин + загальної суми
       parameters:
       - name: page
@@ -303,7 +307,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - cart
       security:
       - tokenAuth: []
       - {}
@@ -346,9 +350,9 @@ paths:
                           type: integer
           description: Список елементів кошика, загальна сума і кількість
     post:
-      operationId: api_v1_cart_create
+      operationId: cart_create
       tags:
-      - api
+      - cart
       requestBody:
         content:
           application/json:
@@ -372,7 +376,7 @@ paths:
           description: ''
   /api/v1/cart/{id}/:
     get:
-      operationId: api_v1_cart_retrieve
+      operationId: cart_retrieve
       parameters:
       - in: path
         name: id
@@ -381,7 +385,7 @@ paths:
         description: A unique integer value identifying this Корзина.
         required: true
       tags:
-      - api
+      - cart
       security:
       - tokenAuth: []
       - {}
@@ -393,7 +397,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
           description: ''
     put:
-      operationId: api_v1_cart_update
+      operationId: cart_update
       parameters:
       - in: path
         name: id
@@ -402,7 +406,7 @@ paths:
         description: A unique integer value identifying this Корзина.
         required: true
       tags:
-      - api
+      - cart
       requestBody:
         content:
           application/json:
@@ -425,7 +429,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
           description: ''
     patch:
-      operationId: api_v1_cart_partial_update
+      operationId: cart_partial_update
       parameters:
       - in: path
         name: id
@@ -434,7 +438,7 @@ paths:
         description: A unique integer value identifying this Корзина.
         required: true
       tags:
-      - api
+      - cart
       requestBody:
         content:
           application/json:
@@ -456,7 +460,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
           description: ''
     delete:
-      operationId: api_v1_cart_destroy
+      operationId: cart_destroy
       parameters:
       - in: path
         name: id
@@ -465,7 +469,7 @@ paths:
         description: A unique integer value identifying this Корзина.
         required: true
       tags:
-      - api
+      - cart
       security:
       - tokenAuth: []
       responses:
@@ -473,7 +477,7 @@ paths:
           description: No response body
   /api/v1/cart/{id}/remove/:
     delete:
-      operationId: api_v1_cart_remove_destroy
+      operationId: cart_remove_destroy
       description: Видалення товару з корзини
       parameters:
       - in: path
@@ -483,7 +487,7 @@ paths:
         description: A unique integer value identifying this Корзина.
         required: true
       tags:
-      - api
+      - cart
       security:
       - tokenAuth: []
       responses:
@@ -491,10 +495,10 @@ paths:
           description: No response body
   /api/v1/cart/add/:
     post:
-      operationId: api_v1_cart_add_create
+      operationId: cart_add_create
       description: Додавання товару до корзини
       tags:
-      - api
+      - cart
       requestBody:
         content:
           application/json:
@@ -518,7 +522,7 @@ paths:
           description: ''
   /api/v1/categories/:
     get:
-      operationId: api_v1_categories_list
+      operationId: categories_list
       description: CRUD для категорій
       parameters:
       - in: query
@@ -561,7 +565,7 @@ paths:
                   $ref: '#/components/schemas/CategoriesTree'
           description: ''
     post:
-      operationId: api_v1_categories_create
+      operationId: categories_create
       description: CRUD для категорій
       tags:
       - Categories
@@ -587,7 +591,7 @@ paths:
           description: ''
   /api/v1/categories/{id}/:
     get:
-      operationId: api_v1_categories_retrieve
+      operationId: categories_retrieve
       description: CRUD для категорій
       parameters:
       - in: path
@@ -608,7 +612,7 @@ paths:
                 $ref: '#/components/schemas/CategoriesTree'
           description: ''
     put:
-      operationId: api_v1_categories_update
+      operationId: categories_update
       description: CRUD для категорій
       parameters:
       - in: path
@@ -640,7 +644,7 @@ paths:
                 $ref: '#/components/schemas/CategoriesTree'
           description: ''
     patch:
-      operationId: api_v1_categories_partial_update
+      operationId: categories_partial_update
       description: CRUD для категорій
       parameters:
       - in: path
@@ -672,7 +676,7 @@ paths:
                 $ref: '#/components/schemas/CategoriesTree'
           description: ''
     delete:
-      operationId: api_v1_categories_destroy
+      operationId: categories_destroy
       description: CRUD для категорій
       parameters:
       - in: path
@@ -690,7 +694,7 @@ paths:
           description: No response body
   /api/v1/description/:
     get:
-      operationId: api_v1_description_list
+      operationId: description_list
       description: CRUD для продуктів
       parameters:
       - name: page
@@ -706,7 +710,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - description
       security:
       - tokenAuth: []
       - {}
@@ -718,10 +722,10 @@ paths:
                 $ref: '#/components/schemas/PaginatedDescriptionsList'
           description: ''
     post:
-      operationId: api_v1_description_create
+      operationId: description_create
       description: CRUD для продуктів
       tags:
-      - api
+      - description
       security:
       - tokenAuth: []
       - {}
@@ -734,7 +738,7 @@ paths:
           description: ''
   /api/v1/description/{id}/:
     get:
-      operationId: api_v1_description_retrieve
+      operationId: description_retrieve
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -744,7 +748,7 @@ paths:
         description: A unique integer value identifying this Опис.
         required: true
       tags:
-      - api
+      - description
       security:
       - tokenAuth: []
       - {}
@@ -756,7 +760,7 @@ paths:
                 $ref: '#/components/schemas/Descriptions'
           description: ''
     put:
-      operationId: api_v1_description_update
+      operationId: description_update
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -766,7 +770,7 @@ paths:
         description: A unique integer value identifying this Опис.
         required: true
       tags:
-      - api
+      - description
       security:
       - tokenAuth: []
       - {}
@@ -778,7 +782,7 @@ paths:
                 $ref: '#/components/schemas/Descriptions'
           description: ''
     patch:
-      operationId: api_v1_description_partial_update
+      operationId: description_partial_update
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -788,7 +792,7 @@ paths:
         description: A unique integer value identifying this Опис.
         required: true
       tags:
-      - api
+      - description
       security:
       - tokenAuth: []
       - {}
@@ -800,7 +804,7 @@ paths:
                 $ref: '#/components/schemas/Descriptions'
           description: ''
     delete:
-      operationId: api_v1_description_destroy
+      operationId: description_destroy
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -810,7 +814,7 @@ paths:
         description: A unique integer value identifying this Опис.
         required: true
       tags:
-      - api
+      - description
       security:
       - tokenAuth: []
       - {}
@@ -819,7 +823,7 @@ paths:
           description: No response body
   /api/v1/livez/:
     get:
-      operationId: api_v1_livez_retrieve
+      operationId: livez_retrieve
       tags:
       - api
       security:
@@ -834,7 +838,7 @@ paths:
           description: ''
   /api/v1/orders/:
     get:
-      operationId: api_v1_orders_list
+      operationId: orders_list
       parameters:
       - name: page
         required: false
@@ -849,7 +853,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - orders
       security:
       - tokenAuth: []
       - {}
@@ -861,9 +865,9 @@ paths:
                 $ref: '#/components/schemas/PaginatedOrderList'
           description: ''
     post:
-      operationId: api_v1_orders_create
+      operationId: orders_create
       tags:
-      - api
+      - orders
       requestBody:
         content:
           application/json:
@@ -888,7 +892,7 @@ paths:
           description: ''
   /api/v1/orders/{order_id}/update-status/:
     post:
-      operationId: api_v1_orders_update_status_create
+      operationId: orders_update_status_create
       description: Оновлення статусу замовлення з опціональним статусом оплати.
       parameters:
       - in: path
@@ -897,7 +901,7 @@ paths:
           type: integer
         required: true
       tags:
-      - api
+      - orders
       requestBody:
         content:
           application/json:
@@ -955,7 +959,7 @@ paths:
           description: ''
   /api/v1/orders/{id}/:
     get:
-      operationId: api_v1_orders_retrieve
+      operationId: orders_retrieve
       parameters:
       - in: path
         name: id
@@ -964,7 +968,7 @@ paths:
         description: A unique integer value identifying this Order.
         required: true
       tags:
-      - api
+      - orders
       security:
       - tokenAuth: []
       - {}
@@ -976,7 +980,7 @@ paths:
                 $ref: '#/components/schemas/Order'
           description: ''
     put:
-      operationId: api_v1_orders_update
+      operationId: orders_update
       parameters:
       - in: path
         name: id
@@ -985,7 +989,7 @@ paths:
         description: A unique integer value identifying this Order.
         required: true
       tags:
-      - api
+      - orders
       requestBody:
         content:
           application/json:
@@ -1009,7 +1013,7 @@ paths:
                 $ref: '#/components/schemas/Order'
           description: ''
     patch:
-      operationId: api_v1_orders_partial_update
+      operationId: orders_partial_update
       parameters:
       - in: path
         name: id
@@ -1018,7 +1022,7 @@ paths:
         description: A unique integer value identifying this Order.
         required: true
       tags:
-      - api
+      - orders
       requestBody:
         content:
           application/json:
@@ -1041,7 +1045,7 @@ paths:
                 $ref: '#/components/schemas/Order'
           description: ''
     delete:
-      operationId: api_v1_orders_destroy
+      operationId: orders_destroy
       parameters:
       - in: path
         name: id
@@ -1050,7 +1054,7 @@ paths:
         description: A unique integer value identifying this Order.
         required: true
       tags:
-      - api
+      - orders
       security:
       - tokenAuth: []
       - {}
@@ -1059,10 +1063,10 @@ paths:
           description: No response body
   /api/v1/orders/create-from-cart/:
     post:
-      operationId: api_v1_orders_create_from_cart_create
+      operationId: orders_create_from_cart_create
       description: Створити замовлення з корзини користувача з урахуванням знижок
       tags:
-      - api
+      - orders
       requestBody:
         content:
           application/json:
@@ -1087,10 +1091,10 @@ paths:
           description: ''
   /api/v1/orders/liqpay/callback/:
     post:
-      operationId: api_v1_orders_liqpay_callback_create
+      operationId: orders_liqpay_callback_create
       description: Обробити зворотній платіж LiqPay.
       tags:
-      - api
+      - orders
       requestBody:
         content:
           application/json:
@@ -1132,9 +1136,7 @@ paths:
           description: ''
   /api/v1/product/:
     get:
-      operationId: api_v1_product_list
-      description: Retrieve a list of products with optional filters for language,
-        gemstone, and gemstone color.
+      operationId: product_list
       parameters:
       - in: query
         name: categories
@@ -1160,16 +1162,6 @@ paths:
           type: integer
           nullable: true
       - in: query
-        name: color_gemstone
-        schema:
-          type: string
-        description: Filter by gemstone color (e.g., "White")
-        examples:
-          White:
-            value: White
-          Blue:
-            value: Blue
-      - in: query
         name: color_name
         schema:
           type: string
@@ -1181,30 +1173,10 @@ paths:
         name: gemstone
         schema:
           type: string
-        description: Filter by gemstone (e.g., "Diamond")
-        examples:
-          Diamond:
-            value: Diamond
-          Emerald:
-            value: Emerald
       - in: query
         name: is_ukrainian_cashback
         schema:
           type: boolean
-      - in: query
-        name: lang
-        schema:
-          type: string
-          enum:
-          - en
-          - uk
-        description: Language code for the response (e.g., "en" for English, "uk"
-          for Ukrainian)
-        examples:
-          English:
-            value: en
-          Ukrainian:
-            value: uk
       - in: query
         name: material_name
         schema:
@@ -1294,7 +1266,7 @@ paths:
           minimum: -2147483648
           nullable: true
       tags:
-      - api
+      - product
       security:
       - tokenAuth: []
       - {}
@@ -1304,33 +1276,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedProductList'
-              examples:
-                ExampleResponse:
-                  value:
-                    count: 123
-                    next: http://api.example.org/accounts/?page=4
-                    previous: http://api.example.org/accounts/?page=2
-                    results:
-                    - - id: 1
-                        name: Diamond Ring
-                        materials:
-                        - id: 1
-                          is_primary: true
-                          set_included: false
-                          material:
-                            material_name: Gold
-                            assay: '585'
-                            color_name: White
-                            slug: null
-                            label: gold 585 white
-                  summary: Example Response
           description: ''
-        '304':
-          description: No response body
     post:
-      operationId: api_v1_product_create
+      operationId: product_create
       tags:
-      - api
+      - product
       requestBody:
         content:
           application/json:
@@ -1354,7 +1304,7 @@ paths:
           description: ''
   /api/v1/product/{id}/:
     get:
-      operationId: api_v1_product_retrieve
+      operationId: product_retrieve
       parameters:
       - in: path
         name: id
@@ -1363,7 +1313,7 @@ paths:
         description: A unique integer value identifying this product.
         required: true
       tags:
-      - api
+      - product
       security:
       - tokenAuth: []
       - {}
@@ -1375,7 +1325,7 @@ paths:
                 $ref: '#/components/schemas/Product'
           description: ''
     put:
-      operationId: api_v1_product_update
+      operationId: product_update
       parameters:
       - in: path
         name: id
@@ -1384,7 +1334,7 @@ paths:
         description: A unique integer value identifying this product.
         required: true
       tags:
-      - api
+      - product
       requestBody:
         content:
           application/json:
@@ -1407,7 +1357,7 @@ paths:
                 $ref: '#/components/schemas/Product'
           description: ''
     patch:
-      operationId: api_v1_product_partial_update
+      operationId: product_partial_update
       parameters:
       - in: path
         name: id
@@ -1416,7 +1366,7 @@ paths:
         description: A unique integer value identifying this product.
         required: true
       tags:
-      - api
+      - product
       requestBody:
         content:
           application/json:
@@ -1439,7 +1389,7 @@ paths:
                 $ref: '#/components/schemas/Product'
           description: ''
     delete:
-      operationId: api_v1_product_destroy
+      operationId: product_destroy
       parameters:
       - in: path
         name: id
@@ -1448,7 +1398,7 @@ paths:
         description: A unique integer value identifying this product.
         required: true
       tags:
-      - api
+      - product
       security:
       - tokenAuth: []
       - {}
@@ -1457,7 +1407,7 @@ paths:
           description: No response body
   /api/v1/ring-size/:
     get:
-      operationId: api_v1_ring_size_retrieve
+      operationId: ring_size_retrieve
       description: Переводить окружність пальця в розмір кільця, знаходячи найближче
         значення
       parameters:
@@ -1482,7 +1432,7 @@ paths:
           description: ''
   /api/v1/subcategories/:
     get:
-      operationId: api_v1_subcategories_list
+      operationId: subcategories_list
       description: CRUD для продуктів
       tags:
       - Categories
@@ -1499,7 +1449,7 @@ paths:
                   $ref: '#/components/schemas/SubCategories'
           description: ''
     post:
-      operationId: api_v1_subcategories_create
+      operationId: subcategories_create
       description: CRUD для продуктів
       tags:
       - Categories
@@ -1526,7 +1476,7 @@ paths:
           description: ''
   /api/v1/subcategories/{id}/:
     get:
-      operationId: api_v1_subcategories_retrieve
+      operationId: subcategories_retrieve
       description: Отримання продукту за slug з урахуванням мови
       parameters:
       - in: path
@@ -1548,7 +1498,7 @@ paths:
                 $ref: '#/components/schemas/SubCategories'
           description: ''
     put:
-      operationId: api_v1_subcategories_update
+      operationId: subcategories_update
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -1581,7 +1531,7 @@ paths:
                 $ref: '#/components/schemas/SubCategories'
           description: ''
     patch:
-      operationId: api_v1_subcategories_partial_update
+      operationId: subcategories_partial_update
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -1614,7 +1564,7 @@ paths:
                 $ref: '#/components/schemas/SubCategories'
           description: ''
     delete:
-      operationId: api_v1_subcategories_destroy
+      operationId: subcategories_destroy
       description: CRUD для продуктів
       parameters:
       - in: path
@@ -1633,7 +1583,7 @@ paths:
           description: No response body
   /api/v1/subproducts/:
     get:
-      operationId: api_v1_subproducts_list
+      operationId: subproducts_list
       description: CRUD для типорозмірів
       parameters:
       - name: page
@@ -1649,7 +1599,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - subproducts
       security:
       - tokenAuth: []
       - {}
@@ -1661,10 +1611,10 @@ paths:
                 $ref: '#/components/schemas/PaginatedSubProductsSizesList'
           description: ''
     post:
-      operationId: api_v1_subproducts_create
+      operationId: subproducts_create
       description: CRUD для типорозмірів
       tags:
-      - api
+      - subproducts
       requestBody:
         content:
           application/json:
@@ -1689,7 +1639,7 @@ paths:
           description: ''
   /api/v1/subproducts/{id}/:
     get:
-      operationId: api_v1_subproducts_retrieve
+      operationId: subproducts_retrieve
       description: CRUD для типорозмірів
       parameters:
       - in: path
@@ -1699,7 +1649,7 @@ paths:
         description: A unique integer value identifying this sub products.
         required: true
       tags:
-      - api
+      - subproducts
       security:
       - tokenAuth: []
       - {}
@@ -1711,7 +1661,7 @@ paths:
                 $ref: '#/components/schemas/SubProductsSizes'
           description: ''
     put:
-      operationId: api_v1_subproducts_update
+      operationId: subproducts_update
       description: CRUD для типорозмірів
       parameters:
       - in: path
@@ -1721,7 +1671,7 @@ paths:
         description: A unique integer value identifying this sub products.
         required: true
       tags:
-      - api
+      - subproducts
       requestBody:
         content:
           application/json:
@@ -1745,7 +1695,7 @@ paths:
                 $ref: '#/components/schemas/SubProductsSizes'
           description: ''
     patch:
-      operationId: api_v1_subproducts_partial_update
+      operationId: subproducts_partial_update
       description: CRUD для типорозмірів
       parameters:
       - in: path
@@ -1755,7 +1705,7 @@ paths:
         description: A unique integer value identifying this sub products.
         required: true
       tags:
-      - api
+      - subproducts
       requestBody:
         content:
           application/json:
@@ -1778,7 +1728,7 @@ paths:
                 $ref: '#/components/schemas/SubProductsSizes'
           description: ''
     delete:
-      operationId: api_v1_subproducts_destroy
+      operationId: subproducts_destroy
       description: CRUD для типорозмірів
       parameters:
       - in: path
@@ -1788,7 +1738,7 @@ paths:
         description: A unique integer value identifying this sub products.
         required: true
       tags:
-      - api
+      - subproducts
       security:
       - tokenAuth: []
       - {}
@@ -1797,7 +1747,7 @@ paths:
           description: No response body
   /api/v1/tcategories/:
     get:
-      operationId: api_v1_tcategories_list
+      operationId: tcategories_list
       tags:
       - Categories
       security:
@@ -1842,7 +1792,7 @@ paths:
           description: ''
   /api/v1/tcategories/{id}/:
     get:
-      operationId: api_v1_tcategories_retrieve
+      operationId: tcategories_retrieve
       parameters:
       - in: path
         name: id
@@ -1864,7 +1814,7 @@ paths:
           description: ''
   /api/v1/tcategories/children/:
     get:
-      operationId: api_v1_tcategories_children_retrieve
+      operationId: tcategories_children_retrieve
       tags:
       - Categories
       security:
@@ -1879,7 +1829,7 @@ paths:
           description: ''
   /api/v1/tcategories/root/:
     get:
-      operationId: api_v1_tcategories_root_retrieve
+      operationId: tcategories_root_retrieve
       tags:
       - Categories
       security:
@@ -1894,7 +1844,7 @@ paths:
           description: ''
   /api/v1/version/:
     get:
-      operationId: api_v1_version_retrieve
+      operationId: version_retrieve
       tags:
       - api
       security:
@@ -2247,15 +2197,6 @@ paths:
                 $ref: '#/components/schemas/UserProfile'
           description: ''
 components:
-  parameters:
-    Accepted-Language:
-      name: Accepted-Language
-      in: header
-      description: Preferred language (e.g. en, fr, uk).
-      required: false
-      schema:
-        type: string
-        example: en
   schemas:
     ApiSchema:
       type: object
@@ -2285,9 +2226,9 @@ components:
       - success
       - error
       type: string
-      description: |-
-        * `success` - success
-        * `error` - error
+      description: '* `success` - success
+
+        * `error` - error'
     AuthToken:
       type: object
       properties:
@@ -2504,10 +2445,11 @@ components:
       - F
       - U
       type: string
-      description: |-
-        * `M` - Чоловічa
+      description: '* `M` - Чоловічa
+
         * `F` - Жіночa
-        * `U` - Undefined
+
+        * `U` - Undefined'
     HealthCheck:
       type: object
       properties:
@@ -2652,19 +2594,20 @@ components:
       - pickup
       - delivery
       type: string
-      description: |-
-        * `pickup` - pickup
-        * `delivery` - delivery
+      description: '* `pickup` - pickup
+
+        * `delivery` - delivery'
     OrderCreatePaymentMethodEnum:
       enum:
       - cash
       - liqpay
       - googlepay
       type: string
-      description: |-
-        * `cash` - cash
+      description: '* `cash` - cash
+
         * `liqpay` - liqpay
-        * `googlepay` - googlepay
+
+        * `googlepay` - googlepay'
     OrderCreateRequest:
       type: object
       properties:
@@ -2712,9 +2655,9 @@ components:
       - pickup
       - delivery
       type: string
-      description: |-
-        * `pickup` - Самовивіз
-        * `delivery` - Доставка
+      description: '* `pickup` - Самовивіз
+
+        * `delivery` - Доставка'
     OrderItem:
       type: object
       properties:
@@ -2817,10 +2760,11 @@ components:
       - liqpay
       - googlepay
       type: string
-      description: |-
-        * `cash` - Готівка
+      description: '* `cash` - Готівка
+
         * `liqpay` - LiqPay
-        * `googlepay` - GooglePay
+
+        * `googlepay` - GooglePay'
     OrderRequest:
       type: object
       properties:
@@ -2887,16 +2831,23 @@ components:
       - reversed
       - cancelled
       type: string
-      description: |-
-        * `new` - Нове
+      description: '* `new` - Нове
+
         * `awaiting_payment` - Очікує оплати
+
         * `paid` - Оплачено
+
         * `in_transit` - В дорозі
+
         * `shipped` - Прибуло
+
         * `delivered` - Доставлено
+
         * `failed` - Недоставлено
+
         * `reversed` - Повернено
-        * `cancelled` - Скасовано
+
+        * `cancelled` - Скасовано'
     OrderStock:
       type: object
       properties:
@@ -3312,9 +3263,6 @@ components:
         status_display:
           type: string
           readOnly: true
-        gender:
-          type: string
-          readOnly: true
         weaving_type:
           type: string
           readOnly: true
@@ -3327,7 +3275,6 @@ components:
       required:
       - clasp_type
       - coating_material
-      - gender
       - id
       - status_display
       - weaving_type
@@ -3808,5 +3755,7 @@ components:
       name: Authorization
       description: Token-based authentication with required prefix "Token"
 servers:
-- url: https://api.example.com
-  description: Production server
+- url: http://127.0.0.1:8000
+  description: Local Development Server
+- url: https://team-online-storage.onrender.com
+  description: Production Server

@@ -7,7 +7,7 @@ from pathlib import Path
 # from django.utils.translation import gettext_lazy as _
 # import os
 from urllib.parse import urlparse
-
+import os
 import environ
 
 # from django.shortcuts import resolve_url
@@ -15,6 +15,17 @@ from django.urls import reverse_lazy
 from . import __version__
 from .settings_base import env, BASE_DIR
 from .settings_cache import REDIS_URL, CACHES, SESSION_ENGINE  # noqa
+
+# ========================================
+# PYTEST + DJANGO ТЕСТИ
+# ========================================
+
+if "PYTEST_CURRENT_TEST" in os.environ:  # pytest
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.InMemoryStorage"
+    PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
+
+if "TESTS" in os.environ:  # manage.py test
+    TEST_INCLUDE = "tests.*"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
@@ -81,7 +92,7 @@ INSTALLED_APPS = [
     # "sorl.thumbnail",
     #
     # "django-liqpay",
-    "product",
+    "product.apps.ProductConfig",
     "users.apps.UsersConfig",
     # "users",
     "cart",
@@ -89,6 +100,7 @@ INSTALLED_APPS = [
     "warehouse",
     "discounts",
     "tcategories",
+    "tests",
     # 'versatileimagefield',
     # "django_ratelimit",
 ]
@@ -102,13 +114,15 @@ LANGUAGE_CODE = "uk"  # Мова за замовчуванням
 GENDER_TRANSLATIONS = {
     "uk": {
         "male": "Чоловічий",
-        "female": "Жіночий",
+        "female": "Жіноче",
         "unisex": "Унісекс",
+        "children": "Дитяче",
     },
     "en": {
         "male": "Male",
         "female": "Female",
         "unisex": "Unisex",
+        "children": "Children",
     },
 }
 
@@ -192,7 +206,8 @@ SESSION_COOKIE_AGE = env("SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30, cast=i
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "addons.middleware.AdminSplitterSessionMiddleware",
-    # "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.http.ConditionalGetMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -519,19 +534,44 @@ if IS_TESTING:
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {"anon": None, "user": None}
 
 
+# SPECTACULAR_SETTINGS = {
+#     "TITLE": "Jewelry Store API",
+#     "DESCRIPTION": "API for jewelry store with products, categories, and more",
+#     "VERSION": "1.0.0",
+#     "SERVE_INCLUDE_SCHEMA": True,
+#     "SWAGGER_UI_DIST": "SIDECAR",  # Вбудовані файли Swagger UI
+#     "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",
+#     "REDOC_DIST": "SIDECAR",
+#     "SWAGGER_UI_SETTINGS": {
+#         "deepLinking": True,
+#         "persistAuthorization": True,  # Зберігати авторизацію
+#     },
+#     "COMPONENT_SPLIT_REQUEST": True,  # Для коректної роботи з фільтрами
 SPECTACULAR_SETTINGS = {
     "TITLE": "Jewelry Store API",
-    "DESCRIPTION": "API for jewelry store with products, categories, and more",
+    "DESCRIPTION": (
+        "API for jewelry store with products, categories, and more. "
+        "Use the `lang` query parameter (e.g., `lang=en` or `lang=uk`) to set the response language. "
+        "Supported languages: English (`en`), Ukrainian (`uk`)."
+    ),
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": True,
-    "SWAGGER_UI_DIST": "SIDECAR",  # Вбудовані файли Swagger UI
+    "SWAGGER_UI_DIST": "SIDECAR",
     "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",
     "REDOC_DIST": "SIDECAR",
     "SWAGGER_UI_SETTINGS": {
         "deepLinking": True,
-        "persistAuthorization": True,  # Зберігати авторизацію
+        "persistAuthorization": True,
     },
-    "COMPONENT_SPLIT_REQUEST": True,  # Для коректної роботи з фільтрами
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": "/api/v1",  # Вказує префікс для API шляхів
+    "SERVERS": [
+        {"url": "http://127.0.0.1:8000", "description": "Local Development Server"},  # Додано http://
+        {
+            "url": "https://team-online-storage.onrender.com",  # Продакшен-сервер (вже коректний)
+            "description": "Production Server",
+        },
+    ],
 }
 
 
