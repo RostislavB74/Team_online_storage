@@ -336,6 +336,29 @@ class Occasion(TranslatableModel):
         return self.safe_translation_getter("name", default=_("Без назви"))  # Бере name із перекладу
 
 
+# class Gender(TranslatableModel):
+#     gender = models.CharField(max_length=20, unique=True)  # Сире значення: female, male, children, unisex
+
+#     translations = TranslatedFields(
+#         name=models.CharField(max_length=50, verbose_name=_("Назва гендеру")),
+#     )
+
+#     class Meta:
+#         verbose_name = _("Для кого")
+#         verbose_name_plural = _("Для кого")
+
+#     def save(self, *args, **kwargs):
+#         super().save(*args, **kwargs)
+#         # Оновлюємо переклади для всіх підтримуваних мов
+#         for lang in settings.PARLER_LANGUAGES_LIST:
+#             self.set_current_language(lang)
+#             self.name = settings.GENDER_TRANSLATIONS.get(lang, {}).get(self.gender, self.gender or "Unknown")
+#             super().save(*args, **kwargs)
+
+#     def __str__(self):
+#         return self.name
+
+
 class Gender(models.Model):
     GENDER_CHOICES = [
         ("female", _("Жіноче")),
@@ -451,6 +474,7 @@ class SubProducts(models.Model):
 
 class ProductAttributes(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="attributes")
+    # gender = models.ForeignKey("Gender", on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Gender"))
     gender = models.CharField(
         "Gender",
         max_length=20,

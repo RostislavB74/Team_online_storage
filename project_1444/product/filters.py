@@ -35,6 +35,8 @@ class ProductFilter(filters.FilterSet):
     occasions = filters.CharFilter(method="filter_occasions")
     year_collection = filters.CharFilter(method="filter_year_collection")
     subproducts = filters.CharFilter(method="filter_subproducts")
+    size = filters.CharFilter(method="filter_size")
+    # gender = filters.CharFilter(method="filter_gender")
 
     class Meta:
         model = Product
@@ -100,6 +102,25 @@ class ProductFilter(filters.FilterSet):
     def filter_subproducts(self, queryset, name, value):
         subproducts = value.split(",")
         return queryset.filter(subproducts__article__in=subproducts).distinct()
+
+    def filter_size(self, queryset, name, value):
+        # Нормалізуємо значення: замінюємо ',' на '.' і перетворюємо на float
+        normalized_value = value.replace(",", ".")
+        try:
+            size_float = float(normalized_value)
+        except ValueError:
+            return queryset.none()  # Якщо не вдалося перетворити, повертаємо пустий queryset
+
+        # Фільтруємо продукти, де є subproduct з size, близьким до заданого (наприклад, ±0.5)
+        return queryset.filter(
+            Q(subproducts__size__gte=size_float - 0.25) & Q(subproducts__size__lte=size_float + 0.25)
+            | Q(subproducts__length__gte=size_float - 0.25) & Q(subproducts__length__lte=size_float + 0.25)
+            | Q(subproducts__max_length__gte=size_float - 0.25) & Q(subproducts__max_length__lte=size_float + 0.25)
+        ).distinct()
+
+    # def filter_gender(self, queryset, name, value):
+    #     lang=get_language_code(self.request)
+    #     return queryset.filter(productattributes__gender=value).distinct()
 
 
 # class ProductFilter(filters.FilterSet):

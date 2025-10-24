@@ -28,7 +28,7 @@ repos:
 
       - id: spectacular-openapi
         name: generate openapi.yaml
-        entry: python scripts/generate_openapi.py
+        entry: D:/Team_online_storage/.venv/Scripts/python.exe d:/Team_online_storage/scripts/generate_openapi.py
         language: system
         pass_filenames: false
         files: "project_1444/.*(urls|views|serializers|api)\\.py$"
