@@ -16,11 +16,18 @@ from . import __version__
 from .settings_base import env, BASE_DIR
 from .settings_cache import REDIS_URL, CACHES, SESSION_ENGINE  # noqa
 
-if "TESTS" in os.environ:
-    # ТІЛЬКИ tests/ папка
-    TEST_RUNNER = "django.test.runner.DiscoverRunner"
-    TEST_DISCOVERY_TIMEOUT = 10
-    TEST_INCLUDE = "tests.*"  # ТІЛЬКИ tests/
+# ========================================
+# PYTEST + DJANGO ТЕСТИ
+# ========================================
+
+if "PYTEST_CURRENT_TEST" in os.environ:  # pytest
+    TEST_RUNNER = "pytest_django.runner.DjangoRunner"
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.InMemoryStorage"
+    PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
+
+if "TESTS" in os.environ:  # manage.py test
+    TEST_RUNNER = "pytest_django.runner.DjangoRunner"
+    TEST_INCLUDE = "tests.*"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
