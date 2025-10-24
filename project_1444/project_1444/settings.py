@@ -21,12 +21,10 @@ from .settings_cache import REDIS_URL, CACHES, SESSION_ENGINE  # noqa
 # ========================================
 
 if "PYTEST_CURRENT_TEST" in os.environ:  # pytest
-    TEST_RUNNER = "pytest_django.runner.DjangoRunner"
     DEFAULT_FILE_STORAGE = "django.core.files.storage.InMemoryStorage"
     PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
 
 if "TESTS" in os.environ:  # manage.py test
-    TEST_RUNNER = "pytest_django.runner.DjangoRunner"
     TEST_INCLUDE = "tests.*"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -102,6 +100,7 @@ INSTALLED_APPS = [
     "warehouse",
     "discounts",
     "tcategories",
+    "project_1444.tests",
     # 'versatileimagefield',
     # "django_ratelimit",
 ]
