@@ -100,7 +100,7 @@ INSTALLED_APPS = [
     "warehouse",
     "discounts",
     "tcategories",
-    "project_1444.tests",
+    "tests",
     # 'versatileimagefield',
     # "django_ratelimit",
 ]
