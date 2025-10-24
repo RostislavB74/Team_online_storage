@@ -1,8 +1,9 @@
 from decimal import Decimal
-
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.text import slugify
+from django.conf import settings
+from django.utils.translation import get_language
 
 
 def save_with_translation(instance, *args, **kwargs):
@@ -19,9 +20,7 @@ def save_with_translation(instance, *args, **kwargs):
     except instance.translations.model.DoesNotExist:
         name = getattr(instance, "name", "translation")  # Переконуємося, що є ім'я
         slug = slugify(name)  # Генеруємо slug
-        translation = instance.translations.create(
-            language_code=current_language, name=name, slug=slug
-        )
+        translation = instance.translations.create(language_code=current_language, name=name, slug=slug)
     if not translation.slug and translation.name:
         translation.slug = slugify(translation.name)
         translation.save()  # Зберігаємо переклад окремо
@@ -43,15 +42,8 @@ def get_discounted_price(user, subproduct):
     discounts = []
 
     # 1. Знижка на день народження
-    if (
-        user
-        and user.is_authenticated
-        and hasattr(user, "profile")
-        and user.profile.birthday
-    ):
-        print(
-            f"Checking birthday for user: {user.username}, Birthday: {user.profile.birthday}"
-        )
+    if user and user.is_authenticated and hasattr(user, "profile") and user.profile.birthday:
+        print(f"Checking birthday for user: {user.username}, Birthday: {user.profile.birthday}")
         today = timezone.now().date()
         print(f"Today: {today}")
         birthday = user.profile.birthday.replace(year=today.year)
@@ -96,9 +88,7 @@ def get_discounted_price(user, subproduct):
 
         if personal_discounts.exists():
             max_discount = personal_discounts.order_by("-discount_percentage").first()
-            print(
-                f"Personal discount for user: {user.username}, Discount: {max_discount.discount_percentage}%"
-            )
+            print(f"Personal discount for user: {user.username}, Discount: {max_discount.discount_percentage}%")
             discounts.append(
                 {
                     "type": "personal",
@@ -137,3 +127,42 @@ def get_discounted_price(user, subproduct):
         "old_price": original_price,
         "discount_applied": final_discount,
     }
+
+
+def get_language_from_accept_header(request) -> str:
+    """
+    Пріоритет: query lang > Accept-Language header > default
+
+    Args:
+        request: Django request object (передається ЗНАЗУ!)
+
+    Returns:
+        str: 'en', 'uk' або default LANGUAGE_CODE
+    """
+    # 1. Query параметр lang
+    lang = request.query_params.get("lang")  # ✅ request - ПАРАМЕТР
+    if lang:
+        print(f"Language from query param 'lang': '{lang}'")
+        return lang
+
+    # 2. Accept-Language HEADER
+    accept_language = request.META.get("HTTP_ACCEPT_LANGUAGE", "")  # ✅ request.META
+    print(f"Raw Accept-Language header: '{accept_language}'")
+
+    if accept_language:
+        languages = accept_language.split(",")
+        for lang_part in languages:
+            lang = lang_part.strip().split(";")[0].split("-")[0].lower()
+            if lang in dict(settings.LANGUAGES):
+                print(f"Found valid language from Accept-Language: '{lang}'")
+                return lang
+
+    # 3. Fallback
+    lang = get_language()
+    print(f"Fallback to default language: '{lang}'")
+    return lang
+
+
+def get_language_code(request) -> str:
+    """Alias для зворотної сумісності"""
+    return get_language_from_accept_header(request)

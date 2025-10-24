@@ -52,6 +52,8 @@ social-auth-app-django = "^5.4.3"
 drf-spectacular-sidecar = "^2025.9.1"
 certifi = "^2025.8.3"
 django-anymail = {extras = ["brevo"], version = "^13.1"}
+pytest = "^8.4.2"
+pytest-django = "^4.11.1"
 
 
 [tool.poetry.group.deploy.dependencies]
