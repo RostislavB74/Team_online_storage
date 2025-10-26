@@ -111,6 +111,11 @@ paths:
         schema:
           type: string
       - in: query
+        name: gender
+        schema:
+          type: string
+        description: Фільтр за гендером (female, male, unisex, children)
+      - in: query
         name: is_ukrainian_cashback
         schema:
           type: boolean
@@ -1173,6 +1178,11 @@ paths:
         name: gemstone
         schema:
           type: string
+      - in: query
+        name: gender
+        schema:
+          type: string
+        description: Фільтр за гендером (female, male, unisex, children)
       - in: query
         name: is_ukrainian_cashback
         schema:
@@ -3263,6 +3273,9 @@ components:
         status_display:
           type: string
           readOnly: true
+        gender:
+          type: string
+          readOnly: true
         weaving_type:
           type: string
           readOnly: true
@@ -3275,6 +3288,7 @@ components:
       required:
       - clasp_type
       - coating_material
+      - gender
       - id
       - status_display
       - weaving_type

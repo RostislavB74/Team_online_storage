@@ -14,7 +14,7 @@ from product.models import (
     # Styles,
 )
 from utils.language_code import get_language_code
-from addons.filters import CommaSeparatedIntegerListFilter  # Імпортуємо твою функцію
+from addons.filters import CommaSeparatedIntegerListFilter
 
 
 class ProductFilter(filters.FilterSet):
@@ -22,9 +22,7 @@ class ProductFilter(filters.FilterSet):
     subcategories = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
     year_collection_range = filters.RangeFilter(field_name="year_collection")
     name = filters.CharFilter(method="filter_name")
-    # material = filters.CharFilter(method="filter_material")
     material_name = filters.CharFilter(method="filter_material_name")
-    # color = filters.CharFilter(method="filter_color")
     color_name = filters.CharFilter(method="filter_color_name")
     gemstone = filters.CharFilter(method="filter_gemstone")
     price_min = filters.NumberFilter(field_name="subproducts__price", lookup_expr="gte")
@@ -37,15 +35,17 @@ class ProductFilter(filters.FilterSet):
     subproducts = filters.CharFilter(method="filter_subproducts")
     size = filters.CharFilter(method="filter_size")
     # gender = filters.CharFilter(method="filter_gender")
+    gender = filters.CharFilter(method="filter_gender", help_text="Фільтр за гендером (female, male, unisex, children)")
 
     class Meta:
         model = Product
         fields = (
-            "category_id",  # Змінено з "category"
-            "subcategory_id",  # Змінено з "subcategory"
-            "collection_id",  # Змінено з "collection", якщо collection — ForeignKey
+            "category_id",  #
+            "subcategory_id",  #
+            "collection_id",  #
             "year_collection",
             "is_ukrainian_cashback",
+            "gender",
         )
 
     def filter_name(self, queryset, name, value):
@@ -53,55 +53,50 @@ class ProductFilter(filters.FilterSet):
         return (
             queryset.filter(
                 Q(translations__name__icontains=value) | Q(description__translations__text__icontains=value)
-            )
-            .translated(lang)
-            .distinct()
+            ).translated(lang)
+            # .distinct()
         )
-
-    # def filter_material(self, queryset, name, value):
-    #     return queryset.filter(materials__material__material=value).distinct()
 
     def filter_material_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return (
-            queryset.filter(materials__material__translations__material_name__iexact=value).translated(lang).distinct()
-        )
-
-    # def filter_color(self, queryset, name, value):
-    #     return queryset.filter(materials__material__color=value).distinct()
+        return queryset.filter(materials__material__translations__material_name__iexact=value).translated(
+            lang
+        )  # .distinct()
 
     def filter_color_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(materials__material__translations__color_name__iexact=value).translated(lang).distinct()
+        return queryset.filter(materials__material__translations__color_name__iexact=value).translated(
+            lang
+        )  # .distinct()
 
     def filter_gemstone(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(gemstones__gemstone__translations__name__iexact=value).translated(lang).distinct()
+        return queryset.filter(gemstones__gemstone__translations__name__iexact=value).translated(lang)  # .distinct()
 
     def filter_statuses(self, queryset, name, value):
         lang = get_language_code(self.request)
         statuses = value.split(",")
-        return queryset.filter(statuses__translations__name__in=statuses).translated(lang).distinct()
+        return queryset.filter(statuses__translations__name__in=statuses).translated(lang)  # .distinct()
 
     def filter_collection(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(collection__translations__name__icontains=value).translated(lang).distinct()
+        return queryset.filter(collection__translations__name__icontains=value).translated(lang)  # .distinct()
 
     def filter_design(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(design__translations__name__icontains=value).translated(lang).distinct()
+        return queryset.filter(design__translations__name__icontains=value).translated(lang)  # .distinct()
 
     def filter_occasions(self, queryset, name, value):
         lang = get_language_code(self.request)
         occasions = value.split(",")
-        return queryset.filter(occasions__translations__name__in=occasions).translated(lang).distinct()
+        return queryset.filter(occasions__translations__name__in=occasions).translated(lang)  # .distinct()
 
     def filter_year_collection(self, queryset, name, value):
-        return queryset.filter(year_collection=value).distinct()
+        return queryset.filter(year_collection=value)  # .distinct()
 
     def filter_subproducts(self, queryset, name, value):
         subproducts = value.split(",")
-        return queryset.filter(subproducts__article__in=subproducts).distinct()
+        return queryset.filter(subproducts__article__in=subproducts)  # .distinct()
 
     def filter_size(self, queryset, name, value):
         # Нормалізуємо значення: замінюємо ',' на '.' і перетворюємо на float
@@ -111,118 +106,16 @@ class ProductFilter(filters.FilterSet):
         except ValueError:
             return queryset.none()  # Якщо не вдалося перетворити, повертаємо пустий queryset
 
-        # Фільтруємо продукти, де є subproduct з size, близьким до заданого (наприклад, ±0.5)
         return queryset.filter(
             Q(subproducts__size__gte=size_float - 0.25) & Q(subproducts__size__lte=size_float + 0.25)
             | Q(subproducts__length__gte=size_float - 0.25) & Q(subproducts__length__lte=size_float + 0.25)
             | Q(subproducts__max_length__gte=size_float - 0.25) & Q(subproducts__max_length__lte=size_float + 0.25)
-        ).distinct()
+        )  # .distinct()
 
-    # def filter_gender(self, queryset, name, value):
-    #     lang=get_language_code(self.request)
-    #     return queryset.filter(productattributes__gender=value).distinct()
-
-
-# class ProductFilter(filters.FilterSet):
-#     categories = CommaSeparatedIntegerListFilter(field_name="category_id")
-#     subcategories = CommaSeparatedIntegerListFilter(field_name="subcategory_id")
-#     year_collection_range = filters.RangeFilter(field_name="year_collection")
-#     name = filters.CharFilter(method="filter_name")
-#     material = filters.CharFilter(method="filter_material")
-#     gemstone = filters.CharFilter(method="filter_gemstone")
-#     price_min = filters.NumberFilter(field_name="subproducts__price", lookup_expr="gte")
-#     price_max = filters.NumberFilter(field_name="subproducts__price", lookup_expr="lte")
-#     statuses = filters.CharFilter(method="filter_statuses")
-#     collection = filters.CharFilter(method="filter_collection")
-#     design = filters.CharFilter(method="filter_design")
-#     occasions = filters.CharFilter(method="filter_occasions")
-#     year_collection = filters.CharFilter(method="filter_year_collection")
-#     subproducts = filters.CharFilter(method="filter_subproducts")
-
-#     class Meta:
-#         model = Product
-#         fields = (
-#             "category",
-#             "subcategory",
-#             "collection",
-#             "year_collection",
-#             "is_ukrainian_cashback",
-#             "name",
-#             "material",
-#             "gemstone",
-#             "price_min",
-#             "price_max",
-#             "statuses",
-#             "occasions",
-#             "subproducts",
-#         )
-
-#     def filter_name(self, queryset, name, value):
-#         lang = get_language_code(self.request)
-#         return (
-#             queryset.filter(
-#                 Q(translations__name__icontains=value)
-#                 | Q(description__translations__text__icontains=value)
-#             )
-#             .translated(lang)
-#             .distinct()
-#         )
-
-#     def filter_material(self, queryset, name, value):
-#         lang = get_language_code(self.request)
-#         return (
-#             queryset.filter(
-#                 materials__material__translations__material_name__iexact=value
-#             )
-#             .translated(lang)
-#             .distinct()
-#         )
-
-#     def filter_gemstone(self, queryset, name, value):
-#         lang = get_language_code(self.request)
-#         return (
-#             queryset.filter(gemstones__gemstone__translations__name__iexact=value)
-#             .translated(lang)
-#             .distinct()
-#         )
-
-#     def filter_statuses(self, queryset, name, value):
-#         # Припустимо, statuses — це список через кому, наприклад, "available,sold_out"
-#         statuses = value.split(",")
-#         return queryset.filter(status__in=statuses).distinct()
-
-#     def filter_collection(self, queryset, name, value):
-#         lang = get_language_code(self.request)
-#         return (
-#             queryset.filter(translations__collection__icontains=value)
-#             .translated(lang)
-#             .distinct()
-#         )
-
-#     def filter_design(self, queryset, name, value):
-#         lang = get_language_code(self.request)
-#         return (
-#             queryset.filter(translations__design__icontains=value)
-#             .translated(lang)
-#             .distinct()
-#         )
-
-#     def filter_occasions(self, queryset, name, value):
-#         lang = get_language_code(self.request)
-#         occasions = value.split(",")
-#         return (
-#             queryset.filter(occasions__translations__name__in=occasions)
-#             .translated(lang)
-#             .distinct()
-#         )
-
-#     def filter_year_collection(self, queryset, name, value):
-#         return queryset.filter(year_collection=value).distinct()
-
-#     def filter_subproducts(self, queryset, name, value):
-#         # Припустимо, subproducts фільтруються за артикулом або ID
-#         subproducts = value.split(",")
-#         return queryset.filter(subproducts__article__in=subproducts).distinct()
+    def filter_gender(self, queryset, name, value):
+        """Фільтр за гендером (через кому, якщо декілька значень)."""
+        genders = [v.strip().lower() for v in value.split(",")]
+        return queryset.filter(attributes__gender__in=genders)
 
 
 class CategoriesFilter(django_filters.FilterSet):
@@ -238,7 +131,7 @@ class CategoriesFilter(django_filters.FilterSet):
 
     def filter_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(translations__name__icontains=value).translated(lang).distinct()
+        return queryset.filter(translations__name__icontains=value).translated(lang)  # .distinct()
 
 
 class MaterialsFilter(filters.FilterSet):
@@ -262,11 +155,11 @@ class MaterialsFilter(filters.FilterSet):
 
     def filter_material_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(translations__material_name__iexact=value).translated(lang).distinct()
+        return queryset.filter(translations__material_name__iexact=value).translated(lang)  # .distinct()
 
     def filter_color_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(translations__color_name__iexact=value).translated(lang).distinct()
+        return queryset.filter(translations__color_name__iexact=value).translated(lang)  # .distinct()
 
 
 class GemstonesFilter(filters.FilterSet):
@@ -278,7 +171,7 @@ class GemstonesFilter(filters.FilterSet):
 
     def filter_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(translations__name__iexact=value).translated(lang).distinct()
+        return queryset.filter(translations__name__iexact=value).translated(lang)  # .distinct()
 
 
 class OccasionsFilter(django_filters.FilterSet):
@@ -290,7 +183,7 @@ class OccasionsFilter(django_filters.FilterSet):
 
     def filter_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(translations__name__iexact=value).translated(lang).distinct()
+        return queryset.filter(translations__name__iexact=value).translated(lang)  # .distinct()
 
 
 class CollectionsFilter(django_filters.FilterSet):
@@ -302,4 +195,4 @@ class CollectionsFilter(django_filters.FilterSet):
 
     def filter_name(self, queryset, name, value):
         lang = get_language_code(self.request)
-        return queryset.filter(translations__name__iexact=value).translated(lang).distinct()
+        return queryset.filter(translations__name__iexact=value).translated(lang)  # .distinct()
